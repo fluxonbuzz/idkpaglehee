@@ -37,12 +37,12 @@ const featuredMods = [
   {
     title: "Crick Fusion",
     description: "Complete cricket gameplay overhaul with realistic physics",
-    image: "/assets/fusion.webm",
+    image: "/assets/fusion.png",
     href: "/mods/crick-fusion",
   },
     title: "Crick fusion X",
     description: "",
-    image: "/assets/fusionx.webm",
+    image: "/assets/fusionx.png",
     href: "/mods/battlefield",
   },
 ];
