@@ -4,10 +4,11 @@ import styles from "@/styles/Home.module.css";
 import { Button } from "@/components/ui/button";
 import {
   ChevronRight,
-  Code2,
-  Frame,
-  SearchCheck,
-  Eye,
+  Gamepad2,
+  Sword,
+  Sparkles,
+  Download,
+  Users,
   MonitorSmartphone,
 } from "lucide-react";
 import { TriangleDownIcon } from "@radix-ui/react-icons";
@@ -27,75 +28,70 @@ import {
 import VanillaTilt from "vanilla-tilt";
 import { motion } from "framer-motion";
 
-const aboutStats = [
-  { label: "Years of experience", value: "3+" },
-  { label: "Technologies mastered", value: "5+" },
-  { label: "Companies worked with", value: "15+" },
+const modStats = [
+  { label: "Total Mods Available", value: "50+" },
+  { label: "Active Community Members", value: "10K+" },
+  { label: "Supported Games", value: "15+" },
 ];
 
-const projects = [
+const featuredMods = [
   {
-    title: "Unqueue",
-    description: "E-commerce platform for selling digital products",
-    image: "/assets/unqueue.webm",
-    href: "https://unqueue.shop/",
+    title: "Crick Fusion Ultra",
+    description: "Complete cricket gameplay overhaul with realistic physics",
+    image: "/assets/crick-fusion.webm",
+    href: "/mods/crick-fusion",
   },
   {
-    title: "InfiniteVPS",
-    description: "High performance VPS hosting solution",
-    image: "/assets/infinitevps.webm",
-    href: "#",
+    title: "Shiva X Graphics Pack",
+    description: "4K textures and ray tracing for enhanced visuals",
+    image: "/assets/shiva-graphics.webm",
+    href: "/mods/shiva-graphics",
   },
   {
-    title: "TranslateBot",
-    description: "Powerful Multilingual Translation Bot for Discord",
-    image: "/assets/translate_bot.webm",
-    href: "https://translatebot.app/",
+    title: "Battlefield Overhaul",
+    description: "New weapons, maps, and combat mechanics",
+    image: "/assets/battlefield-mod.webm",
+    href: "/mods/battlefield",
   },
   {
-    title: "Wrona",
-    description: "Robotics-focused technology company",
-    image: "/assets/wrona.jpeg",
-    href: "https://www.wrona.com/",
+    title: "Racing Legends",
+    description: "100+ new cars and tracks for racing games",
+    image: "/assets/racing-mod.webm",
+    href: "/mods/racing-legends",
   },
   {
-    title: "This website",
-    description: "My personal website",
-    image: "/assets/portfolio.webm",
-    href: "https://github.com/wendoj/portfolio",
+    title: "Zombie Apocalypse",
+    description: "Complete zombie survival experience",
+    image: "/assets/zombie-mod.webm",
+    href: "/mods/zombie-apocalypse",
   },
 ];
 
-const services = [
+const modFeatures = [
   {
-    service: "Frontend Development",
-    description:
-      "Creating stellar user interfaces and web experiences using the latest technologies.",
-    icon: Code2,
+    feature: "Gameplay Enhancements",
+    description: "Transform your games with new mechanics and systems",
+    icon: Gamepad2,
   },
   {
-    service: "UX Design",
-    description:
-      "Building intuitive, user-centric designs that drive engagement and conversion.",
-    icon: Frame,
+    feature: "HD Graphics",
+    description: "Stunning visual upgrades with 4K textures and effects",
+    icon: Sparkles,
   },
   {
-    service: "SEO Optimization",
-    description:
-      "Enhancing your website's visibility in search engines for increased organic traffic.",
-    icon: SearchCheck,
+    feature: "New Content",
+    description: "Additional maps, characters, weapons and more",
+    icon: Sword,
   },
   {
-    service: "Responsive Design",
-    description:
-      "Designing websites that look and perform equally well on all devices and screen sizes.",
-    icon: MonitorSmartphone,
+    feature: "Multiplayer Support",
+    description: "Mods designed for online play with friends",
+    icon: Users,
   },
   {
-    service: "Backend Development",
-    description:
-      "Developing robust, scalable server-side logic for a wide range of web applications.",
-    icon: Eye,
+    feature: "Easy Installation",
+    description: "One-click install for most mods with our manager",
+    icon: Download,
   },
 ];
 
@@ -135,7 +131,6 @@ export default function Home() {
 
         if (li.getAttribute("href") === `#${current}`) {
           li.classList.add("nav-active");
-          console.log(li.getAttribute("href"));
         }
       });
     }
@@ -177,7 +172,7 @@ export default function Home() {
       <div ref={refScrollContainer}>
         <Gradient />
 
-        {/* Intro */}
+        {/* Hero Section */}
         <section
           id="home"
           data-scroll-section
@@ -190,9 +185,9 @@ export default function Home() {
               data-scroll-speed=".09"
               className="flex flex-row items-center space-x-1.5"
             >
-              <span className={styles.pill}>next.js</span>
-              <span className={styles.pill}>tailwindcss</span>
-              <span className={styles.pill}>typescript</span>
+              <span className={styles.pill}>mods</span>
+              <span className={styles.pill}>gaming</span>
+              <span className={styles.pill}>community</span>
             </div>
             <div>
               <h1
@@ -202,11 +197,11 @@ export default function Home() {
                 data-scroll-direction="horizontal"
               >
                 <span className="text-6xl tracking-tighter text-foreground 2xl:text-8xl">
-                  Welcome, To
+                  Welcome To
                   <br />
                 </span>
                 <span className="clash-grotesk text-gradient text-6xl 2xl:text-8xl">
-                  Shiva X Mods.
+                  Shiva X Mods
                 </span>
               </h1>
               <p
@@ -215,7 +210,7 @@ export default function Home() {
                 data-scroll-speed=".06"
                 className="mt-1 max-w-lg tracking-tight text-muted-foreground 2xl:text-xl"
               >
-                The og website for our games and mods.
+                The ultimate destination for high-quality game modifications
               </p>
             </div>
             <span
@@ -224,16 +219,16 @@ export default function Home() {
               data-scroll-speed=".06"
               className="flex flex-row items-center space-x-1.5 pt-6"
             >
-              <Link href="discord.com" passHref>
+              <Link href="/downloads" passHref>
                 <Button>
-                  Download Crick Fusion<ChevronRight className="ml-1 h-4 w-4" />
+                  Download Mods <ChevronRight className="ml-1 h-4 w-4" />
                 </Button>
               </Link>
               <Button
                 variant="outline"
-                onClick={() => scrollTo(document.querySelector("#about"))}
+                onClick={() => scrollTo(document.querySelector("#features"))}
               >
-                Learn more
+                View Features
               </Button>
             </span>
 
@@ -243,8 +238,7 @@ export default function Home() {
                 isScrolled && styles["scroll--hidden"],
               )}
             >
-              Scroll to discover{" "}
-              <TriangleDownIcon className="mt-1 animate-bounce" />
+              Scroll to explore <TriangleDownIcon className="mt-1 animate-bounce" />
             </div>
           </div>
           <div
@@ -254,24 +248,24 @@ export default function Home() {
             className="mt-14 h-full w-full xl:mt-0"
           >
             <Suspense fallback={<span>Loading...</span>}>
-              <Spline scene="/assets/scene.splinecode" />
+              <Spline scene="/assets/game-scene.splinecode" />
             </Suspense>
           </div>
         </section>
 
-        {/* About */}
-        <section id="about" data-scroll-section>
+        {/* Stats Section */}
+        <section id="stats" data-scroll-section>
           <div
             data-scroll
             data-scroll-speed=".4"
             data-scroll-position="top"
             className="my-14 flex max-w-6xl flex-col justify-start space-y-10"
           >
-            <h2 className="py-16  pb-2 text-3xl font-light leading-normal tracking-tighter text-foreground xl:text-[40px]">
-              Khelke pata chal jayega
+            <h2 className="py-16 pb-2 text-3xl font-light leading-normal tracking-tighter text-foreground xl:text-[40px]">
+              Transforming gaming experiences through innovative mods
             </h2>
             <div className="grid grid-cols-2 gap-8 xl:grid-cols-3">
-              {aboutStats.map((stat) => (
+              {modStats.map((stat) => (
                 <div
                   key={stat.label}
                   className="flex flex-col items-center text-center xl:items-start xl:text-start"
@@ -288,9 +282,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Projects */}
-        <section id="projects" data-scroll-section>
-          {/* Gradient */}
+        {/* Mods Section */}
+        <section id="mods" data-scroll-section>
           <div className="relative isolate -z-10">
             <div
               className="absolute inset-x-0 -top-40 transform-gpu overflow-hidden blur-[100px] sm:-top-80 lg:-top-60"
@@ -307,27 +300,27 @@ export default function Home() {
           </div>
           <div data-scroll data-scroll-speed=".4" className="my-64">
             <span className="text-gradient clash-grotesk text-sm font-semibold tracking-tighter">
-              ✨ Projects
+              🎮 Featured Mods
             </span>
             <h2 className="mt-3 text-4xl font-semibold tracking-tight tracking-tighter xl:text-6xl">
-              Streamlined Moding Experience.
+              Premium Game Modifications
             </h2>
             <p className="mt-1.5 text-base tracking-tight text-muted-foreground xl:text-lg">
-              I&apos;ve worked on a variety of projects,Here are:
+              Enhance your gaming experience with our top-rated mods
             </p>
 
             {/* Carousel */}
             <div className="mt-14">
               <Carousel setApi={setCarouselApi} className="w-full">
                 <CarouselContent>
-                  {projects.map((project) => (
-                    <CarouselItem key={project.title} className="md:basis-1/2">
+                  {featuredMods.map((mod) => (
+                    <CarouselItem key={mod.title} className="md:basis-1/2">
                       <Card id="tilt">
                         <CardHeader className="p-0">
-                          <Link href={project.href} target="_blank" passHref>
-                            {project.image.endsWith(".webm") ? (
+                          <Link href={mod.href} target="_blank" passHref>
+                            {mod.image.endsWith(".webm") ? (
                               <video
-                                src={project.image}
+                                src={mod.image}
                                 autoPlay
                                 loop
                                 muted
@@ -335,8 +328,8 @@ export default function Home() {
                               />
                             ) : (
                               <Image
-                                src={project.image}
-                                alt={project.title}
+                                src={mod.image}
+                                alt={mod.title}
                                 width={600}
                                 height={300}
                                 quality={100}
@@ -347,7 +340,7 @@ export default function Home() {
                         </CardHeader>
                         <CardContent className="absolute bottom-0 w-full bg-background/50 backdrop-blur">
                           <CardTitle className="border-t border-white/5 p-4 text-base font-normal tracking-tighter">
-                            {project.description}
+                            {mod.description}
                           </CardTitle>
                         </CardContent>
                       </Card>
@@ -361,14 +354,14 @@ export default function Home() {
                 <span className="font-semibold">
                   {current} / {count}
                 </span>{" "}
-                projects
+                featured mods
               </div>
             </div>
           </div>
         </section>
 
-        {/* Services */}
-        <section id="services" data-scroll-section>
+        {/* Features Section */}
+        <section id="features" data-scroll-section>
           <div
             data-scroll
             data-scroll-speed=".4"
@@ -387,28 +380,28 @@ export default function Home() {
             >
               <div className="flex flex-col py-6 xl:p-6">
                 <h2 className="text-4xl font-medium tracking-tight">
-                  Need more info?
+                  Why choose
                   <br />
                   <span className="text-gradient clash-grotesk tracking-normal">
-                    I got you.
+                    Shiva X Mods?
                   </span>
                 </h2>
                 <p className="mt-2 tracking-tighter text-secondary-foreground">
-                  Here are some of the services I offer. If you have any
-                  questions, feel free to reach out.
+                  We deliver premium quality mods with regular updates and
+                  community support
                 </p>
               </div>
-              {services.map((service) => (
+              {modFeatures.map((feature) => (
                 <div
-                  key={service.service}
+                  key={feature.feature}
                   className="flex flex-col items-start rounded-md bg-white/5 p-14 shadow-md backdrop-blur transition duration-300 hover:-translate-y-0.5 hover:bg-white/10 hover:shadow-md"
                 >
-                  <service.icon className="my-6 text-primary" size={20} />
+                  <feature.icon className="my-6 text-primary" size={20} />
                   <span className="text-lg tracking-tight text-foreground">
-                    {service.service}
+                    {feature.feature}
                   </span>
                   <span className="mt-2 tracking-tighter text-muted-foreground">
-                    {service.description}
+                    {feature.description}
                   </span>
                 </div>
               ))}
@@ -416,8 +409,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Contact */}
-        <section id="contact" data-scroll-section className="my-64">
+        {/* Community Section */}
+        <section id="community" data-scroll-section className="my-64">
           <div
             data-scroll
             data-scroll-speed=".4"
@@ -425,15 +418,14 @@ export default function Home() {
             className="flex flex-col items-center justify-center rounded-lg bg-gradient-to-br from-primary/[6.5%] to-white/5 px-8 py-16 text-center xl:py-24"
           >
             <h2 className="text-4xl font-medium tracking-tighter xl:text-6xl">
-              Let&apos;s work{" "}
-              <span className="text-gradient clash-grotesk">together.</span>
+              Join our{" "}
+              <span className="text-gradient clash-grotesk">community.</span>
             </h2>
             <p className="mt-1.5 text-base tracking-tight text-muted-foreground xl:text-lg">
-              I&apos;m currently available for freelance work and open to
-              discussing new projects.
+              Connect with thousands of mod enthusiasts and creators
             </p>
-            <Link href="mailto:wendoj@proton.me" passHref>
-              <Button className="mt-6">Get in touch</Button>
+            <Link href="https://discord.gg/shivaxmods" passHref>
+              <Button className="mt-6">Join Discord</Button>
             </Link>
           </div>
         </section>
@@ -445,7 +437,6 @@ export default function Home() {
 function Gradient() {
   return (
     <>
-      {/* Upper gradient */}
       <div className="absolute -top-40 right-0 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80">
         <svg
           className="relative left-[calc(50%-11rem)] -z-10 h-[21.1875rem] max-w-none -translate-x-1/2 rotate-[30deg] sm:left-[calc(50%-30rem)] sm:h-[42.375rem]"
@@ -472,7 +463,6 @@ function Gradient() {
         </svg>
       </div>
 
-      {/* Lower gradient */}
       <div className="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]">
         <svg
           className="relative left-[calc(50%+3rem)] h-[21.1875rem] max-w-none -translate-x-1/2 sm:left-[calc(50%+36rem)] sm:h-[42.375rem]"
