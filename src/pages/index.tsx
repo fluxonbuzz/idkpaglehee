@@ -202,11 +202,11 @@ export default function Home() {
                 data-scroll-direction="horizontal"
               >
                 <span className="text-6xl tracking-tighter text-foreground 2xl:text-8xl">
-                  Hello, I&apos;m
+                  Welcome, T&apos;o
                   <br />
                 </span>
                 <span className="clash-grotesk text-gradient text-6xl 2xl:text-8xl">
-                  WendoJ.
+                  Shiva X Mods.
                 </span>
               </h1>
               <p
@@ -215,8 +215,7 @@ export default function Home() {
                 data-scroll-speed=".06"
                 className="mt-1 max-w-lg tracking-tight text-muted-foreground 2xl:text-xl"
               >
-                An experienced full-stack website developer with a passion for
-                crafting unique digital experiences.
+                The og website for our games and mods.
               </p>
             </div>
             <span
@@ -225,9 +224,9 @@ export default function Home() {
               data-scroll-speed=".06"
               className="flex flex-row items-center space-x-1.5 pt-6"
             >
-              <Link href="mailto:wendoj@proton.me" passHref>
+              <Link href="discord.com" passHref>
                 <Button>
-                  Get in touch <ChevronRight className="ml-1 h-4 w-4" />
+                  Download Crick Fusion<ChevronRight className="ml-1 h-4 w-4" />
                 </Button>
               </Link>
               <Button
