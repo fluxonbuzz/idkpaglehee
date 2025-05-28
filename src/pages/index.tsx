@@ -29,9 +29,8 @@ import VanillaTilt from "vanilla-tilt";
 import { motion } from "framer-motion";
 
 const modStats = [
-  { label: "Total Mods Available", value: "50+" },
-  { label: "Active Community Members", value: "10K+" },
-  { label: "Supported Games", value: "15+" },
+  { label: "Active Community Members", value: "1k+" },
+  { label: "Supported Games", value: "1+" },
 ];
 
 const featuredMods = [
@@ -48,20 +47,14 @@ const featuredMods = [
     href: "/mods/shiva-graphics",
   },
   {
-    title: "Battlefield Overhaul",
-    description: "New weapons, maps, and combat mechanics",
+    title: "Crick fusion X",
+    description: "",
     image: "/assets/battlefield-mod.webm",
     href: "/mods/battlefield",
   },
   {
-    title: "Racing Legends",
-    description: "100+ new cars and tracks for racing games",
-    image: "/assets/racing-mod.webm",
-    href: "/mods/racing-legends",
-  },
-  {
-    title: "Zombie Apocalypse",
-    description: "Complete zombie survival experience",
+    title: "Crick Fusion",
+    description: "",
     image: "/assets/zombie-mod.webm",
     href: "/mods/zombie-apocalypse",
   },
