@@ -156,7 +156,7 @@ export default function Home() {
         <section
           id="home"
           data-scroll-section
-          className="flex min-h-screen w-full flex-col items-center justify-center xl:mt-0"
+          className="flex min-h-[90vh] w-full flex-col items-center justify-center xl:mt-0"
         >
           <div className={cn(styles.intro, "text-center")}>
             <div
@@ -228,9 +228,9 @@ export default function Home() {
             data-scroll
             data-scroll-speed=".4"
             data-scroll-position="top"
-            className="my-14 flex max-w-6xl flex-col justify-start space-y-10"
+            className="my-8 flex max-w-6xl flex-col justify-start space-y-10"
           >
-            <h2 className="py-16 pb-2 text-3xl font-light leading-normal tracking-tighter text-foreground xl:text-[40px]">
+            <h2 className="py-8 pb-2 text-3xl font-light leading-normal tracking-tighter text-foreground xl:text-[40px]">
               Transforming gaming experiences through innovative mods
             </h2>
             <div className="grid grid-cols-2 gap-8 xl:grid-cols-3">
@@ -267,7 +267,7 @@ export default function Home() {
               />
             </div>
           </div>
-          <div data-scroll data-scroll-speed=".4" className="my-64">
+          <div data-scroll data-scroll-speed=".4" className="my-32">
             <span className="text-gradient clash-grotesk text-sm font-semibold tracking-tighter">
               🎮 Featured Mods
             </span>
@@ -330,7 +330,7 @@ export default function Home() {
             data-scroll
             data-scroll-speed=".4"
             data-scroll-position="top"
-            className="my-24 flex flex-col justify-start space-y-10"
+            className="my-16 flex flex-col justify-start space-y-10"
           >
             <motion.div
               initial={{ opacity: 0, y: -10 }}
@@ -374,7 +374,7 @@ export default function Home() {
         </section>
 
         {/* Community Section */}
-        <section id="community" data-scroll-section className="my-64">
+        <section id="community" data-scroll-section className="my-32">
           <div className="grid gap-8 md:grid-cols-2">
             <div
               data-scroll
@@ -406,7 +406,7 @@ export default function Home() {
                 Get instant updates and announcements
               </p>
               <Link href="https://t.me/shivaxmods" passHref>
-                <Button className="mt-6" variant="secondary">
+                <Button className="mt-6">
                   Join Telegram
                 </Button>
               </Link>
