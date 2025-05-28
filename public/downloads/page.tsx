@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { Download, ArrowRight, Upload, CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { useState } from "react";
 
 export default function DownloadsPage() {
