@@ -35,28 +35,15 @@ const modStats = [
 
 const featuredMods = [
   {
-    title: "Crick Fusion Ultra",
+    title: "Crick Fusion",
     description: "Complete cricket gameplay overhaul with realistic physics",
-    image: "/assets/crick-fusion.webm",
+    image: "/assets/fusion.webm",
     href: "/mods/crick-fusion",
   },
-  {
-    title: "Shiva X Graphics Pack",
-    description: "4K textures and ray tracing for enhanced visuals",
-    image: "/assets/shiva-graphics.webm",
-    href: "/mods/shiva-graphics",
-  },
-  {
     title: "Crick fusion X",
     description: "",
-    image: "/assets/battlefield-mod.webm",
+    image: "/assets/fusionx.webm",
     href: "/mods/battlefield",
-  },
-  {
-    title: "Crick Fusion",
-    description: "",
-    image: "/assets/zombie-mod.webm",
-    href: "/mods/zombie-apocalypse",
   },
 ];
 
