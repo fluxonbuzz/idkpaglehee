@@ -24,6 +24,7 @@ const slideUp = {
 };
 
 const words = [
+  "Shiva X Mods"
   "Hello",
   "Bonjour",
   "Ciao",
