@@ -37,13 +37,13 @@ const featuredMods = [
     title: "Crick Fusion",
     description: "Complete cricket gameplay overhaul with realistic physics",
     image: "https://ik.imagekit.io/wjw1czp4c/WhatsApp%20Image%202025-05-28%20at%2022.31.36_6f635605.jpg", // Replace with your image URL
-    href: "/mods/crick-fusion",
+    href: "",
   },
   {
     title: "Crick Fusion X",
     description: "Enhanced version with more features and content",
     image: "https://cdn.discordapp.com/attachments/1337674362232242258/1377355374914703534/WhatsApp_Image_2025-05-28_at_22.31.36_5a352eee.jpg?ex=6838a9a7&is=68375827&hm=2d24d41766055cc548158a9408ba95928ec591baab63893054348b1a045f5d84&", // Replace with your image URL
-    href: "/mods/crick-fusion-x",
+    href: "",
   },
 ];
 
