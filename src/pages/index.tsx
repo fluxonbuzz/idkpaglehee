@@ -178,9 +178,9 @@ export default function Home() {
               data-scroll-speed=".09"
               className="flex flex-row items-center space-x-1.5"
             >
-              <span className={styles.pill}>mods</span>
-              <span className={styles.pill}>gaming</span>
-              <span className={styles.pill}>community</span>
+              <span className={styles.pill}>Mods</span>
+              <span className={styles.pill}>Gaming</span>
+              <span className={styles.pill}>Community</span>
             </div>
             <div>
               <h1
