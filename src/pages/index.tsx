@@ -9,9 +9,10 @@ import {
   Sparkles,
   Download,
   Users,
+  MonitorSmartphone,
 } from "lucide-react";
 import { TriangleDownIcon } from "@radix-ui/react-icons";
-import dynamic from 'next/dynamic';
+import Spline from "@splinetool/react-spline";
 import Link from "next/link";
 import { cn, scrollTo } from "@/lib/utils";
 import Image from "next/image";
@@ -26,12 +27,6 @@ import {
 } from "@/components/ui/carousel";
 import VanillaTilt from "vanilla-tilt";
 import { motion } from "framer-motion";
-
-// Dynamically import Spline to avoid SSR issues
-const Spline = dynamic(() => import('@splinetool/react-spline'), {
-  ssr: false,
-  loading: () => <div className="w-full h-full bg-gray-900/10 animate-pulse rounded-lg"></div>
-});
 
 const modStats = [
   { label: "Active Community Members", value: "1k+" },
@@ -53,9 +48,15 @@ const featuredMods = [
   },
   {
     title: "Crick fusion X",
-    description: "Advanced cricket simulation with new stadiums",
+    description: "",
     image: "/assets/battlefield-mod.webm",
     href: "/mods/battlefield",
+  },
+  {
+    title: "Crick Fusion",
+    description: "",
+    image: "/assets/zombie-mod.webm",
+    href: "/mods/zombie-apocalypse",
   },
 ];
 
@@ -233,44 +234,193 @@ export default function Home() {
               Scroll to explore <TriangleDownIcon className="mt-1 animate-bounce" />
             </div>
           </div>
-          
-          {/* 3D Spline Component - Updated with proper styling */}
           <div
             data-scroll
             data-scroll-speed="-.01"
-            className="mt-14 w-full h-[400px] xl:h-[600px] xl:w-[600px] relative"
+            id={styles["canvas-container"]}
+            className="mt-14 h-full w-full xl:mt-0"
           >
-            <Spline 
-              scene="https://prod.spline.design/Br2ec3WjQ8WjEmEb/scene.splinecode"
-              style={{
-                width: '100%',
-                height: '100%',
-                borderRadius: '12px',
-                overflow: 'hidden'
-              }}
-            />
+            <Suspense fallback={<span>Loading...</span>}>
+              <Spline scene="/assets/game-scene.splinecode" />
+            </Suspense>
           </div>
         </section>
 
-        {/* Rest of your sections remain exactly the same */}
         {/* Stats Section */}
         <section id="stats" data-scroll-section>
-          {/* ... existing stats section code ... */}
+          <div
+            data-scroll
+            data-scroll-speed=".4"
+            data-scroll-position="top"
+            className="my-14 flex max-w-6xl flex-col justify-start space-y-10"
+          >
+            <h2 className="py-16 pb-2 text-3xl font-light leading-normal tracking-tighter text-foreground xl:text-[40px]">
+              Transforming gaming experiences through innovative mods
+            </h2>
+            <div className="grid grid-cols-2 gap-8 xl:grid-cols-3">
+              {modStats.map((stat) => (
+                <div
+                  key={stat.label}
+                  className="flex flex-col items-center text-center xl:items-start xl:text-start"
+                >
+                  <span className="clash-grotesk text-gradient text-4xl font-semibold tracking-tight xl:text-6xl">
+                    {stat.value}
+                  </span>
+                  <span className="tracking-tight text-muted-foreground xl:text-lg">
+                    {stat.label}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
         </section>
 
         {/* Mods Section */}
         <section id="mods" data-scroll-section>
-          {/* ... existing mods section code ... */}
+          <div className="relative isolate -z-10">
+            <div
+              className="absolute inset-x-0 -top-40 transform-gpu overflow-hidden blur-[100px] sm:-top-80 lg:-top-60"
+              aria-hidden="true"
+            >
+              <div
+                className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-primary via-primary to-secondary opacity-10 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
+                style={{
+                  clipPath:
+                    "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)",
+                }}
+              />
+            </div>
+          </div>
+          <div data-scroll data-scroll-speed=".4" className="my-64">
+            <span className="text-gradient clash-grotesk text-sm font-semibold tracking-tighter">
+              🎮 Featured Mods
+            </span>
+            <h2 className="mt-3 text-4xl font-semibold tracking-tight tracking-tighter xl:text-6xl">
+              Premium Game Modifications
+            </h2>
+            <p className="mt-1.5 text-base tracking-tight text-muted-foreground xl:text-lg">
+              Enhance your gaming experience with our top-rated mods
+            </p>
+
+            {/* Carousel */}
+            <div className="mt-14">
+              <Carousel setApi={setCarouselApi} className="w-full">
+                <CarouselContent>
+                  {featuredMods.map((mod) => (
+                    <CarouselItem key={mod.title} className="md:basis-1/2">
+                      <Card id="tilt">
+                        <CardHeader className="p-0">
+                          <Link href={mod.href} target="_blank" passHref>
+                            {mod.image.endsWith(".webm") ? (
+                              <video
+                                src={mod.image}
+                                autoPlay
+                                loop
+                                muted
+                                className="aspect-video h-full w-full rounded-t-md bg-primary object-cover"
+                              />
+                            ) : (
+                              <Image
+                                src={mod.image}
+                                alt={mod.title}
+                                width={600}
+                                height={300}
+                                quality={100}
+                                className="aspect-video h-full w-full rounded-t-md bg-primary object-cover"
+                              />
+                            )}
+                          </Link>
+                        </CardHeader>
+                        <CardContent className="absolute bottom-0 w-full bg-background/50 backdrop-blur">
+                          <CardTitle className="border-t border-white/5 p-4 text-base font-normal tracking-tighter">
+                            {mod.description}
+                          </CardTitle>
+                        </CardContent>
+                      </Card>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious />
+                <CarouselNext />
+              </Carousel>
+              <div className="py-2 text-center text-sm text-muted-foreground">
+                <span className="font-semibold">
+                  {current} / {count}
+                </span>{" "}
+                featured mods
+              </div>
+            </div>
+          </div>
         </section>
 
         {/* Features Section */}
         <section id="features" data-scroll-section>
-          {/* ... existing features section code ... */}
+          <div
+            data-scroll
+            data-scroll-speed=".4"
+            data-scroll-position="top"
+            className="my-24 flex flex-col justify-start space-y-10"
+          >
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{
+                duration: 1,
+                staggerChildren: 0.5,
+              }}
+              viewport={{ once: true }}
+              className="grid items-center gap-1.5 md:grid-cols-2 xl:grid-cols-3"
+            >
+              <div className="flex flex-col py-6 xl:p-6">
+                <h2 className="text-4xl font-medium tracking-tight">
+                  Why choose
+                  <br />
+                  <span className="text-gradient clash-grotesk tracking-normal">
+                    Shiva X Mods?
+                  </span>
+                </h2>
+                <p className="mt-2 tracking-tighter text-secondary-foreground">
+                  We deliver premium quality mods with regular updates and
+                  community support
+                </p>
+              </div>
+              {modFeatures.map((feature) => (
+                <div
+                  key={feature.feature}
+                  className="flex flex-col items-start rounded-md bg-white/5 p-14 shadow-md backdrop-blur transition duration-300 hover:-translate-y-0.5 hover:bg-white/10 hover:shadow-md"
+                >
+                  <feature.icon className="my-6 text-primary" size={20} />
+                  <span className="text-lg tracking-tight text-foreground">
+                    {feature.feature}
+                  </span>
+                  <span className="mt-2 tracking-tighter text-muted-foreground">
+                    {feature.description}
+                  </span>
+                </div>
+              ))}
+            </motion.div>
+          </div>
         </section>
 
         {/* Community Section */}
         <section id="community" data-scroll-section className="my-64">
-          {/* ... existing community section code ... */}
+          <div
+            data-scroll
+            data-scroll-speed=".4"
+            data-scroll-position="top"
+            className="flex flex-col items-center justify-center rounded-lg bg-gradient-to-br from-primary/[6.5%] to-white/5 px-8 py-16 text-center xl:py-24"
+          >
+            <h2 className="text-4xl font-medium tracking-tighter xl:text-6xl">
+              Join our{" "}
+              <span className="text-gradient clash-grotesk">community.</span>
+            </h2>
+            <p className="mt-1.5 text-base tracking-tight text-muted-foreground xl:text-lg">
+              Connect with thousands of mod enthusiasts and creators
+            </p>
+            <Link href="https://discord.gg/shivaxmods" passHref>
+              <Button className="mt-6">Join Discord</Button>
+            </Link>
+          </div>
         </section>
       </div>
     </Container>
@@ -334,3 +484,4 @@ function Gradient() {
     </>
   );
 }
+
