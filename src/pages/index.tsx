@@ -36,7 +36,7 @@ const featuredMods = [
   {
     title: "Crick Fusion",
     description: "Complete cricket gameplay overhaul with realistic physics",
-    image: "https://ik.imagekit.io/wjw1czp4c/WhatsApp%20Image%202025-05-28%20at%2022.31.36_6f635605.jpg", // Replace with your image URL
+    image: "assets/flux.png", // Replace with your image URL
     href: "",
   },
   {
