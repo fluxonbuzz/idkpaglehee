@@ -12,7 +12,6 @@ import {
   MonitorSmartphone,
 } from "lucide-react";
 import { TriangleDownIcon } from "@radix-ui/react-icons";
-import Spline from "@splinetool/react-spline";
 import Link from "next/link";
 import { cn, scrollTo } from "@/lib/utils";
 import Image from "next/image";
@@ -37,13 +36,14 @@ const featuredMods = [
   {
     title: "Crick Fusion",
     description: "Complete cricket gameplay overhaul with realistic physics",
-    image: "/assets/fusion.png",
+    image: "https://example.com/path-to-fusion-image.jpg", // Replace with your image URL
     href: "/mods/crick-fusion",
   },
-    title: "Crick fusion X",
-    description: "",
-    image: "/assets/fusionx.png",
-    href: "/mods/battlefield",
+  {
+    title: "Crick Fusion X",
+    description: "Enhanced version with more features and content",
+    image: "https://example.com/path-to-fusionx-image.jpg", // Replace with your image URL
+    href: "/mods/crick-fusion-x",
   },
 ];
 
@@ -156,30 +156,29 @@ export default function Home() {
         <section
           id="home"
           data-scroll-section
-          className="mt-40 flex w-full flex-col items-center xl:mt-0 xl:min-h-screen xl:flex-row xl:justify-between"
+          className="flex min-h-screen w-full flex-col items-center justify-center xl:mt-0"
         >
-          <div className={styles.intro}>
+          <div className={cn(styles.intro, "text-center")}>
             <div
               data-scroll
               data-scroll-direction="horizontal"
               data-scroll-speed=".09"
-              className="flex flex-row items-center space-x-1.5"
+              className="flex flex-row items-center justify-center space-x-1.5"
             >
               <span className={styles.pill}>Mods</span>
               <span className={styles.pill}>Gaming</span>
               <span className={styles.pill}>Community</span>
             </div>
-            <div>
+            <div className="mx-auto max-w-4xl">
               <h1
                 data-scroll
                 data-scroll-enable-touch-speed
                 data-scroll-speed=".06"
-                data-scroll-direction="horizontal"
               >
                 <span className="text-6xl tracking-tighter text-foreground 2xl:text-8xl">
                   Welcome To
-                  <br />
                 </span>
+                <br />
                 <span className="clash-grotesk text-gradient text-6xl 2xl:text-8xl">
                   Shiva X Mods
                 </span>
@@ -188,16 +187,16 @@ export default function Home() {
                 data-scroll
                 data-scroll-enable-touch-speed
                 data-scroll-speed=".06"
-                className="mt-1 max-w-lg tracking-tight text-muted-foreground 2xl:text-xl"
+                className="mt-4 tracking-tight text-muted-foreground 2xl:text-xl"
               >
                 The ultimate destination for high-quality game modifications
               </p>
             </div>
-            <span
+            <div
               data-scroll
               data-scroll-enable-touch-speed
               data-scroll-speed=".06"
-              className="flex flex-row items-center space-x-1.5 pt-6"
+              className="flex flex-row items-center justify-center space-x-1.5 pt-6"
             >
               <Link href="/downloads" passHref>
                 <Button>
@@ -210,7 +209,7 @@ export default function Home() {
               >
                 View Features
               </Button>
-            </span>
+            </div>
 
             <div
               className={cn(
@@ -220,16 +219,6 @@ export default function Home() {
             >
               Scroll to explore <TriangleDownIcon className="mt-1 animate-bounce" />
             </div>
-          </div>
-          <div
-            data-scroll
-            data-scroll-speed="-.01"
-            id={styles["canvas-container"]}
-            className="mt-14 h-full w-full xl:mt-0"
-          >
-            <Suspense fallback={<span>Loading...</span>}>
-              <Spline scene="/assets/game-scene.splinecode" />
-            </Suspense>
           </div>
         </section>
 
@@ -298,29 +287,24 @@ export default function Home() {
                       <Card id="tilt">
                         <CardHeader className="p-0">
                           <Link href={mod.href} target="_blank" passHref>
-                            {mod.image.endsWith(".webm") ? (
-                              <video
-                                src={mod.image}
-                                autoPlay
-                                loop
-                                muted
-                                className="aspect-video h-full w-full rounded-t-md bg-primary object-cover"
-                              />
-                            ) : (
+                            <div className="aspect-video h-full w-full overflow-hidden rounded-t-md bg-primary">
                               <Image
                                 src={mod.image}
                                 alt={mod.title}
                                 width={600}
                                 height={300}
                                 quality={100}
-                                className="aspect-video h-full w-full rounded-t-md bg-primary object-cover"
+                                className="h-full w-full object-cover"
                               />
-                            )}
+                            </div>
                           </Link>
                         </CardHeader>
                         <CardContent className="absolute bottom-0 w-full bg-background/50 backdrop-blur">
                           <CardTitle className="border-t border-white/5 p-4 text-base font-normal tracking-tighter">
-                            {mod.description}
+                            <h3 className="text-lg font-medium">{mod.title}</h3>
+                            <p className="mt-1 text-sm text-muted-foreground">
+                              {mod.description}
+                            </p>
                           </CardTitle>
                         </CardContent>
                       </Card>
@@ -391,22 +375,42 @@ export default function Home() {
 
         {/* Community Section */}
         <section id="community" data-scroll-section className="my-64">
-          <div
-            data-scroll
-            data-scroll-speed=".4"
-            data-scroll-position="top"
-            className="flex flex-col items-center justify-center rounded-lg bg-gradient-to-br from-primary/[6.5%] to-white/5 px-8 py-16 text-center xl:py-24"
-          >
-            <h2 className="text-4xl font-medium tracking-tighter xl:text-6xl">
-              Join our{" "}
-              <span className="text-gradient clash-grotesk">community.</span>
-            </h2>
-            <p className="mt-1.5 text-base tracking-tight text-muted-foreground xl:text-lg">
-              Connect with thousands of mod enthusiasts and creators
-            </p>
-            <Link href="https://discord.gg/shivaxmods" passHref>
-              <Button className="mt-6">Join Discord</Button>
-            </Link>
+          <div className="grid gap-8 md:grid-cols-2">
+            <div
+              data-scroll
+              data-scroll-speed=".4"
+              data-scroll-position="top"
+              className="flex flex-col items-center justify-center rounded-lg bg-gradient-to-br from-primary/[6.5%] to-white/5 px-8 py-16 text-center xl:py-24"
+            >
+              <h2 className="text-4xl font-medium tracking-tighter xl:text-6xl">
+                Join our <span className="text-gradient clash-grotesk">Discord</span>
+              </h2>
+              <p className="mt-1.5 text-base tracking-tight text-muted-foreground xl:text-lg">
+                Connect with thousands of mod enthusiasts and creators
+              </p>
+              <Link href="https://discord.gg/shivaxmods" passHref>
+                <Button className="mt-6">Join Discord</Button>
+              </Link>
+            </div>
+
+            <div
+              data-scroll
+              data-scroll-speed=".4"
+              data-scroll-position="top"
+              className="flex flex-col items-center justify-center rounded-lg bg-gradient-to-br from-blue-500/[6.5%] to-white/5 px-8 py-16 text-center xl:py-24"
+            >
+              <h2 className="text-4xl font-medium tracking-tighter xl:text-6xl">
+                Our <span className="text-gradient clash-grotesk">Telegram</span>
+              </h2>
+              <p className="mt-1.5 text-base tracking-tight text-muted-foreground xl:text-lg">
+                Get instant updates and announcements
+              </p>
+              <Link href="https://t.me/shivaxmods" passHref>
+                <Button className="mt-6" variant="secondary">
+                  Join Telegram
+                </Button>
+              </Link>
+            </div>
           </div>
         </section>
       </div>
@@ -471,4 +475,3 @@ function Gradient() {
     </>
   );
 }
-
