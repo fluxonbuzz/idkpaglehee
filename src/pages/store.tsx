@@ -61,15 +61,21 @@ const storeData: Product[] = [
   }
 ];
 
-// Type guard for CartItem
+// Enhanced type guard for CartItem
 function isCartItem(item: unknown): item is CartItem {
   if (typeof item !== 'object' || item === null) return false;
-  const cartItem = item as CartItem;
+  
+  const cartItem = item as Record<string, unknown>;
   return (
     typeof cartItem.id === 'string' &&
     typeof cartItem.title === 'string' &&
     typeof cartItem.price === 'number' &&
-    typeof cartItem.quantity === 'number'
+    typeof cartItem.quantity === 'number' &&
+    (cartItem.originalPrice === undefined || typeof cartItem.originalPrice === 'number') &&
+    typeof cartItem.description === 'string' &&
+    typeof cartItem.image === 'string' &&
+    Array.isArray(cartItem.tags) &&
+    cartItem.tags.every((tag: unknown) => typeof tag === 'string')
   );
 }
 
@@ -78,14 +84,14 @@ export default function StorePage() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [receiptData, setReceiptData] = useState<ReceiptData | null>(null);
 
-  // Load cart from localStorage with type safety
+  // Load cart from localStorage with proper type safety
   useEffect(() => {
     const savedCart = localStorage.getItem('sx-store-cart');
     if (savedCart) {
       try {
-        const parsedCart = JSON.parse(savedCart);
-        if (Array.isArray(parsedCart)) {
-          const validCart = parsedCart.filter(isCartItem);
+        const parsed: unknown = JSON.parse(savedCart);
+        if (Array.isArray(parsed)) {
+          const validCart = parsed.filter(isCartItem);
           setCart(validCart);
         }
       } catch (e) {
@@ -93,6 +99,9 @@ export default function StorePage() {
       }
     }
   }, []);
+
+  // Rest of the component remains the same...
+  // [Previous code continues with all the existing JSX and functions]
 
   // Save cart to localStorage
   useEffect(() => {
