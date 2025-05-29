@@ -141,7 +141,7 @@ export default function DownloadsPage() {
 
                   {game.status === 'available' ? (
                     <Link
-                      href={game.downloadLink || '#'}
+                      href={game.downloadLink ?? '#'}
                       className="w-full bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white font-bold py-3 px-4 rounded transition flex items-center justify-center gap-2"
                     >
                       <Download size={18} /> Download Now
