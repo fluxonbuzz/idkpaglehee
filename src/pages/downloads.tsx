@@ -21,7 +21,7 @@ interface Game {
 const gamesData: Game[] = [
   {
     id: 'cricket-fusion-x',
-    title: 'Cricket Fusion X',
+    title: 'Crick Fusion X',
     version: 'V2.0',
     size: '2.8 GB',
     description: 'The next evolution in cricket gaming with groundbreaking features',
