@@ -28,8 +28,8 @@ import VanillaTilt from "vanilla-tilt";
 import { motion } from "framer-motion";
 
 const modStats = [
-  { label: "Active Community Members", value: "1k+" },
-  { label: "Supported Games", value: "1+" },
+  { label: "Active Community Members", value: "1K+" },
+  { label: "Total lines", value: "60K+" },
 ];
 
 const featuredMods = [
