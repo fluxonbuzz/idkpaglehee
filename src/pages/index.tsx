@@ -60,7 +60,7 @@ const modFeatures = [
   },
   {
     feature: "New Content",
-    description: "Additional maps, characters, weapons and more",
+    description: "Additional maps, players, stadidum and more",
     icon: Sword,
   },
   {
