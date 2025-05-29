@@ -168,7 +168,7 @@ export default function StorePage() {
         quantity: item.quantity
       })),
       total: cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
-      transactionId: SX-${Math.random().toString(36).substring(2, 10).toUpperCase()}
+      transactionId: `SX-${Math.random().toString(36).substring(2, 10).toUpperCase()}`
     };
     setReceiptData(receipt);
     setCart([]);
