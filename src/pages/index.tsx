@@ -31,6 +31,7 @@ import { motion } from "framer-motion";
 const modStats = [
   { label: "Active Community Members", value: "1K+" },
   { label: "Total Mod Downloads", value: "60K+" },
+  { label: "Premium Mods Available", value: "20+" },
 ];
 
 const featuredMods = [
@@ -43,6 +44,12 @@ const featuredMods = [
   {
     title: "Crick Fusion X",
     description: "Enhanced version with more features and content",
+    image: "/games/cricket-fusion.jpg",
+    href: "/downloads",
+  },
+  {
+    title: "Ultimate Cricket",
+    description: "The most realistic cricket simulation available",
     image: "/games/cricket-fusion.jpg",
     href: "/downloads",
   },
@@ -74,30 +81,22 @@ const modFeatures = [
     description: "One-click install for most mods with our manager",
     icon: <Download size={20} className="text-red-400" />,
   },
+  {
+    feature: "Regular Updates",
+    description: "Frequent improvements and new content additions",
+    icon: <Activity size={20} className="text-orange-400" />,
+  },
 ];
 
 export default function Home() {
   const [carouselApi, setCarouselApi] = useState<CarouselApi | null>(null);
-  const [current, setCurrent] = useState<number>(0);
-  const [count, setCount] = useState<number>(0);
-
-  useEffect(() => {
-    if (!carouselApi) return;
-
-    setCount(carouselApi.scrollSnapList().length);
-    setCurrent(carouselApi.selectedScrollSnap() + 1);
-
-    carouselApi.on("select", () => {
-      setCurrent(carouselApi.selectedScrollSnap() + 1);
-    });
-  }, [carouselApi]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white flex flex-col">
       {/* Header */}
       <header className="bg-gray-800/50 backdrop-blur-md sticky top-0 z-10 border-b border-gray-700">
-        <Container>
-          <div className="flex justify-between items-center py-4">
+        <Container className="py-4">
+          <div className="flex justify-between items-center">
             <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">
               Shiva X Mods
             </Link>
@@ -109,15 +108,15 @@ export default function Home() {
         </Container>
       </header>
 
-      <main>
+      <main className="flex-grow">
         {/* Hero Section */}
-        <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
+        <section className="relative py-20 md:py-32 flex items-center justify-center overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-gray-900/80 to-gray-900 z-0" />
           <div className="absolute inset-0 bg-[url('/games/cricket-fusion.jpg')] bg-cover bg-center opacity-20 z-0" />
           
           <Container className="relative z-10 text-center">
-            <div className="max-w-4xl mx-auto">
-              <div className="inline-flex items-center space-x-2 mb-6">
+            <div className="max-w-4xl mx-auto px-4">
+              <div className="flex flex-wrap justify-center gap-2 mb-6">
                 <span className="px-3 py-1 rounded-full bg-blue-500/20 text-blue-400 text-sm font-medium">
                   Mods
                 </span>
@@ -129,13 +128,13 @@ export default function Home() {
                 </span>
               </div>
               
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6">
                 <span className="bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">
                   Premium Game Mods
                 </span>
               </h1>
               
-              <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+              <p className="text-lg md:text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
                 Transform your gaming experience with our high-quality modifications
               </p>
               
@@ -158,15 +157,15 @@ export default function Home() {
         {/* Stats Section */}
         <section className="py-16 bg-gray-800/50">
           <Container>
-            <div className="text-center mb-12">
+            <div className="text-center mb-12 px-4">
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
                 Transforming gaming experiences through <span className="bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">innovative mods</span>
               </h2>
             </div>
             
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-4xl mx-auto">
               {modStats.map((stat) => (
-                <div key={stat.label} className="text-center">
+                <div key={stat.label} className="text-center p-4">
                   <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent mb-2">
                     {stat.value}
                   </div>
@@ -180,7 +179,7 @@ export default function Home() {
         {/* Featured Mods */}
         <section className="py-16">
           <Container>
-            <div className="text-center mb-12">
+            <div className="text-center mb-12 px-4">
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
                 <span className="bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">Featured</span> Mods
               </h2>
@@ -189,43 +188,41 @@ export default function Home() {
               </p>
             </div>
             
-            <Carousel setApi={setCarouselApi} className="w-full">
-              <CarouselContent>
-                {featuredMods.map((mod) => (
-                  <CarouselItem key={mod.title} className="md:basis-1/2">
-                    <Card className="border-gray-700 bg-gray-800/50 hover:border-green-500/50 transition-all">
-                      <CardHeader className="p-0">
-                        <Link href={mod.href}>
-                          <div className="aspect-video relative overflow-hidden rounded-t-lg">
-                            <Image
-                              src={mod.image}
-                              alt={mod.title}
-                              fill
-                              className="object-cover"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                          </div>
-                        </Link>
-                      </CardHeader>
-                      <CardContent className="p-6">
-                        <CardTitle className="text-xl mb-2">{mod.title}</CardTitle>
-                        <p className="text-gray-300">{mod.description}</p>
-                        <Link href={mod.href}>
-                          <Button className="mt-4 w-full" variant="outline">
-                            Download Now
-                          </Button>
-                        </Link>
-                      </CardContent>
-                    </Card>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious className="left-2" />
-              <CarouselNext className="right-2" />
-            </Carousel>
-            
-            <div className="text-center mt-4 text-gray-400">
-              Slide {current} of {count}
+            <div className="px-4">
+              <Carousel setApi={setCarouselApi} className="w-full max-w-4xl mx-auto">
+                <CarouselContent>
+                  {featuredMods.map((mod) => (
+                    <CarouselItem key={mod.title} className="sm:basis-1/2 lg:basis-1/3">
+                      <Card className="border-gray-700 bg-gray-800/50 hover:border-green-500/50 transition-all h-full">
+                        <CardHeader className="p-0">
+                          <Link href={mod.href}>
+                            <div className="aspect-video relative overflow-hidden rounded-t-lg">
+                              <Image
+                                src={mod.image}
+                                alt={mod.title}
+                                fill
+                                className="object-cover"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                            </div>
+                          </Link>
+                        </CardHeader>
+                        <CardContent className="p-6">
+                          <CardTitle className="text-xl mb-2">{mod.title}</CardTitle>
+                          <p className="text-gray-300 mb-4">{mod.description}</p>
+                          <Link href={mod.href}>
+                            <Button className="w-full" variant="outline">
+                              Download Now
+                            </Button>
+                          </Link>
+                        </CardContent>
+                      </Card>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious className="left-2 hidden sm:flex" />
+                <CarouselNext className="right-2 hidden sm:flex" />
+              </Carousel>
             </div>
           </Container>
         </section>
@@ -233,7 +230,7 @@ export default function Home() {
         {/* Features Section */}
         <section className="py-16 bg-gray-800/50">
           <Container>
-            <div className="text-center mb-12">
+            <div className="text-center mb-12 px-4">
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
                 Why choose <span className="bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">Shiva X Mods?</span>
               </h2>
@@ -242,7 +239,7 @@ export default function Home() {
               </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-4 max-w-6xl mx-auto">
               {modFeatures.map((feature, index) => (
                 <motion.div
                   key={feature.feature}
@@ -250,7 +247,7 @@ export default function Home() {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   viewport={{ once: true }}
-                  className="bg-gray-800/50 p-6 rounded-lg border border-gray-700 hover:border-green-500/50 transition-all"
+                  className="bg-gray-800/50 p-6 rounded-lg border border-gray-700 hover:border-green-500/50 transition-all h-full"
                 >
                   <div className="flex items-center mb-4">
                     <div className="bg-gray-700/50 p-2 rounded-lg mr-4">
@@ -268,7 +265,7 @@ export default function Home() {
         {/* Community Section */}
         <section className="py-16">
           <Container>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto px-4">
               <div className="bg-gradient-to-br from-green-900/30 to-gray-800/50 p-8 rounded-xl border border-gray-700">
                 <div className="text-center">
                   <h3 className="text-2xl md:text-3xl font-bold mb-4">
@@ -304,6 +301,27 @@ export default function Home() {
           </Container>
         </section>
       </main>
+
+      {/* Footer */}
+      <footer className="bg-gray-800/50 border-t border-gray-700 py-8">
+        <Container>
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="mb-4 md:mb-0">
+              <Link href="/" className="text-xl font-bold bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">
+                Shiva X Mods
+              </Link>
+            </div>
+            <div className="flex gap-6">
+              <Link href="/privacy" className="text-gray-300 hover:text-blue-400 transition">Privacy Policy</Link>
+              <Link href="/terms" className="text-gray-300 hover:text-blue-400 transition">Terms of Service</Link>
+              <Link href="/contact" className="text-gray-300 hover:text-blue-400 transition">Contact</Link>
+            </div>
+          </div>
+          <div className="text-center text-gray-400 mt-6 text-sm">
+            © {new Date().getFullYear()} Shiva X Mods. All rights reserved.
+          </div>
+        </Container>
+      </footer>
     </div>
   );
 }
