@@ -29,7 +29,7 @@ const gamesData: Game[] = [
     status: 'available',
     downloadLink: '/downloads/cricket-fusion-x',
     features: [
-      { icon: <Zap size={16} className="text-yellow-400" />, text: '300+ nnew shots with realistic physics' },
+      { icon: <Zap size={16} className="text-yellow-400" />, text: '300+ new shots with realistic physics' },
       { icon: <Film size={16} className="text-blue-400" />, text: 'Cinematic commentary system' },
       { icon: <Star size={16} className="text-purple-400" />, text: 'Zero-lag optimized graphics engine' },
       { icon: <Users size={16} className="text-green-400" />, text: '10-team auction system with impact player' },
