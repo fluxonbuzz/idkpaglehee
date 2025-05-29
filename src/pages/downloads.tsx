@@ -27,7 +27,7 @@ const gamesData: Game[] = [
     description: 'The next evolution in cricket gaming with groundbreaking features',
     image: '/games/cricket-fusion.jpg',
     status: 'available',
-    downloadLink: '/downloads/cricket-fusion-x',
+    downloadLink: 'https://drive.google.com/file/d/14usS--oRdbJRBxL5JjWhZHHzuEhaZWYK/view?usp=drivesdk',
     features: [
       { icon: <Zap size={16} className="text-yellow-400" />, text: '300+ new shots with realistic physics' },
       { icon: <Film size={16} className="text-blue-400" />, text: 'Cinematic commentary system' },
@@ -41,7 +41,7 @@ const gamesData: Game[] = [
   },
   {
     id: 'cricket-fusion',
-    title: 'Cricket Fusion',
+    title: 'Crick Fusion',
     version: 'V1.0',
     size: 'Coming Soon',
     description: 'The original revolutionary cricket experience - next generation remake',
@@ -69,7 +69,7 @@ export default function DownloadsPage() {
       <header className="bg-gray-800/50 backdrop-blur-md sticky top-0 z-10 border-b border-gray-700">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">
-            SX Cricket Games
+            SX Games
           </Link>
           <nav className="flex gap-6">
             <Link href="/store" className="hover:text-blue-400 transition">Store</Link>
