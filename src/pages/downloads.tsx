@@ -25,7 +25,7 @@ const gamesData: Game[] = [
     version: 'V2.0',
     size: '2.8 GB',
     description: 'The next evolution in cricket gaming with groundbreaking features',
-    image: '/games/cricket-fusion-x.jpg',
+    image: '/games/cricket-fusion.jpg',
     status: 'available',
     downloadLink: '/downloads/cricket-fusion-x',
     features: [
