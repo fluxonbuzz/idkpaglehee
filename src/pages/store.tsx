@@ -4,7 +4,7 @@ import { ShoppingCart, Tag, Download, Star, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 
 // Type definitions
-type Product = {
+interface Product {
   id: string;
   title: string;
   price: number;
@@ -12,25 +12,25 @@ type Product = {
   description: string;
   image: string;
   tags: string[];
-};
+}
 
-type CartItem = Product & {
+interface CartItem extends Product {
   quantity: number;
-};
+}
 
-type ReceiptItem = {
+interface ReceiptItem {
   id: string;
   title: string;
   price: number;
   quantity: number;
-};
+}
 
-type ReceiptData = {
+interface ReceiptData {
   date: string;
   items: ReceiptItem[];
   total: number;
   transactionId: string;
-};
+}
 
 // Product data
 const storeData: Product[] = [
@@ -63,13 +63,13 @@ const storeData: Product[] = [
 
 // Type guard for CartItem
 function isCartItem(item: unknown): item is CartItem {
+  if (typeof item !== 'object' || item === null) return false;
+  const cartItem = item as CartItem;
   return (
-    typeof item === 'object' &&
-    item !== null &&
-    'id' in item &&
-    'title' in item &&
-    'price' in item &&
-    'quantity' in item
+    typeof cartItem.id === 'string' &&
+    typeof cartItem.title === 'string' &&
+    typeof cartItem.price === 'number' &&
+    typeof cartItem.quantity === 'number'
   );
 }
 
@@ -84,7 +84,7 @@ export default function StorePage() {
     if (savedCart) {
       try {
         const parsedCart = JSON.parse(savedCart);
-        if (Array.isArray(parsedCart) {
+        if (Array.isArray(parsedCart)) {
           const validCart = parsedCart.filter(isCartItem);
           setCart(validCart);
         }
