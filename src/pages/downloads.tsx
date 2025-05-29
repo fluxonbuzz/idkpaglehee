@@ -18,32 +18,32 @@ interface Game {
 const gamesData: Game[] = [
   {
     id: 'cricket-fusion',
-    title: 'Cricket Fusion',
-    version: '2.5.3',
-    size: '1.2 GB',
+    title: 'Crick Fusion',
+    version: 'V1',
+    size: 'TBA',
     description: 'The ultimate cricket experience with realistic gameplay and stunning graphics',
     image: '/games/cricket-fusion.jpg',
-    status: 'available',
-    downloadLink: '/downloads/cricket-fusion',
+    status: 'coming-soon',
     features: [
       'Realistic physics engine',
-      '100+ licensed players',
-      'Multiplayer mode',
-      'Custom tournaments'
+      'New commentary',
+      'New UI and other',
+      'New animations and more'
     ]
   },
   {
     id: 'cricket-fusion-x',
-    title: 'Cricket Fusion X',
-    version: 'Coming Soon',
+    title: 'Crick Fusion X',
+    version: 'V2',
     size: 'TBA',
     description: 'Next-gen cricket simulation with enhanced AI and VR support',
     image: '/games/cricket-fusion-x.jpg',
-    status: 'coming-soon',
+    status: 'available',
+    downloadLink: '/downloads/cricket-fusion',
     features: [
-      'VR compatibility',
+      'New cameras',
       'Advanced AI opponents',
-      'Dynamic weather system',
+      'Multiplayer mode',
       '4K HDR graphics'
     ]
   }
