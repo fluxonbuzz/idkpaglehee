@@ -10,7 +10,6 @@ import {
   Download,
   Users,
   MonitorSmartphone,
-  ShoppingCart, // Added shopping cart icon for store
 } from "lucide-react";
 import { TriangleDownIcon } from "@radix-ui/react-icons";
 import Link from "next/link";
@@ -38,13 +37,13 @@ const featuredMods = [
     title: "Crick Fusion",
     description: "Complete cricket gameplay overhaul with realistic physics",
     image: "assets/fusion.png", // Replace with your image URL
-    href: "/store", // Changed to point to store
+    href: "",
   },
   {
     title: "Crick Fusion X",
     description: "Enhanced version with more features and content",
     image: "assets/fusionx.png", // Replace with your image URL
-    href: "/store", // Changed to point to store
+    href: "",
   },
 ];
 
@@ -153,18 +152,6 @@ export default function Home() {
       <div ref={refScrollContainer}>
         <Gradient />
 
-        {/* Sidebar Navigation - Simplified with only Store */}
-        <nav className="fixed left-0 top-0 z-50 h-full w-16 bg-background/50 backdrop-blur">
-          <div className="flex h-full flex-col items-center justify-start space-y-6 pt-6">
-            {/* Store Link */}
-            <Link href="/store" passHref>
-              <Button variant="ghost" size="icon" className="rounded-full">
-                <ShoppingCart className="h-5 w-5" />
-              </Button>
-            </Link>
-          </div>
-        </nav>
-
         {/* Hero Section */}
         <section
           id="home"
@@ -211,9 +198,9 @@ export default function Home() {
               data-scroll-speed=".06"
               className="flex flex-row items-center justify-center space-x-1.5 pt-6"
             >
-              <Link href="/store" passHref>
+              <Link href="/downloads" passHref>
                 <Button>
-                  Visit Store <ChevronRight className="ml-1 h-4 w-4" />
+                  Download Mods <ChevronRight className="ml-1 h-4 w-4" />
                 </Button>
               </Link>
               <Button
@@ -299,7 +286,7 @@ export default function Home() {
                     <CarouselItem key={mod.title} className="md:basis-1/2">
                       <Card id="tilt">
                         <CardHeader className="p-0">
-                          <Link href={mod.href} passHref>
+                          <Link href={mod.href} target="_blank" passHref>
                             <div className="aspect-video h-full w-full overflow-hidden rounded-t-md bg-primary">
                               <Image
                                 src={mod.image}
@@ -487,4 +474,4 @@ function Gradient() {
       </div>
     </>
   );
-          }
+}
