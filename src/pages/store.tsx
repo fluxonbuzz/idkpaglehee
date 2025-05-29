@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { ShoppingCart, Tag, Download, Star, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 
-// Product data type
+// Type definitions
 type Product = {
   id: string;
   title: string;
@@ -14,12 +14,10 @@ type Product = {
   tags: string[];
 };
 
-// Cart item type
 type CartItem = Product & {
   quantity: number;
 };
 
-// Receipt item type
 type ReceiptItem = {
   id: string;
   title: string;
@@ -27,7 +25,6 @@ type ReceiptItem = {
   quantity: number;
 };
 
-// Receipt data type
 type ReceiptData = {
   date: string;
   items: ReceiptItem[];
@@ -35,7 +32,7 @@ type ReceiptData = {
   transactionId: string;
 };
 
-// Store data
+// Product data
 const storeData: Product[] = [
   {
     id: 'rc24-id',
@@ -64,16 +61,36 @@ const storeData: Product[] = [
   }
 ];
 
+// Type guard for CartItem
+function isCartItem(item: unknown): item is CartItem {
+  return (
+    typeof item === 'object' &&
+    item !== null &&
+    'id' in item &&
+    'title' in item &&
+    'price' in item &&
+    'quantity' in item
+  );
+}
+
 export default function StorePage() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [receiptData, setReceiptData] = useState<ReceiptData | null>(null);
 
-  // Load cart from localStorage
+  // Load cart from localStorage with type safety
   useEffect(() => {
     const savedCart = localStorage.getItem('sx-store-cart');
     if (savedCart) {
-      setCart(JSON.parse(savedCart));
+      try {
+        const parsedCart = JSON.parse(savedCart);
+        if (Array.isArray(parsedCart) {
+          const validCart = parsedCart.filter(isCartItem);
+          setCart(validCart);
+        }
+      } catch (e) {
+        console.error('Failed to parse cart data', e);
+      }
     }
   }, []);
 
@@ -87,7 +104,9 @@ export default function StorePage() {
       const existingItem = prevCart.find(item => item.id === product.id);
       if (existingItem) {
         return prevCart.map(item =>
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+          item.id === product.id 
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
         );
       }
       return [...prevCart, { ...product, quantity: 1 }];
@@ -177,6 +196,7 @@ export default function StorePage() {
         </div>
       </header>
 
+      {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         {/* Hero Section */}
         <section className="mb-12 text-center">
