@@ -203,7 +203,7 @@ export default function StorePage() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = sx-receipt-${receiptData.transactionId}.txt;
+    link.download = `sx-receipt-${receiptData.transactionId}.txt`;
     link.click();
   };
 
