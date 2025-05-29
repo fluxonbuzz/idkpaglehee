@@ -196,11 +196,16 @@ export default function Home() {
               data-scroll
               data-scroll-enable-touch-speed
               data-scroll-speed=".06"
-              className="flex flex-row items-center justify-center space-x-1.5 pt-6"
+              className="flex flex-row items-center justify-center gap-3 pt-6"
             >
               <Link href="/downloads" passHref>
                 <Button>
                   Download Mods <ChevronRight className="ml-1 h-4 w-4" />
+                </Button>
+              </Link>
+              <Link href="/store" passHref>
+                <Button className="bg-gradient-to-r from-pink-600 to-blue-600 hover:from-pink-700 hover:to-blue-700 text-white">
+                  SX Store
                 </Button>
               </Link>
               <Button
