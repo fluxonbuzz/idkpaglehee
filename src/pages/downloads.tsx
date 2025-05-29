@@ -23,7 +23,7 @@ const gamesData: Game[] = [
     id: 'cricket-fusion-x',
     title: 'Crick Fusion X',
     version: 'V2.0',
-    size: '2.8 GB',
+    size: '514.58 MB',
     description: 'The next evolution in cricket gaming with groundbreaking features',
     image: '/games/cricket-fusion.jpg',
     status: 'available',
