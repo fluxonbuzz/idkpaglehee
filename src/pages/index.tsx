@@ -388,7 +388,7 @@ export default function Home() {
               <p className="mt-1.5 text-base tracking-tight text-muted-foreground xl:text-lg">
                 Connect with thousands of mod enthusiasts and creators
               </p>
-              <Link href="https://discord.gg/shivaxmods" passHref>
+              <Link href="https://discord.gg/nY4hxDvfAb" passHref>
                 <Button className="mt-6">Join Discord</Button>
               </Link>
             </div>
