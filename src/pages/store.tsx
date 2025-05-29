@@ -1,6 +1,6 @@
 // src/pages/store.tsx
 import { useState, useEffect } from 'react';
-import { ShoppingCart, Tag, Download, Star, ShieldCheck } from 'lucide-react';
+import { ShoppingCart, Tag, Download, Star, ShieldCheck, Send } from 'lucide-react';
 import Link from 'next/link';
 
 // Type definitions
@@ -32,6 +32,14 @@ interface ReceiptData {
   transactionId: string;
 }
 
+interface Seller {
+  id: string;
+  name: string;
+  role: string;
+  avatar: string;
+  telegram: string;
+}
+
 // Product data
 const storeData: Product[] = [
   {
@@ -58,6 +66,24 @@ const storeData: Product[] = [
     description: 'Unlock hero legends pack',
     image: '/store/rc20-legends.jpg',
     tags: ['DLC', 'Popular']
+  }
+];
+
+// Sellers data
+const sellers: Seller[] = [
+  {
+    id: 'd4vd',
+    name: 'd4vd',
+    role: 'Co-Owner',
+    avatar: '/store/d4vd-avatar.jpg',
+    telegram: 'https://t.me/d4vdprofile'
+  },
+  {
+    id: 'shiva',
+    name: 'Shiva',
+    role: 'Owner',
+    avatar: '/store/shiva-avatar.jpg',
+    telegram: 'https://t.me/shivaprofile'
   }
 ];
 
@@ -99,9 +125,6 @@ export default function StorePage() {
       }
     }
   }, []);
-
-  // Rest of the component remains the same...
-  // [Previous code continues with all the existing JSX and functions]
 
   // Save cart to localStorage
   useEffect(() => {
@@ -145,7 +168,7 @@ export default function StorePage() {
         quantity: item.quantity
       })),
       total: cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
-      transactionId: `SX-${Math.random().toString(36).substring(2, 10).toUpperCase()}`
+      transactionId: SX-${Math.random().toString(36).substring(2, 10).toUpperCase()}
     };
     setReceiptData(receipt);
     setCart([]);
@@ -167,6 +190,10 @@ export default function StorePage() {
       
       TOTAL: ₹${receiptData.total}
       
+      CONTACT SELLERS:
+      - d4vd (Co-Owner): https://t.me/d4vdprofile
+      - Shiva (Owner): https://t.me/shivaprofile
+      
       DIGITALLY SIGNED:
       ${new Date().toISOString()}
       🚀 SX Store - Premium Gaming Marketplace
@@ -176,7 +203,7 @@ export default function StorePage() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `sx-receipt-${receiptData.transactionId}.txt`;
+    link.download = sx-receipt-${receiptData.transactionId}.txt;
     link.click();
   };
 
@@ -362,20 +389,57 @@ export default function StorePage() {
                       <span>₹{totalPrice}</span>
                     </div>
                     {receiptData ? (
-                      <div className="bg-gray-700/50 p-4 rounded-lg mb-4">
-                        <div className="flex items-center gap-2 text-green-400 mb-2">
-                          <ShieldCheck size={20} />
-                          <span>Purchase Complete!</span>
+                      <div className="space-y-4">
+                        <div className="bg-gray-700/50 p-4 rounded-lg">
+                          <div className="flex items-center gap-2 text-green-400 mb-2">
+                            <ShieldCheck size={20} />
+                            <span>Purchase Complete!</span>
+                          </div>
+                          <p className="text-sm text-gray-300 mb-2">
+                            Transaction ID: {receiptData.transactionId}
+                          </p>
+                          <button
+                            onClick={downloadReceipt}
+                            className="w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded transition flex items-center justify-center gap-2 mt-2"
+                          >
+                            <Download size={18} /> Download Receipt
+                          </button>
                         </div>
-                        <p className="text-sm text-gray-300 mb-2">
-                          Transaction ID: {receiptData.transactionId}
-                        </p>
-                        <button
-                          onClick={downloadReceipt}
-                          className="w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded transition flex items-center justify-center gap-2 mt-2"
-                        >
-                          <Download size={18} /> Download Receipt
-                        </button>
+
+                        <div className="bg-gray-700/50 p-4 rounded-lg">
+                          <h3 className="font-bold mb-3 text-center">Contact Sellers</h3>
+                          <div className="flex flex-col gap-4">
+                            {sellers.map(seller => (
+                              <div key={seller.id} className="flex items-center gap-3">
+                                <div className="relative">
+                                  <div className="w-12 h-12 rounded-full bg-gray-600 overflow-hidden">
+                                    <div className="w-full h-full flex items-center justify-center text-gray-300">
+                                      {seller.name.charAt(0)}
+                                    </div>
+                                  </div>
+                                  <span className="absolute -bottom-1 -right-1 bg-purple-500 text-xs px-1 rounded-full">
+                                    {seller.role}
+                                  </span>
+                                </div>
+                                <div className="flex-1">
+                                  <h4 className="font-medium">{seller.name}</h4>
+                                  <p className="text-xs text-gray-400">{seller.role} of SX Store</p>
+                                </div>
+                                <a
+                                  href={seller.telegram}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full"
+                                >
+                                  <Send size={18} />
+                                </a>
+                              </div>
+                            ))}
+                          </div>
+                          <p className="text-xs text-gray-400 mt-3 text-center">
+                            Share your receipt with the seller to complete the transaction
+                          </p>
+                        </div>
                       </div>
                     ) : (
                       <button
