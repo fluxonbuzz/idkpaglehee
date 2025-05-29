@@ -1,5 +1,6 @@
+// src/pages/store.tsx
 import { useState, useEffect } from 'react';
-import { ShoppingCart, Tag, BadgeIndianRupee, Download, Star, ShieldCheck } from 'lucide-react';
+import { ShoppingCart, Tag, Download, Star, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 
 // Product data type
@@ -18,7 +19,23 @@ type CartItem = Product & {
   quantity: number;
 };
 
-// Store data (can be moved to a separate JSON file later)
+// Receipt item type
+type ReceiptItem = {
+  id: string;
+  title: string;
+  price: number;
+  quantity: number;
+};
+
+// Receipt data type
+type ReceiptData = {
+  date: string;
+  items: ReceiptItem[];
+  total: number;
+  transactionId: string;
+};
+
+// Store data
 const storeData: Product[] = [
   {
     id: 'rc24-id',
@@ -50,11 +67,11 @@ const storeData: Product[] = [
 export default function StorePage() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [receiptData, setReceiptData] = useState<any>(null);
+  const [receiptData, setReceiptData] = useState<ReceiptData | null>(null);
 
   // Load cart from localStorage
   useEffect(() => {
-    const savedCart = localStorage.getItem('gameStoreCart');
+    const savedCart = localStorage.getItem('sx-store-cart');
     if (savedCart) {
       setCart(JSON.parse(savedCart));
     }
@@ -62,7 +79,7 @@ export default function StorePage() {
 
   // Save cart to localStorage
   useEffect(() => {
-    localStorage.setItem('gameStoreCart', JSON.stringify(cart));
+    localStorage.setItem('sx-store-cart', JSON.stringify(cart));
   }, [cart]);
 
   const addToCart = (product: Product) => {
@@ -91,19 +108,26 @@ export default function StorePage() {
   };
 
   const generateReceipt = () => {
-    const receipt = {
+    const receipt: ReceiptData = {
       date: new Date().toLocaleString(),
-      items: cart,
+      items: cart.map(item => ({
+        id: item.id,
+        title: item.title,
+        price: item.price,
+        quantity: item.quantity
+      })),
       total: cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
-      transactionId: `TX-${Math.random().toString(36).substring(2, 10).toUpperCase()}`
+      transactionId: `SX-${Math.random().toString(36).substring(2, 10).toUpperCase()}`
     };
     setReceiptData(receipt);
     setCart([]);
   };
 
   const downloadReceipt = () => {
+    if (!receiptData) return;
+    
     const receiptText = `
-      OFFICIAL GAME STORE RECEIPT
+      SX STORE - OFFICIAL RECEIPT
       ---------------------------
       Transaction ID: ${receiptData.transactionId}
       Date: ${receiptData.date}
@@ -117,14 +141,14 @@ export default function StorePage() {
       
       DIGITALLY SIGNED:
       ${new Date().toISOString()}
-      🏏 Real Cricket Store
+      🚀 SX Store - Premium Gaming Marketplace
     `;
 
     const blob = new Blob([receiptText], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `receipt-${receiptData.transactionId}.txt`;
+    link.download = `sx-receipt-${receiptData.transactionId}.txt`;
     link.click();
   };
 
@@ -136,8 +160,8 @@ export default function StorePage() {
       {/* Header */}
       <header className="bg-gray-800/50 backdrop-blur-md sticky top-0 z-10 border-b border-gray-700">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
-            Game Store
+          <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-purple-500 to-blue-500 bg-clip-text text-transparent">
+            SX Store
           </Link>
           <button 
             onClick={() => setIsCartOpen(true)}
@@ -156,26 +180,25 @@ export default function StorePage() {
       <main className="container mx-auto px-4 py-8">
         {/* Hero Section */}
         <section className="mb-12 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
-            Premium Game Items
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-purple-500 to-blue-500 bg-clip-text text-transparent">
+            SX Premium Store
           </h1>
           <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-            Get exclusive in-game content and upgrades at unbeatable prices
+            Exclusive in-game content and tools at competitive prices
           </p>
         </section>
 
         {/* Products Grid */}
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           {storeData.map(product => (
-            <div key={product.id} className="bg-gray-800 rounded-xl overflow-hidden border border-gray-700 hover:border-orange-400 transition-all hover:shadow-lg hover:shadow-orange-500/10">
+            <div key={product.id} className="bg-gray-800 rounded-xl overflow-hidden border border-gray-700 hover:border-purple-400 transition-all hover:shadow-lg hover:shadow-purple-500/10">
               <div className="h-48 bg-gray-700 relative overflow-hidden">
-                {/* Replace with actual image */}
                 <div className="absolute inset-0 flex items-center justify-center text-gray-400">
-                  <span className="text-lg">Product Image</span>
+                  <span className="text-lg">SX Product</span>
                 </div>
                 {product.originalPrice && (
-                  <div className="absolute top-4 left-4 bg-orange-500 text-xs font-bold px-2 py-1 rounded">
-                    SALE
+                  <div className="absolute top-4 left-4 bg-purple-500 text-xs font-bold px-2 py-1 rounded">
+                    {Math.round((1 - product.price / product.originalPrice) * 100)}% OFF
                   </div>
                 )}
               </div>
@@ -183,7 +206,7 @@ export default function StorePage() {
                 <div className="flex justify-between items-start mb-2">
                   <h3 className="text-xl font-bold">{product.title}</h3>
                   <div className="text-right">
-                    <span className="text-2xl font-bold text-orange-400">₹{product.price}</span>
+                    <span className="text-2xl font-bold text-purple-400">₹{product.price}</span>
                     {product.originalPrice && (
                       <span className="block text-sm text-gray-400 line-through">₹{product.originalPrice}</span>
                     )}
@@ -199,7 +222,7 @@ export default function StorePage() {
                 </div>
                 <button
                   onClick={() => addToCart(product)}
-                  className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded transition flex items-center justify-center gap-2"
+                  className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded transition flex items-center justify-center gap-2"
                 >
                   <ShoppingCart size={18} /> Add to Cart
                 </button>
@@ -212,20 +235,20 @@ export default function StorePage() {
         <section className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl p-6 mb-12">
           <div className="flex flex-col md:flex-row items-center">
             <div className="flex-1 mb-4 md:mb-0">
-              <h2 className="text-2xl font-bold mb-2">Premium Membership</h2>
+              <h2 className="text-2xl font-bold mb-2">SX Premium Membership</h2>
               <p className="text-gray-200 mb-4">
-                Get exclusive discounts, early access to new items, and special rewards!
+                Get 25% discount on all items, exclusive content, and priority support!
               </p>
               <button className="bg-white text-purple-600 font-bold py-2 px-6 rounded-full hover:bg-gray-100 transition">
-                Learn More
+                Upgrade Now
               </button>
             </div>
             <div className="bg-white/10 p-4 rounded-lg border border-white/20">
               <div className="flex items-center gap-2">
                 <Star className="text-yellow-300" size={24} />
                 <div>
-                  <div className="font-bold">Members Only Deal</div>
-                  <div className="text-sm">20% OFF all items</div>
+                  <div className="font-bold">Members Only</div>
+                  <div className="text-sm">Extra 5% discount today</div>
                 </div>
               </div>
             </div>
@@ -242,7 +265,7 @@ export default function StorePage() {
               <div className="h-full flex flex-col bg-gray-800 shadow-xl">
                 <div className="flex-1 overflow-y-auto p-6">
                   <div className="flex items-start justify-between">
-                    <h2 className="text-2xl font-bold">Your Cart</h2>
+                    <h2 className="text-2xl font-bold">Your SX Cart</h2>
                     <button 
                       onClick={() => setIsCartOpen(false)}
                       className="text-gray-400 hover:text-white"
@@ -264,7 +287,6 @@ export default function StorePage() {
                           {cart.map(item => (
                             <li key={item.id} className="py-6 flex">
                               <div className="h-16 w-16 flex-shrink-0 bg-gray-700 rounded-md overflow-hidden">
-                                {/* Product image placeholder */}
                                 <div className="h-full w-full flex items-center justify-center text-gray-400">
                                   <Tag size={20} />
                                 </div>
@@ -329,9 +351,9 @@ export default function StorePage() {
                     ) : (
                       <button
                         onClick={generateReceipt}
-                        className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-4 rounded transition"
+                        className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded transition"
                       >
-                        Checkout
+                        Complete Purchase
                       </button>
                     )}
                   </div>
