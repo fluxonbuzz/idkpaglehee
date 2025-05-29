@@ -34,7 +34,7 @@ const gamesData: Game[] = [
       { icon: <Star size={16} className="text-purple-400" />, text: 'Zero-lag optimized graphics engine' },
       { icon: <Users size={16} className="text-green-400" />, text: '10-team auction system with impact player' },
       { icon: <Activity size={16} className="text-red-400" />, text: 'Suspense gameplay (boundary results hidden)' },
-      { icon: <Trophy size={16} className="text-orange-400" />, text: 'All newu tournaments: IPL 25, T20WC 24, etc.' },
+      { icon: <Trophy size={16} className="text-orange-400" />, text: 'All new tournaments: IPL 25, T20WC 24, etc.' },
       { icon: <Shirt size={16} className="text-cyan-400" />, text: 'Authentic jerseys and player likenesses' },
       { icon: <Award size={16} className="text-pink-400" />, text: 'Mod Creator with scorecard customization' }
     ]
@@ -61,7 +61,6 @@ const gamesData: Game[] = [
 ];
 
 export default function DownloadsPage() {
-  const [activeTab, setActiveTab] = useState<'available' | 'coming-soon'>('available');
   const [email, setEmail] = useState('');
 
   return (
@@ -213,7 +212,7 @@ export default function DownloadsPage() {
                 <ArrowRight size={18} /> Join Beta List
               </button>
             </div>
-            <p className="text-xs text-gray-400 mt-3">We'll notify you when beta testing begins</p>
+            <p className="text-xs text-gray-400 mt-3">We&apos;ll notify you when beta testing begins</p>
           </div>
         </section>
       </main>
