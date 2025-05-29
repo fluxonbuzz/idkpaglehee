@@ -1,6 +1,6 @@
 // src/pages/downloads.tsx
 import { useState } from 'react';
-import { Download, ArrowRight, Upload, CheckCircle } from 'lucide-react';
+import { Download, Upload, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 
 export default function DownloadsPage() {
@@ -9,8 +9,9 @@ export default function DownloadsPage() {
   const [isUploaded, setIsUploaded] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile) {
+      setFile(selectedFile);
       setIsUploaded(false);
       setUploadProgress(0);
     }
