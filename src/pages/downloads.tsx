@@ -34,7 +34,7 @@ const gamesData: Game[] = [
       { icon: <Star size={16} className="text-purple-400" />, text: 'Zero-lag optimized graphics engine' },
       { icon: <Users size={16} className="text-green-400" />, text: '10-team auction system with impact player' },
       { icon: <Activity size={16} className="text-red-400" />, text: 'Suspense gameplay (boundary results hidden)' },
-      { icon: <Trophy size={16} className="text-orange-400" />, text: 'All new tournaments: IPL 25, T20WC 24, etc.' },
+      { icon: <Trophy size={16} className="text-orange-400" />, text: 'All newu tournaments: IPL 25, T20WC 24, etc.' },
       { icon: <Shirt size={16} className="text-cyan-400" />, text: 'Authentic jerseys and player likenesses' },
       { icon: <Award size={16} className="text-pink-400" />, text: 'Mod Creator with scorecard customization' }
     ]
