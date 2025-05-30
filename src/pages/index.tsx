@@ -174,7 +174,7 @@ export default function Home() {
           <header className="bg-gray-800/50 backdrop-blur-md sticky top-0 z-10 border-b border-gray-700">
             <div className="container mx-auto px-4 py-4 flex justify-between items-center">
               <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">
-                SX Games
+                Shiva X Mods
               </Link>
               <nav className="flex gap-6">
                 <Link href="/store" className="hover:text-blue-400 transition">Store</Link>
