@@ -147,7 +147,7 @@ export default function DownloadsPage() {
                   </Link>
                 ) : (
                   <button className="w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded transition flex items-center justify-center gap-2 cursor-not-allowed opacity-80">
-                    <Clock size={18} /> Coming Q4 2024
+                    <Clock size={18} /> Coming Soon
                   </button>
                 )}
               </div>
