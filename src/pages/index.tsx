@@ -182,16 +182,6 @@ export default function Home() {
             className="flex min-h-[90vh] w-full flex-col items-center justify-center xl:mt-0"
           >
             <div className={cn(styles.intro, "text-center")}>
-              <div
-                data-scroll
-                data-scroll-direction="horizontal"
-                data-scroll-speed=".09"
-                className="flex flex-row items-center justify-center space-x-1.5"
-              >
-                <span className="bg-gray-800 text-sm px-3 py-1 rounded-full border border-gray-700">Mods</span>
-                <span className="bg-gray-800 text-sm px-3 py-1 rounded-full border border-gray-700">Gaming</span>
-                <span className="bg-gray-800 text-sm px-3 py-1 rounded-full border border-gray-700">Community</span>
-              </div>
               <div className="mx-auto max-w-4xl">
                 <h1
                   data-scroll
@@ -452,9 +442,9 @@ export default function Home() {
                   Our <span className="bg-gradient-to-r from-emerald-400 to-green-500 bg-clip-text text-transparent">WhatsApp</span>
                 </h2>
                 <p className="mt-1.5 text-base tracking-tight text-gray-300 xl:text-lg">
-                  Join our whatsapp channel for updates
+                  Chat with us directly for support
                 </p>
-                <Link href="https://whatsapp.com/channel/0029VahlLPoL7UVeLB3n5h3e" passHref>
+                <Link href="https://wa.me/yourwhatsapplink" passHref>
                   <Button className="mt-6 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700">
                     Join WhatsApp
                   </Button>
@@ -472,9 +462,9 @@ export default function Home() {
                   Our <span className="bg-gradient-to-r from-red-400 to-red-500 bg-clip-text text-transparent">YouTube</span>
                 </h2>
                 <p className="mt-1.5 text-base tracking-tight text-gray-300 xl:text-lg">
-                  Watch tutorials, teasers and many more
+                  Watch tutorials and mod showcases
                 </p>
-                <Link href="https://youtube.com/@shivaxmods?si=VLy0lsBduok_A-yh" passHref>
+                <Link href="https://youtube.com/yourchannellink" passHref>
                   <Button className="mt-6 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700">
                     Subscribe
                   </Button>
