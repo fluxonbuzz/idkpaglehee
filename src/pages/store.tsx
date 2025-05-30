@@ -1,7 +1,9 @@
 // src/pages/store.tsx
 import { useState, useEffect } from 'react';
-import { ShoppingCart, Tag, Download, Star, ShieldCheck, Send } from 'lucide-react';
+import { ShoppingCart, Tag, Download, Star, ShieldCheck, Send, History, Search } from 'lucide-react';
 import Link from 'next/link';
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
 
 // Type definitions
 interface Product {
@@ -30,6 +32,7 @@ interface ReceiptData {
   items: ReceiptItem[];
   total: number;
   transactionId: string;
+  status: 'pending' | 'completed';
 }
 
 interface Seller {
@@ -109,8 +112,11 @@ export default function StorePage() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [receiptData, setReceiptData] = useState<ReceiptData | null>(null);
+  const [receiptHistory, setReceiptHistory] = useState<ReceiptData[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [viewHistory, setViewHistory] = useState(false);
 
-  // Load cart from localStorage with proper type safety
+  // Load cart and receipt history from localStorage
   useEffect(() => {
     const savedCart = localStorage.getItem('sx-store-cart');
     if (savedCart) {
@@ -124,12 +130,29 @@ export default function StorePage() {
         console.error('Failed to parse cart data', e);
       }
     }
+
+    const savedHistory = localStorage.getItem('sx-store-receipts');
+    if (savedHistory) {
+      try {
+        const parsed = JSON.parse(savedHistory);
+        if (Array.isArray(parsed)) {
+          setReceiptHistory(parsed);
+        }
+      } catch (e) {
+        console.error('Failed to parse receipt history', e);
+      }
+    }
   }, []);
 
   // Save cart to localStorage
   useEffect(() => {
     localStorage.setItem('sx-store-cart', JSON.stringify(cart));
   }, [cart]);
+
+  // Save receipt history to localStorage
+  useEffect(() => {
+    localStorage.setItem('sx-store-receipts', JSON.stringify(receiptHistory));
+  }, [receiptHistory]);
 
   const addToCart = (product: Product) => {
     setCart(prevCart => {
@@ -168,44 +191,91 @@ export default function StorePage() {
         quantity: item.quantity
       })),
       total: cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
-      transactionId: `SX-${Math.random().toString(36).substring(2, 10).toUpperCase()}`
+      transactionId: `SX-${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
+      status: 'pending'
     };
     setReceiptData(receipt);
+    setReceiptHistory(prev => [receipt, ...prev]);
     setCart([]);
   };
 
-  const downloadReceipt = () => {
+  const generatePDFReceipt = () => {
     if (!receiptData) return;
     
-    const receiptText = `
-      SX STORE - OFFICIAL RECEIPT
-      ---------------------------
-      Transaction ID: ${receiptData.transactionId}
-      Date: ${receiptData.date}
-      
-      ITEMS:
-      ${receiptData.items.map(item => `
-      - ${item.title} x${item.quantity}: ₹${item.price * item.quantity}
-      `).join('')}
-      
-      TOTAL: ₹${receiptData.total}
-      
-      CONTACT SELLERS:
-      - d4vd (Co-Owner): https://t.me/d4vdprofile
-      - Shiva (Owner): https://t.me/shivaprofile
-      
-      DIGITALLY SIGNED:
-      ${new Date().toISOString()}
-      🚀 SX Store - Premium Gaming Marketplace
-    `;
-
-    const blob = new Blob([receiptText], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `sx-receipt-${receiptData.transactionId}.txt`;
-    link.click();
+    const doc = new jsPDF();
+    
+    // Add logo or header
+    doc.setFontSize(20);
+    doc.setTextColor(100, 100, 255);
+    doc.text('SX STORE - OFFICIAL RECEIPT', 105, 20, { align: 'center' });
+    
+    // Add transaction details
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Transaction ID: ${receiptData.transactionId}`, 14, 35);
+    doc.text(`Date: ${receiptData.date}`, 14, 45);
+    
+    // Add items table
+    const itemsData = receiptData.items.map(item => [
+      item.title,
+      item.quantity,
+      `₹${item.price}`,
+      `₹${item.price * item.quantity}`
+    ]);
+    
+    (doc as any).autoTable({
+      startY: 55,
+      head: [['Item', 'Qty', 'Price', 'Total']],
+      body: itemsData,
+      theme: 'grid',
+      headStyles: {
+        fillColor: [100, 100, 255],
+        textColor: 255
+      }
+    });
+    
+    // Add total
+    const finalY = (doc as any).lastAutoTable.finalY + 10;
+    doc.setFontSize(14);
+    doc.setFont(undefined, 'bold');
+    doc.text(`TOTAL: ₹${receiptData.total}`, 14, finalY);
+    
+    // Add footer
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    doc.text('Thank you for your purchase!', 105, finalY + 20, { align: 'center' });
+    doc.text('Contact our sellers for delivery:', 105, finalY + 30, { align: 'center' });
+    
+    // Add seller info
+    sellers.forEach((seller, index) => {
+      doc.text(
+        `${seller.name} (${seller.role}): ${seller.telegram.replace('https://', '')}`,
+        14,
+        finalY + 40 + (index * 5)
+      );
+    });
+    
+    // Save the PDF
+    doc.save(`sx-receipt-${receiptData.transactionId}.pdf`);
+    
+    // Update receipt status to completed
+    setReceiptData({ ...receiptData, status: 'completed' });
+    setReceiptHistory(prev => 
+      prev.map(r => 
+        r.transactionId === receiptData.transactionId 
+          ? { ...r, status: 'completed' } 
+          : r
+      )
+    );
   };
+
+  const filteredReceipts = receiptHistory.filter(receipt =>
+    receipt.transactionId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    receipt.date.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    receipt.items.some(item => 
+      item.title.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  );
 
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -218,17 +288,26 @@ export default function StorePage() {
           <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-purple-500 to-blue-500 bg-clip-text text-transparent">
             SX Store
           </Link>
-          <button 
-            onClick={() => setIsCartOpen(true)}
-            className="relative p-2 rounded-full bg-gray-700 hover:bg-gray-600 transition"
-          >
-            <ShoppingCart size={24} />
-            {totalItems > 0 && (
-              <span className="absolute -top-1 -right-1 bg-orange-500 text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                {totalItems}
-              </span>
-            )}
-          </button>
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => setViewHistory(true)}
+              className="p-2 rounded-full bg-gray-700 hover:bg-gray-600 transition flex items-center gap-1"
+              title="Purchase History"
+            >
+              <History size={20} />
+            </button>
+            <button 
+              onClick={() => setIsCartOpen(true)}
+              className="relative p-2 rounded-full bg-gray-700 hover:bg-gray-600 transition"
+            >
+              <ShoppingCart size={24} />
+              {totalItems > 0 && (
+                <span className="absolute -top-1 -right-1 bg-orange-500 text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                  {totalItems}
+                </span>
+              )}
+            </button>
+          </div>
         </div>
       </header>
 
@@ -399,10 +478,10 @@ export default function StorePage() {
                             Transaction ID: {receiptData.transactionId}
                           </p>
                           <button
-                            onClick={downloadReceipt}
-                            className="w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded transition flex items-center justify-center gap-2 mt-2"
+                            onClick={generatePDFReceipt}
+                            className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded transition flex items-center justify-center gap-2 mt-2"
                           >
-                            <Download size={18} /> Download Receipt
+                            <Download size={18} /> Download Receipt (PDF)
                           </button>
                         </div>
 
@@ -452,6 +531,99 @@ export default function StorePage() {
                   </div>
                 )}
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Receipt History Modal */}
+      {viewHistory && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setViewHistory(false)}></div>
+          <div className="relative max-w-2xl mx-auto my-8 bg-gray-800 rounded-lg shadow-xl overflow-hidden">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold">Purchase History</h2>
+                <button 
+                  onClick={() => setViewHistory(false)}
+                  className="text-gray-400 hover:text-white"
+                >
+                  <span className="sr-only">Close</span>
+                  &times;
+                </button>
+              </div>
+
+              <div className="relative mb-6">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Search className="text-gray-400" size={18} />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search transactions..."
+                  className="w-full pl-10 pr-4 py-2 bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+
+              {filteredReceipts.length === 0 ? (
+                <div className="text-center py-8">
+                  <History size={48} className="mx-auto text-gray-600 mb-4" />
+                  <p className="text-gray-400">
+                    {searchTerm ? 'No matching transactions found' : 'No purchase history yet'}
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4 max-h-96 overflow-y-auto">
+                  {filteredReceipts.map(receipt => (
+                    <div key={receipt.transactionId} className="bg-gray-700/50 rounded-lg p-4 border border-gray-600">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="font-bold">{receipt.transactionId}</h3>
+                          <p className="text-sm text-gray-400">{receipt.date}</p>
+                        </div>
+                        <span className={`px-2 py-1 rounded-full text-xs font-bold ${
+                          receipt.status === 'completed' 
+                            ? 'bg-green-500/20 text-green-400' 
+                            : 'bg-yellow-500/20 text-yellow-400'
+                        }`}>
+                          {receipt.status}
+                        </span>
+                      </div>
+                      <div className="mt-3">
+                        <div className="flex justify-between text-sm mb-1">
+                          <span>Items:</span>
+                          <span>{receipt.items.reduce((sum, item) => sum + item.quantity, 0)}</span>
+                        </div>
+                        <div className="flex justify-between text-sm font-bold">
+                          <span>Total:</span>
+                          <span>₹{receipt.total}</span>
+                        </div>
+                      </div>
+                      <div className="mt-4 flex justify-end gap-2">
+                        <button
+                          onClick={() => {
+                            setReceiptData(receipt);
+                            setIsCartOpen(true);
+                          }}
+                          className="text-sm bg-gray-600 hover:bg-gray-500 px-3 py-1 rounded"
+                        >
+                          View Details
+                        </button>
+                        <button
+                          onClick={() => {
+                            setReceiptData(receipt);
+                            generatePDFReceipt();
+                          }}
+                          className="text-sm bg-purple-600 hover:bg-purple-500 px-3 py-1 rounded"
+                        >
+                          Download
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
