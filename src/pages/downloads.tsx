@@ -1,4 +1,4 @@
-// src/pages/downloads.tsxx
+// src/pages/downloads.tsxxx
 import { useState } from 'react';
 import { Download, Clock, Zap, CheckCircle, ArrowRight, Star, Award, Users, Trophy, Shirt, Activity, Smile, Film } from 'lucide-react';
 import Link from 'next/link';
