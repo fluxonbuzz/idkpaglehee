@@ -38,7 +38,7 @@ import VanillaTilt from "vanilla-tilt";
 import { motion } from "framer-motion";
 
 const modStats = [
-  { label: "Active Community Members", value: "1k+" },
+  { label: "Active Community Members", value: "1.5k+" },
   { label: "Supported Games", value: "1+" },
 ];
 
@@ -47,7 +47,7 @@ const featuredMods = [
     title: "Crick Fusion X",
     description: "Enhanced version with more features and content",
     image: "assets/fusionx.png",
-    href: "",
+    href: "/downloads",
     status: "available",
     version: "V2.0"
   },
@@ -170,7 +170,7 @@ export default function Home() {
               </Link>
               <nav className="flex gap-6">
                 <Link href="/store" className="hover:text-blue-400 transition">Store</Link>
-                <Link href="/downloads" className="text-blue-400 font-medium">Downloads</Link>
+                <Link href="/downloads" className="text-blue-400 font-medium">Games</Link>
               </nav>
             </div>
           </header>
@@ -445,7 +445,7 @@ export default function Home() {
 
           {/* Footer */}
           <footer className="py-8 text-center text-gray-300 border-t border-gray-800">
-            <p>Made with ❤️ by Shiva X Mods</p>
+            <p>Kya haal hai bhai😉</p>
           </footer>
         </div>
       </Container>
