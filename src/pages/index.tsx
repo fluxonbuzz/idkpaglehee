@@ -440,6 +440,46 @@ export default function Home() {
                   </Button>
                 </Link>
               </div>
+              
+              {/* WhatsApp Section */}
+              <div
+                data-scroll
+                data-scroll-speed=".4"
+                data-scroll-position="top"
+                className="flex flex-col items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500/[6.5%] to-white/5 px-8 py-16 text-center xl:py-24 border border-emerald-500/30"
+              >
+                <h2 className="text-4xl font-medium tracking-tighter xl:text-6xl bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                  Our <span className="bg-gradient-to-r from-emerald-400 to-green-500 bg-clip-text text-transparent">WhatsApp</span>
+                </h2>
+                <p className="mt-1.5 text-base tracking-tight text-gray-300 xl:text-lg">
+                  Join our whatsapp channel for updates
+                </p>
+                <Link href="https://whatsapp.com/channel/0029VahlLPoL7UVeLB3n5h3e" passHref>
+                  <Button className="mt-6 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700">
+                    Join WhatsApp
+                  </Button>
+                </Link>
+              </div>
+              
+              {/* YouTube Section */}
+              <div
+                data-scroll
+                data-scroll-speed=".4"
+                data-scroll-position="top"
+                className="flex flex-col items-center justify-center rounded-xl bg-gradient-to-br from-red-500/[6.5%] to-white/5 px-8 py-16 text-center xl:py-24 border border-red-500/30"
+              >
+                <h2 className="text-4xl font-medium tracking-tighter xl:text-6xl bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                  Our <span className="bg-gradient-to-r from-red-400 to-red-500 bg-clip-text text-transparent">YouTube</span>
+                </h2>
+                <p className="mt-1.5 text-base tracking-tight text-gray-300 xl:text-lg">
+                  Watch tutorials, teasers and many more
+                </p>
+                <Link href="https://youtube.com/@shivaxmods?si=VLy0lsBduok_A-yh" passHref>
+                  <Button className="mt-6 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700">
+                    Subscribe
+                  </Button>
+                </Link>
+              </div>
             </div>
           </section>
 
