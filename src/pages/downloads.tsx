@@ -157,7 +157,7 @@ export default function DownloadsPage() {
 
         {/* Feature Highlights */}
         <section className="bg-gray-800/50 rounded-xl p-8 mb-16 border border-gray-700">
-          <h2 className="text-2xl font-bold mb-6 text-center">Cricket Fusion X V2 Exclusive Features</h2>
+          <h2 className="text-2xl font-bold mb-6 text-center">Crick Fusion Exclusive Features</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700">
               <div className="flex items-center mb-3">
@@ -198,7 +198,7 @@ export default function DownloadsPage() {
         {/* Newsletter */}
         <section className="bg-gradient-to-r from-purple-900/50 to-blue-900/50 rounded-xl p-8 border border-purple-500/30">
           <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-2xl font-bold mb-3">Get Early Access to Cricket Fusion V1</h2>
+            <h2 className="text-2xl font-bold mb-3">Get Early Access to Crick Fusion V1</h2>
             <p className="text-gray-300 mb-6">Sign up for beta testing and be the first to experience the remake of the classic</p>
             <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
               <input 
