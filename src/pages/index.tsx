@@ -48,7 +48,7 @@ const featuredMods = [
     description: "Complete cricket gameplay overhaul with realistic physics",
     image: "assets/fusion.png",
     href: "",
-    status: "available",
+    status: "coming-soon",
     version: "V1.0"
   },
   {
