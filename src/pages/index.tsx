@@ -44,14 +44,6 @@ const modStats = [
 
 const featuredMods = [
   {
-    title: "Crick Fusion",
-    description: "Complete cricket gameplay overhaul with realistic physics",
-    image: "assets/fusion.png",
-    href: "",
-    status: "coming-soon",
-    version: "V1.0"
-  },
-  {
     title: "Crick Fusion X",
     description: "Enhanced version with more features and content",
     image: "assets/fusionx.png",
