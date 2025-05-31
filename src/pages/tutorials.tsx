@@ -13,14 +13,6 @@ export default function Tutorials() {
       duration: "1 min",
       href: "https://youtube.com/shorts/atHXRPSUyTk?si=m7Gl9JKFVXxAa4RZ"
     },
-    {
-      title: "Mod Installation Tutorial",
-      description: "Step-by-step guide to installing mods using our manager",
-      icon: Download,
-      level: "Beginner",
-      duration: "10 min",
-      href: "#"
-    },
   ];
 
   return (
