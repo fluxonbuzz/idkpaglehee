@@ -1,9 +1,7 @@
 // pages/membership.tsx
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import { ShieldCheck, Send, Star, Zap, Crown, Gift, CheckCircle, Key, Lock } from 'lucide-react';
-import fs from 'fs';
-import path from 'path';
+import { ShieldCheck, Send, Star, Zap, Crown, Gift } from 'lucide-react';
 
 interface MembershipTier {
   id: string;
@@ -22,29 +20,6 @@ interface Seller {
   role: string;
   avatar: string;
   telegram: string;
-}
-
-interface MembershipData {
-  keys: {
-    [key: string]: {
-      tier: string;
-      used: boolean;
-      generatedBy: string;
-      generatedAt: string;
-      ip?: string;
-    };
-  };
-  members: {
-    [ip: string]: {
-      tier: string;
-      activatedAt: string;
-      expiresAt: string;
-      keyUsed: string;
-    };
-  };
-  settings: {
-    adminPassword: string;
-  };
 }
 
 const membershipTiers: MembershipTier[] = [
@@ -111,113 +86,59 @@ const sellers: Seller[] = [
 
 export default function MembershipPage() {
   const [selectedTier, setSelectedTier] = useState<MembershipTier | null>(null);
-  const [membershipKey, setMembershipKey] = useState('');
-  const [activeMembership, setActiveMembership] = useState<any>(null);
-  const [adminMode, setAdminMode] = useState(false);
-  const [adminPassword, setAdminPassword] = useState('');
-  const [generatedKey, setGeneratedKey] = useState('');
-  const [keyTier, setKeyTier] = useState('pro');
-  const [userIP, setUserIP] = useState('');
-  const passwordInputRef = useRef<HTMLInputElement>(null);
+  const [receiptData, setReceiptData] = useState({
+    transactionId: '',
+    date: '',
+    tier: '',
+    price: 0,
+    status: 'pending'
+  });
 
-  // Load membership data and user IP
-  useEffect(() => {
-    // In a real app, you'd get the IP from an API or server-side
-    fetch('https://api.ipify.org?format=json')
-      .then(response => response.json())
-      .then(data => setUserIP(data.ip))
-      .catch(() => setUserIP('unknown'));
-
-    // Load membership data
-    loadMembershipData();
-  }, []);
-
-  // Keyboard shortcut for admin mode (Ctrl+*)
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.key === '*') {
-        setAdminMode(true);
-        setTimeout(() => {
-          if (passwordInputRef.current) {
-            passwordInputRef.current.focus();
-          }
-        }, 100);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
-  const loadMembershipData = () => {
-    // In a real app, you'd load this from your JSON file
-    // This is a mock implementation
-    const mockData: MembershipData = {
-      keys: {
-        "ABC123": {
-          tier: "pro",
-          used: false,
-          generatedBy: "admin",
-          generatedAt: new Date().toISOString()
-        }
-      },
-      members: {
-        "192.168.1.1": {
-          tier: "pro",
-          activatedAt: new Date().toISOString(),
-          expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-          keyUsed: "ABC123"
-        }
-      },
-      settings: {
-        adminPassword: "1234"
-      }
-    };
-
-    // Check if current IP has an active membership
-    if (userIP && mockData.members[userIP]) {
-      setActiveMembership(mockData.members[userIP]);
-    }
+  const generateReceipt = (tier: MembershipTier) => {
+    const transactionId = `SX-MEM-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+    const date = new Date().toLocaleString();
+    
+    setReceiptData({
+      transactionId,
+      date,
+      tier: tier.name,
+      price: tier.price,
+      status: 'pending'
+    });
+    
+    setSelectedTier(tier);
   };
 
-  const activateMembership = () => {
-    if (!membershipKey || !selectedTier) return;
+  const copyReceiptToClipboard = () => {
+    if (!selectedTier) return;
+    
+    const receiptText = `
+      SX STORE - MEMBERSHIP PURCHASE
+      -----------------------------
+      Transaction ID: ${receiptData.transactionId}
+      Date: ${receiptData.date}
+      
+      MEMBERSHIP:
+      - ${selectedTier.name} Tier: ₹${selectedTier.price}/${selectedTier.duration}
+      
+      FEATURES:
+      ${selectedTier.features.map(feature => `      • ${feature}`).join('\n')}
+      
+      CONTACT SELLERS:
+      - d4vd (Co-Owner): https://t.me/d4vdprofile
+      - Shiva (Owner): https://t.me/shivaprofile
+      
+      DIGITALLY SIGNED:
+      ${new Date().toISOString()}
+      🚀 SX Store - Premium Gaming Marketplace
+    `;
 
-    // In a real app, you'd validate against your JSON file
-    // This is a mock implementation
-    const isValidKey = membershipKey === "ABC123" && selectedTier.id === "pro";
-
-    if (isValidKey) {
-      const expiryDate = new Date();
-      expiryDate.setMonth(expiryDate.getMonth() + 1);
-
-      const newMembership = {
-        tier: selectedTier.id,
-        activatedAt: new Date().toISOString(),
-        expiresAt: expiryDate.toISOString(),
-        keyUsed: membershipKey
-      };
-
-      // In a real app, you'd save this to your JSON file
-      setActiveMembership(newMembership);
-      alert("Membership activated successfully!");
-    } else {
-      alert("Invalid membership key or key doesn't match selected tier");
-    }
-  };
-
-  const generateKey = () => {
-    if (adminPassword !== "1234") {
-      alert("Invalid admin password");
-      return;
-    }
-
-    const newKey = `SX-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-    setGeneratedKey(newKey);
-
-    // In a real app, you'd save this to your JSON file
-    // With the IP restriction if needed
-    alert(`Key generated: ${newKey}\nFor tier: ${keyTier}`);
+    navigator.clipboard.writeText(receiptText)
+      .then(() => alert('Receipt copied to clipboard! Share it with the seller.'))
+      .catch(() => alert('Failed to copy receipt. Please manually copy the transaction ID.'));
+    
+    // Update receipt status to completed
+    setReceiptData({ ...receiptData, status: 'completed' });
   };
 
   return (
@@ -237,155 +158,16 @@ export default function MembershipPage() {
         </div>
       </header>
 
-      {/* Admin Panel Modal */}
-      {adminMode && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
-          <div className="bg-gray-800 rounded-xl p-6 max-w-md w-full border border-purple-500">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold">Admin Panel</h2>
-              <button 
-                onClick={() => {
-                  setAdminMode(false);
-                  setAdminPassword('');
-                  setGeneratedKey('');
-                }}
-                className="text-gray-400 hover:text-white"
-              >
-                &times;
-              </button>
-            </div>
-
-            {!generatedKey ? (
-              <>
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-1">Admin Password</label>
-                  <input
-                    type="password"
-                    ref={passwordInputRef}
-                    value={adminPassword}
-                    onChange={(e) => setAdminPassword(e.target.value)}
-                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2"
-                    placeholder="Enter admin password"
-                  />
-                </div>
-
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-1">Select Tier</label>
-                  <select
-                    value={keyTier}
-                    onChange={(e) => setKeyTier(e.target.value)}
-                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2"
-                  >
-                    {membershipTiers.map(tier => (
-                      <option key={tier.id} value={tier.id}>{tier.name}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <button
-                  onClick={generateKey}
-                  className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded"
-                >
-                  Generate Key
-                </button>
-              </>
-            ) : (
-              <div className="text-center">
-                <div className="bg-gray-700/50 p-4 rounded-lg mb-4">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <Key className="text-yellow-400" />
-                    <span className="font-mono font-bold">{generatedKey}</span>
-                  </div>
-                  <p className="text-sm">For {keyTier} tier</p>
-                </div>
-                <p className="text-sm text-gray-400 mb-4">Share this key with the user. It can only be used once.</p>
-                <button
-                  onClick={() => {
-                    setGeneratedKey('');
-                    setAdminPassword('');
-                  }}
-                  className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
-                >
-                  Generate Another
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
       {/* Main Content */}
       <main className="container mx-auto px-4 py-12">
-        {/* Active Membership Banner */}
-        {activeMembership && (
-          <div className="mb-8 p-4 rounded-lg bg-green-900/50 border border-green-700">
-            <div className="flex items-center gap-3">
-              <CheckCircle className="text-green-400" />
-              <div>
-                <h3 className="font-bold">Active Membership</h3>
-                <p className="text-sm">
-                  {activeMembership.tier} Tier • Expires: {new Date(activeMembership.expiresAt).toLocaleDateString()}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Hero Section */}
         <section className="mb-16 text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-purple-500 to-blue-500 bg-clip-text text-transparent">
             SX Premium Memberships
           </h1>
           <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-            Unlock exclusive benefits with membership keys provided by admins
+            Unlock exclusive benefits, discounts, and content with our membership tiers
           </p>
-        </section>
-
-        {/* Membership Activation Section */}
-        <section className="max-w-lg mx-auto mb-16 bg-gray-800/50 p-6 rounded-xl border border-gray-700">
-          <div className="flex items-center gap-3 mb-4">
-            <Lock className="text-purple-400" size={24} />
-            <h2 className="text-2xl font-bold">Activate Membership</h2>
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">Select Tier</label>
-            <select
-              value={selectedTier?.id || ''}
-              onChange={(e) => {
-                const tier = membershipTiers.find(t => t.id === e.target.value);
-                setSelectedTier(tier || null);
-              }}
-              className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 mb-3"
-            >
-              <option value="">Select a tier</option>
-              {membershipTiers.map(tier => (
-                <option key={tier.id} value={tier.id}>{tier.name}</option>
-              ))}
-            </select>
-          </div>
-
-          {selectedTier && (
-            <>
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-1">Membership Key</label>
-                <input
-                  type="text"
-                  value={membershipKey}
-                  onChange={(e) => setMembershipKey(e.target.value)}
-                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2"
-                  placeholder="Enter your membership key"
-                />
-              </div>
-
-              <button
-                onClick={activateMembership}
-                className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded transition flex items-center justify-center gap-2"
-              >
-                <ShieldCheck size={18} /> Activate Membership
-              </button>
-            </>
-          )}
         </section>
 
         {/* Membership Tiers */}
@@ -393,14 +175,9 @@ export default function MembershipPage() {
           {membershipTiers.map(tier => (
             <div 
               key={tier.id} 
-              className={`relative rounded-xl overflow-hidden border-2 ${tier.popular ? 'border-purple-500' : 'border-gray-700'} bg-gray-800 ${activeMembership?.tier === tier.id ? 'ring-2 ring-purple-400' : ''}`}
+              className={`relative rounded-xl overflow-hidden border-2 ${tier.popular ? 'border-purple-500' : 'border-gray-700'} bg-gray-800`}
             >
-              {activeMembership?.tier === tier.id && (
-                <div className="absolute top-0 left-0 bg-purple-500 text-white text-xs font-bold px-3 py-1">
-                  YOUR PLAN
-                </div>
-              )}
-              {tier.popular && !activeMembership && (
+              {tier.popular && (
                 <div className="absolute top-0 right-0 bg-purple-500 text-white text-xs font-bold px-3 py-1 transform translate-x-2 -translate-y-2 rotate-6">
                   {tier.discount}
                 </div>
@@ -439,18 +216,165 @@ export default function MembershipPage() {
                 </ul>
                 
                 <button
-                  onClick={() => setSelectedTier(tier)}
+                  onClick={() => generateReceipt(tier)}
                   className={`w-full py-3 px-4 rounded-lg font-bold transition ${tier.popular ? 'bg-purple-600 hover:bg-purple-700' : 'bg-gray-700 hover:bg-gray-600'}`}
                 >
-                  {activeMembership?.tier === tier.id ? 'Current Plan' : 'Select Tier'}
+                  Get {tier.name}
                 </button>
               </div>
             </div>
           ))}
         </section>
 
-        {/* Rest of your content... */}
+        {/* Testimonials */}
+        <section className="max-w-4xl mx-auto mb-16">
+          <h2 className="text-2xl font-bold text-center mb-8">What Our Members Say</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-gray-800/50 p-6 rounded-xl border border-gray-700">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center font-bold">
+                  A
+                </div>
+                <div>
+                  <h4 className="font-bold">Aarav</h4>
+                  <p className="text-sm text-gray-400">Pro Member</p>
+                </div>
+              </div>
+              <p className="text-gray-300">
+                &quot;The 20% discount pays for itself in just a few purchases. The priority support is amazing too!&quot;
+              </p>
+            </div>
+            <div className="bg-gray-800/50 p-6 rounded-xl border border-gray-700">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center font-bold">
+                  P
+                </div>
+                <div>
+                  <h4 className="font-bold">Priya</h4>
+                  <p className="text-sm text-gray-400">Premium Member</p>
+                </div>
+              </div>
+              <p className="text-gray-300">
+                &quot;The exclusive items and personal account manager make the Premium tier totally worth it!&quot;
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ */}
+        <section className="max-w-4xl mx-auto">
+          <h2 className="text-2xl font-bold text-center mb-8">Frequently Asked Questions</h2>
+          <div className="space-y-4">
+            <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700">
+              <h3 className="font-bold mb-2">How do I activate my membership?</h3>
+              <p className="text-gray-300">
+                After purchasing, share your receipt with one of our sellers. They will activate your membership within 24 hours.
+              </p>
+            </div>
+            <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700">
+              <h3 className="font-bold mb-2">Can I upgrade my membership?</h3>
+              <p className="text-gray-300">
+                Yes! Contact any seller to upgrade. You&apos;ll only pay the difference between your current and new membership.
+              </p>
+            </div>
+            <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700">
+              <h3 className="font-bold mb-2">Is there a yearly payment option?</h3>
+              <p className="text-gray-300">
+                Currently we only offer monthly memberships. Yearly plans with additional discounts are coming soon!
+              </p>
+            </div>
+          </div>
+        </section>
       </main>
+
+      {/* Membership Purchase Modal */}
+      {selectedTier && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/70" onClick={() => setSelectedTier(null)}></div>
+          <div className="relative bg-gray-800 rounded-xl max-w-md w-full p-6 border border-gray-700">
+            <div className="flex justify-between items-start mb-6">
+              <div>
+                <h2 className="text-2xl font-bold">{selectedTier.name} Membership</h2>
+                <p className="text-gray-400">Transaction ID: {receiptData.transactionId}</p>
+              </div>
+              <button 
+                onClick={() => setSelectedTier(null)}
+                className="text-gray-400 hover:text-white text-2xl"
+              >
+                &times;
+              </button>
+            </div>
+
+            <div className="space-y-4 mb-6">
+              <div className="flex justify-between">
+                <span>Membership Tier</span>
+                <span className="font-bold">{selectedTier.name}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Duration</span>
+                <span>1 {selectedTier.duration}</span>
+              </div>
+              <div className="flex justify-between text-lg font-bold border-t border-gray-700 pt-2">
+                <span>Total</span>
+                <span>₹{selectedTier.price}</span>
+              </div>
+            </div>
+
+            {receiptData.status === 'pending' ? (
+              <>
+                <div className="bg-gray-700/50 p-4 rounded-lg mb-6">
+                  <h3 className="font-bold mb-3 text-center">Contact Sellers</h3>
+                  <div className="flex flex-col gap-4">
+                    {sellers.map(seller => (
+                      <div key={seller.id} className="flex items-center gap-3">
+                        <div className="relative">
+                          <div className="w-12 h-12 rounded-full bg-gray-600 overflow-hidden">
+                            <div className="w-full h-full flex items-center justify-center text-gray-300">
+                              {seller.name.charAt(0)}
+                            </div>
+                          </div>
+                          <span className="absolute -bottom-1 -right-1 bg-purple-500 text-xs px-1 rounded-full">
+                            {seller.role}
+                          </span>
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-medium">{seller.name}</h4>
+                          <p className="text-xs text-gray-400">{seller.role} of SX Store</p>
+                        </div>
+                        <a
+                          href={seller.telegram}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full"
+                        >
+                          <Send size={18} />
+                        </a>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <button
+                  onClick={copyReceiptToClipboard}
+                  className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded transition flex items-center justify-center gap-2"
+                >
+                  <ShieldCheck size={18} /> Copy Receipt to Clipboard
+                </button>
+              </>
+            ) : (
+              <div className="bg-green-500/10 border border-green-500/30 p-4 rounded-lg text-center">
+                <div className="flex items-center justify-center gap-2 text-green-400 mb-2">
+                  <ShieldCheck size={24} />
+                  <span className="font-bold">Purchase Complete!</span>
+                </div>
+                <p className="text-sm text-gray-300">
+                  Your membership will be activated within 24 hours after verification
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
