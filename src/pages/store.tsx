@@ -68,6 +68,14 @@ const storeData: Product[] = [
     image: '/store/rc20-legends.jpg',
     tags: ['DLC', 'Popular']
   },
+   {
+    id: 'boundary-hoarding-checker',
+    title: 'Boundary Hoarding Checker',
+    price: 70,
+    description: 'Check boundary hoardings in Real Cricket games',
+    image: '/store/hoarding-checker.jpg',
+    tags: ['Tool', 'Instant Delivery']
+  },
   {
     id: 'netflix-premium',
     title: 'Netflix Premium Account',
@@ -437,9 +445,10 @@ export default function StorePage() {
               <p className="text-gray-200 mb-4">
                 Get 25% discount on all items, exclusive content, and priority support!
               </p>
-              <button className="bg-white text-purple-600 font-bold py-2 px-6 rounded-full hover:bg-gray-100 transition">
-                Upgrade Now
-              </button>
+            {/* Update the membership button to use Link */}
+<Link href="/membership" className="bg-white text-purple-600 font-bold py-2 px-6 rounded-full hover:bg-gray-100 transition">
+  Upgrade Now
+</Link>
             </div>
             <div className="bg-white/10 p-4 rounded-lg border border-white/20">
               <div className="flex items-center gap-2">
