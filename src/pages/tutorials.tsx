@@ -1,6 +1,6 @@
 import Container from "@/components/Container";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Download, Video, Code2, Settings, FileText } from "lucide-react";
+import { Download, Video, Code2, Settings, FileText } from "lucide-react"; // Removed unused BookOpen
 import Link from "next/link";
 
 export default function Tutorials() {
@@ -88,7 +88,7 @@ export default function Tutorials() {
           </div>
 
           <div className="mt-16 text-center">
-            <h2 className="text-2xl md:text-3xl font-semibold mb-6">Can't find what you're looking for?</h2>
+            <h2 className="text-2xl md:text-3xl font-semibold mb-6">Can&apos;t find what you&apos;re looking for?</h2>
             <div className="flex flex-wrap justify-center gap-4">
               <Link href="/community">
                 <Button className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700">
