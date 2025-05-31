@@ -16,29 +16,22 @@ export default function Community() {
       title: "Telegram Group",
       description: "Instant messaging community for quick discussions",
       icon: MessageCircle,
-      href: "#",
+      href: "https://t.me/ShivaNation",
       stats: "500+ Members"
     },
     {
       title: "WhatsApp Channel",
       description: "Connect with us",
       icon: MessageCircle,
-      href: "#",
+      href: "https://whatsapp.com/channel/0029VahlLPoL7UVeLB3n5h3e",
       stats: "800+ Members"
     },
     {
       title: "YouTube Channel",
       description: "Tutorials, showcases and community updates",
       icon: Youtube,
-      href: "#",
+      href: "https://www.youtube.com/@adore-py",
       stats: "1k+ Subscribers"
-    },
-    {
-      title: "Showcase Your Work",
-      description: "Share your mods and get feedback from other creators",
-      icon: Award,
-      href: "#",
-      stats: "100+ Creations"
     },
   ];
 
@@ -47,7 +40,7 @@ export default function Community() {
       title: "Support & Help",
       description: "Get help from experienced community members",
       icon: Heart,
-      href: "#",
+      href: "/support",
       stats: "24/7 Active"
     },
   ];
