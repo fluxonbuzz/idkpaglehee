@@ -18,6 +18,8 @@ import {
   Crown,
   BookOpen,
   MessageSquare,
+  Menu,
+  X,
 } from "lucide-react";
 import { TriangleDownIcon } from "@radix-ui/react-icons";
 import Link from "next/link";
@@ -82,7 +84,7 @@ const modFeatures = [
   },
 ];
 
-const topLinks = [
+const navLinks = [
   { name: "Home", href: "/", icon: HomeIcon },
   { name: "Store", href: "/store", icon: ShoppingCart },
   { name: "Games", href: "/downloads", icon: Gamepad2 },
@@ -98,6 +100,7 @@ export default function Home() {
   const [carouselApi, setCarouselApi] = useState<CarouselApi | null>(null);
   const [current, setCurrent] = useState<number>(0);
   const [count, setCount] = useState<number>(0);
+  const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
 
   // handle scroll
   useEffect(() => {
@@ -168,34 +171,6 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
       <Container>
         <div ref={refScrollContainer}>
-          {/* Top Navigation Slider */}
-          <div className="bg-gray-800/80 backdrop-blur-md border-b border-gray-700 overflow-hidden">
-            <div className="container mx-auto px-4">
-              <Carousel
-                opts={{
-                  align: "start",
-                  loop: true,
-                  dragFree: true,
-                }}
-                className="w-full py-2"
-              >
-                <CarouselContent className="-ml-1">
-                  {topLinks.map((link) => (
-                    <CarouselItem key={link.name} className="pl-1 basis-auto">
-                      <Link
-                        href={link.href}
-                        className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-700/50 transition-colors"
-                      >
-                        <link.icon className="h-4 w-4" />
-                        <span className="text-sm font-medium">{link.name}</span>
-                      </Link>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-              </Carousel>
-            </div>
-          </div>
-
           {/* Header */}
           <header className="bg-gray-800/50 backdrop-blur-md sticky top-0 z-10 border-b border-gray-700">
             <div className="container mx-auto px-4 py-4 flex justify-between items-center">
@@ -205,19 +180,51 @@ export default function Home() {
               >
                 Shiva X Mods
               </Link>
-              <nav className="flex gap-6">
-                <Link href="/store" className="hover:text-blue-400 transition">
-                  Store
-                </Link>
-                <Link
-                  href="/downloads"
-                  className="text-blue-400 font-medium"
-                >
-                  Games
-                </Link>
-              </nav>
+              <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="p-2 rounded-md hover:bg-gray-700 transition-colors"
+              >
+                <Menu className="h-6 w-6" />
+              </button>
             </div>
           </header>
+
+          {/* Sidebar */}
+          <div
+            className={`fixed inset-y-0 right-0 z-50 w-64 bg-gray-900/95 backdrop-blur-lg border-l border-gray-800 transform ${
+              sidebarOpen ? "translate-x-0" : "translate-x-full"
+            } transition-transform duration-300 ease-in-out`}
+          >
+            <div className="flex justify-end p-4">
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="p-2 rounded-md hover:bg-gray-800 transition-colors"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+            <nav className="flex flex-col px-4 py-6 space-y-4">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors"
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  <link.icon className="h-5 w-5" />
+                  <span className="text-lg font-medium">{link.name}</span>
+                </Link>
+              ))}
+            </nav>
+          </div>
+
+          {/* Overlay */}
+          {sidebarOpen && (
+            <div
+              className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+              onClick={() => setSidebarOpen(false)}
+            />
+          )}
 
           {/* Hero Section */}
           <section
