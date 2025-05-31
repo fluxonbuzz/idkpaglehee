@@ -442,9 +442,9 @@ export default function Home() {
                   Our <span className="bg-gradient-to-r from-emerald-400 to-green-500 bg-clip-text text-transparent">WhatsApp</span>
                 </h2>
                 <p className="mt-1.5 text-base tracking-tight text-gray-300 xl:text-lg">
-                  Chat with us directly for support
+                  Join our WhatsApp channel
                 </p>
-                <Link href="https://wa.me/yourwhatsapplink" passHref>
+                <Link href="https://whatsapp.com/channel/0029VahlLPoL7UVeLB3n5h3e" passHref>
                   <Button className="mt-6 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700">
                     Join WhatsApp
                   </Button>
@@ -462,9 +462,9 @@ export default function Home() {
                   Our <span className="bg-gradient-to-r from-red-400 to-red-500 bg-clip-text text-transparent">YouTube</span>
                 </h2>
                 <p className="mt-1.5 text-base tracking-tight text-gray-300 xl:text-lg">
-                  Watch tutorials and mod showcases
+                  Watch tutorials, teasers and more
                 </p>
-                <Link href="https://youtube.com/yourchannellink" passHref>
+                <Link href="https://youtube.com/@shivaxmods?si=VLy0lsBduok_A-yh" passHref>
                   <Button className="mt-6 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700">
                     Subscribe
                   </Button>
