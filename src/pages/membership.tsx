@@ -60,9 +60,9 @@ const membershipTiers: MembershipTier[] = [
       'All Pro features',
       'Exclusive items',
       'Personal account manager',
-      'Monthly free product'
+      'Buy one get one free'
     ],
-    originalPrice: 300,
+    originalPrice: 500,
     discount: 'Best Value'
   }
 ];
