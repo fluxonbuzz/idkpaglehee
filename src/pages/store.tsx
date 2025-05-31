@@ -1,9 +1,7 @@
 // src/pages/store.tsx
 import { useState, useEffect } from 'react';
-import { ShoppingCart, Tag, Download, Star, ShieldCheck, Send, History, Search } from 'lucide-react';
+import { ShoppingCart, Tag, Star, ShieldCheck, Send, History, Search } from 'lucide-react';
 import Link from 'next/link';
-import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
 
 // Type definitions
 interface Product {
@@ -90,7 +88,6 @@ const sellers: Seller[] = [
   }
 ];
 
-// Enhanced type guard for CartItem
 function isCartItem(item: unknown): item is CartItem {
   if (typeof item !== 'object' || item === null) return false;
   
@@ -199,64 +196,34 @@ export default function StorePage() {
     setCart([]);
   };
 
-  const generatePDFReceipt = () => {
+  const copyReceiptToClipboard = () => {
     if (!receiptData) return;
     
-    const doc = new jsPDF();
-    
-    // Add logo or header
-    doc.setFontSize(20);
-    doc.setTextColor(100, 100, 255);
-    doc.text('SX STORE - OFFICIAL RECEIPT', 105, 20, { align: 'center' });
-    
-    // Add transaction details
-    doc.setFontSize(12);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`Transaction ID: ${receiptData.transactionId}`, 14, 35);
-    doc.text(`Date: ${receiptData.date}`, 14, 45);
-    
-    // Add items table
-    const itemsData = receiptData.items.map(item => [
-      item.title,
-      item.quantity,
-      `₹${item.price}`,
-      `₹${item.price * item.quantity}`
-    ]);
-    
-    (doc as any).autoTable({
-      startY: 55,
-      head: [['Item', 'Qty', 'Price', 'Total']],
-      body: itemsData,
-      theme: 'grid',
-      headStyles: {
-        fillColor: [100, 100, 255],
-        textColor: 255
-      }
-    });
-    
-    // Add total
-    const finalY = (doc as any).lastAutoTable.finalY + 10;
-    doc.setFontSize(14);
-    doc.setFont(undefined, 'bold');
-    doc.text(`TOTAL: ₹${receiptData.total}`, 14, finalY);
-    
-    // Add footer
-    doc.setFontSize(10);
-    doc.setFont(undefined, 'normal');
-    doc.text('Thank you for your purchase!', 105, finalY + 20, { align: 'center' });
-    doc.text('Contact our sellers for delivery:', 105, finalY + 30, { align: 'center' });
-    
-    // Add seller info
-    sellers.forEach((seller, index) => {
-      doc.text(
-        `${seller.name} (${seller.role}): ${seller.telegram.replace('https://', '')}`,
-        14,
-        finalY + 40 + (index * 5)
-      );
-    });
-    
-    // Save the PDF
-    doc.save(`sx-receipt-${receiptData.transactionId}.pdf`);
+    const receiptText = `
+      SX STORE - OFFICIAL RECEIPT
+      ---------------------------
+      Transaction ID: ${receiptData.transactionId}
+      Date: ${receiptData.date}
+      
+      ITEMS:
+      ${receiptData.items.map(item => `
+      - ${item.title} x${item.quantity}: ₹${item.price * item.quantity}
+      `).join('')}
+      
+      TOTAL: ₹${receiptData.total}
+      
+      CONTACT SELLERS:
+      - d4vd (Co-Owner): https://t.me/d4vdprofile
+      - Shiva (Owner): https://t.me/shivaprofile
+      
+      DIGITALLY SIGNED:
+      ${new Date().toISOString()}
+      🚀 SX Store - Premium Gaming Marketplace
+    `;
+
+    navigator.clipboard.writeText(receiptText)
+      .then(() => alert('Receipt copied to clipboard! Share it with the seller.'))
+      .catch(() => alert('Failed to copy receipt. Please manually copy the transaction ID.'));
     
     // Update receipt status to completed
     setReceiptData({ ...receiptData, status: 'completed' });
@@ -478,10 +445,10 @@ export default function StorePage() {
                             Transaction ID: {receiptData.transactionId}
                           </p>
                           <button
-                            onClick={generatePDFReceipt}
+                            onClick={copyReceiptToClipboard}
                             className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded transition flex items-center justify-center gap-2 mt-2"
                           >
-                            <Download size={18} /> Download Receipt (PDF)
+                            Copy Receipt to Clipboard
                           </button>
                         </div>
 
@@ -613,11 +580,11 @@ export default function StorePage() {
                         <button
                           onClick={() => {
                             setReceiptData(receipt);
-                            generatePDFReceipt();
+                            copyReceiptToClipboard();
                           }}
                           className="text-sm bg-purple-600 hover:bg-purple-500 px-3 py-1 rounded"
                         >
-                          Download
+                          Copy Receipt
                         </button>
                       </div>
                     </div>
