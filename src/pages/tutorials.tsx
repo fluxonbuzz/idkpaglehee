@@ -21,30 +21,6 @@ export default function Tutorials() {
       duration: "10 min",
       href: "#"
     },
-    {
-      title: "Advanced Modding Techniques",
-      description: "Learn how to create your own custom mods and tweaks",
-      icon: Code2,
-      level: "Advanced",
-      duration: "45 min",
-      href: "#"
-    },
-    {
-      title: "Troubleshooting Common Issues",
-      description: "Fix common problems with mod installation and gameplay",
-      icon: FileText,
-      level: "Intermediate",
-      duration: "20 min",
-      href: "#"
-    },
-    {
-      title: "Video Tutorial Series",
-      description: "Watch our comprehensive video tutorial series on YouTube",
-      icon: Video,
-      level: "All Levels",
-      duration: "2h+",
-      href: "#"
-    },
   ];
 
   return (
