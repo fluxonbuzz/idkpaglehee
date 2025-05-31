@@ -1,4 +1,3 @@
-// src/pages/store.tsx
 import { useState, useEffect } from 'react';
 import { ShoppingCart, Tag, Star, ShieldCheck, Send, History, Search } from 'lucide-react';
 import Link from 'next/link';
@@ -105,6 +104,19 @@ function isCartItem(item: unknown): item is CartItem {
   );
 }
 
+function isReceiptData(item: unknown): item is ReceiptData {
+  if (typeof item !== 'object' || item === null) return false;
+  
+  const receipt = item as Record<string, unknown>;
+  return (
+    typeof receipt.date === 'string' &&
+    typeof receipt.total === 'number' &&
+    typeof receipt.transactionId === 'string' &&
+    (receipt.status === 'pending' || receipt.status === 'completed') &&
+    Array.isArray(receipt.items)
+  );
+}
+
 export default function StorePage() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -113,7 +125,7 @@ export default function StorePage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [viewHistory, setViewHistory] = useState(false);
 
-  // Load cart and receipt history from localStorage
+  // Load cart from localStorage with proper type checking
   useEffect(() => {
     const savedCart = localStorage.getItem('sx-store-cart');
     if (savedCart) {
@@ -127,13 +139,17 @@ export default function StorePage() {
         console.error('Failed to parse cart data', e);
       }
     }
+  }, []);
 
+  // Load receipt history from localStorage with proper type checking
+  useEffect(() => {
     const savedHistory = localStorage.getItem('sx-store-receipts');
     if (savedHistory) {
       try {
-        const parsed = JSON.parse(savedHistory);
+        const parsed: unknown = JSON.parse(savedHistory);
         if (Array.isArray(parsed)) {
-          setReceiptHistory(parsed);
+          const validReceipts = parsed.filter(isReceiptData);
+          setReceiptHistory(validReceipts);
         }
       } catch (e) {
         console.error('Failed to parse receipt history', e);
