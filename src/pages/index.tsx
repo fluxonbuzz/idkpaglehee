@@ -1,5 +1,5 @@
 import Container from "@/components/Container";
-import { useEffect, useRef, Suspense, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "@/styles/Home.module.css";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,23 +9,19 @@ import {
   Sparkles,
   Download,
   Users,
-  MonitorSmartphone,
-  Zap,
   CheckCircle,
-  Clock,
-  Star,
-  Award,
-  Trophy,
   Shirt,
-  Activity,
-  Smile,
-  Film
+  Trophy,
+  Film,
+  Home,
+  ShoppingCart,
+  Crown,
+  BookOpen,
+  MessageSquare,
 } from "lucide-react";
 import { TriangleDownIcon } from "@radix-ui/react-icons";
 import Link from "next/link";
-import { cn, scrollTo } from "@/lib/utils";
-import Image from "next/image";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import {
   Carousel,
   CarouselContent,
@@ -49,7 +45,7 @@ const featuredMods = [
     image: "assets/fusionx.png",
     href: "/downloads",
     status: "available",
-    version: "V2.0"
+    version: "V2.0",
   },
 ];
 
@@ -58,32 +54,42 @@ const modFeatures = [
     feature: "Gameplay Enhancements",
     description: "Transform your games with new mechanics and systems",
     icon: Gamepad2,
-    color: "text-blue-400"
+    color: "text-blue-400",
   },
   {
     feature: "HD Graphics",
     description: "Stunning visual upgrades with 4K textures and effects",
     icon: Sparkles,
-    color: "text-purple-400"
+    color: "text-purple-400",
   },
   {
     feature: "New Content",
     description: "Additional maps, players, stadium and more",
     icon: Sword,
-    color: "text-green-400"
+    color: "text-green-400",
   },
   {
     feature: "Multiplayer Support",
     description: "Mods designed for online play with friends",
     icon: Users,
-    color: "text-yellow-400"
+    color: "text-yellow-400",
   },
   {
     feature: "Easy Installation",
     description: "One-click install for most mods with our manager",
     icon: Download,
-    color: "text-cyan-400"
+    color: "text-cyan-400",
   },
+];
+
+const topLinks = [
+  { name: "Home", href: "/", icon: Home },
+  { name: "Store", href: "/store", icon: ShoppingCart },
+  { name: "Games", href: "/downloads", icon: Gamepad2 },
+  { name: "Membership", href: "/membership", icon: Crown },
+  { name: "Tutorials", href: "/tutorials", icon: BookOpen },
+  { name: "Community", href: "/community", icon: Users },
+  { name: "Support", href: "/support", icon: MessageSquare },
 ];
 
 export default function Home() {
@@ -162,15 +168,53 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
       <Container>
         <div ref={refScrollContainer}>
+          {/* Top Navigation Slider */}
+          <div className="bg-gray-800/80 backdrop-blur-md border-b border-gray-700 overflow-hidden">
+            <div className="container mx-auto px-4">
+              <Carousel
+                opts={{
+                  align: "start",
+                  loop: true,
+                  dragFree: true,
+                }}
+                className="w-full py-2"
+              >
+                <CarouselContent className="-ml-1">
+                  {topLinks.map((link) => (
+                    <CarouselItem key={link.name} className="pl-1 basis-auto">
+                      <Link
+                        href={link.href}
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-700/50 transition-colors"
+                      >
+                        <link.icon className="h-4 w-4" />
+                        <span className="text-sm font-medium">{link.name}</span>
+                      </Link>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+              </Carousel>
+            </div>
+          </div>
+
           {/* Header */}
           <header className="bg-gray-800/50 backdrop-blur-md sticky top-0 z-10 border-b border-gray-700">
             <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-              <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">
+              <Link
+                href="/"
+                className="text-2xl font-bold bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent"
+              >
                 Shiva X Mods
               </Link>
               <nav className="flex gap-6">
-                <Link href="/store" className="hover:text-blue-400 transition">Store</Link>
-                <Link href="/downloads" className="text-blue-400 font-medium">Games</Link>
+                <Link href="/store" className="hover:text-blue-400 transition">
+                  Store
+                </Link>
+                <Link
+                  href="/downloads"
+                  className="text-blue-400 font-medium"
+                >
+                  Games
+                </Link>
               </nav>
             </div>
           </header>
@@ -217,7 +261,10 @@ export default function Home() {
                   </Button>
                 </Link>
                 <Link href="/store" passHref>
-                  <Button variant="outline" className="bg-gray-800 text-white hover:bg-gray-700 border-gray-700">
+                  <Button
+                    variant="outline"
+                    className="bg-gray-800 text-white hover:bg-gray-700 border-gray-700"
+                  >
                     Visit Store
                   </Button>
                 </Link>
@@ -226,10 +273,11 @@ export default function Home() {
               <div
                 className={cn(
                   styles.scroll,
-                  isScrolled && styles["scroll--hidden"],
+                  isScrolled && styles["scroll--hidden"]
                 )}
               >
-                Scroll to explore <TriangleDownIcon className="mt-1 animate-bounce" />
+                Scroll to explore{" "}
+                <TriangleDownIcon className="mt-1 animate-bounce" />
               </div>
             </div>
           </section>
@@ -279,7 +327,11 @@ export default function Home() {
                 />
               </div>
             </div>
-            <div data-scroll data-scroll-speed=".4" className="my-16 text-center">
+            <div
+              data-scroll
+              data-scroll-speed=".4"
+              className="my-16 text-center"
+            >
               <span className="text-sm font-semibold tracking-tighter bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">
                 🎮 Featured Mods
               </span>
@@ -296,7 +348,9 @@ export default function Home() {
                   <CarouselContent>
                     {featuredMods.map((mod) => (
                       <CarouselItem key={mod.title} className="md:basis-1/2">
-                        <div className={`bg-gray-800 rounded-xl overflow-hidden border border-green-500/30 hover:border-green-500 transition-all hover:shadow-lg hover:shadow-green-500/10`}>
+                        <div
+                          className={`bg-gray-800 rounded-xl overflow-hidden border border-green-500/30 hover:border-green-500 transition-all hover:shadow-lg hover:shadow-green-500/10`}
+                        >
                           <div className="h-48 bg-gradient-to-r from-gray-700 to-gray-800 relative overflow-hidden flex items-center justify-center">
                             <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
                               <span className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
@@ -304,19 +358,26 @@ export default function Home() {
                               </span>
                             </div>
                             <div className="absolute top-4 right-4 bg-green-600 text-xs font-bold px-3 py-1 rounded-full flex items-center">
-                              <CheckCircle size={14} className="mr-1" /> Available Now
+                              <CheckCircle size={14} className="mr-1" />{" "}
+                              Available Now
                             </div>
                           </div>
                           <div className="p-6">
                             <div className="flex justify-between items-start mb-4">
                               <div>
-                                <h3 className="text-2xl font-bold">{mod.title}</h3>
-                                <p className="text-gray-400">Version {mod.version}</p>
+                                <h3 className="text-2xl font-bold">
+                                  {mod.title}
+                                </h3>
+                                <p className="text-gray-400">
+                                  Version {mod.version}
+                                </p>
                               </div>
                             </div>
-                            <p className="text-gray-300 mb-5">{mod.description}</p>
+                            <p className="text-gray-300 mb-5">
+                              {mod.description}
+                            </p>
                             <Link
-                              href={mod.href ?? '#'}
+                              href={mod.href ?? "#"}
                               className="w-full bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white font-bold py-3 px-4 rounded transition flex items-center justify-center gap-2"
                             >
                               <Download size={18} /> Download Now
@@ -400,7 +461,10 @@ export default function Home() {
                 className="flex flex-col items-center justify-center rounded-xl bg-gradient-to-br from-green-500/[6.5%] to-white/5 px-8 py-16 text-center xl:py-24 border border-green-500/30"
               >
                 <h2 className="text-4xl font-medium tracking-tighter xl:text-6xl bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                  Join our <span className="bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">Discord</span>
+                  Join our{" "}
+                  <span className="bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">
+                    Discord
+                  </span>
                 </h2>
                 <p className="mt-1.5 text-base tracking-tight text-gray-300 xl:text-lg">
                   Connect with thousands of mod enthusiasts and creators
@@ -419,7 +483,10 @@ export default function Home() {
                 className="flex flex-col items-center justify-center rounded-xl bg-gradient-to-br from-blue-500/[6.5%] to-white/5 px-8 py-16 text-center xl:py-24 border border-blue-500/30"
               >
                 <h2 className="text-4xl font-medium tracking-tighter xl:text-6xl bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                  Our <span className="bg-gradient-to-r from-blue-400 to-cyan-500 bg-clip-text text-transparent">Telegram</span>
+                  Our{" "}
+                  <span className="bg-gradient-to-r from-blue-400 to-cyan-500 bg-clip-text text-transparent">
+                    Telegram
+                  </span>
                 </h2>
                 <p className="mt-1.5 text-base tracking-tight text-gray-300 xl:text-lg">
                   Get instant updates and announcements
@@ -430,7 +497,7 @@ export default function Home() {
                   </Button>
                 </Link>
               </div>
-              
+
               {/* WhatsApp Section */}
               <div
                 data-scroll
@@ -439,18 +506,24 @@ export default function Home() {
                 className="flex flex-col items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500/[6.5%] to-white/5 px-8 py-16 text-center xl:py-24 border border-emerald-500/30"
               >
                 <h2 className="text-4xl font-medium tracking-tighter xl:text-6xl bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                  Our <span className="bg-gradient-to-r from-emerald-400 to-green-500 bg-clip-text text-transparent">WhatsApp</span>
+                  Our{" "}
+                  <span className="bg-gradient-to-r from-emerald-400 to-green-500 bg-clip-text text-transparent">
+                    WhatsApp
+                  </span>
                 </h2>
                 <p className="mt-1.5 text-base tracking-tight text-gray-300 xl:text-lg">
                   Join our WhatsApp channel
                 </p>
-                <Link href="https://whatsapp.com/channel/0029VahlLPoL7UVeLB3n5h3e" passHref>
+                <Link
+                  href="https://whatsapp.com/channel/0029VahlLPoL7UVeLB3n5h3e"
+                  passHref
+                >
                   <Button className="mt-6 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700">
                     Join WhatsApp
                   </Button>
                 </Link>
               </div>
-              
+
               {/* YouTube Section */}
               <div
                 data-scroll
@@ -459,12 +532,18 @@ export default function Home() {
                 className="flex flex-col items-center justify-center rounded-xl bg-gradient-to-br from-red-500/[6.5%] to-white/5 px-8 py-16 text-center xl:py-24 border border-red-500/30"
               >
                 <h2 className="text-4xl font-medium tracking-tighter xl:text-6xl bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                  Our <span className="bg-gradient-to-r from-red-400 to-red-500 bg-clip-text text-transparent">YouTube</span>
+                  Our{" "}
+                  <span className="bg-gradient-to-r from-red-400 to-red-500 bg-clip-text text-transparent">
+                    YouTube
+                  </span>
                 </h2>
                 <p className="mt-1.5 text-base tracking-tight text-gray-300 xl:text-lg">
                   Watch tutorials, teasers and more
                 </p>
-                <Link href="https://youtube.com/@shivaxmods?si=VLy0lsBduok_A-yh" passHref>
+                <Link
+                  href="https://youtube.com/@shivaxmods?si=VLy0lsBduok_A-yh"
+                  passHref
+                >
                   <Button className="mt-6 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700">
                     Subscribe
                   </Button>
