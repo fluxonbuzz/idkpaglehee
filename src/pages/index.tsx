@@ -13,7 +13,7 @@ import {
   Shirt,
   Trophy,
   Film,
-  HomeIcon,
+  Home as HomeIcon,
   ShoppingCart,
   Crown,
   BookOpen,
@@ -83,7 +83,7 @@ const modFeatures = [
 ];
 
 const topLinks = [
-  { name: "Home", href: "/", icon: Home },
+  { name: "Home", href: "/", icon: HomeIcon },
   { name: "Store", href: "/store", icon: ShoppingCart },
   { name: "Games", href: "/downloads", icon: Gamepad2 },
   { name: "Membership", href: "/membership", icon: Crown },
