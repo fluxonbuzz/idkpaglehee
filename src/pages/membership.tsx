@@ -59,7 +59,6 @@ const membershipTiers: MembershipTier[] = [
       '24/7 VIP support',
       'All Pro features',
       'Exclusive items',
-      'Personal account manager',
       'Buy one get one free'
     ],
     originalPrice: 500,
