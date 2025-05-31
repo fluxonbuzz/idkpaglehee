@@ -264,7 +264,7 @@ export default function Home() {
               >
                 <Link href="/downloads" passHref>
                   <Button className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700">
-                    Download Mods <ChevronRight className="ml-1 h-4 w-4" />
+                    Games <ChevronRight className="ml-1 h-4 w-4" />
                   </Button>
                 </Link>
                 <Link href="/store" passHref>
