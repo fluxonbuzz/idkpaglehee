@@ -71,7 +71,7 @@ export default function Tutorials() {
                   Ask Our Community
                 </Button>
               </Link>
-              <Link href="/support">
+              <Link href="/community">
                 <Button variant="outline" className="border-purple-500/30 text-purple-300 hover:bg-purple-500/10 hover:text-purple-100">
                   Contact Support
                 </Button>
