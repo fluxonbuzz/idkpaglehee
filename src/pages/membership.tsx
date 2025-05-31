@@ -1,7 +1,7 @@
 // pages/membership.tsx
 import { useState } from 'react';
 import Link from 'next/link';
-import { ShieldCheck, Send, Star, Zap, Gift, Crown } from 'lucide-react';
+import { ShieldCheck, Send, Star, Zap, Crown, Gift } from 'lucide-react';
 
 interface MembershipTier {
   id: string;
@@ -241,7 +241,7 @@ export default function MembershipPage() {
                 </div>
               </div>
               <p className="text-gray-300">
-                "The 20% discount pays for itself in just a few purchases. The priority support is amazing too!"
+                &quot;The 20% discount pays for itself in just a few purchases. The priority support is amazing too!&quot;
               </p>
             </div>
             <div className="bg-gray-800/50 p-6 rounded-xl border border-gray-700">
@@ -255,7 +255,7 @@ export default function MembershipPage() {
                 </div>
               </div>
               <p className="text-gray-300">
-                "The exclusive items and personal account manager make the Premium tier totally worth it!"
+                &quot;The exclusive items and personal account manager make the Premium tier totally worth it!&quot;
               </p>
             </div>
           </div>
@@ -274,7 +274,7 @@ export default function MembershipPage() {
             <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700">
               <h3 className="font-bold mb-2">Can I upgrade my membership?</h3>
               <p className="text-gray-300">
-                Yes! Contact any seller to upgrade. You'll only pay the difference between your current and new membership.
+                Yes! Contact any seller to upgrade. You&apos;ll only pay the difference between your current and new membership.
               </p>
             </div>
             <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700">
