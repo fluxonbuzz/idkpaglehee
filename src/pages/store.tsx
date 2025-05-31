@@ -28,6 +28,7 @@ interface ReceiptData {
   date: string;
   items: ReceiptItem[];
   total: number;
+  discountApplied: number;
   transactionId: string;
   status: 'pending' | 'completed';
 }
@@ -66,6 +67,22 @@ const storeData: Product[] = [
     description: 'Unlock hero legends pack',
     image: '/store/rc20-legends.jpg',
     tags: ['DLC', 'Popular']
+  },
+  {
+    id: 'netflix-premium',
+    title: 'Netflix Premium Account',
+    price: 100,
+    description: '1-month premium account with 4K streaming',
+    image: '/store/netflix.jpg',
+    tags: ['Digital', 'Popular']
+  },
+  {
+    id: 'squad-editor',
+    title: 'Squad Editor for All RC Games',
+    price: 100,
+    description: 'Edit squads in all Real Cricket games',
+    image: '/store/squad-editor.jpg',
+    tags: ['Tool', 'Instant Delivery']
   }
 ];
 
@@ -111,6 +128,7 @@ function isReceiptData(item: unknown): item is ReceiptData {
   return (
     typeof receipt.date === 'string' &&
     typeof receipt.total === 'number' &&
+    typeof receipt.discountApplied === 'number' &&
     typeof receipt.transactionId === 'string' &&
     (receipt.status === 'pending' || receipt.status === 'completed') &&
     Array.isArray(receipt.items)
@@ -124,6 +142,9 @@ export default function StorePage() {
   const [receiptHistory, setReceiptHistory] = useState<ReceiptData[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [viewHistory, setViewHistory] = useState(false);
+  const [discountCode, setDiscountCode] = useState('');
+  const [discountApplied, setDiscountApplied] = useState(false);
+  const [discountError, setDiscountError] = useState('');
 
   // Load cart from localStorage with proper type checking
   useEffect(() => {
@@ -183,6 +204,10 @@ export default function StorePage() {
 
   const removeFromCart = (productId: string) => {
     setCart(prevCart => prevCart.filter(item => item.id !== productId));
+    // Remove discount if item is removed and total goes below 250
+    if (discountApplied && calculateSubtotal() - 50 < 250) {
+      setDiscountApplied(false);
+    }
   };
 
   const updateQuantity = (productId: string, newQuantity: number) => {
@@ -192,6 +217,53 @@ export default function StorePage() {
         item.id === productId ? { ...item, quantity: newQuantity } : item
       )
     );
+    // Remove discount if quantity is reduced and total goes below 250
+    if (discountApplied && calculateSubtotal() - 50 < 250) {
+      setDiscountApplied(false);
+    }
+  };
+
+  const calculateSubtotal = () => {
+    return cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  };
+
+  const calculateTotal = () => {
+    const subtotal = calculateSubtotal();
+    return discountApplied ? subtotal - 50 : subtotal;
+  };
+
+  const applyDiscount = () => {
+    const subtotal = calculateSubtotal();
+    const code = discountCode.trim().toUpperCase();
+    
+    if (code !== 'SX50') {
+      setDiscountError('Invalid discount code');
+      return;
+    }
+    
+    // Check if discount is valid (within 3 days from now)
+    const currentDate = new Date();
+    const discountValidUntil = new Date();
+    discountValidUntil.setDate(currentDate.getDate() + 3);
+    
+    if (currentDate > discountValidUntil) {
+      setDiscountError('Discount code has expired');
+      return;
+    }
+    
+    if (subtotal < 250) {
+      setDiscountError('Minimum purchase of ₹250 required');
+      return;
+    }
+    
+    setDiscountApplied(true);
+    setDiscountError('');
+  };
+
+  const removeDiscount = () => {
+    setDiscountApplied(false);
+    setDiscountCode('');
+    setDiscountError('');
   };
 
   const generateReceipt = () => {
@@ -203,13 +275,16 @@ export default function StorePage() {
         price: item.price,
         quantity: item.quantity
       })),
-      total: cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
+      total: calculateTotal(),
+      discountApplied: discountApplied ? 50 : 0,
       transactionId: `SX-${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
       status: 'pending'
     };
     setReceiptData(receipt);
     setReceiptHistory(prev => [receipt, ...prev]);
     setCart([]);
+    setDiscountApplied(false);
+    setDiscountCode('');
   };
 
   const copyReceiptToClipboard = () => {
@@ -225,6 +300,10 @@ export default function StorePage() {
       ${receiptData.items.map(item => `
       - ${item.title} x${item.quantity}: ₹${item.price * item.quantity}
       `).join('')}
+      
+      ${receiptData.discountApplied > 0 ? `
+      DISCOUNT: -₹${receiptData.discountApplied}
+      ` : ''}
       
       TOTAL: ₹${receiptData.total}
       
@@ -261,7 +340,8 @@ export default function StorePage() {
   );
 
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-  const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const subtotal = calculateSubtotal();
+  const total = calculateTotal();
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
@@ -446,10 +526,64 @@ export default function StorePage() {
 
                 {cart.length > 0 && (
                   <div className="border-t border-gray-700 p-6">
-                    <div className="flex justify-between text-lg font-bold mb-4">
-                      <span>Total</span>
-                      <span>₹{totalPrice}</span>
+                    {/* Discount Code Section */}
+                    {!discountApplied ? (
+                      <div className="mb-4">
+                        <div className="flex gap-2 mb-2">
+                          <input
+                            type="text"
+                            placeholder="Discount code"
+                            className="flex-1 bg-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            value={discountCode}
+                            onChange={(e) => setDiscountCode(e.target.value)}
+                          />
+                          <button
+                            onClick={applyDiscount}
+                            className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded transition"
+                          >
+                            Apply
+                          </button>
+                        </div>
+                        {discountError && (
+                          <p className="text-red-400 text-sm">{discountError}</p>
+                        )}
+                        <p className="text-xs text-gray-400 mt-1">
+                          Use code <span className="font-bold">SX50</span> for ₹50 off on purchases above ₹250 (valid for 3 days)
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="bg-gray-700/50 p-3 rounded-lg mb-4 flex justify-between items-center">
+                        <div className="flex items-center gap-2 text-green-400">
+                          <Tag size={16} />
+                          <span>Discount applied: -₹50 (SX50)</span>
+                        </div>
+                        <button
+                          onClick={removeDiscount}
+                          className="text-sm text-red-400 hover:text-red-300"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Price Summary */}
+                    <div className="space-y-2 mb-4">
+                      <div className="flex justify-between">
+                        <span>Subtotal</span>
+                        <span>₹{subtotal}</span>
+                      </div>
+                      {discountApplied && (
+                        <div className="flex justify-between text-green-400">
+                          <span>Discount</span>
+                          <span>-₹50</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between text-lg font-bold border-t border-gray-700 pt-2">
+                        <span>Total</span>
+                        <span>₹{total}</span>
+                      </div>
                     </div>
+
                     {receiptData ? (
                       <div className="space-y-4">
                         <div className="bg-gray-700/50 p-4 rounded-lg">
@@ -507,6 +641,7 @@ export default function StorePage() {
                       <button
                         onClick={generateReceipt}
                         className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded transition"
+                        disabled={total <= 0}
                       >
                         Complete Purchase
                       </button>
@@ -578,6 +713,12 @@ export default function StorePage() {
                           <span>Items:</span>
                           <span>{receipt.items.reduce((sum, item) => sum + item.quantity, 0)}</span>
                         </div>
+                        {receipt.discountApplied > 0 && (
+                          <div className="flex justify-between text-sm">
+                            <span>Discount:</span>
+                            <span className="text-green-400">-₹{receipt.discountApplied}</span>
+                          </div>
+                        )}
                         <div className="flex justify-between text-sm font-bold">
                           <span>Total:</span>
                           <span>₹{receipt.total}</span>
