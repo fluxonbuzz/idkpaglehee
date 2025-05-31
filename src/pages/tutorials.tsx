@@ -6,12 +6,12 @@ import Link from "next/link";
 export default function Tutorials() {
   const tutorials = [
     {
-      title: "Getting Started Guide",
-      description: "Learn how to install and setup Shiva X Mods for the first time",
+      title: "Purchase Process",
+      description: "Learn how to purchase from our store for the first time",
       icon: Settings,
       level: "Beginner",
-      duration: "15 min",
-      href: "#"
+      duration: "1 min",
+      href: "https://youtube.com/shorts/atHXRPSUyTk?si=m7Gl9JKFVXxAa4RZ"
     },
     {
       title: "Mod Installation Tutorial",
