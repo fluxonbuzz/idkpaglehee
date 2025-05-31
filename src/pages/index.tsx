@@ -13,7 +13,7 @@ import {
   Shirt,
   Trophy,
   Film,
-  Home,
+  HomeIcon,
   ShoppingCart,
   Crown,
   BookOpen,
