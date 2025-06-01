@@ -124,8 +124,8 @@ export default function MembershipPage() {
       ${selectedTier.features.map(feature => `      • ${feature}`).join('\n')}
       
       CONTACT SELLERS:
-      - d4vd (Co-Owner): https://t.me/d4vdprofile
-      - Shiva (Owner): https://t.me/shivaprofile
+      - d4vd (Co-Owner): https://t.me/lyastral
+      - Shiva (Owner): https://t.me/shivaxd42
       
       DIGITALLY SIGNED:
       ${new Date().toISOString()}
