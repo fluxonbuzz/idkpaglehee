@@ -472,7 +472,7 @@ export default function StorePage() {
             <div className="flex-1 mb-4 md:mb-0">
               <h2 className="text-2xl font-bold mb-2">SX Premium Membership</h2>
               <p className="text-gray-200 mb-4">
-                Get 25% discount on all items, exclusive content, and priority support!
+                Get discount on all items, exclusive content, and priority support!
               </p>
               <Link href="/membership" className="bg-white text-purple-600 font-bold py-2 px-6 rounded-full hover:bg-gray-100 transition">
                 Upgrade Now
@@ -585,7 +585,7 @@ export default function StorePage() {
                           <p className="text-red-400 text-sm">{discountError}</p>
                         )}
                         <p className="text-xs text-gray-400 mt-1">
-                          Use code <span className="font-bold">SX50</span> for ₹50 off on purchases above ₹250 (valid for 3 days)
+                          Use code <span className="font-bold">SX50</span> for ₹50 off on purchases above ₹250
                         </p>
                       </div>
                     ) : (
