@@ -320,7 +320,7 @@ export default function StorePage() {
       - Shiva (Owner): https://t.me/shivaxd2
       
       IMPORTANT RULES:
-      - Be patient, don't spam DMs for your payment
+      - Be patient, don&apos;t spam DMs for your payment
       - Spamming will result in no reply and permanent block
       - We have many DMs so it will take time to respond
       
@@ -408,11 +408,11 @@ export default function StorePage() {
               <ul className="space-y-2 text-yellow-100">
                 <li className="flex items-start gap-2">
                   <span>•</span>
-                  <span>Always be patient, don't spam in my DMs for your payment</span>
+                  <span>Always be patient, don&apos;t spam in my DMs for your payment</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span>•</span>
-                  <span>If you spam, I won't reply and will permanently block you</span>
+                  <span>If you spam, I won&apos;t reply and will permanently block you</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span>•</span>
