@@ -9,14 +9,6 @@ export default function Profile() {
   const banner = "/assets/banner.jpg";
   const background = "/assets/bg.jpg";
 
-  // Discord badge icons (you can replace these with actual images)
-  const badges = [
-    { name: "Active Developer", icon: "🛠️" },
-    { name: "Early Supporter", icon: "🌟" },
-    { name: "Nitro", icon: "💎" },
-    { name: "Moderator", icon: "🛡️" }
-  ];
-
   const roles = [
     { name: "Owner", color: "bg-green-500" },
     { name: "Developer", color: "bg-blue-500" },
@@ -52,6 +44,11 @@ export default function Profile() {
               {/* Avatar Container */}
               <div className="absolute -bottom-16 left-6">
                 <div className="relative">
+                  {/* DND Status Indicator - Now above everything */}
+                  <div className="absolute -top-2 -right-2 z-10 w-6 h-6 rounded-full bg-red-500 border-2 border-gray-900 flex items-center justify-center">
+                    <div className="w-3 h-0.5 bg-white rounded-full"></div>
+                  </div>
+                  
                   <div className="w-32 h-32 rounded-full border-4 border-gray-900 overflow-hidden relative">
                     <Image
                       src={avatar}
@@ -60,10 +57,6 @@ export default function Profile() {
                       height={128}
                       className="object-cover"
                     />
-                    {/* DND Status Indicator */}
-                    <div className="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-red-500 border-2 border-gray-900 flex items-center justify-center">
-                      <div className="w-3 h-0.5 bg-white rounded-full"></div>
-                    </div>
                   </div>
                   {/* Avatar Frame */}
                   <div className="absolute -inset-2">
@@ -76,22 +69,6 @@ export default function Profile() {
                     />
                   </div>
                 </div>
-              </div>
-
-              {/* Badges Container */}
-              <div className="absolute bottom-4 right-4 flex gap-2">
-                {badges.map((badge, index) => (
-                  <div 
-                    key={index} 
-                    className="w-8 h-8 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center group relative"
-                    title={badge.name}
-                  >
-                    <span className="text-xs">{badge.icon}</span>
-                    <div className="absolute -bottom-7 hidden group-hover:block bg-gray-900 text-xs px-2 py-1 rounded whitespace-nowrap">
-                      {badge.name}
-                    </div>
-                  </div>
-                ))}
               </div>
             </div>
 
