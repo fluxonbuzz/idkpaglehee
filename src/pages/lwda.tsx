@@ -5,24 +5,24 @@ export default function Profile() {
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
       <Container>
         <div className="py-16">
-          {/* First Profile Card - Gaeul */}
+          {/* First Profile Card - Shiva X Mods */}
           <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-green-500/20 p-6 mb-8 max-w-2xl mx-auto">
             <div className="flex flex-col md:flex-row gap-6">
               <div className="flex-1">
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent mb-2">
-                  Gaeul
+                  Shiva X Mods
                 </h1>
                 <p className="text-sm text-green-400 mb-4">New Development</p>
                 
                 <div className="mb-6">
                   <h2 className="text-xl font-semibold mb-2">ABOUT ME</h2>
                   <p className="text-gray-300">
-                    I'm Gaeul<br />
+                    I&apos;m Shiva X Mods<br />
                     a developer focusing on Discord Bot and Minecraft Server development. I<br />
                     enjoy exploring new technologies and creating unique experiences.
                   </p>
                   <p className="text-gray-300 mt-2">
-                    Come join my server Discord and I hope you'll join and play some games with<br />
+                    Come join my server Discord and I hope you&apos;ll join and play some games with<br />
                     me on.
                   </p>
                 </div>
@@ -60,7 +60,7 @@ export default function Profile() {
                 
                 <div className="mb-2">
                   <h2 className="text-xl font-semibold bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent mb-2">
-                    Gaeul
+                    Shiva X Mods
                   </h2>
                   <p className="text-sm text-green-400 mb-4">New Development</p>
                   
@@ -89,7 +89,7 @@ export default function Profile() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <div className="mb-2">
-                        <p className="font-medium">Gaeul</p>
+                        <p className="font-medium">Shiva X Mods</p>
                         <div className="flex items-center mt-1">
                           <input type="checkbox" className="mr-2" />
                           <span className="text-sm">(empty)</span>
@@ -98,7 +98,7 @@ export default function Profile() {
                           <input type="checkbox" className="mr-2" />
                           <span className="text-sm">(empty)</span>
                         </div>
-                        <p className="font-medium mt-2">Gaeuly</p>
+                        <p className="font-medium mt-2">Shiva X</p>
                         <div className="flex items-center mt-1">
                           <input type="checkbox" className="mr-2" />
                           <span className="text-sm">(empty)</span>
@@ -108,7 +108,7 @@ export default function Profile() {
                     
                     <div>
                       <div className="mb-2">
-                        <p className="font-medium">gaeuly</p>
+                        <p className="font-medium">shiva-x</p>
                         <div className="flex items-center mt-1">
                           <input type="checkbox" className="mr-2" />
                           <span className="text-sm">(empty)</span>
@@ -133,4 +133,4 @@ export default function Profile() {
       </Container>
     </div>
   );
-      }
+}
