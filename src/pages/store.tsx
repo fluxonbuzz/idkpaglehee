@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ShoppingCart, Tag, Star, ShieldCheck, Send, History, Search } from 'lucide-react';
+import { ShoppingCart, Tag, Star, ShieldCheck, Send, History, Search, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
 
 // Type definitions
@@ -319,6 +319,11 @@ export default function StorePage() {
       - d4vd (Co-Owner): https://t.me/lyastral
       - Shiva (Owner): https://t.me/shivaxd2
       
+      IMPORTANT RULES:
+      - Be patient, don't spam DMs for your payment
+      - Spamming will result in no reply and permanent block
+      - We have many DMs so it will take time to respond
+      
       DIGITALLY SIGNED:
       ${new Date().toISOString()}
       🚀 SX Store - Premium Gaming Marketplace
@@ -394,6 +399,30 @@ export default function StorePage() {
           </p>
         </section>
 
+        {/* Store Rules Section */}
+        <section className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-6 mb-8">
+          <div className="flex items-start gap-4">
+            <AlertTriangle className="text-yellow-400 mt-1 flex-shrink-0" size={24} />
+            <div>
+              <h2 className="text-xl font-bold mb-3 text-yellow-300">Store Rules</h2>
+              <ul className="space-y-2 text-yellow-100">
+                <li className="flex items-start gap-2">
+                  <span>•</span>
+                  <span>Always be patient, don't spam in my DMs for your payment</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span>•</span>
+                  <span>If you spam, I won't reply and will permanently block you</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span>•</span>
+                  <span>I have many DMs so it will take time to respond to each one</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
         {/* Products Grid */}
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           {storeData.map(product => (
@@ -445,10 +474,9 @@ export default function StorePage() {
               <p className="text-gray-200 mb-4">
                 Get 25% discount on all items, exclusive content, and priority support!
               </p>
-            {/* Update the membership button to use Link */}
-<Link href="/membership" className="bg-white text-purple-600 font-bold py-2 px-6 rounded-full hover:bg-gray-100 transition">
-  Upgrade Now
-</Link>
+              <Link href="/membership" className="bg-white text-purple-600 font-bold py-2 px-6 rounded-full hover:bg-gray-100 transition">
+                Upgrade Now
+              </Link>
             </div>
             <div className="bg-white/10 p-4 rounded-lg border border-white/20">
               <div className="flex items-center gap-2">
