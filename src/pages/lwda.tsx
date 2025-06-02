@@ -1,5 +1,6 @@
 import Container from "@/components/Container";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Profile() {
   // Replace these with your actual image paths from the assets directory
@@ -23,7 +24,7 @@ export default function Profile() {
       <Container>
         <div className="py-16 space-y-8">
           {/* Discord-like Profile Section */}
-          <div className="max-w-4xl mx-auto rounded-xl overflow-hidden border border-gray-700">
+          <div className="max-w-4xl mx-auto rounded-xl overflow-hidden border border-gray-700 bg-gray-800/80 backdrop-blur-sm">
             {/* Banner */}
             <div className="h-40 bg-gradient-to-r from-purple-900 to-blue-900 relative">
               <Image
@@ -36,7 +37,7 @@ export default function Profile() {
               {/* Avatar Container */}
               <div className="absolute -bottom-16 left-6">
                 <div className="relative">
-                  <div className="w-32 h-32 rounded-full border-4 border-gray-900 overflow-hidden">
+                  <div className="w-32 h-32 rounded-full border-4 border-gray-900 overflow-hidden relative">
                     <Image
                       src={avatar}
                       alt="Profile avatar"
@@ -44,6 +45,10 @@ export default function Profile() {
                       height={128}
                       className="object-cover"
                     />
+                    {/* DND Status Indicator */}
+                    <div className="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-red-500 border-2 border-gray-900 flex items-center justify-center">
+                      <div className="w-3 h-0.5 bg-white rounded-full"></div>
+                    </div>
                   </div>
                   {/* Avatar Frame */}
                   <div className="absolute -inset-2">
@@ -57,16 +62,28 @@ export default function Profile() {
                   </div>
                 </div>
               </div>
+
+              {/* Badges Container */}
+              <div className="absolute bottom-4 right-4 flex gap-2">
+                {[1, 2, 3, 4].map((badge) => (
+                  <div key={badge} className="w-8 h-8 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center">
+                    <span className="text-xs">⭐</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Profile Content */}
-            <div className="bg-gray-800/80 backdrop-blur-sm pt-20 px-6 pb-6">
+            <div className="pt-20 px-6 pb-6">
               <div className="flex flex-col md:flex-row gap-6">
                 <div className="flex-1">
                   <div className="mb-6">
-                    <h1 className="text-2xl font-bold bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">
-                      Shiva X Mods
-                    </h1>
+                    <div className="flex items-center gap-2">
+                      <h1 className="text-2xl font-bold bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">
+                        Shiva X Mods
+                      </h1>
+                      <span className="text-xs bg-gray-700 px-2 py-0.5 rounded text-gray-300">DND</span>
+                    </div>
                     <p className="text-sm text-gray-400">New Development</p>
                   </div>
 
@@ -108,58 +125,54 @@ export default function Profile() {
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-
-          {/* BTC Bio Section */}
-          <div className="max-w-4xl mx-auto rounded-xl overflow-hidden border border-gray-700 bg-gray-800/80 backdrop-blur-sm">
-            <div className="p-6">
-              <h1 className="text-2xl font-bold mb-4">BTC</h1>
               
-              <div className="mb-6">
-                <h2 className="text-lg font-semibold mb-2">Shiva X Mods</h2>
-                <p className="text-sm text-gray-400 mb-4">New Development</p>
-                
-                <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
-                  <ul className="space-y-2">
-                    <li className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                      <span>Owner</span>
-                    </li>
-                    <li className="flex items-center gap-2 pl-4">
-                      <span className="w-2 h-2 rounded-full bg-gray-500"></span>
-                      <span>But Developer</span>
-                    </li>
-                    <li className="flex items-center gap-2 pl-4">
-                      <span className="w-2 h-2 rounded-full bg-gray-500"></span>
-                      <span>Gamer</span>
-                    </li>
-                    <li className="flex items-center gap-2 pl-4">
-                      <span className="w-2 h-2 rounded-full bg-gray-500"></span>
-                      <span>Lonely</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-              
-              <div>
+              {/* Connections Section */}
+              <div className="mt-8">
                 <h3 className="text-lg font-semibold mb-3">CONNECTIONS</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
-                    <p className="font-medium text-green-400">Shiva X Mods</p>
-                    <div className="mt-2 space-y-2">
-                      <p className="text-sm text-gray-400">Discord: shivaxmods</p>
-                      <p className="text-sm text-gray-400">Twitter: @shivaxmods</p>
+                  <Link 
+                    href="https://discord.com/users/shivaxmods" 
+                    target="_blank"
+                    className="bg-gray-900/50 rounded-lg p-4 border border-gray-700 hover:bg-gray-800 transition-colors"
+                  >
+                    <p className="font-medium text-green-400">Discord</p>
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-400">shivaxmods</p>
                     </div>
-                  </div>
+                  </Link>
                   
-                  <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
-                    <p className="font-medium text-blue-400">Socials</p>
-                    <div className="mt-2 space-y-2">
-                      <p className="text-sm text-gray-400">YouTube: Shiva X Mods</p>
-                      <p className="text-sm text-gray-400">Twitch: shivaxmods</p>
+                  <Link 
+                    href="https://twitter.com/shivaxmods" 
+                    target="_blank"
+                    className="bg-gray-900/50 rounded-lg p-4 border border-gray-700 hover:bg-gray-800 transition-colors"
+                  >
+                    <p className="font-medium text-blue-400">Twitter</p>
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-400">@shivaxmods</p>
                     </div>
-                  </div>
+                  </Link>
+                  
+                  <Link 
+                    href="https://youtube.com/shivaxmods" 
+                    target="_blank"
+                    className="bg-gray-900/50 rounded-lg p-4 border border-gray-700 hover:bg-gray-800 transition-colors"
+                  >
+                    <p className="font-medium text-red-400">YouTube</p>
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-400">Shiva X Mods</p>
+                    </div>
+                  </Link>
+                  
+                  <Link 
+                    href="https://twitch.tv/shivaxmods" 
+                    target="_blank"
+                    className="bg-gray-900/50 rounded-lg p-4 border border-gray-700 hover:bg-gray-800 transition-colors"
+                  >
+                    <p className="font-medium text-purple-400">Twitch</p>
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-400">shivaxmods</p>
+                    </div>
+                  </Link>
                 </div>
               </div>
             </div>
