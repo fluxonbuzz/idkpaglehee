@@ -5,7 +5,7 @@ import Link from "next/link";
 export default function Profile() {
   // Replace these with your actual image paths from the assets directory
   const avatar = "/assets/avatar.png";
-  const avatarFrame = "/assets/frame.png";
+  const avatarFrame = "/assets/frame.webp";
   const banner = "/assets/banner.jpg";
   const background = "/assets/bg.jpg";
 
