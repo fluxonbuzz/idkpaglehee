@@ -44,11 +44,6 @@ export default function Profile() {
               {/* Avatar Container */}
               <div className="absolute -bottom-16 left-6">
                 <div className="relative">
-                  {/* DND Status Indicator - Now above everything */}
-                  <div className="absolute -top-2 -right-2 z-10 w-6 h-6 rounded-full bg-red-500 border-2 border-gray-900 flex items-center justify-center">
-                    <div className="w-3 h-0.5 bg-white rounded-full"></div>
-                  </div>
-                  
                   <div className="w-32 h-32 rounded-full border-4 border-gray-900 overflow-hidden relative">
                     <Image
                       src={avatar}
@@ -57,9 +52,13 @@ export default function Profile() {
                       height={128}
                       className="object-cover"
                     />
+                    {/* DND Status Indicator - Bottom right, above frame */}
+                    <div className="absolute bottom-0 right-0 z-10 w-6 h-6 rounded-full bg-red-500 border-2 border-gray-900 flex items-center justify-center">
+                      <div className="w-3 h-0.5 bg-white rounded-full"></div>
+                    </div>
                   </div>
                   {/* Avatar Frame */}
-                  <div className="absolute -inset-2">
+                  <div className="absolute -inset-2 z-0">
                     <Image
                       src={avatarFrame}
                       alt="Avatar frame"
