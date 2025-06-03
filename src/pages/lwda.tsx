@@ -108,7 +108,7 @@ export default function Profile() {
                     </h1>
                     <span className="text-xs bg-gray-700 px-2 py-0.5 rounded text-gray-300">DND</span>
                   </div>
-                  <p className="text-sm text-gray-400">New Development</p>
+                  <p className="text-sm text-gray-400">_shivaxd</p>
                 </motion.div>
 
                 <motion.div variants={item} className="mb-6">
