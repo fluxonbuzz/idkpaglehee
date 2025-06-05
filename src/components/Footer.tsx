@@ -29,7 +29,7 @@ export default function Footer() {
           <p className="text-xs text-muted-foreground">
             Made with ❤️ by{" "}
             <Link
-              href="https://www.youtube.com/@shivaxmods"
+              href="https://www.youtube.com/@adore-py"
               target="_blank"
               passHref
               className="text-foreground transition hover:text-primary"
