@@ -91,6 +91,14 @@ const storeData: Product[] = [
     description: 'Edit squads in all Real Cricket games',
     image: '/store/squad-editor.jpg',
     tags: ['Tool', 'Instant Delivery']
+  },
+   {
+    id: 'shots-checker',
+    title: 'Shots Checker',
+    price: 120,
+    description: 'Check all shots in Real Cricket games',
+    image: '/store/shots-checker.jpg',
+    tags: ['Tool', 'Instant Delivery', 'New']
   }
 ];
 
