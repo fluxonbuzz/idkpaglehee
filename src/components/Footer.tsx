@@ -29,7 +29,7 @@ export default function Footer() {
           <p className="text-xs text-muted-foreground">
             Made with ❤️ by{" "}
             <Link
-              href="https://www.youtube.com/@adore-py"
+              href="https://www.youtube.com/@shivaxmods"
               target="_blank"
               passHref
               className="text-foreground transition hover:text-primary"
@@ -44,13 +44,13 @@ export default function Footer() {
           </span>
         </span>
         <Link
-          href=""
+          href="mailto:sendsomegreens@gmail.com"
           passHref
           className="text-xs text-muted-foreground hover:text-foreground"
         >
           <Button variant={"outline"}>
             <MailIcon className="h-4 w-4 md:mr-2" />
-            <span className="hidden md:flex">PROMOTE HERE</span>
+            <span className="hidden md:flex">sendsomegreens@gmail.com</span>
           </Button>
         </Link>
       </div>
