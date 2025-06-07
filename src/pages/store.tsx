@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ShoppingCart, Tag, Star, ShieldCheck, Send, History, Search, AlertTriangle } from 'lucide-react';
+import { ShoppingCart, Tag, Star, ShieldCheck, Send, History, Search, AlertTriangle, ChevronDown, ChevronUp, Check } from 'lucide-react';
 import Link from 'next/link';
 
 // Type definitions
@@ -11,10 +11,19 @@ interface Product {
   description: string;
   image: string;
   tags: string[];
+  modMenuItems?: ModMenuItem[];
+}
+
+interface ModMenuItem {
+  id: string;
+  title: string;
+  price: number;
+  color: string;
 }
 
 interface CartItem extends Product {
   quantity: number;
+  selectedModItem?: ModMenuItem;
 }
 
 interface ReceiptItem {
@@ -22,6 +31,7 @@ interface ReceiptItem {
   title: string;
   price: number;
   quantity: number;
+  selectedModItem?: ModMenuItem;
 }
 
 interface ReceiptData {
@@ -48,7 +58,7 @@ const storeData: Product[] = [
     title: 'Real Cricket 24 ID',
     price: 100,
     originalPrice: 300,
-    description: 'Premium account with exclusive items',
+    description: 'Premium account with exclusive items and unlocked features',
     image: '/store/rc24-id.jpg',
     tags: ['Digital', 'Limited']
   },
@@ -56,7 +66,7 @@ const storeData: Product[] = [
     id: 'all-in-one-checker',
     title: 'All-in-One Checker',
     price: 80,
-    description: 'Jersey, Helmet, Bat etc checker for all games',
+    description: 'Comprehensive tool for verifying jerseys, helmets, bats and more across all games',
     image: '/store/checker.jpg',
     tags: ['Tool', 'Instant Delivery']
   },
@@ -64,15 +74,15 @@ const storeData: Product[] = [
     id: 'rc20-legends',
     title: 'Real Cricket 20 Legends',
     price: 70,
-    description: 'Unlock hero legends pack',
+    description: 'Unlock exclusive hero legends pack with rare players',
     image: '/store/rc20-legends.jpg',
     tags: ['DLC', 'Popular']
   },
-   {
+  {
     id: 'boundary-hoarding-checker',
     title: 'Boundary Hoarding Checker',
     price: 70,
-    description: 'Check boundary hoardings in Real Cricket games',
+    description: 'Professional tool for verifying boundary hoardings in Real Cricket games',
     image: '/store/hoarding-checker.jpg',
     tags: ['Tool', 'Instant Delivery']
   },
@@ -80,25 +90,59 @@ const storeData: Product[] = [
     id: 'netflix-premium',
     title: 'Netflix Premium Account',
     price: 100,
-    description: '1-month premium account with 4K streaming',
+    description: '1-month premium account with 4K UHD streaming and multiple screens',
     image: '/store/netflix.jpg',
     tags: ['Digital', 'Popular']
   },
   {
     id: 'squad-editor',
-    title: 'Squad Editor for All RC Games',
+    title: 'Squad Editor Pro',
     price: 100,
-    description: 'Edit squads in all Real Cricket games',
+    description: 'Advanced squad editing tool for all Real Cricket games',
     image: '/store/squad-editor.jpg',
     tags: ['Tool', 'Instant Delivery']
   },
-   {
+  {
     id: 'shots-checker',
-    title: 'Shots Checker',
+    title: 'Shots Checker Pro',
     price: 120,
-    description: 'Check all shots in Real Cricket games',
+    description: 'Complete shots verification tool for Real Cricket series',
     image: '/store/shots-checker.jpg',
     tags: ['Tool', 'Instant Delivery', 'New']
+  },
+  {
+    id: 'mod-menus',
+    title: 'Premium Mod Menus',
+    price: 0,
+    description: 'Advanced modification menus for popular mobile games with regular updates',
+    image: '/store/mod-menus.jpg',
+    tags: ['Digital', 'Instant Delivery', 'Exclusive'],
+    modMenuItems: [
+      {
+        id: 'among-us',
+        title: 'Among Us Mod Menu',
+        price: 150,
+        color: 'from-red-500 to-pink-500'
+      },
+      {
+        id: 'subway-surfers',
+        title: 'Subway Surfers Mod Menu',
+        price: 50,
+        color: 'from-yellow-500 to-orange-500'
+      },
+      {
+        id: 'real-cricket-go',
+        title: 'Real Cricket GO Mod Menu',
+        price: 180,
+        color: 'from-green-500 to-teal-500'
+      },
+      {
+        id: 'wcc-lite',
+        title: 'WCC Lite Mod Menu',
+        price: 120,
+        color: 'from-blue-500 to-indigo-500'
+      }
+    ]
   }
 ];
 
@@ -161,8 +205,10 @@ export default function StorePage() {
   const [discountCode, setDiscountCode] = useState('');
   const [discountApplied, setDiscountApplied] = useState(false);
   const [discountError, setDiscountError] = useState('');
+  const [selectedModProduct, setSelectedModProduct] = useState<Product | null>(null);
+  const [selectedModItem, setSelectedModItem] = useState<ModMenuItem | null>(null);
 
-  // Load cart from localStorage with proper type checking
+  // Load cart from localStorage
   useEffect(() => {
     const savedCart = localStorage.getItem('sx-store-cart');
     if (savedCart) {
@@ -178,7 +224,7 @@ export default function StorePage() {
     }
   }, []);
 
-  // Load receipt history from localStorage with proper type checking
+  // Load receipt history from localStorage
   useEffect(() => {
     const savedHistory = localStorage.getItem('sx-store-receipts');
     if (savedHistory) {
@@ -205,6 +251,11 @@ export default function StorePage() {
   }, [receiptHistory]);
 
   const addToCart = (product: Product) => {
+    if (product.id === 'mod-menus') {
+      setSelectedModProduct(product);
+      return;
+    }
+    
     setCart(prevCart => {
       const existingItem = prevCart.find(item => item.id === product.id);
       if (existingItem) {
@@ -218,9 +269,42 @@ export default function StorePage() {
     });
   };
 
+  const selectModMenuItem = (item: ModMenuItem) => {
+    setSelectedModItem(item);
+  };
+
+  const confirmModMenuSelection = () => {
+    if (!selectedModProduct || !selectedModItem) return;
+    
+    const productToAdd = {
+      ...selectedModProduct,
+      price: selectedModItem.price,
+      selectedModItem: selectedModItem
+    };
+    
+    setCart(prevCart => {
+      const existingItem = prevCart.find(item => 
+        item.id === productToAdd.id && 
+        item.selectedModItem?.id === productToAdd.selectedModItem?.id
+      );
+      
+      if (existingItem) {
+        return prevCart.map(item =>
+          item.id === productToAdd.id && 
+          item.selectedModItem?.id === productToAdd.selectedModItem?.id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        );
+      }
+      return [...prevCart, { ...productToAdd, quantity: 1 }];
+    });
+    
+    setSelectedModProduct(null);
+    setSelectedModItem(null);
+  };
+
   const removeFromCart = (productId: string) => {
     setCart(prevCart => prevCart.filter(item => item.id !== productId));
-    // Remove discount if item is removed and total goes below 250
     if (discountApplied && calculateSubtotal() - 50 < 250) {
       setDiscountApplied(false);
     }
@@ -233,7 +317,6 @@ export default function StorePage() {
         item.id === productId ? { ...item, quantity: newQuantity } : item
       )
     );
-    // Remove discount if quantity is reduced and total goes below 250
     if (discountApplied && calculateSubtotal() - 50 < 250) {
       setDiscountApplied(false);
     }
@@ -257,7 +340,6 @@ export default function StorePage() {
       return;
     }
     
-    // Check if discount is valid (within 3 days from now)
     const currentDate = new Date();
     const discountValidUntil = new Date();
     discountValidUntil.setDate(currentDate.getDate() + 3);
@@ -287,9 +369,12 @@ export default function StorePage() {
       date: new Date().toLocaleString(),
       items: cart.map(item => ({
         id: item.id,
-        title: item.title,
+        title: item.selectedModItem 
+          ? `${item.title} (${item.selectedModItem.title})`
+          : item.title,
         price: item.price,
-        quantity: item.quantity
+        quantity: item.quantity,
+        selectedModItem: item.selectedModItem || undefined
       })),
       total: calculateTotal(),
       discountApplied: discountApplied ? 50 : 0,
@@ -328,20 +413,19 @@ export default function StorePage() {
       - Shiva (Owner): https://t.me/shivaxd2
       
       IMPORTANT RULES:
-      - Be patient, don&apos;t spam DMs for your payment
-      - Spamming will result in no reply and permanent block
-      - We have many DMs so it will take time to respond
+      - Please allow 24-48 hours for order processing
+      - Avoid duplicate messages to ensure faster response
+      - All transactions are final and non-refundable
       
       DIGITALLY SIGNED:
       ${new Date().toISOString()}
-      🚀 SX Store - Premium Gaming Marketplace
+      🚀 SX Store - Premium Digital Marketplace
     `;
 
     navigator.clipboard.writeText(receiptText)
       .then(() => alert('Receipt copied to clipboard! Share it with the seller.'))
       .catch(() => alert('Failed to copy receipt. Please manually copy the transaction ID.'));
     
-    // Update receipt status to completed
     setReceiptData({ ...receiptData, status: 'completed' });
     setReceiptHistory(prev => 
       prev.map(r => 
@@ -403,7 +487,7 @@ export default function StorePage() {
             SX Premium Store
           </h1>
           <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-            Exclusive in-game content and tools at competitive prices
+            Exclusive digital products and premium game modifications
           </p>
         </section>
 
@@ -412,19 +496,19 @@ export default function StorePage() {
           <div className="flex items-start gap-4">
             <AlertTriangle className="text-yellow-400 mt-1 flex-shrink-0" size={24} />
             <div>
-              <h2 className="text-xl font-bold mb-3 text-yellow-300">Store Rules</h2>
+              <h2 className="text-xl font-bold mb-3 text-yellow-300">Purchase Guidelines</h2>
               <ul className="space-y-2 text-yellow-100">
                 <li className="flex items-start gap-2">
                   <span>•</span>
-                  <span>Always be patient, don&apos;t spam in my DMs for your payment</span>
+                  <span>Please allow 24-48 hours for order processing and delivery</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span>•</span>
-                  <span>If you spam, I won&apos;t reply and will permanently block you</span>
+                  <span>Avoid duplicate messages to ensure faster response times</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span>•</span>
-                  <span>I have many DMs so it will take time to respond to each one</span>
+                  <span>All digital product sales are final and non-refundable</span>
                 </li>
               </ul>
             </div>
@@ -449,9 +533,15 @@ export default function StorePage() {
                 <div className="flex justify-between items-start mb-2">
                   <h3 className="text-xl font-bold">{product.title}</h3>
                   <div className="text-right">
-                    <span className="text-2xl font-bold text-purple-400">₹{product.price}</span>
-                    {product.originalPrice && (
-                      <span className="block text-sm text-gray-400 line-through">₹{product.originalPrice}</span>
+                    {product.modMenuItems ? (
+                      <span className="text-sm text-gray-400">Starting at ₹{Math.min(...product.modMenuItems.map(i => i.price))}</span>
+                    ) : (
+                      <>
+                        <span className="text-2xl font-bold text-purple-400">₹{product.price}</span>
+                        {product.originalPrice && (
+                          <span className="block text-sm text-gray-400 line-through">₹{product.originalPrice}</span>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>
@@ -467,7 +557,7 @@ export default function StorePage() {
                   onClick={() => addToCart(product)}
                   className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded transition flex items-center justify-center gap-2"
                 >
-                  <ShoppingCart size={18} /> Add to Cart
+                  <ShoppingCart size={18} /> {product.modMenuItems ? 'Select Options' : 'Add to Cart'}
                 </button>
               </div>
             </div>
@@ -480,10 +570,10 @@ export default function StorePage() {
             <div className="flex-1 mb-4 md:mb-0">
               <h2 className="text-2xl font-bold mb-2">SX Premium Membership</h2>
               <p className="text-gray-200 mb-4">
-                Get discount on all items, exclusive content, and priority support!
+                Enjoy exclusive discounts, early access to new products, and priority support
               </p>
               <Link href="/membership" className="bg-white text-purple-600 font-bold py-2 px-6 rounded-full hover:bg-gray-100 transition">
-                Upgrade Now
+                Learn More
               </Link>
             </div>
             <div className="bg-white/10 p-4 rounded-lg border border-white/20">
@@ -491,7 +581,7 @@ export default function StorePage() {
                 <Star className="text-yellow-300" size={24} />
                 <div>
                   <div className="font-bold">Members Only</div>
-                  <div className="text-sm">Extra 5% discount today</div>
+                  <div className="text-sm">Exclusive 5% discount</div>
                 </div>
               </div>
             </div>
@@ -508,7 +598,7 @@ export default function StorePage() {
               <div className="h-full flex flex-col bg-gray-800 shadow-xl">
                 <div className="flex-1 overflow-y-auto p-6">
                   <div className="flex items-start justify-between">
-                    <h2 className="text-2xl font-bold">Your SX Cart</h2>
+                    <h2 className="text-2xl font-bold">Your Shopping Cart</h2>
                     <button 
                       onClick={() => setIsCartOpen(false)}
                       className="text-gray-400 hover:text-white"
@@ -521,22 +611,31 @@ export default function StorePage() {
                   {cart.length === 0 ? (
                     <div className="mt-12 text-center">
                       <ShoppingCart size={48} className="mx-auto text-gray-600 mb-4" />
-                      <p className="text-gray-400">Your cart is empty</p>
+                      <p className="text-gray-400">Your cart is currently empty</p>
                     </div>
                   ) : (
                     <div className="mt-8">
                       <div className="flow-root">
                         <ul className="-my-6 divide-y divide-gray-700">
                           {cart.map(item => (
-                            <li key={item.id} className="py-6 flex">
-                              <div className="h-16 w-16 flex-shrink-0 bg-gray-700 rounded-md overflow-hidden">
-                                <div className="h-full w-full flex items-center justify-center text-gray-400">
+                            <li key={item.id + (item.selectedModItem?.id || '')} className="py-6 flex">
+                              <div className={`h-16 w-16 flex-shrink-0 rounded-md overflow-hidden ${
+                                item.selectedModItem 
+                                  ? `bg-gradient-to-r ${item.selectedModItem.color}`
+                                  : 'bg-gray-700'
+                              }`}>
+                                <div className="h-full w-full flex items-center justify-center text-white">
                                   <Tag size={20} />
                                 </div>
                               </div>
                               <div className="ml-4 flex-1">
                                 <div className="flex justify-between text-base">
-                                  <h3 className="font-medium">{item.title}</h3>
+                                  <h3 className="font-medium">
+                                    {item.title}
+                                    {item.selectedModItem && (
+                                      <span className="block text-sm text-gray-400">{item.selectedModItem.title}</span>
+                                    )}
+                                  </h3>
                                   <p className="ml-4 font-bold">₹{item.price * item.quantity}</p>
                                 </div>
                                 <div className="flex items-center mt-2">
@@ -593,7 +692,7 @@ export default function StorePage() {
                           <p className="text-red-400 text-sm">{discountError}</p>
                         )}
                         <p className="text-xs text-gray-400 mt-1">
-                          Use code <span className="font-bold">SX50</span> for ₹50 off on purchases above ₹250
+                          Use code <span className="font-bold">SX50</span> for ₹50 off on orders above ₹250
                         </p>
                       </div>
                     ) : (
@@ -634,7 +733,7 @@ export default function StorePage() {
                         <div className="bg-gray-700/50 p-4 rounded-lg">
                           <div className="flex items-center gap-2 text-green-400 mb-2">
                             <ShieldCheck size={20} />
-                            <span>Purchase Complete!</span>
+                            <span>Order Processed Successfully</span>
                           </div>
                           <p className="text-sm text-gray-300 mb-2">
                             Transaction ID: {receiptData.transactionId}
@@ -648,7 +747,7 @@ export default function StorePage() {
                         </div>
 
                         <div className="bg-gray-700/50 p-4 rounded-lg">
-                          <h3 className="font-bold mb-3 text-center">Contact Sellers</h3>
+                          <h3 className="font-bold mb-3 text-center">Contact Our Team</h3>
                           <div className="flex flex-col gap-4">
                             {sellers.map(seller => (
                               <div key={seller.id} className="flex items-center gap-3">
@@ -678,7 +777,7 @@ export default function StorePage() {
                             ))}
                           </div>
                           <p className="text-xs text-gray-400 mt-3 text-center">
-                            Share your receipt with the seller to complete the transaction
+                            Please share your receipt with our team to complete your order
                           </p>
                         </div>
                       </div>
@@ -688,7 +787,7 @@ export default function StorePage() {
                         className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded transition"
                         disabled={total <= 0}
                       >
-                        Complete Purchase
+                        Proceed to Checkout
                       </button>
                     )}
                   </div>
@@ -699,7 +798,87 @@ export default function StorePage() {
         </div>
       )}
 
-      {/* Receipt History Modal */}
+      {/* Mod Menu Selection Modal */}
+      {selectedModProduct && (
+        <div className="fixed inset-0 z-50 overflow-hidden">
+          <div className="absolute inset-0 bg-black/80" onClick={() => setSelectedModProduct(null)}></div>
+          <div className="absolute inset-0 flex items-center justify-center p-4">
+            <div 
+              className="relative bg-gray-800 rounded-xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-700"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-bold">Configure Your Mod Menu</h2>
+                  <button 
+                    onClick={() => setSelectedModProduct(null)}
+                    className="text-gray-400 hover:text-white text-2xl"
+                  >
+                    &times;
+                  </button>
+                </div>
+                
+                <div className="mb-6">
+                  <h3 className="text-xl font-bold mb-2">{selectedModProduct.title}</h3>
+                  <p className="text-gray-300">{selectedModProduct.description}</p>
+                </div>
+                
+                <div className="space-y-3 mb-6">
+                  <h4 className="font-medium text-gray-400">Available Game Modifications:</h4>
+                  {selectedModProduct.modMenuItems?.map(item => (
+                    <div 
+                      key={item.id}
+                      onClick={() => selectModMenuItem(item)}
+                      className={`p-4 rounded-lg cursor-pointer transition-all border-2 ${
+                        selectedModItem?.id === item.id 
+                          ? `border-transparent bg-gradient-to-r ${item.color} shadow-lg`
+                          : 'border-gray-700 hover:border-purple-500'
+                      }`}
+                    >
+                      <div className="flex justify-between items-center">
+                        <span className="font-medium">{item.title}</span>
+                        <span className="font-bold">₹{item.price}</span>
+                      </div>
+                      {selectedModItem?.id === item.id && (
+                        <div className="flex items-center mt-2 text-sm">
+                          <Check className="mr-1" size={16} />
+                          <span>Selected</span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="flex justify-between items-center bg-gray-700/50 p-4 rounded-lg mb-6">
+                  <div>
+                    <div className="text-sm text-gray-400">Total Price</div>
+                    <div className="text-2xl font-bold">
+                      ₹{selectedModItem?.price || 'Select an option'}
+                    </div>
+                  </div>
+                  <button
+                    onClick={confirmModMenuSelection}
+                    disabled={!selectedModItem}
+                    className={`px-6 py-3 rounded-lg font-bold flex items-center gap-2 ${
+                      selectedModItem 
+                        ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:opacity-90'
+                        : 'bg-gray-600 cursor-not-allowed'
+                    }`}
+                  >
+                    <ShoppingCart size={18} />
+                    Add to Cart
+                  </button>
+                </div>
+                
+                <div className="text-xs text-gray-500 text-center">
+                  <p>Premium game modifications with regular updates</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+{/* Receipt History Modal */}
       {viewHistory && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="absolute inset-0 bg-black/50" onClick={() => setViewHistory(false)}></div>
