@@ -166,8 +166,8 @@ export default function StatusPage() {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-bold mb-1">360° View</h3>
-                  <p className="text-sm text-gray-400">Interactive 360-degree viewing angles</p>
+                  <h3 className="font-bold mb-1">New Edit</h3>
+                  <p className="text-sm text-gray-400">Interactive editing and thumbnail work</p>
                 </div>
               </div>
             </div>
@@ -198,7 +198,7 @@ export default function StatusPage() {
       {/* Footer */}
       <footer className="bg-gray-800/50 border-t border-gray-700 py-8">
         <div className="container mx-auto px-4 text-center text-gray-400">
-          <p>© 2025 Crick Fusion. All rights reserved.</p>
+          <p>© 2025 Shiva X Mods. All rights reserved.</p>
         </div>
       </footer>
     </div>
