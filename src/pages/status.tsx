@@ -210,7 +210,7 @@ export default function StatusPage() {
           
           {/* Customer 2 - Virat Kohli */}
           <tr>
-            <td className="py-4 font-medium">Virat Kohli</td>
+            <td className="py-4 font-medium">XNXX</td>
             <td className="py-4 text-gray-300">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
@@ -227,7 +227,7 @@ export default function StatusPage() {
           
           {/* Customer 3 - MS Dhoni */}
           <tr>
-            <td className="py-4 font-medium">MS Dhoni</td>
+            <td className="py-4 font-medium">XNXX</td>
             <td className="py-4 text-gray-300">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
@@ -244,7 +244,7 @@ export default function StatusPage() {
           
           {/* Customer 4 - Rohit Sharma */}
           <tr>
-            <td className="py-4 font-medium">Rohit Sharma</td>
+            <td className="py-4 font-medium">XNXX</td>
             <td className="py-4 text-gray-300">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
