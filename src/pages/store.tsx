@@ -165,7 +165,7 @@ const sellers: Seller[] = [
 ];
 
 function isCartItem(item: unknown): item is CartItem {
-  if (typeof item !== 'object' ?? item === null) return false;
+  if (typeof item !== 'object' || item === null) return false;
   
   const cartItem = item as Record<string, unknown>;
   return (
@@ -173,7 +173,7 @@ function isCartItem(item: unknown): item is CartItem {
     typeof cartItem.title === 'string' &&
     typeof cartItem.price === 'number' &&
     typeof cartItem.quantity === 'number' &&
-    (cartItem.originalPrice === undefined ?? typeof cartItem.originalPrice === 'number') &&
+    (cartItem.originalPrice === undefined || typeof cartItem.originalPrice === 'number') &&
     typeof cartItem.description === 'string' &&
     typeof cartItem.image === 'string' &&
     Array.isArray(cartItem.tags) &&
@@ -182,7 +182,7 @@ function isCartItem(item: unknown): item is CartItem {
 }
 
 function isReceiptData(item: unknown): item is ReceiptData {
-  if (typeof item !== 'object' ?? item === null) return false;
+  if (typeof item !== 'object' || item === null) return false;
   
   const receipt = item as Record<string, unknown>;
   return (
@@ -190,7 +190,7 @@ function isReceiptData(item: unknown): item is ReceiptData {
     typeof receipt.total === 'number' &&
     typeof receipt.discountApplied === 'number' &&
     typeof receipt.transactionId === 'string' &&
-    (receipt.status === 'pending' ?? receipt.status === 'completed') &&
+    (receipt.status === 'pending' || receipt.status === 'completed') &&
     Array.isArray(receipt.items)
   );
 }
@@ -274,7 +274,7 @@ export default function StorePage() {
   };
 
   const confirmModMenuSelection = () => {
-    if (!selectedModProduct ?? !selectedModItem) return;
+    if (!selectedModProduct || !selectedModItem) return;
     
     const productToAdd = {
       ...selectedModProduct,
@@ -374,7 +374,7 @@ export default function StorePage() {
           : item.title,
         price: item.price,
         quantity: item.quantity,
-        selectedModItem: item.selectedModItem ?? undefined
+        selectedModItem: item.selectedModItem || undefined
       })),
       total: calculateTotal(),
       discountApplied: discountApplied ? 50 : 0,
@@ -437,8 +437,8 @@ export default function StorePage() {
   };
 
   const filteredReceipts = receiptHistory.filter(receipt =>
-    receipt.transactionId.toLowerCase().includes(searchTerm.toLowerCase()) ??
-    receipt.date.toLowerCase().includes(searchTerm.toLowerCase()) ??
+    receipt.transactionId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    receipt.date.toLowerCase().includes(searchTerm.toLowerCase()) ||
     receipt.items.some(item => 
       item.title.toLowerCase().includes(searchTerm.toLowerCase())
     )
@@ -618,7 +618,7 @@ export default function StorePage() {
                       <div className="flow-root">
                         <ul className="-my-6 divide-y divide-gray-700">
                           {cart.map(item => (
-                            <li key={item.id + (item.selectedModItem?.id ?? '')} className="py-6 flex">
+                            <li key={item.id + (item.selectedModItem?.id || '')} className="py-6 flex">
                               <div className={`h-16 w-16 flex-shrink-0 rounded-md overflow-hidden ${
                                 item.selectedModItem 
                                   ? `bg-gradient-to-r ${item.selectedModItem.color}`
@@ -853,7 +853,7 @@ export default function StorePage() {
                   <div>
                     <div className="text-sm text-gray-400">Total Price</div>
                     <div className="text-2xl font-bold">
-                      ₹{selectedModItem?.price ?? 'Select an option'}
+                      ₹{selectedModItem?.price || 'Select an option'}
                     </div>
                   </div>
                   <button
