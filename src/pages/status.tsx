@@ -95,7 +95,7 @@ export default function StatusPage() {
                   </div>
                   
                   <a
-                    href="https://youtube.com"
+                    href="https://youtu.be/tJobXXcg028?si=Dtv83nTLbx_3ataK"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition"
