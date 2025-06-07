@@ -35,7 +35,7 @@ export default function StatusPage() {
     const timer = setInterval(calculateTimeLeft, 1000);
 
     return () => clearInterval(timer);
-  }, [getLaunchDate]); // Fixed dependency array
+  }, [getLaunchDate]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white">
@@ -76,13 +76,13 @@ export default function StatusPage() {
             Crick Fusion Official Video
           </h1>
           <p className="text-xl text-gray-300">
-            {isLaunched ? &apos;Watch our brand new video now!&apos; : &apos;Launching soon - stay tuned!&apos;}
+            {isLaunched ? 'Watch our brand new video now!' : 'Launching soon - stay tuned!'}
           </p>
         </section>
 
         {/* Countdown or Video Section */}
         <section className="max-w-2xl mx-auto mb-16">
-          <div className={`rounded-xl overflow-hidden border-2 ${isLaunched ? &apos;border-green-500/30&apos; : &apos;border-orange-500/30&apos;} bg-gradient-to-br ${isLaunched ? &apos;from-gray-800 to-gray-900&apos; : &apos;from-orange-900/20 to-red-900/20&apos;}`}>
+          <div className={`rounded-xl overflow-hidden border-2 ${isLaunched ? 'border-green-500/30' : 'border-orange-500/30'} bg-gradient-to-br ${isLaunched ? 'from-gray-800 to-gray-900' : 'from-orange-900/20 to-red-900/20'}`}>
             <div className="p-8 text-center">
               {isLaunched ? (
                 <>
@@ -198,7 +198,7 @@ export default function StatusPage() {
       {/* Footer */}
       <footer className="bg-gray-800/50 border-t border-gray-700 py-8">
         <div className="container mx-auto px-4 text-center text-gray-400">
-          <p>© 2025 Shiva X Mods. All rights reserved.</p>
+          <p>© 2025 Crick Fusion. All rights reserved.</p>
         </div>
       </footer>
     </div>
