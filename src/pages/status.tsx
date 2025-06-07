@@ -174,6 +174,116 @@ export default function StatusPage() {
           </div>
         </section>
 
+{/* Payment Status Section */}
+<section className="max-w-3xl mx-auto mb-16">
+  <div className="bg-gray-800/50 p-6 rounded-xl border border-gray-700">
+    <h2 className="text-2xl font-bold mb-6">Payment Status Dashboard</h2>
+    
+    {/* Customers Table */}
+    <div className="overflow-x-auto">
+      <table className="w-full text-left border-collapse">
+        <thead>
+          <tr className="border-b border-gray-700">
+            <th className="pb-3 font-semibold text-gray-300">Customer</th>
+            <th className="pb-3 font-semibold text-gray-300">Product</th>
+            <th className="pb-3 font-semibold text-gray-300 text-right">Price</th>
+            <th className="pb-3 font-semibold text-gray-300 text-right">Status</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-700">
+          {/* Customer 1 - TH Cricket */}
+          <tr>
+            <td className="py-4 font-medium">TH Cricket</td>
+            <td className="py-4 text-gray-300">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                Squad Editor
+              </div>
+            </td>
+            <td className="py-4 text-right font-mono">₹100</td>
+            <td className="py-4 text-right">
+              <span className="inline-block px-3 py-1 text-xs rounded-full bg-yellow-500/10 text-yellow-400">
+                Pending
+              </span>
+            </td>
+          </tr>
+          
+          {/* Customer 2 - Virat Kohli */}
+          <tr>
+            <td className="py-4 font-medium">Virat Kohli</td>
+            <td className="py-4 text-gray-300">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                Batting Analysis Pack
+              </div>
+            </td>
+            <td className="py-4 text-right font-mono">₹350</td>
+            <td className="py-4 text-right">
+              <span className="inline-block px-3 py-1 text-xs rounded-full bg-green-500/10 text-green-400">
+                Completed
+              </span>
+            </td>
+          </tr>
+          
+          {/* Customer 3 - MS Dhoni */}
+          <tr>
+            <td className="py-4 font-medium">MS Dhoni</td>
+            <td className="py-4 text-gray-300">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                Captaincy Toolkit
+              </div>
+            </td>
+            <td className="py-4 text-right font-mono">₹500</td>
+            <td className="py-4 text-right">
+              <span className="inline-block px-3 py-1 text-xs rounded-full bg-blue-500/10 text-blue-400">
+                In Progress
+              </span>
+            </td>
+          </tr>
+          
+          {/* Customer 4 - Rohit Sharma */}
+          <tr>
+            <td className="py-4 font-medium">Rohit Sharma</td>
+            <td className="py-4 text-gray-300">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                Six-Hitting Masterclass
+              </div>
+            </td>
+            <td className="py-4 text-right font-mono">₹450</td>
+            <td className="py-4 text-right">
+              <span className="inline-block px-3 py-1 text-xs rounded-full bg-purple-500/10 text-purple-400">
+                Payment Received
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    {/* Summary Stats */}
+    <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
+        <div className="text-gray-400 text-sm">Total Customers</div>
+        <div className="text-2xl font-bold mt-1">4</div>
+      </div>
+      <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
+        <div className="text-gray-400 text-sm">Completed</div>
+        <div className="text-2xl font-bold mt-1 text-green-400">1</div>
+      </div>
+      <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
+        <div className="text-gray-400 text-sm">In Progress</div>
+        <div className="text-2xl font-bold mt-1 text-blue-400">2</div>
+      </div>
+      <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
+        <div className="text-gray-400 text-sm">Pending</div>
+        <div className="text-2xl font-bold mt-1 text-yellow-400">1</div>
+      </div>
+    </div>
+  </div>
+</section>
+
         {/* Notify Me Section */}
         {!isLaunched && (
           <section className="max-w-md mx-auto">
