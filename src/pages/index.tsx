@@ -20,6 +20,7 @@ import {
   MessageSquare,
   Menu,
   X,
+  Server,
 } from "lucide-react";
 import { TriangleDownIcon } from "@radix-ui/react-icons";
 import Link from "next/link";
@@ -92,6 +93,7 @@ const navLinks = [
   { name: "Tutorials", href: "/tutorials", icon: BookOpen },
   { name: "Community", href: "/community", icon: Users },
   { name: "Support", href: "/support", icon: MessageSquare },
+  { name: "Status", href: "/status", icon: Server }, // Added status page
 ];
 
 export default function Home() {
