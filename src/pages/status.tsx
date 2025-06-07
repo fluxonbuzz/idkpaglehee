@@ -217,7 +217,7 @@ export default function StatusPage() {
                 XNXX
               </div>
             </td>
-            <td className="py-4 text-right font-mono">₹350</td>
+            <td className="py-4 text-right font-mono">₹XXX</td>
             <td className="py-4 text-right">
               <span className="inline-block px-3 py-1 text-xs rounded-full bg-green-500/10 text-green-400">
                 Completed
@@ -234,7 +234,7 @@ export default function StatusPage() {
                 XNXX
               </div>
             </td>
-            <td className="py-4 text-right font-mono">₹500</td>
+            <td className="py-4 text-right font-mono">₹XXX</td>
             <td className="py-4 text-right">
               <span className="inline-block px-3 py-1 text-xs rounded-full bg-blue-500/10 text-blue-400">
                 In Progress
@@ -251,7 +251,7 @@ export default function StatusPage() {
                 XNXX
               </div>
             </td>
-            <td className="py-4 text-right font-mono">₹450</td>
+            <td className="py-4 text-right font-mono">₹XXX</td>
             <td className="py-4 text-right">
               <span className="inline-block px-3 py-1 text-xs rounded-full bg-purple-500/10 text-purple-400">
                 Payment Received
