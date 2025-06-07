@@ -214,7 +214,7 @@ export default function StatusPage() {
             <td className="py-4 text-gray-300">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                Batting Analysis Pack
+                XNXX
               </div>
             </td>
             <td className="py-4 text-right font-mono">₹350</td>
@@ -231,7 +231,7 @@ export default function StatusPage() {
             <td className="py-4 text-gray-300">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                Captaincy Toolkit
+                XNXX
               </div>
             </td>
             <td className="py-4 text-right font-mono">₹500</td>
@@ -248,7 +248,7 @@ export default function StatusPage() {
             <td className="py-4 text-gray-300">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                Six-Hitting Masterclass
+                XNXX
               </div>
             </td>
             <td className="py-4 text-right font-mono">₹450</td>
