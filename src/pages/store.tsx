@@ -374,7 +374,7 @@ export default function StorePage() {
           : item.title,
         price: item.price,
         quantity: item.quantity,
-        selectedModItem: item.selectedModItem || undefined
+        selectedModItem: item.selectedModItem ?? undefined
       })),
       total: calculateTotal(),
       discountApplied: discountApplied ? 50 : 0,
@@ -618,7 +618,7 @@ export default function StorePage() {
                       <div className="flow-root">
                         <ul className="-my-6 divide-y divide-gray-700">
                           {cart.map(item => (
-                            <li key={item.id + (item.selectedModItem?.id || '')} className="py-6 flex">
+                            <li key={item.id + (item.selectedModItem?.id ?? '')} className="py-6 flex">
                               <div className={`h-16 w-16 flex-shrink-0 rounded-md overflow-hidden ${
                                 item.selectedModItem 
                                   ? `bg-gradient-to-r ${item.selectedModItem.color}`
@@ -853,7 +853,7 @@ export default function StorePage() {
                   <div>
                     <div className="text-sm text-gray-400">Total Price</div>
                     <div className="text-2xl font-bold">
-                      ₹{selectedModItem?.price || 'Select an option'}
+                      ₹{selectedModItem?.price ?? 'Select an option'}
                     </div>
                   </div>
                   <button
