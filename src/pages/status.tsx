@@ -1,5 +1,5 @@
 // pages/status.tsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Clock, Youtube, AlertTriangle, CheckCircle, ChevronRight } from 'lucide-react';
 
@@ -11,16 +11,15 @@ export default function StatusPage() {
   });
   const [isLaunched, setIsLaunched] = useState(false);
 
-  // Set the launch date to June 7, 2025 2:00 PM
-  const launchDate = new Date('2025-06-07T14:00:00').getTime();
+  // Memoize the launch date to prevent unnecessary recreations
+  const getLaunchDate = useCallback(() => new Date('2025-06-07T14:00:00').getTime(), []);
 
   useEffect(() => {
-    const timer = setInterval(() => {
+    const calculateTimeLeft = () => {
       const now = new Date().getTime();
-      const distance = launchDate - now;
+      const distance = getLaunchDate() - now;
 
       if (distance < 0) {
-        clearInterval(timer);
         setIsLaunched(true);
         return;
       }
@@ -30,10 +29,13 @@ export default function StatusPage() {
         minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
         seconds: Math.floor((distance % (1000 * 60)) / 1000)
       });
-    }, 1000);
+    };
+
+    calculateTimeLeft();
+    const timer = setInterval(calculateTimeLeft, 1000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [getLaunchDate]); // Fixed dependency array
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white">
@@ -74,13 +76,13 @@ export default function StatusPage() {
             Crick Fusion Official Video
           </h1>
           <p className="text-xl text-gray-300">
-            {isLaunched ? 'Watch our brand new video now!' : 'Launching soon - stay tuned!'}
+            {isLaunched ? &apos;Watch our brand new video now!&apos; : &apos;Launching soon - stay tuned!&apos;}
           </p>
         </section>
 
         {/* Countdown or Video Section */}
         <section className="max-w-2xl mx-auto mb-16">
-          <div className={`rounded-xl overflow-hidden border-2 ${isLaunched ? 'border-green-500/30' : 'border-orange-500/30'} bg-gradient-to-br ${isLaunched ? 'from-gray-800 to-gray-900' : 'from-orange-900/20 to-red-900/20'}`}>
+          <div className={`rounded-xl overflow-hidden border-2 ${isLaunched ? &apos;border-green-500/30&apos; : &apos;border-orange-500/30&apos;} bg-gradient-to-br ${isLaunched ? &apos;from-gray-800 to-gray-900&apos; : &apos;from-orange-900/20 to-red-900/20&apos;}`}>
             <div className="p-8 text-center">
               {isLaunched ? (
                 <>
@@ -177,7 +179,7 @@ export default function StatusPage() {
           <section className="max-w-md mx-auto">
             <div className="bg-gray-800/50 p-6 rounded-xl border border-gray-700 text-center">
               <h3 className="text-xl font-bold mb-3">Get Notified When We Launch</h3>
-              <p className="text-gray-400 mb-4">We'll send you a reminder when the video goes live</p>
+              <p className="text-gray-400 mb-4">We&apos;ll send you a reminder when the video goes live</p>
               <div className="flex gap-2">
                 <input 
                   type="email" 
@@ -201,4 +203,4 @@ export default function StatusPage() {
       </footer>
     </div>
   );
-                  }
+}
