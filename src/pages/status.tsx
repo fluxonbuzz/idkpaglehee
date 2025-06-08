@@ -213,7 +213,7 @@ export default function StatusPage() {
             <td className="py-4 font-medium">Driven X</td>
             <td className="py-4 text-gray-300">
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
                 Squad Editor
               </div>
             </td>
@@ -227,14 +227,14 @@ export default function StatusPage() {
           
           {/* Customer 3 - MS Dhoni */}
           <tr>
-            <td className="py-4 font-medium">XNXX</td>
+            <td className="py-4 font-medium">Simply Dev</td>
             <td className="py-4 text-gray-300">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                XNXX
+                Game Making Kit
               </div>
             </td>
-            <td className="py-4 text-right font-mono">₹XXX</td>
+            <td className="py-4 text-right font-mono">₹500</td>
             <td className="py-4 text-right">
               <span className="inline-block px-3 py-1 text-xs rounded-full bg-blue-500/10 text-blue-400">
                 In Progress
