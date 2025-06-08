@@ -214,7 +214,7 @@ export default function StatusPage() {
             <td className="py-4 text-gray-300">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                XNXX
+                Squad Editor
               </div>
             </td>
             <td className="py-4 text-right font-mono">₹100</td>
