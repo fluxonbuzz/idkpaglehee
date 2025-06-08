@@ -210,17 +210,17 @@ export default function StatusPage() {
           
           {/* Customer 2 - Virat Kohli */}
           <tr>
-            <td className="py-4 font-medium">XNXX</td>
+            <td className="py-4 font-medium">Driven X</td>
             <td className="py-4 text-gray-300">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                 XNXX
               </div>
             </td>
-            <td className="py-4 text-right font-mono">₹XXX</td>
+            <td className="py-4 text-right font-mono">₹100</td>
             <td className="py-4 text-right">
-              <span className="inline-block px-3 py-1 text-xs rounded-full bg-green-500/10 text-green-400">
-                Completed
+              <span className="inline-block px-3 py-1 text-xs rounded-full bg-yellow-500/10 text-yellow-400">
+                Pending
               </span>
             </td>
           </tr>
