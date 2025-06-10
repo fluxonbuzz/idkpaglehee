@@ -2,12 +2,10 @@ import Container from "@/components/Container";
 import { Button } from "@/components/ui/button";
 import { Lock, Mail, User, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
-import { get } from "@vercel/edge-config";
 
-export default async function Login() {
-  // Check if signups are enabled via edge config
-  const signupsEnabled = await get('enableSignups');
-  const allowSignups = signupsEnabled !== false; // Default to true if not set
+export default function Login() {
+  // Local configuration instead of edge config
+  const allowSignups = true; // Set this based on your needs
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
