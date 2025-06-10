@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Lock, Mail, Eye } from "lucide-react";
 import { useRef } from "react";
 import { useRouter } from "next/router";
+import Link from "next/link";
 
 export default function Login() {
   const allowSignups = true;
