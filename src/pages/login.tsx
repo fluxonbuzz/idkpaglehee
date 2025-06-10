@@ -2,10 +2,19 @@ import Container from "@/components/Container";
 import { Button } from "@/components/ui/button";
 import { Lock, Mail, User, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
+import { useRef } from "react";
 
 export default function Login() {
   // Local configuration instead of edge config
   const allowSignups = true; // Set this based on your needs
+  const passwordRef = useRef<HTMLInputElement>(null);
+
+  const togglePasswordVisibility = () => {
+    if (passwordRef.current) {
+      passwordRef.current.type = 
+        passwordRef.current.type === 'password' ? 'text' : 'password';
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
@@ -58,6 +67,7 @@ export default function Login() {
                       id="password"
                       name="password"
                       type="password"
+                      ref={passwordRef}
                       autoComplete="current-password"
                       required
                       className="bg-gray-700/50 border border-gray-600/30 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/30 w-full pl-10 pr-3 py-3 rounded-lg text-white placeholder-gray-400 outline-none transition-all"
@@ -66,12 +76,7 @@ export default function Login() {
                     <button
                       type="button"
                       className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                      onClick={() => {
-                        const password = document.getElementById('password');
-                        if (password) {
-                          password.type = password.type === 'password' ? 'text' : 'password';
-                        }
-                      }}
+                      onClick={togglePasswordVisibility}
                     >
                       <Eye className="h-5 w-5 text-gray-400 hover:text-purple-400" />
                     </button>
