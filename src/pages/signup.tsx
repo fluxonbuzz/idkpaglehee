@@ -1,16 +1,82 @@
 import Container from "@/components/Container";
 import { Button } from "@/components/ui/button";
 import { Lock, Mail, Eye, User } from "lucide-react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
 
 export default function Signup() {
   const passwordRef = useRef<HTMLInputElement>(null);
+  const confirmPasswordRef = useRef<HTMLInputElement>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const togglePasswordVisibility = () => {
     if (passwordRef.current) {
       passwordRef.current.type = 
         passwordRef.current.type === 'password' ? 'text' : 'password';
+    }
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    if (confirmPasswordRef.current) {
+      confirmPasswordRef.current.type = 
+        confirmPasswordRef.current.type === 'password' ? 'text' : 'password';
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsLoading(true);
+    
+    const formData = new FormData(e.currentTarget);
+    const data = {
+      name: formData.get('name') as string,
+      email: formData.get('email') as string,
+      password: formData.get('password') as string,
+      confirmPassword: formData.get('confirm-password') as string,
+      terms: formData.get('terms') === 'on',
+    };
+
+    // Client-side validation
+    if (data.password !== data.confirmPassword) {
+      toast.error("Passwords don't match");
+      setIsLoading(false);
+      return;
+    }
+
+    if (!data.terms) {
+      toast.error("You must accept the terms and conditions");
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: data.name,
+          email: data.email,
+          password: data.password,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        toast.success('Account created successfully!');
+        router.push('/dashboard');
+      } else {
+        toast.error(result.message || 'Signup failed');
+      }
+    } catch (error) {
+      toast.error('Network error. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -29,7 +95,7 @@ export default function Signup() {
             </div>
 
             <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-blue-500/20 p-8 shadow-lg shadow-blue-500/10">
-              <form className="space-y-6">
+              <form className="space-y-6" onSubmit={handleSubmit}>
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
                     Full Name
@@ -85,6 +151,7 @@ export default function Signup() {
                       ref={passwordRef}
                       autoComplete="new-password"
                       required
+                      minLength={8}
                       className="bg-gray-700/50 border border-gray-600/30 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/30 w-full pl-10 pr-3 py-3 rounded-lg text-white placeholder-gray-400 outline-none transition-all"
                       placeholder="••••••••"
                     />
@@ -110,11 +177,20 @@ export default function Signup() {
                       id="confirm-password"
                       name="confirm-password"
                       type="password"
+                      ref={confirmPasswordRef}
                       autoComplete="new-password"
                       required
+                      minLength={8}
                       className="bg-gray-700/50 border border-gray-600/30 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/30 w-full pl-10 pr-3 py-3 rounded-lg text-white placeholder-gray-400 outline-none transition-all"
                       placeholder="••••••••"
                     />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                      onClick={toggleConfirmPasswordVisibility}
+                    >
+                      <Eye className="h-5 w-5 text-gray-400 hover:text-blue-400" />
+                    </button>
                   </div>
                 </div>
 
@@ -135,8 +211,9 @@ export default function Signup() {
                   <Button
                     type="submit"
                     className="w-full bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 py-3 text-lg"
+                    disabled={isLoading}
                   >
-                    Create Account
+                    {isLoading ? 'Creating Account...' : 'Create Account'}
                   </Button>
                 </div>
               </form>
