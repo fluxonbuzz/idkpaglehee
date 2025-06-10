@@ -274,11 +274,11 @@ export default function StatusPage() {
       </div>
       <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
         <div className="text-gray-400 text-sm">In Progress</div>
-        <div className="text-2xl font-bold mt-1 text-blue-400">2</div>
+        <div className="text-2xl font-bold mt-1 text-blue-400">1</div>
       </div>
       <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
         <div className="text-gray-400 text-sm">Pending</div>
-        <div className="text-2xl font-bold mt-1 text-yellow-400">1</div>
+        <div className="text-2xl font-bold mt-1 text-yellow-400">2</div>
       </div>
     </div>
   </div>
