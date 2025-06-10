@@ -1,5 +1,4 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { hashSync } from 'bcryptjs';
 
 interface User {
   name: string;
@@ -7,20 +6,28 @@ interface User {
   password: string;
 }
 
+// Web Crypto API password hashing
+async function hashPassword(password: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
   if (req.method !== 'POST') {
-    return res.setHeader('Allow', ['POST']).status(405).json({ 
-      error: 'Method not allowed' 
+    return res.setHeader('Allow', ['POST']).status(405).json({
+      error: 'Method not allowed'
     });
   }
 
   try {
     const { name, email, password } = req.body;
 
-    // Input validation
     if (!name || !email || !password) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
@@ -33,19 +40,19 @@ export default async function handler(
       return res.status(400).json({ error: 'Password must be at least 8 characters' });
     }
 
-    // Use sync version to avoid async issues in serverless
-    const hashedPassword = hashSync(password, 12);
-    
+    const hashedPassword = await hashPassword(password);
+
     // In production, you would:
     // 1. Save to your database here
-    // 2. Implement proper error handling for duplicates
+    // 2. Add proper error handling for duplicates
     // 3. Create session/token
     
-    return res.status(201).json({ 
+    return res.status(201).json({
       success: true,
       user: {
         name,
         email
+        // Never return password hash
       }
     });
 
