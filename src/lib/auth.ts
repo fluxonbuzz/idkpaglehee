@@ -1,9 +1,19 @@
-import { hash, compare } from "bcryptjs";
+// src/lib/auth.ts
+export const setAuthToken = (token: string) => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('authToken', token);
+  }
+};
 
-export async function hashPassword(password: string) {
-  return await hash(password, 12);
-}
+export const getAuthToken = () => {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('authToken');
+  }
+  return null;
+};
 
-export async function verifyPassword(password: string, hashedPassword: string) {
-  return await compare(password, hashedPassword);
-}
+export const removeAuthToken = () => {
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('authToken');
+  }
+};
