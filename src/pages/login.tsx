@@ -16,6 +16,7 @@ export default function Login() {
     email: "",
     password: "",
   });
+  const [error, setError] = useState<string | null>(null);
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -27,11 +28,14 @@ export default function Login() {
       ...prev,
       [name]: value,
     }));
+    // Clear error when user starts typing
+    if (error) setError(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
 
     try {
       const result = await signIn("credentials", {
@@ -41,6 +45,13 @@ export default function Login() {
       });
 
       if (result?.error) {
+        if (result.error === "User not found") {
+          setError("Email isn't registered with us. Try signing up.");
+        } else if (result.error === "Invalid password") {
+          setError("Incorrect email or password");
+        } else {
+          setError(result.error);
+        }
         throw new Error(result.error);
       }
 
@@ -49,7 +60,9 @@ export default function Login() {
         router.push("/");
       }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Login failed");
+      if (!(error instanceof Error && (error.message === "User not found" || error.message === "Invalid password"))) {
+        toast.error(error instanceof Error ? error.message : "Login failed");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -74,6 +87,12 @@ export default function Login() {
             </div>
 
             <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-purple-500/20 p-8 shadow-lg shadow-purple-500/10">
+              {error && (
+                <div className="mb-4 p-3 bg-red-500/20 border border-red-500/40 rounded-lg text-red-300 text-sm">
+                  {error}
+                </div>
+              )}
+              
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
