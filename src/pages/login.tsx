@@ -1,28 +1,62 @@
-import Container from "@/components/Container";
-import { Button } from "@/components/ui/button";
-import { Lock, Mail, Eye } from "lucide-react";
-import { useRef } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import { signIn } from "next-auth/react";
+import { Lock, Mail, Eye, EyeOff, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Container from "@/components/Container";
+import { toast } from "react-hot-toast";
 
 export default function Login() {
-  const allowSignups = true;
-  const passwordRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
 
   const togglePasswordVisibility = () => {
-    if (passwordRef.current) {
-      passwordRef.current.type = 
-        passwordRef.current.type === 'password' ? 'text' : 'password';
+    setShowPassword(!showPassword);
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const result = await signIn("credentials", {
+        redirect: false,
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (result?.error) {
+        throw new Error(result.error);
+      }
+
+      if (result?.ok) {
+        toast.success("Logged in successfully!");
+        router.push("/dashboard");
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Login failed");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleAdminAccess = async () => {
-    try {
-      await router.push('/admin');
-    } catch (error) {
-      console.error('Navigation failed:', error);
-    }
+  const handleAdminAccess = () => {
+    router.push("/admin/login");
   };
 
   return (
@@ -35,14 +69,12 @@ export default function Login() {
                 Welcome Back
               </h1>
               <p className="text-lg text-gray-300">
-                {allowSignups 
-                  ? "Sign in to your account or create a new one"
-                  : "Sign in to access your account"}
+                Sign in to access your account
               </p>
             </div>
 
             <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-purple-500/20 p-8 shadow-lg shadow-purple-500/10">
-              <form className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
                     Email Address
@@ -57,6 +89,8 @@ export default function Login() {
                       type="email"
                       autoComplete="email"
                       required
+                      value={formData.email}
+                      onChange={handleChange}
                       className="bg-gray-700/50 border border-gray-600/30 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/30 w-full pl-10 pr-3 py-3 rounded-lg text-white placeholder-gray-400 outline-none transition-all"
                       placeholder="you@example.com"
                     />
@@ -74,10 +108,12 @@ export default function Login() {
                     <input
                       id="password"
                       name="password"
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       ref={passwordRef}
                       autoComplete="current-password"
                       required
+                      value={formData.password}
+                      onChange={handleChange}
                       className="bg-gray-700/50 border border-gray-600/30 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/30 w-full pl-10 pr-3 py-3 rounded-lg text-white placeholder-gray-400 outline-none transition-all"
                       placeholder="••••••••"
                     />
@@ -86,7 +122,11 @@ export default function Login() {
                       className="absolute inset-y-0 right-0 pr-3 flex items-center"
                       onClick={togglePasswordVisibility}
                     >
-                      <Eye className="h-5 w-5 text-gray-400 hover:text-purple-400" />
+                      {showPassword ? (
+                        <EyeOff className="h-5 w-5 text-gray-400 hover:text-purple-400" />
+                      ) : (
+                        <Eye className="h-5 w-5 text-gray-400 hover:text-purple-400" />
+                      )}
                     </button>
                   </div>
                 </div>
@@ -114,23 +154,26 @@ export default function Login() {
                 <div>
                   <Button
                     type="submit"
+                    disabled={isLoading}
                     className="w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 py-3 text-lg"
                   >
-                    Sign In
+                    {isLoading ? (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                      "Sign In"
+                    )}
                   </Button>
                 </div>
               </form>
 
-              {allowSignups && (
-                <div className="mt-6 text-center">
-                  <p className="text-sm text-gray-400">
-                    Don&apos;t have an account?{' '}
-                    <Link href="/signup" className="font-medium text-purple-400 hover:text-purple-300">
-                      Sign up
-                    </Link>
-                  </p>
-                </div>
-              )}
+              <div className="mt-6 text-center">
+                <p className="text-sm text-gray-400">
+                  Don't have an account?{' '}
+                  <Link href="/signup" className="font-medium text-purple-400 hover:text-purple-300">
+                    Sign up
+                  </Link>
+                </p>
+              </div>
 
               <div className="mt-4 text-center">
                 <button 
