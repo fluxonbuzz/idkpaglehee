@@ -1,27 +1,13 @@
 import Container from "@/components/Container";
 import { Button } from "@/components/ui/button";
-import { Lock, Mail, Eye, User } from "lucide-react";
-import { useRef, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import toast, { Toast } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 export default function Signup() {
-  const passwordRef = useRef<HTMLInputElement>(null);
-  const confirmPasswordRef = useRef<HTMLInputElement>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-
-  const togglePasswordVisibility = (ref: React.RefObject<HTMLInputElement>) => {
-    if (ref.current) {
-      ref.current.type = ref.current.type === 'password' ? 'text' : 'password';
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsLoading(true);
-    
     const formData = new FormData(e.currentTarget);
     const data = {
       name: formData.get('name') as string,
@@ -33,13 +19,11 @@ export default function Signup() {
 
     if (data.password !== data.confirmPassword) {
       toast.error("Passwords don't match");
-      setIsLoading(false);
       return;
     }
 
     if (!data.terms) {
       toast.error("You must accept the terms and conditions");
-      setIsLoading(false);
       return;
     }
 
@@ -56,35 +40,31 @@ export default function Signup() {
         }),
       });
 
-      const result = await response.json() as { message?: string };
+      const result = await response.json();
+      const message = result.message ?? 'Signup failed'; // Fixed: Using nullish coalescing
 
       if (response.ok) {
         toast.success('Account created successfully!');
         router.push('/dashboard');
       } else {
-        toast.error(result.message || 'Signup failed');
+        toast.error(message);
       }
     } catch (error) {
       toast.error('Network error. Please try again.');
-    } finally {
-      setIsLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
       <Container>
-        return (
-  <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
-    <Container>
-      <div className="max-w-md mx-auto p-6 bg-gray-800 rounded-lg shadow-lg mt-10">
-        <h1 className="text-2xl font-bold text-center mb-6">Sign Up</h1>
-        <p className="text-center mb-6">This is a placeholder form</p>
-        <Button className="w-full">Continue</Button>
-      </div>
-    </Container>
-  </div>
-);
+        <div className="max-w-md mx-auto p-6 bg-gray-800 rounded-lg shadow-lg mt-10">
+          <h1 className="text-2xl font-bold text-center mb-6">Sign Up</h1>
+          <form onSubmit={handleSubmit}>
+            <Button type="submit" className="w-full">
+              Submit
+            </Button>
+          </form>
+        </div>
       </Container>
     </div>
   );
