@@ -45,7 +45,7 @@ export default function SignupPage() {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));
       toast.success('Account created successfully!');
-      router.push('/');
+      router.push('/login');
     } catch (error) {
       toast.error('Signup failed. Please try again.');
     } finally {
@@ -59,11 +59,11 @@ export default function SignupPage() {
       <header className="bg-gray-800/50 backdrop-blur-md sticky top-0 z-10 border-b border-gray-700">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">
-            SX Games
+            Shiva X Mods
           </Link>
           <nav className="flex gap-6">
             <Link href="/store" className="hover:text-blue-400 transition">Store</Link>
-            <Link href="/downloads" className="hover:text-blue-400 transition">Downloads</Link>
+            <Link href="/downloads" className="hover:text-blue-400 transition">Games</Link>
           </nav>
         </div>
       </header>
