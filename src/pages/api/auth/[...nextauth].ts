@@ -1,88 +1,41 @@
 // pages/api/auth/[...nextauth].ts
-import NextAuth, { type NextAuthOptions } from 'next-auth';
-import CredentialsProvider from 'next-auth/providers/credentials';
-import { db, adminDb } from '@/lib/db';
+import NextAuth from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
 
-// Extend the User type to include role
-declare module "next-auth" {
-  interface User {
-    id: string;
-    role: string;
-  }
-  interface Session {
-    user: User & {
-      id: string;
-      role: string;
-    };
-  }
-}
-
-declare module "next-auth/jwt" {
-  interface JWT {
-    id: string;
-    role: string;
-  }
-}
-
-export const authOptions: NextAuthOptions = {
+export default NextAuth({
   providers: [
     CredentialsProvider({
-      name: 'Credentials',
+      name: "Credentials",
       credentials: {
-        email: { label: "Email", type: "email" },
+        email: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" },
-        role: { label: "Role", type: "text" }
       },
-      async authorize(credentials) {
-        if (!credentials) return null;
-
-        try {
-          if (credentials.role === 'admin') {
-            const admin = await adminDb.verifyAdminCredentials(
-              credentials.email, 
-              credentials.password
-            );
-            if (!admin) return null;
-            return { ...admin, role: 'admin' };
-          } else {
-            const user = await db.verifyCredentials(
-              credentials.email, 
-              credentials.password
-            );
-            if (!user) return null;
-            return { ...user, role: 'user' };
-          }
-        } catch (error) {
-          console.error('Authorization error:', error);
-          return null;
+      async authorize(credentials, req) {
+        console.log("Login attempt with:", credentials); // Debug log
+        
+        // Validate input
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error("Email and password are required");
         }
-      }
-    })
-  ],
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-        token.role = user.role;
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id;
-        session.user.role = token.role;
-      }
-      return session;
-    }
-  },
-  pages: {
-    signIn: '/login',
-    error: '/login'
-  },
-  secret: process.env.NEXTAUTH_SECRET,
-  session: {
-    strategy: 'jwt'
-  }
-};
 
-export default NextAuth(authOptions);
+        // Hardcoded test user (replace with DB/Edge Config later)
+        const testUser = {
+          id: "1",
+          email: "test@example.com",
+          password: "test123", // In production, use bcrypt.compare()
+        };
+
+        if (
+          credentials.email === testUser.email &&
+          credentials.password === testUser.password
+        ) {
+          return testUser; // Success
+        }
+
+        return null; // Fail
+      },
+    }),
+  ],
+  secret: process.env.NEXTAUTH_SECRET,
+  debug: true, // Enable debug logs
+});
