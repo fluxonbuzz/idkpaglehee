@@ -1,9 +1,30 @@
 // pages/api/auth/[...nextauth].ts
-import NextAuth from 'next-auth';
+import NextAuth, { type NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { db, adminDb } from '@/lib/db';
 
-export default NextAuth({
+// Extend the User type to include role
+declare module "next-auth" {
+  interface User {
+    id: string;
+    role: string;
+  }
+  interface Session {
+    user: User & {
+      id: string;
+      role: string;
+    };
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    id: string;
+    role: string;
+  }
+}
+
+export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -12,7 +33,7 @@ export default NextAuth({
         password: { label: "Password", type: "password" },
         role: { label: "Role", type: "text" }
       },
-      async authorize(credentials, req) {
+      async authorize(credentials) {
         if (!credentials) return null;
 
         try {
@@ -41,15 +62,15 @@ export default NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.role = user.role;
         token.id = user.id;
+        token.role = user.role;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.role = token.role;
         session.user.id = token.id;
+        session.user.role = token.role;
       }
       return session;
     }
@@ -62,4 +83,6 @@ export default NextAuth({
   session: {
     strategy: 'jwt'
   }
-});
+};
+
+export default NextAuth(authOptions);
