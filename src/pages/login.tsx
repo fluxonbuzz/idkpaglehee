@@ -1,9 +1,13 @@
 // src/pages/login.tsx
+'use client';
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Key, ArrowRight, AlertCircle, Mail, Lock } from 'lucide-react';
+import { Key, AlertCircle, Mail, Lock, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
+import { setAuthToken } from '@/lib/auth';
+import { AuthService } from '@/services/auth';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -43,7 +47,7 @@ export default function LoginPage() {
       newErrors.email = 'Email is required';
       valid = false;
     } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
-      newErrors.email = 'Email is invalid';
+      newErrors.email = 'Please enter a valid email';
       valid = false;
     }
 
@@ -69,44 +73,33 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      // Simulate API call with different error scenarios
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const { token, user } = await AuthService.login({
+        email: formData.email,
+        password: formData.password,
+      });
+
+      // Store the token
+      setAuthToken(token);
+
+      // Redirect with success message
+      toast.success(`Welcome back, ${user.name || user.email.split('@')[0]}!`);
+      router.push('/dashboard');
+    } catch (error: any) {
+      console.error('Login error:', error);
       
-      // Mock responses for demonstration
-      const mockUsers = [
-        { email: 'user@example.com', password: 'password123' }
-      ];
+      let errorMessage = 'Login failed. Please try again.';
       
-      const user = mockUsers.find(u => u.email === formData.email);
-      
-      if (!user) {
-        throw new Error('User not found');
+      if (error.message.includes('credentials')) {
+        setErrors({
+          email: 'Invalid credentials',
+          password: 'Invalid credentials',
+        });
+        errorMessage = 'Invalid email or password';
+      } else if (error.message.includes('network')) {
+        errorMessage = 'Network error. Please check your connection.';
       }
-      
-      if (user.password !== formData.password) {
-        throw new Error('Incorrect password');
-      }
-      
-      toast.success('Login successful!');
-      router.push('/');
-    } catch (error) {
-      if (error instanceof Error) {
-        if (error.message === 'User not found') {
-          setErrors(prev => ({
-            ...prev,
-            email: 'No account found with this email',
-          }));
-          toast.error('User not found');
-        } else if (error.message === 'Incorrect password') {
-          setErrors(prev => ({
-            ...prev,
-            password: 'Incorrect password',
-          }));
-          toast.error('Incorrect password');
-        } else {
-          toast.error('Login failed. Please try again.');
-        }
-      }
+
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -135,7 +128,7 @@ export default function LoginPage() {
             Welcome Back
           </h1>
           <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-            Sign in to your account to continue your gaming journey
+            Sign in to access your games, mods, and community
           </p>
         </section>
 
@@ -157,10 +150,15 @@ export default function LoginPage() {
                       id="email"
                       name="email"
                       type="email"
+                      autoComplete="email"
                       required
                       value={formData.email}
                       onChange={handleChange}
-                      className={`w-full bg-gray-700 border ${errors.email ? 'border-red-500' : 'border-gray-600'} rounded-lg pl-10 pr-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 ${errors.email ? 'focus:ring-red-500' : 'focus:ring-purple-500'}`}
+                      className={`w-full bg-gray-700 border ${
+                        errors.email ? 'border-red-500' : 'border-gray-600'
+                      } rounded-lg pl-10 pr-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 ${
+                        errors.email ? 'focus:ring-red-500' : 'focus:ring-purple-500'
+                      }`}
                       placeholder="you@example.com"
                     />
                   </div>
@@ -184,10 +182,16 @@ export default function LoginPage() {
                       id="password"
                       name="password"
                       type="password"
+                      autoComplete="current-password"
                       required
+                      minLength={6}
                       value={formData.password}
                       onChange={handleChange}
-                      className={`w-full bg-gray-700 border ${errors.password ? 'border-red-500' : 'border-gray-600'} rounded-lg pl-10 pr-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 ${errors.password ? 'focus:ring-red-500' : 'focus:ring-purple-500'}`}
+                      className={`w-full bg-gray-700 border ${
+                        errors.password ? 'border-red-500' : 'border-gray-600'
+                      } rounded-lg pl-10 pr-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 ${
+                        errors.password ? 'focus:ring-red-500' : 'focus:ring-purple-500'
+                      }`}
                       placeholder="••••••••"
                     />
                   </div>
@@ -210,14 +214,11 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-bold py-3 px-4 rounded transition flex items-center justify-center gap-2"
+                className="w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-bold py-3 px-4 rounded transition flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <>
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
+                    <Loader2 size={18} className="animate-spin" />
                     Signing In...
                   </>
                 ) : (
@@ -238,19 +239,19 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Features Section */}
+        {/* Security Tips Section */}
         <section className="mt-16 bg-gray-800/50 rounded-xl p-8 border border-gray-700">
-          <h2 className="text-2xl font-bold mb-6 text-center">Continue Your Adventure</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <h2 className="text-2xl font-bold mb-6 text-center">Account Security</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700">
               <div className="flex items-center mb-3">
                 <div className="bg-purple-500/20 p-2 rounded-full mr-3">
-                  <Key size={20} className="text-purple-400" />
+                  <Lock size={20} className="text-purple-400" />
                 </div>
-                <h3 className="font-bold">Sync Your Progress</h3>
+                <h3 className="font-bold">Secure Login</h3>
               </div>
               <p className="text-gray-300 text-sm">
-                Pick up right where you left off with cloud-saved game progress across all devices.
+                We use industry-standard encryption to protect your credentials during transmission.
               </p>
             </div>
             <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700">
@@ -258,21 +259,10 @@ export default function LoginPage() {
                 <div className="bg-pink-500/20 p-2 rounded-full mr-3">
                   <AlertCircle size={20} className="text-pink-400" />
                 </div>
-                <h3 className="font-bold">Enhanced Security</h3>
+                <h3 className="font-bold">Suspicious Activity</h3>
               </div>
               <p className="text-gray-300 text-sm">
-                We monitor your account for suspicious activity and notify you of any login attempts.
-              </p>
-            </div>
-            <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700">
-              <div className="flex items-center mb-3">
-                <div className="bg-violet-500/20 p-2 rounded-full mr-3">
-                  <ArrowRight size={20} className="text-violet-400" />
-                </div>
-                <h3 className="font-bold">Quick Access</h3>
-              </div>
-              <p className="text-gray-300 text-sm">
-                Get instant access to your purchased games, mods, and exclusive content.
+                We'll notify you if we detect unusual login attempts on your account.
               </p>
             </div>
           </div>
