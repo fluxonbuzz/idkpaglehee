@@ -3,6 +3,11 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
+interface ApiResponse {
+  message?: string;
+  [key: string]: unknown; // Allow other properties
+}
+
 export default function Signup() {
   const router = useRouter();
 
@@ -40,8 +45,8 @@ export default function Signup() {
         }),
       });
 
-      const result = await response.json();
-      const message = result.message ?? 'Signup failed'; // Fixed: Using nullish coalescing
+      const result: ApiResponse = await response.json();
+      const message = result.message ?? 'Signup failed';
 
       if (response.ok) {
         toast.success('Account created successfully!');
@@ -50,7 +55,11 @@ export default function Signup() {
         toast.error(message);
       }
     } catch (error) {
-      toast.error('Network error. Please try again.');
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error('Network error. Please try again.');
+      }
     }
   };
 
