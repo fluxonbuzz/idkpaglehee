@@ -1,4 +1,4 @@
-import { get } from '@vercel/edge-config';
+import { get, getAll, set } from '@vercel/edge-config';
 import { createClient } from '@vercel/edge-config';
 
 interface User {
@@ -66,13 +66,8 @@ export const db = {
         createdAt: new Date().toISOString()
       };
 
-      await edgeConfigClient.update([
-        {
-          operation: 'upsert',
-          key: 'users',
-          value: [...users, newUser],
-        },
-      ]);
+      const currentConfig = await getAll();
+      await set('users', [...(currentConfig?.users || []), newUser]);
 
       return newUser;
     } catch (error) {
