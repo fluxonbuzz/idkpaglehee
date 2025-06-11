@@ -1,4 +1,4 @@
-import { get, getAll, set } from '@vercel/edge-config';
+import { get } from '@vercel/edge-config';
 import { createClient } from '@vercel/edge-config';
 
 interface User {
@@ -52,28 +52,7 @@ export const db = {
   },
 
   async createUser(userData: { email: string; password: string; name?: string }): Promise<User> {
-    try {
-      const users = await getUsers();
-      const userExists = users.some(user => user.email === userData.email);
-      
-      if (userExists) {
-        throw new Error('User already exists');
-      }
-
-      const newUser: User = {
-        ...userData,
-        id: Date.now().toString(),
-        createdAt: new Date().toISOString()
-      };
-
-      const currentConfig = await getAll();
-      await set('users', [...(currentConfig?.users || []), newUser]);
-
-      return newUser;
-    } catch (error) {
-      console.error('Error creating user:', error);
-      throw error;
-    }
+    throw new Error('User creation not implemented in Edge Config');
   }
 };
 
