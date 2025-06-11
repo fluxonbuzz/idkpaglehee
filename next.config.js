@@ -9,14 +9,13 @@ const nextConfig = {
     register: true,
     scope: '/',
     sw: 'service-worker.js',
-    // Add these to fix precaching issues
     dynamicStartUrl: false,
     reloadOnOnline: false,
     buildExcludes: [
       /middleware-manifest\.json$/,
       /_middleware\.js$/,
       /_buildManifest\.js$/,
-      /312-.*\.js$/ // Specific file that was causing issues
+      /312-.*\.js$/
     ],
     runtimeCaching: [
       {
@@ -89,7 +88,6 @@ const nextConfig = {
     ];
   },
 
-  // Build Configuration
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -97,13 +95,11 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
 
-  // Internationalization
   i18n: {
     locales: ['en'],
     defaultLocale: 'en',
   },
 
-  // Custom webpack config to handle SVGs if needed
   webpack: (config) => {
     config.module.rules.push({
       test: /\.svg$/,
@@ -118,7 +114,6 @@ async function setup() {
   if (!process.env.SKIP_ENV_VALIDATION) {
     await import('./src/env.js');
     
-    // Validate required auth environment variables
     if (!process.env.NEXTAUTH_SECRET) {
       console.warn('Warning: NEXTAUTH_SECRET is not set. This is required for authentication.');
     }
@@ -129,4 +124,5 @@ async function setup() {
   return nextConfig;
 }
 
-module.exports = setup();
+// ES Module export
+export default setup();
