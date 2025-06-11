@@ -23,10 +23,7 @@ export default async function handler(
       return res.status(400).json({ message: 'Password must be at least 8 characters' });
     }
 
-    // Hash password using Web Crypto API
-    const hashedPassword = await hashPassword(password);
-    
-    // In production: Save user to database here
+    // In production: Add proper password hashing and database storage here
     
     return res.status(201).json({ 
       message: 'User created successfully',
@@ -39,12 +36,4 @@ export default async function handler(
     console.error('Signup error:', error);
     return res.status(500).json({ message: 'Internal server error' });
   }
-}
-
-async function hashPassword(password: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
