@@ -74,7 +74,17 @@ export default function Signup() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
       <Container>
-        {/* Your form JSX here */}
+        return (
+  <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
+    <Container>
+      <div className="max-w-md mx-auto p-6 bg-gray-800 rounded-lg shadow-lg mt-10">
+        <h1 className="text-2xl font-bold text-center mb-6">Sign Up</h1>
+        <p className="text-center mb-6">This is a placeholder form</p>
+        <Button className="w-full">Continue</Button>
+      </div>
+    </Container>
+  </div>
+);
       </Container>
     </div>
   );
