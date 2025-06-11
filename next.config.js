@@ -2,39 +2,72 @@
 const nextConfig = {
   reactStrictMode: true,
   
-  // PWA Configuration
+  // Enhanced PWA Configuration
   pwa: {
     dest: 'public',
     disable: process.env.NODE_ENV === 'development',
     register: true,
     scope: '/',
     sw: 'service-worker.js',
+    // Add these to fix precaching issues
+    dynamicStartUrl: false,
+    reloadOnOnline: false,
+    buildExcludes: [
+      /middleware-manifest\.json$/,
+      /_middleware\.js$/,
+      /_buildManifest\.js$/,
+      /312-.*\.js$/ // Specific file that was causing issues
+    ],
+    runtimeCaching: [
+      {
+        urlPattern: /^https?.*/,
+        handler: 'NetworkFirst',
+        options: {
+          cacheName: 'offlineCache',
+          expiration: {
+            maxEntries: 200
+          }
+        }
+      }
+    ]
   },
 
   // Environment Variables
   env: {
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+    NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
   },
 
   // Security Headers
   async headers() {
+    const securityHeaders = [
+      {
+        key: 'X-Frame-Options',
+        value: 'DENY',
+      },
+      {
+        key: 'X-Content-Type-Options',
+        value: 'nosniff',
+      },
+      {
+        key: 'Referrer-Policy',
+        value: 'origin-when-cross-origin',
+      },
+      {
+        key: 'Permissions-Policy',
+        value: 'camera=(), microphone=(), geolocation=()',
+      }
+    ];
+
     return [
       {
         source: '/:path*',
-        headers: [
-          {
-            key: 'X-Frame-Options',
-            value: 'DENY',
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-        ],
+        headers: securityHeaders,
       },
       {
         source: '/api/auth/:path*',
         headers: [
+          ...securityHeaders,
           { 
             key: 'Access-Control-Allow-Credentials', 
             value: 'true' 
@@ -53,7 +86,7 @@ const nextConfig = {
           }
         ]
       }
-    ]
+    ];
   },
 
   // Build Configuration
@@ -69,14 +102,31 @@ const nextConfig = {
     locales: ['en'],
     defaultLocale: 'en',
   },
+
+  // Custom webpack config to handle SVGs if needed
+  webpack: (config) => {
+    config.module.rules.push({
+      test: /\.svg$/,
+      use: ['@svgr/webpack'],
+    });
+    return config;
+  }
 };
 
-// Environment validation (run before config)
+// Environment validation
 async function setup() {
   if (!process.env.SKIP_ENV_VALIDATION) {
     await import('./src/env.js');
+    
+    // Validate required auth environment variables
+    if (!process.env.NEXTAUTH_SECRET) {
+      console.warn('Warning: NEXTAUTH_SECRET is not set. This is required for authentication.');
+    }
+    if (!process.env.NEXTAUTH_URL) {
+      console.warn('Warning: NEXTAUTH_URL is not set. This may cause authentication issues.');
+    }
   }
   return nextConfig;
 }
 
-export default setup();
+module.exports = setup();
