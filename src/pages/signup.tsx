@@ -3,9 +3,9 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
-interface ApiResponse {
+interface SignupResponse {
   message?: string;
-  [key: string]: unknown;
+  success?: boolean;
 }
 
 interface FormData {
@@ -30,6 +30,7 @@ export default function Signup() {
       terms: formData.get('terms') === 'on',
     };
 
+    // Validation
     if (data.password !== data.confirmPassword) {
       toast.error("Passwords don't match");
       return;
@@ -53,19 +54,18 @@ export default function Signup() {
         }),
       });
 
+      const responseData: SignupResponse = await response.json();
+
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(responseData.message || 'Signup failed');
       }
 
-      const result: ApiResponse = await response.json();
-      const message = result.message ?? 'Account created successfully!';
-      
-      toast.success(message);
+      toast.success(responseData.message || 'Account created successfully!');
       router.push('/dashboard');
     } catch (error) {
       const errorMessage = error instanceof Error 
         ? error.message 
-        : 'Network error. Please try again.';
+        : 'An unexpected error occurred';
       toast.error(errorMessage);
     }
   };
