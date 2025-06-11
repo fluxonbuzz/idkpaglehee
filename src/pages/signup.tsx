@@ -54,13 +54,13 @@ export default function Signup() {
         }),
       });
 
-      const responseData: SignupResponse = await response.json();
+      const responseData = (await response.json()) as SignupResponse;
 
       if (!response.ok) {
-        throw new Error(responseData.message || 'Signup failed');
+        throw new Error(responseData.message ?? 'Signup failed');
       }
 
-      toast.success(responseData.message || 'Account created successfully!');
+      toast.success(responseData.message ?? 'Account created successfully!');
       router.push('/dashboard');
     } catch (error) {
       const errorMessage = error instanceof Error 
