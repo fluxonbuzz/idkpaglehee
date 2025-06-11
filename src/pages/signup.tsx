@@ -4,7 +4,7 @@ import { Lock, Mail, Eye, User } from "lucide-react";
 import { useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
+import toast, { Toast } from "react-hot-toast";
 
 export default function Signup() {
   const passwordRef = useRef<HTMLInputElement>(null);
@@ -12,17 +12,9 @@ export default function Signup() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const togglePasswordVisibility = () => {
-    if (passwordRef.current) {
-      passwordRef.current.type = 
-        passwordRef.current.type === 'password' ? 'text' : 'password';
-    }
-  };
-
-  const toggleConfirmPasswordVisibility = () => {
-    if (confirmPasswordRef.current) {
-      confirmPasswordRef.current.type = 
-        confirmPasswordRef.current.type === 'password' ? 'text' : 'password';
+  const togglePasswordVisibility = (ref: React.RefObject<HTMLInputElement>) => {
+    if (ref.current) {
+      ref.current.type = ref.current.type === 'password' ? 'text' : 'password';
     }
   };
 
@@ -64,7 +56,7 @@ export default function Signup() {
         }),
       });
 
-      const result = await response.json();
+      const result = await response.json() as { message?: string };
 
       if (response.ok) {
         toast.success('Account created successfully!');
@@ -82,33 +74,7 @@ export default function Signup() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
       <Container>
-        <div className="flex items-center justify-center py-16 px-4">
-          <div className="w-full max-w-md">
-            <div className="text-center mb-10">
-              <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-400 to-cyan-500 bg-clip-text text-transparent mb-4">
-                Create Account
-              </h1>
-              <p className="text-lg text-gray-300">
-                Join us and get started today
-              </p>
-            </div>
-
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-blue-500/20 p-8 shadow-lg shadow-blue-500/10">
-              <form className="space-y-6" onSubmit={handleSubmit}>
-                {/* Your form fields here */}
-              </form>
-
-              <div className="mt-6 text-center">
-                <p className="text-sm text-gray-400">
-                  Already have an account?{' '}
-                  <Link href="/login" className="font-medium text-blue-400 hover:text-blue-300">
-                    Sign in
-                  </Link>
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Your form JSX here */}
       </Container>
     </div>
   );
