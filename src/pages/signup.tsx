@@ -45,7 +45,7 @@ export default function SignupPage() {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));
       toast.success('Account created successfully!');
-      router.push('/home');
+      router.push('/');
     } catch (error) {
       toast.error('Signup failed. Please try again.');
     } finally {
