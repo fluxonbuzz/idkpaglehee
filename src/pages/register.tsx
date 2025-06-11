@@ -1,4 +1,4 @@
-// src/pages/signup.tsx
+// src/pages/register.tsx
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Zap, ArrowRight, CheckCircle, Shield, Mail, User, Lock } from 'lucide-react';
