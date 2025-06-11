@@ -1,4 +1,3 @@
-npm cache clean --forceimport Container from "@/components/Container";
 import { Button } from "@/components/ui/button";
 import { Lock, Mail, Eye, User } from "lucide-react";
 import { useRef, useState } from "react";
