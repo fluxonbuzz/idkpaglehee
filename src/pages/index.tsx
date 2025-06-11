@@ -93,7 +93,7 @@ const navLinks = [
   { name: "Tutorials", href: "/tutorials", icon: BookOpen },
   { name: "Community", href: "/community", icon: Users },
   { name: "Support", href: "/support", icon: MessageSquare },
-  { name: "Status", href: "/status", icon: Server }, // Added status page
+  { name: "Status", href: "/status", icon: Server },
 ];
 
 export default function Home() {
@@ -104,7 +104,6 @@ export default function Home() {
   const [count, setCount] = useState<number>(0);
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
 
-  // handle scroll
   useEffect(() => {
     const sections = document.querySelectorAll("section");
     const navLinks = document.querySelectorAll(".nav-link");
@@ -156,7 +155,6 @@ export default function Home() {
     });
   }, [carouselApi]);
 
-  // card hover effect
   useEffect(() => {
     const tilt: HTMLElement[] = Array.from(document.querySelectorAll("#tilt"));
     VanillaTilt.init(tilt, {
@@ -228,7 +226,7 @@ export default function Home() {
             />
           )}
 
-          {/* Hero Section */}
+          {/* Hero Section with Updated Buttons */}
           <section
             id="home"
             data-scroll-section
@@ -258,25 +256,45 @@ export default function Home() {
                   The destination for high-quality game modifications
                 </p>
               </div>
+              
+              {/* Updated Button Section */}
               <div
                 data-scroll
                 data-scroll-enable-touch-speed
                 data-scroll-speed=".06"
-                className="flex flex-row items-center justify-center gap-3 pt-6"
+                className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto"
               >
-                <Link href="/downloads" passHref>
-                  <Button className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700">
-                    Games <ChevronRight className="ml-1 h-4 w-4" />
-                  </Button>
-                </Link>
-                <Link href="/store" passHref>
-                  <Button
-                    variant="outline"
-                    className="bg-gray-800 text-white hover:bg-gray-700 border-gray-700"
-                  >
-                    Visit Store
-                  </Button>
-                </Link>
+                <motion.div
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                >
+                  <Link href="/downloads" passHref>
+                    <Button className="w-full h-24 md:h-28 bg-gradient-to-br from-green-600 to-blue-700 hover:from-green-700 hover:to-blue-800 rounded-xl shadow-lg hover:shadow-xl transition-all">
+                      <div className="flex flex-col items-center justify-center gap-2">
+                        <Gamepad2 className="h-10 w-10" />
+                        <span className="text-xl font-bold">Games</span>
+                        <span className="text-sm text-green-200">Explore our mods</span>
+                      </div>
+                    </Button>
+                  </Link>
+                </motion.div>
+
+                <motion.div
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                >
+                  <Link href="/store" passHref>
+                    <Button className="w-full h-24 md:h-28 bg-gradient-to-br from-purple-600 to-pink-700 hover:from-purple-700 hover:to-pink-800 rounded-xl shadow-lg hover:shadow-xl transition-all">
+                      <div className="flex flex-col items-center justify-center gap-2">
+                        <ShoppingCart className="h-10 w-10" />
+                        <span className="text-xl font-bold">Store</span>
+                        <span className="text-sm text-purple-200">Premium content</span>
+                      </div>
+                    </Button>
+                  </Link>
+                </motion.div>
               </div>
 
               <div
