@@ -5,7 +5,15 @@ import toast from "react-hot-toast";
 
 interface ApiResponse {
   message?: string;
-  [key: string]: unknown; // Allow other properties
+  [key: string]: unknown;
+}
+
+interface FormData {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  terms: boolean;
 }
 
 export default function Signup() {
@@ -14,7 +22,7 @@ export default function Signup() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const data = {
+    const data: FormData = {
       name: formData.get('name') as string,
       email: formData.get('email') as string,
       password: formData.get('password') as string,
@@ -45,21 +53,20 @@ export default function Signup() {
         }),
       });
 
-      const result: ApiResponse = await response.json();
-      const message = result.message ?? 'Signup failed';
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
-      if (response.ok) {
-        toast.success('Account created successfully!');
-        router.push('/dashboard');
-      } else {
-        toast.error(message);
-      }
+      const result: ApiResponse = await response.json();
+      const message = result.message ?? 'Account created successfully!';
+      
+      toast.success(message);
+      router.push('/dashboard');
     } catch (error) {
-      if (error instanceof Error) {
-        toast.error(error.message);
-      } else {
-        toast.error('Network error. Please try again.');
-      }
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : 'Network error. Please try again.';
+      toast.error(errorMessage);
     }
   };
 
