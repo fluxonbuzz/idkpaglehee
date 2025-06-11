@@ -1,37 +1,82 @@
 /** @type {import('next').NextConfig} */
-
-// Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation.
-// This is especially useful for Docker builds.
-await import('./src/env.js');
-
-import WithPWA from 'next-pwa';
-
-const withPWA = WithPWA({
-  dest: 'public',
-  disable: process.env.NODE_ENV === 'development',
-  register: true,
-  scope: '/',
-  sw: 'service-worker.js',
-});
-
 const nextConfig = {
   reactStrictMode: true,
+  
+  // PWA Configuration
+  pwa: {
+    dest: 'public',
+    disable: process.env.NODE_ENV === 'development',
+    register: true,
+    scope: '/',
+    sw: 'service-worker.js',
+  },
+
+  // Environment Variables
+  env: {
+    NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+  },
+
+  // Security Headers
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+        ],
+      },
+      {
+        source: '/api/auth/:path*',
+        headers: [
+          { 
+            key: 'Access-Control-Allow-Credentials', 
+            value: 'true' 
+          },
+          { 
+            key: 'Access-Control-Allow-Origin', 
+            value: process.env.NEXTAUTH_URL || '*' 
+          },
+          { 
+            key: 'Access-Control-Allow-Methods', 
+            value: 'GET,POST,PUT,DELETE,OPTIONS' 
+          },
+          { 
+            key: 'Access-Control-Allow-Headers', 
+            value: 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version' 
+          }
+        ]
+      }
+    ]
+  },
+
+  // Build Configuration
   eslint: {
-    // Warning: This allows production builds to successfully complete even if
-    // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
   typescript: {
-    // Warning: This allows production builds to successfully complete even if
-    // your project has TypeScript errors.
     ignoreBuildErrors: true,
   },
-  // If you are using `appDir` then you must comment the below `i18n` config out.
-  // @see https://github.com/vercel/next.js/issues/41980
+
+  // Internationalization
   i18n: {
     locales: ['en'],
     defaultLocale: 'en',
   },
 };
 
-export default withPWA(nextConfig);
+// Environment validation (run before config)
+async function setup() {
+  if (!process.env.SKIP_ENV_VALIDATION) {
+    await import('./src/env.js');
+  }
+  return nextConfig;
+}
+
+export default setup();
