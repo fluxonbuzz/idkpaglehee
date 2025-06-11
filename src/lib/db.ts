@@ -1,4 +1,3 @@
-// lib/db.ts
 import { get } from '@vercel/edge-config';
 import { createClient } from '@vercel/edge-config';
 
@@ -18,24 +17,19 @@ interface Admin {
   createdAt: string;
 }
 
-// Initialize Edge Config client
 export const edgeConfigClient = createClient(process.env.EDGE_CONFIG);
 
-// Helper function to safely get and parse users
 async function getUsers(): Promise<User[]> {
   const users = await get('users');
-  return Array.isArray(users) ? users as User[] : [];
+  return Array.isArray(users) ? (users as unknown as User[]) : [];
 }
 
-// Helper function to safely get and parse admins
 async function getAdmins(): Promise<Admin[]> {
   const admins = await get('admins');
-  return Array.isArray(admins) ? admins as Admin[] : [];
+  return Array.isArray(admins) ? (admins as unknown as Admin[]) : [];
 }
 
-// User related operations
 export const db = {
-  // Get user by email
   async getUserByEmail(email: string): Promise<User | null> {
     try {
       const users = await getUsers();
@@ -46,13 +40,10 @@ export const db = {
     }
   },
 
-  // Verify user credentials
   async verifyCredentials(email: string, password: string): Promise<User | null> {
     try {
       const user = await db.getUserByEmail(email);
       if (!user) return null;
-      
-      // In a real app, you'd use proper password hashing like bcrypt
       return user.password === password ? user : null;
     } catch (error) {
       console.error('Error verifying credentials:', error);
@@ -60,7 +51,6 @@ export const db = {
     }
   },
 
-  // Add new user (for signup)
   async createUser(userData: { email: string; password: string; name?: string }): Promise<User> {
     try {
       const users = await getUsers();
@@ -70,7 +60,6 @@ export const db = {
         throw new Error('User already exists');
       }
 
-      // In a real app, you should hash the password before storing
       const newUser: User = {
         ...userData,
         id: Date.now().toString(),
@@ -93,9 +82,7 @@ export const db = {
   }
 };
 
-// Admin related operations
 export const adminDb = {
-  // Get admin by email
   async getAdminByEmail(email: string): Promise<Admin | null> {
     try {
       const admins = await getAdmins();
@@ -106,12 +93,10 @@ export const adminDb = {
     }
   },
 
-  // Verify admin credentials
   async verifyAdminCredentials(email: string, password: string): Promise<Admin | null> {
     try {
       const admin = await adminDb.getAdminByEmail(email);
       if (!admin) return null;
-      
       return admin.password === password ? admin : null;
     } catch (error) {
       console.error('Error verifying admin credentials:', error);
