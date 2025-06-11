@@ -45,7 +45,7 @@ export default function SignupPage() {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));
       toast.success('Account created successfully!');
-      router.push('/dashboard');
+      router.push('/home');
     } catch (error) {
       toast.error('Signup failed. Please try again.');
     } finally {
@@ -229,7 +229,7 @@ export default function SignupPage() {
 
         {/* Features Section */}
         <section className="mt-16 bg-gray-800/50 rounded-xl p-8 border border-gray-700">
-          <h2 className="text-2xl font-bold mb-6 text-center">Why Join SX Games?</h2>
+          <h2 className="text-2xl font-bold mb-6 text-center">Why Join SX Mods?</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700">
               <div className="flex items-center mb-3">
