@@ -1,3 +1,4 @@
+import Container from "@/components/Container";
 import { Button } from "@/components/ui/button";
 import { Lock, Mail, Eye, User } from "lucide-react";
 import { useRef, useState } from "react";
@@ -81,7 +82,33 @@ export default function Signup() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
       <Container>
-        {/* Your existing JSX remains the same */}
+        <div className="flex items-center justify-center py-16 px-4">
+          <div className="w-full max-w-md">
+            <div className="text-center mb-10">
+              <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-400 to-cyan-500 bg-clip-text text-transparent mb-4">
+                Create Account
+              </h1>
+              <p className="text-lg text-gray-300">
+                Join us and get started today
+              </p>
+            </div>
+
+            <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-blue-500/20 p-8 shadow-lg shadow-blue-500/10">
+              <form className="space-y-6" onSubmit={handleSubmit}>
+                {/* Your form fields here */}
+              </form>
+
+              <div className="mt-6 text-center">
+                <p className="text-sm text-gray-400">
+                  Already have an account?{' '}
+                  <Link href="/login" className="font-medium text-blue-400 hover:text-blue-300">
+                    Sign in
+                  </Link>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       </Container>
     </div>
   );
