@@ -1,26 +1,21 @@
-import { useState, useRef } from "react";
-import { useRouter } from "next/router";
-import Link from "next/link";
-import { signIn } from "next-auth/react";
-import { Lock, Mail, Eye, EyeOff, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import Container from "@/components/Container";
-import { toast } from "react-hot-toast";
+// src/pages/login.tsx
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Key, ArrowRight, AlertCircle, Mail, Lock } from 'lucide-react';
+import Link from 'next/link';
+import toast from 'react-hot-toast';
 
-export default function Login() {
+export default function LoginPage() {
   const router = useRouter();
-  const passwordRef = useRef<HTMLInputElement>(null);
-  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    email: "",
-    password: "",
+    email: '',
+    password: '',
   });
-  const [error, setError] = useState<string | null>(null);
-
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
+  const [errors, setErrors] = useState({
+    email: '',
+    password: '',
+  });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -28,185 +23,261 @@ export default function Login() {
       ...prev,
       [name]: value,
     }));
-    // Clear error when user starts typing
-    if (error) setError(null);
+    // Clear error when user types
+    if (errors[name as keyof typeof errors]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: '',
+      }));
+    }
+  };
+
+  const validateForm = () => {
+    let valid = true;
+    const newErrors = {
+      email: '',
+      password: '',
+    };
+
+    if (!formData.email) {
+      newErrors.email = 'Email is required';
+      valid = false;
+    } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
+      newErrors.email = 'Email is invalid';
+      valid = false;
+    }
+
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+      valid = false;
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
+      valid = false;
+    }
+
+    setErrors(newErrors);
+    return valid;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+
     setIsLoading(true);
-    setError(null);
 
     try {
-      const result = await signIn("credentials", {
-        redirect: false,
-        email: formData.email,
-        password: formData.password,
-      });
-
-      if (result?.error) {
-        if (result.error === "User not found") {
-          setError("Email isn't registered with us. Try signing up.");
-        } else if (result.error === "Invalid password") {
-          setError("Incorrect email or password");
-        } else {
-          setError(result.error);
-        }
-        throw new Error(result.error);
+      // Simulate API call with different error scenarios
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Mock responses for demonstration
+      const mockUsers = [
+        { email: 'user@example.com', password: 'password123' }
+      ];
+      
+      const user = mockUsers.find(u => u.email === formData.email);
+      
+      if (!user) {
+        throw new Error('User not found');
       }
-
-      if (result?.ok) {
-        toast.success("Logged in successfully!");
-        router.push("/");
+      
+      if (user.password !== formData.password) {
+        throw new Error('Incorrect password');
       }
+      
+      toast.success('Login successful!');
+      router.push('/');
     } catch (error) {
-      if (!(error instanceof Error && (error.message === "User not found" || error.message === "Invalid password"))) {
-        toast.error(error instanceof Error ? error.message : "Login failed");
+      if (error instanceof Error) {
+        if (error.message === 'User not found') {
+          setErrors(prev => ({
+            ...prev,
+            email: 'No account found with this email',
+          }));
+          toast.error('User not found');
+        } else if (error.message === 'Incorrect password') {
+          setErrors(prev => ({
+            ...prev,
+            password: 'Incorrect password',
+          }));
+          toast.error('Incorrect password');
+        } else {
+          toast.error('Login failed. Please try again.');
+        }
       }
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleAdminAccess = () => {
-    router.push("/admin/login");
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
-      <Container>
-        <div className="flex items-center justify-center py-16 px-4">
-          <div className="w-full max-w-md">
-            <div className="text-center mb-10">
-              <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent mb-4">
-                Welcome Back
-              </h1>
-              <p className="text-lg text-gray-300">
-                Sign in to access your account
-              </p>
-            </div>
+      {/* Header */}
+      <header className="bg-gray-800/50 backdrop-blur-md sticky top-0 z-10 border-b border-gray-700">
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">
+            SX Games
+          </Link>
+          <nav className="flex gap-6">
+            <Link href="/store" className="hover:text-purple-400 transition">Store</Link>
+            <Link href="/downloads" className="hover:text-purple-400 transition">Downloads</Link>
+          </nav>
+        </div>
+      </header>
 
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-purple-500/20 p-8 shadow-lg shadow-purple-500/10">
-              {error && (
-                <div className="mb-4 p-3 bg-red-500/20 border border-red-500/40 rounded-lg text-red-300 text-sm">
-                  {error}
-                </div>
-              )}
-              
-              <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-12">
+        {/* Hero Section */}
+        <section className="mb-12 text-center">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">
+            Welcome Back
+          </h1>
+          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+            Sign in to your account to continue your gaming journey
+          </p>
+        </section>
+
+        {/* Login Form */}
+        <div className="max-w-md mx-auto bg-gray-800 rounded-xl overflow-hidden border border-gray-700 hover:border-purple-500 transition-all hover:shadow-lg hover:shadow-purple-500/10">
+          <div className="p-8">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-4">
+                {/* Email Field */}
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
                     Email Address
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Mail className="h-5 w-5 text-purple-400" />
+                      <Mail size={18} className="text-gray-400" />
                     </div>
                     <input
                       id="email"
                       name="email"
                       type="email"
-                      autoComplete="email"
                       required
                       value={formData.email}
                       onChange={handleChange}
-                      className="bg-gray-700/50 border border-gray-600/30 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/30 w-full pl-10 pr-3 py-3 rounded-lg text-white placeholder-gray-400 outline-none transition-all"
+                      className={`w-full bg-gray-700 border ${errors.email ? 'border-red-500' : 'border-gray-600'} rounded-lg pl-10 pr-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 ${errors.email ? 'focus:ring-red-500' : 'focus:ring-purple-500'}`}
                       placeholder="you@example.com"
                     />
                   </div>
+                  {errors.email && (
+                    <p className="mt-1 text-sm text-red-400 flex items-center">
+                      <AlertCircle size={14} className="mr-1" /> {errors.email}
+                    </p>
+                  )}
                 </div>
 
+                {/* Password Field */}
                 <div>
                   <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
                     Password
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Lock className="h-5 w-5 text-purple-400" />
+                      <Lock size={18} className="text-gray-400" />
                     </div>
                     <input
                       id="password"
                       name="password"
-                      type={showPassword ? "text" : "password"}
-                      ref={passwordRef}
-                      autoComplete="current-password"
+                      type="password"
                       required
                       value={formData.password}
                       onChange={handleChange}
-                      className="bg-gray-700/50 border border-gray-600/30 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/30 w-full pl-10 pr-3 py-3 rounded-lg text-white placeholder-gray-400 outline-none transition-all"
+                      className={`w-full bg-gray-700 border ${errors.password ? 'border-red-500' : 'border-gray-600'} rounded-lg pl-10 pr-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 ${errors.password ? 'focus:ring-red-500' : 'focus:ring-purple-500'}`}
                       placeholder="••••••••"
                     />
-                    <button
-                      type="button"
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                      onClick={togglePasswordVisibility}
-                    >
-                      {showPassword ? (
-                        <EyeOff className="h-5 w-5 text-gray-400 hover:text-purple-400" />
-                      ) : (
-                        <Eye className="h-5 w-5 text-gray-400 hover:text-purple-400" />
-                      )}
-                    </button>
                   </div>
+                  {errors.password && (
+                    <p className="mt-1 text-sm text-red-400 flex items-center">
+                      <AlertCircle size={14} className="mr-1" /> {errors.password}
+                    </p>
+                  )}
                 </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <input
-                      id="remember-me"
-                      name="remember-me"
-                      type="checkbox"
-                      className="h-4 w-4 text-purple-500 focus:ring-purple-500 border-gray-600 rounded"
-                    />
-                    <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-300">
-                      Remember me
-                    </label>
-                  </div>
-
-                  <div className="text-sm">
-                    <Link href="/forgot-password" className="font-medium text-purple-400 hover:text-purple-300">
-                      Forgot password?
-                    </Link>
-                  </div>
-                </div>
-
-                <div>
-                  <Button
-                    type="submit"
-                    disabled={isLoading}
-                    className="w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 py-3 text-lg"
-                  >
-                    {isLoading ? (
-                      <Loader2 className="h-5 w-5 animate-spin" />
-                    ) : (
-                      "Sign In"
-                    )}
-                  </Button>
-                </div>
-              </form>
-
-              <div className="mt-6 text-center">
-                <p className="text-sm text-gray-400">
-                  Don't have an account?{' '}
-                  <Link href="/signup" className="font-medium text-purple-400 hover:text-purple-300">
-                    Sign up
-                  </Link>
-                </p>
               </div>
 
-              <div className="mt-4 text-center">
-                <button 
-                  onClick={handleAdminAccess}
-                  className="text-xs text-purple-400 hover:text-purple-300 flex items-center justify-center w-full"
-                >
-                  <Lock className="h-3 w-3 mr-1" />
-                  Admin Access
-                </button>
+              {/* Forgot Password Link */}
+              <div className="flex justify-end">
+                <Link href="/forgot-password" className="text-sm text-purple-400 hover:underline">
+                  Forgot password?
+                </Link>
               </div>
-            </div>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-bold py-3 px-4 rounded transition flex items-center justify-center gap-2"
+              >
+                {isLoading ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Signing In...
+                  </>
+                ) : (
+                  <>
+                    <Key size={18} /> Sign In
+                  </>
+                )}
+              </button>
+
+              {/* Signup Link */}
+              <p className="text-center text-sm text-gray-400">
+                Don't have an account?{' '}
+                <Link href="/signup" className="text-purple-400 hover:underline">
+                  Sign up
+                </Link>
+              </p>
+            </form>
           </div>
         </div>
-      </Container>
+
+        {/* Features Section */}
+        <section className="mt-16 bg-gray-800/50 rounded-xl p-8 border border-gray-700">
+          <h2 className="text-2xl font-bold mb-6 text-center">Continue Your Adventure</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700">
+              <div className="flex items-center mb-3">
+                <div className="bg-purple-500/20 p-2 rounded-full mr-3">
+                  <Key size={20} className="text-purple-400" />
+                </div>
+                <h3 className="font-bold">Sync Your Progress</h3>
+              </div>
+              <p className="text-gray-300 text-sm">
+                Pick up right where you left off with cloud-saved game progress across all devices.
+              </p>
+            </div>
+            <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700">
+              <div className="flex items-center mb-3">
+                <div className="bg-pink-500/20 p-2 rounded-full mr-3">
+                  <AlertCircle size={20} className="text-pink-400" />
+                </div>
+                <h3 className="font-bold">Enhanced Security</h3>
+              </div>
+              <p className="text-gray-300 text-sm">
+                We monitor your account for suspicious activity and notify you of any login attempts.
+              </p>
+            </div>
+            <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700">
+              <div className="flex items-center mb-3">
+                <div className="bg-violet-500/20 p-2 rounded-full mr-3">
+                  <ArrowRight size={20} className="text-violet-400" />
+                </div>
+                <h3 className="font-bold">Quick Access</h3>
+              </div>
+              <p className="text-gray-300 text-sm">
+                Get instant access to your purchased games, mods, and exclusive content.
+              </p>
+            </div>
+          </div>
+        </section>
+      </main>
     </div>
   );
 }
