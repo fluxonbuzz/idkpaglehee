@@ -1,12 +1,8 @@
-import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Image from 'next/image';
 import { PartyPopper, Gift, Cake, Sparkles, Music } from 'lucide-react';
-import Confetti from 'react-confetti';
 
 export default function BirthdayPage() {
-  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-  const [showConfetti, setShowConfetti] = useState(true);
   const [gifts, setGifts] = useState([
     { id: 1, name: 'Premium Subscription', opened: false },
     { id: 2, name: 'Custom Badge', opened: false },
@@ -15,43 +11,15 @@ export default function BirthdayPage() {
   const [cakePieces, setCakePieces] = useState(8);
   const [isPlaying, setIsPlaying] = useState(false);
 
-  useEffect(() => {
-    setDimensions({
-      width: window.innerWidth,
-      height: window.innerHeight,
-    });
-
-    const handleResize = () => {
-      setDimensions({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  useEffect(() => {
-    if (showConfetti) {
-      const timer = setTimeout(() => {
-        setShowConfetti(false);
-      }, 10000);
-      return () => clearTimeout(timer);
-    }
-  }, [showConfetti]);
-
   const openGift = (id: number) => {
     setGifts(gifts.map(gift => 
       gift.id === id ? { ...gift, opened: true } : gift
     ));
-    setShowConfetti(true);
   };
 
   const takeCakePiece = () => {
     if (cakePieces > 0) {
       setCakePieces(cakePieces - 1);
-      setShowConfetti(true);
     }
   };
 
@@ -83,17 +51,6 @@ export default function BirthdayPage() {
             />
           ))}
         </div>
-
-        {/* Confetti */}
-        {showConfetti && (
-          <Confetti
-            width={dimensions.width}
-            height={dimensions.height}
-            recycle={false}
-            numberOfPieces={500}
-            gravity={0.2}
-          />
-        )}
 
         {/* Music Toggle */}
         <button 
