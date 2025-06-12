@@ -188,7 +188,7 @@ export default function BirthdayPage() {
         {/* Footer */}
         <footer className="relative z-10 py-8 text-center text-pink-200">
           <p>Made with ❤️ for SilentShadow's Birthday</p>
-          <p className="text-sm mt-2">© {new Date().getFullYear()} Birthday Wishes Team</p>
+          <p className="text-sm mt-2">© {new Date().getFullYear()} SX Team</p>
         </footer>
       </div>
 
