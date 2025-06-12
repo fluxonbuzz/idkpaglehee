@@ -5,9 +5,9 @@ import { PartyPopper, Gift, Cake, Sparkles, Music } from 'lucide-react';
 
 export default function BirthdayPage() {
   const [gifts, setGifts] = useState([
-    { id: 1, name: 'Premium Subscription', opened: false },
-    { id: 2, name: 'Custom Badge', opened: false },
-    { id: 3, name: 'Exclusive Content', opened: false },
+    { id: 1, name: 'Lwda', opened: false },
+    { id: 2, name: 'Kothe ka access', opened: false },
+    { id: 3, name: 'bday wali chummi', opened: false },
   ]);
   const [cakePieces, setCakePieces] = useState(8);
   const [isPlaying, setIsPlaying] = useState(false);
