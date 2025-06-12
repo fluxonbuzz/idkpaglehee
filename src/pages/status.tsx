@@ -244,17 +244,17 @@ export default function StatusPage() {
           
           {/* Customer 4 - Rohit Sharma */}
           <tr>
-            <td className="py-4 font-medium">XNXX</td>
+            <td className="py-4 font-medium">Yadav</td>
             <td className="py-4 text-gray-300">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                XNXX
+                RC ID
               </div>
             </td>
-            <td className="py-4 text-right font-mono">₹XXX</td>
+            <td className="py-4 text-right font-mono">₹130</td>
             <td className="py-4 text-right">
               <span className="inline-block px-3 py-1 text-xs rounded-full bg-purple-500/10 text-purple-400">
-                Payment Received
+                Pending
               </span>
             </td>
           </tr>
