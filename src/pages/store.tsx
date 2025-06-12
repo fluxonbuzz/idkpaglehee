@@ -500,7 +500,7 @@ export default function StorePage() {
               <ul className="space-y-2 text-yellow-100">
                 <li className="flex items-start gap-2">
                   <span>•</span>
-                  <span>Please allow 24-48 hours for order processing and delivery</span>
+                  <span>Please allow 24-48 hours for order processing and delivery can take even weeks so be pateint</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span>•</span>
