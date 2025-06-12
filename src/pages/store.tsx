@@ -610,7 +610,7 @@ export default function StorePage() {
               </Link>
             </li>
             <li>
-              <Link href="/refund-policy" className="hover:text-purple-400 transition">
+              <Link href="/refund" className="hover:text-purple-400 transition">
                 Refund Policy
               </Link>
             </li>
