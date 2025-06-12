@@ -589,6 +589,49 @@ export default function StorePage() {
         </section>
       </main>
 
+      {/* Footer */}
+<footer className="bg-gray-800/50 border-t border-gray-700 py-8">
+  <div className="container mx-auto px-4">
+    <div className="flex flex-col md:flex-row justify-between items-center">
+      <div className="mb-4 md:mb-0">
+        <Link href="/" className="text-xl font-bold bg-gradient-to-r from-purple-500 to-blue-500 bg-clip-text text-transparent">
+          SX Store
+        </Link>
+        <p className="text-gray-400 text-sm mt-1">Premium Digital Marketplace</p>
+      </div>
+      
+      <div className="flex flex-wrap justify-center gap-6 md:gap-8">
+        <div className="text-center">
+          <h3 className="font-bold text-gray-300 mb-2">Legal</h3>
+          <ul className="space-y-1 text-sm text-gray-400">
+            <li>
+              <Link href="/terms" className="hover:text-purple-400 transition">
+                Terms & Conditions
+              </Link>
+            </li>
+            <li>
+              <Link href="/refund-policy" className="hover:text-purple-400 transition">
+                Refund Policy
+              </Link>
+            </li>
+            <li>
+              <Link href="/privacy" className="hover:text-purple-400 transition">
+                Privacy Policy
+              </Link>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div className="mt-8 pt-6 border-t border-gray-700 text-center">
+      <p className="text-gray-500 text-sm">
+        © {new Date().getFullYear()} SX Store. All rights reserved.
+      </p>
+    </div>
+  </div>
+</footer>
+
       {/* Shopping Cart Sidebar */}
       {isCartOpen && (
         <div className="fixed inset-0 z-50 overflow-hidden">
