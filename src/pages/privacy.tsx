@@ -8,7 +8,7 @@ export default function PrivacyPage() {
       <header className="bg-gray-800/50 backdrop-blur-md sticky top-0 z-10 border-b border-gray-700">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-emerald-500 to-green-500 bg-clip-text text-transparent">
-            SX Store
+            SX Privacy
           </Link>
           <div className="flex items-center gap-4">
             <Link 
@@ -158,10 +158,7 @@ export default function PrivacyPage() {
                 </p>
                 <ul className="space-y-3 text-gray-300 pl-5 list-disc">
                   <li>
-                    <strong>Telegram:</strong> Contact our support team @SXStoreSupport
-                  </li>
-                  <li>
-                    <strong>Email:</strong> privacy@sxstore.example.com (monitored weekly)
+                    <strong>Telegram:</strong> Contact our support team @shivanation
                   </li>
                 </ul>
                 <p className="text-gray-400 text-sm mt-4">
