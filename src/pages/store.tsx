@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { ShoppingCart, Tag, Star, ShieldCheck, Send, History, Search, AlertTriangle, ChevronDown, ChevronUp, Check } from 'lucide-react';
 import Link from 'next/link';
 
-// Type definitions
 interface Product {
   id: string;
   title: string;
@@ -38,7 +37,6 @@ interface ReceiptData {
   date: string;
   items: ReceiptItem[];
   total: number;
-  discountApplied: number;
   transactionId: string;
   status: 'pending' | 'completed';
 }
@@ -51,7 +49,6 @@ interface Seller {
   telegram: string;
 }
 
-// Product data
 const storeData: Product[] = [
   {
     id: 'rc24-id',
@@ -146,7 +143,6 @@ const storeData: Product[] = [
   }
 ];
 
-// Sellers data
 const sellers: Seller[] = [
   {
     id: 'd4vd',
@@ -188,7 +184,6 @@ function isReceiptData(item: unknown): item is ReceiptData {
   return (
     typeof receipt.date === 'string' &&
     typeof receipt.total === 'number' &&
-    typeof receipt.discountApplied === 'number' &&
     typeof receipt.transactionId === 'string' &&
     (receipt.status === 'pending' || receipt.status === 'completed') &&
     Array.isArray(receipt.items)
@@ -202,13 +197,9 @@ export default function StorePage() {
   const [receiptHistory, setReceiptHistory] = useState<ReceiptData[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [viewHistory, setViewHistory] = useState(false);
-  const [discountCode, setDiscountCode] = useState('');
-  const [discountApplied, setDiscountApplied] = useState(false);
-  const [discountError, setDiscountError] = useState('');
   const [selectedModProduct, setSelectedModProduct] = useState<Product | null>(null);
   const [selectedModItem, setSelectedModItem] = useState<ModMenuItem | null>(null);
 
-  // Load cart from localStorage
   useEffect(() => {
     const savedCart = localStorage.getItem('sx-store-cart');
     if (savedCart) {
@@ -224,7 +215,6 @@ export default function StorePage() {
     }
   }, []);
 
-  // Load receipt history from localStorage
   useEffect(() => {
     const savedHistory = localStorage.getItem('sx-store-receipts');
     if (savedHistory) {
@@ -240,12 +230,10 @@ export default function StorePage() {
     }
   }, []);
 
-  // Save cart to localStorage
   useEffect(() => {
     localStorage.setItem('sx-store-cart', JSON.stringify(cart));
   }, [cart]);
 
-  // Save receipt history to localStorage
   useEffect(() => {
     localStorage.setItem('sx-store-receipts', JSON.stringify(receiptHistory));
   }, [receiptHistory]);
@@ -305,9 +293,6 @@ export default function StorePage() {
 
   const removeFromCart = (productId: string) => {
     setCart(prevCart => prevCart.filter(item => item.id !== productId));
-    if (discountApplied && calculateSubtotal() - 50 < 250) {
-      setDiscountApplied(false);
-    }
   };
 
   const updateQuantity = (productId: string, newQuantity: number) => {
@@ -317,51 +302,10 @@ export default function StorePage() {
         item.id === productId ? { ...item, quantity: newQuantity } : item
       )
     );
-    if (discountApplied && calculateSubtotal() - 50 < 250) {
-      setDiscountApplied(false);
-    }
   };
 
   const calculateSubtotal = () => {
     return cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  };
-
-  const calculateTotal = () => {
-    const subtotal = calculateSubtotal();
-    return discountApplied ? subtotal - 50 : subtotal;
-  };
-
-  const applyDiscount = () => {
-    const subtotal = calculateSubtotal();
-    const code = discountCode.trim().toUpperCase();
-    
-    if (code !== 'SX50') {
-      setDiscountError('Invalid discount code');
-      return;
-    }
-    
-    const currentDate = new Date();
-    const discountValidUntil = new Date();
-    discountValidUntil.setDate(currentDate.getDate() + 3);
-    
-    if (currentDate > discountValidUntil) {
-      setDiscountError('Discount code has expired');
-      return;
-    }
-    
-    if (subtotal < 250) {
-      setDiscountError('Minimum purchase of ₹250 required');
-      return;
-    }
-    
-    setDiscountApplied(true);
-    setDiscountError('');
-  };
-
-  const removeDiscount = () => {
-    setDiscountApplied(false);
-    setDiscountCode('');
-    setDiscountError('');
   };
 
   const generateReceipt = () => {
@@ -376,16 +320,13 @@ export default function StorePage() {
         quantity: item.quantity,
         selectedModItem: item.selectedModItem ?? undefined
       })),
-      total: calculateTotal(),
-      discountApplied: discountApplied ? 50 : 0,
+      total: calculateSubtotal(),
       transactionId: `SX-${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
       status: 'pending'
     };
     setReceiptData(receipt);
     setReceiptHistory(prev => [receipt, ...prev]);
     setCart([]);
-    setDiscountApplied(false);
-    setDiscountCode('');
   };
 
   const copyReceiptToClipboard = () => {
@@ -402,10 +343,6 @@ export default function StorePage() {
       - ${item.title} x${item.quantity}: ₹${item.price * item.quantity}
       `).join('')}
       
-      ${receiptData.discountApplied > 0 ? `
-      DISCOUNT: -₹${receiptData.discountApplied}
-      ` : ''}
-      
       TOTAL: ₹${receiptData.total}
       
       CONTACT SELLERS:
@@ -419,7 +356,7 @@ export default function StorePage() {
       
       DIGITALLY SIGNED:
       ${new Date().toISOString()}
-      🚀 SX Store - Premium Digital Marketplace
+      SX Store - Premium Digital Marketplace
     `;
 
     navigator.clipboard.writeText(receiptText)
@@ -446,11 +383,9 @@ export default function StorePage() {
 
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = calculateSubtotal();
-  const total = calculateTotal();
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
-      {/* Header */}
       <header className="bg-gray-800/50 backdrop-blur-md sticky top-0 z-10 border-b border-gray-700">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-purple-500 to-blue-500 bg-clip-text text-transparent">
@@ -479,9 +414,7 @@ export default function StorePage() {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        {/* Hero Section */}
         <section className="mb-12 text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-purple-500 to-blue-500 bg-clip-text text-transparent">
             SX Premium Store
@@ -491,7 +424,6 @@ export default function StorePage() {
           </p>
         </section>
 
-        {/* Store Rules Section */}
         <section className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-6 mb-8">
           <div className="flex items-start gap-4">
             <AlertTriangle className="text-yellow-400 mt-1 flex-shrink-0" size={24} />
@@ -500,7 +432,7 @@ export default function StorePage() {
               <ul className="space-y-2 text-yellow-100">
                 <li className="flex items-start gap-2">
                   <span>•</span>
-                  <span>Please allow 24-48 hours for order processing and delivery can take even weeks so be pateint</span>
+                  <span>Please allow 24-48 hours for order processing and delivery can take even weeks so be patient</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span>•</span>
@@ -515,7 +447,6 @@ export default function StorePage() {
           </div>
         </section>
 
-        {/* Products Grid */}
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           {storeData.map(product => (
             <div key={product.id} className="bg-gray-800 rounded-xl overflow-hidden border border-gray-700 hover:border-purple-400 transition-all hover:shadow-lg hover:shadow-purple-500/10">
@@ -564,7 +495,6 @@ export default function StorePage() {
           ))}
         </section>
 
-        {/* Premium Membership Banner */}
         <section className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl p-6 mb-12">
           <div className="flex flex-col md:flex-row items-center">
             <div className="flex-1 mb-4 md:mb-0">
@@ -589,50 +519,48 @@ export default function StorePage() {
         </section>
       </main>
 
-      {/* Footer */}
-<footer className="bg-gray-800/50 border-t border-gray-700 py-8">
-  <div className="container mx-auto px-4">
-    <div className="flex flex-col md:flex-row justify-between items-center">
-      <div className="mb-4 md:mb-0">
-        <Link href="/" className="text-xl font-bold bg-gradient-to-r from-purple-500 to-blue-500 bg-clip-text text-transparent">
-          SX Store
-        </Link>
-        <p className="text-gray-400 text-sm mt-1">Premium Digital Marketplace</p>
-      </div>
-      
-      <div className="flex flex-wrap justify-center gap-6 md:gap-8">
-        <div className="text-center">
-          <h3 className="font-bold text-gray-300 mb-2">Legal</h3>
-          <ul className="space-y-1 text-sm text-gray-400">
-            <li>
-              <Link href="/terms" className="hover:text-purple-400 transition">
-                Terms & Conditions
+      <footer className="bg-gray-800/50 border-t border-gray-700 py-8">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="mb-4 md:mb-0">
+              <Link href="/" className="text-xl font-bold bg-gradient-to-r from-purple-500 to-blue-500 bg-clip-text text-transparent">
+                SX Store
               </Link>
-            </li>
-            <li>
-              <Link href="/refund" className="hover:text-purple-400 transition">
-                Refund Policy
-              </Link>
-            </li>
-            <li>
-              <Link href="/privacy" className="hover:text-purple-400 transition">
-                Privacy Policy
-              </Link>
-            </li>
-          </ul>
+              <p className="text-gray-400 text-sm mt-1">Premium Digital Marketplace</p>
+            </div>
+            
+            <div className="flex flex-wrap justify-center gap-6 md:gap-8">
+              <div className="text-center">
+                <h3 className="font-bold text-gray-300 mb-2">Legal</h3>
+                <ul className="space-y-1 text-sm text-gray-400">
+                  <li>
+                    <Link href="/terms" className="hover:text-purple-400 transition">
+                      Terms & Conditions
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/refund" className="hover:text-purple-400 transition">
+                      Refund Policy
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/privacy" className="hover:text-purple-400 transition">
+                      Privacy Policy
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          
+          <div className="mt-8 pt-6 border-t border-gray-700 text-center">
+            <p className="text-gray-500 text-sm">
+              © {new Date().getFullYear()} SX Store. All rights reserved.
+            </p>
+          </div>
         </div>
-      </div>
-    </div>
-    
-    <div className="mt-8 pt-6 border-t border-gray-700 text-center">
-      <p className="text-gray-500 text-sm">
-        © {new Date().getFullYear()} SX Store. All rights reserved.
-      </p>
-    </div>
-  </div>
-</footer>
+      </footer>
 
-      {/* Shopping Cart Sidebar */}
       {isCartOpen && (
         <div className="fixed inset-0 z-50 overflow-hidden">
           <div className="absolute inset-0 bg-black/50" onClick={() => setIsCartOpen(false)}></div>
@@ -713,61 +641,14 @@ export default function StorePage() {
 
                 {cart.length > 0 && (
                   <div className="border-t border-gray-700 p-6">
-                    {/* Discount Code Section */}
-                    {!discountApplied ? (
-                      <div className="mb-4">
-                        <div className="flex gap-2 mb-2">
-                          <input
-                            type="text"
-                            placeholder="Discount code"
-                            className="flex-1 bg-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                            value={discountCode}
-                            onChange={(e) => setDiscountCode(e.target.value)}
-                          />
-                          <button
-                            onClick={applyDiscount}
-                            className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded transition"
-                          >
-                            Apply
-                          </button>
-                        </div>
-                        {discountError && (
-                          <p className="text-red-400 text-sm">{discountError}</p>
-                        )}
-                        <p className="text-xs text-gray-400 mt-1">
-                          Use code <span className="font-bold">SX50</span> for ₹50 off on orders above ₹250
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="bg-gray-700/50 p-3 rounded-lg mb-4 flex justify-between items-center">
-                        <div className="flex items-center gap-2 text-green-400">
-                          <Tag size={16} />
-                          <span>Discount applied: -₹50 (SX50)</span>
-                        </div>
-                        <button
-                          onClick={removeDiscount}
-                          className="text-sm text-red-400 hover:text-red-300"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    )}
-
-                    {/* Price Summary */}
                     <div className="space-y-2 mb-4">
                       <div className="flex justify-between">
                         <span>Subtotal</span>
                         <span>₹{subtotal}</span>
                       </div>
-                      {discountApplied && (
-                        <div className="flex justify-between text-green-400">
-                          <span>Discount</span>
-                          <span>-₹50</span>
-                        </div>
-                      )}
                       <div className="flex justify-between text-lg font-bold border-t border-gray-700 pt-2">
                         <span>Total</span>
-                        <span>₹{total}</span>
+                        <span>₹{subtotal}</span>
                       </div>
                     </div>
 
@@ -828,7 +709,7 @@ export default function StorePage() {
                       <button
                         onClick={generateReceipt}
                         className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded transition"
-                        disabled={total <= 0}
+                        disabled={subtotal <= 0}
                       >
                         Proceed to Checkout
                       </button>
@@ -841,7 +722,6 @@ export default function StorePage() {
         </div>
       )}
 
-      {/* Mod Menu Selection Modal */}
       {selectedModProduct && (
         <div className="fixed inset-0 z-50 overflow-hidden">
           <div className="absolute inset-0 bg-black/80" onClick={() => setSelectedModProduct(null)}></div>
@@ -921,7 +801,7 @@ export default function StorePage() {
           </div>
         </div>
       )}
-{/* Receipt History Modal */}
+
       {viewHistory && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="absolute inset-0 bg-black/50" onClick={() => setViewHistory(false)}></div>
@@ -980,12 +860,6 @@ export default function StorePage() {
                           <span>Items:</span>
                           <span>{receipt.items.reduce((sum, item) => sum + item.quantity, 0)}</span>
                         </div>
-                        {receipt.discountApplied > 0 && (
-                          <div className="flex justify-between text-sm">
-                            <span>Discount:</span>
-                            <span className="text-green-400">-₹{receipt.discountApplied}</span>
-                          </div>
-                        )}
                         <div className="flex justify-between text-sm font-bold">
                           <span>Total:</span>
                           <span>₹{receipt.total}</span>
