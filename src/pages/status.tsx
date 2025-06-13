@@ -258,9 +258,47 @@ export default function StatusPage() {
               </span>
             </td>
           </tr>
+
+          {/* Customer 5 - Devil - Add payment date when received */}
+          <tr>
+            <td className="py-4 font-medium">KULDEEP</td>
+            <td className="py-4 text-gray-300">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                RC ID
+              </div>
+            </td>
+            <td className="py-4 text-right font-mono">₹130</td>
+            <td className="py-4 text-right">
+              <span className="inline-block px-3 py-1 text-xs rounded-full bg-yellow-500/10 text-yellow-400">
+                Pending
+              </span>
+            </td>
+          </tr>
+
+          {/* Add new customers above this line */}
+          {/* Template for new customers - copy and uncomment when needed */}
+          {/*
+          <tr>
+            <td className="py-4 font-medium">Customer Name</td>
+            <td className="py-4 text-gray-300">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-[color]-500 rounded-full"></div>
+                Product Name
+              </div>
+            </td>
+            <td className="py-4 text-right font-mono">₹000</td>
+            <td className="py-4 text-right">
+              <span className="inline-block px-3 py-1 text-xs rounded-full bg-[color]-500/10 text-[color]-400">
+                Status
+              </span>
+            </td>
+          </tr>
+          */}
         </tbody>
       </table>
     </div>
+    
     
     {/* Summary Stats */}
     <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
