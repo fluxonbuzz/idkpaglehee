@@ -64,7 +64,7 @@ const modFeatures = [
     color: "text-green-400",
   },
   {
-    feature: "Anti-Cheat",
+    feature: "Mod Creator",
     description: "Built-in protection for fair gameplay",
     icon: ShieldCheck,
     color: "text-yellow-400",
@@ -183,7 +183,7 @@ export default function Home() {
             <Link href="/" className="text-sm font-medium hover:text-emerald-400 transition-colors">
               Home
             </Link>
-            <Link href="/mods" className="text-sm font-medium hover:text-emerald-400 transition-colors">
+            <Link href="/downloads" className="text-sm font-medium hover:text-emerald-400 transition-colors">
               Mods
             </Link>
             <Link href="/store" className="text-sm font-medium hover:text-emerald-400 transition-colors">
