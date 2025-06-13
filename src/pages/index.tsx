@@ -343,13 +343,14 @@ export default function Home() {
                 >
                   Download Mod <ChevronRight className="ml-2 h-4 w-4" />
                 </Button>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="border-gray-700 hover:bg-gray-900 font-bold"
-                >
-                  Join Community
-                </Button>
+                <Link href="/store">
+                  <Button
+                    size="lg"
+                    className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 font-bold"
+                  >
+                    Our Store
+                  </Button>
+                </Link>
               </motion.div>
             </div>
           </div>
@@ -586,13 +587,14 @@ export default function Home() {
                 >
                   Download Now
                 </Button>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="border-gray-700 hover:bg-gray-900 font-bold"
-                >
-                  Join Community
-                </Button>
+                <Link href="/store">
+                  <Button
+                    size="lg"
+                    className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 font-bold"
+                  >
+                    Visit Our Store
+                  </Button>
+                </Link>
               </motion.div>
             </div>
           </div>
