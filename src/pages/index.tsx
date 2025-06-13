@@ -251,7 +251,7 @@ export default function Home() {
                   Home
                 </Link>
                 <Link
-                  href="/mods"
+                  href="/downloads"
                   className="px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium"
                   onClick={() => setSidebarOpen(false)}
                 >
