@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import styles from "@/styles/Home.module.css";
 import { Button } from "@/components/ui/button";
 import {
   Gamepad2,
@@ -24,15 +23,13 @@ import {
   Zap,
 } from "lucide-react";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import { TypeAnimation } from "react-type-animation";
 
 const modStats = [
   { label: "Active Members", value: "15K+", icon: Users },
   { label: "Mod Downloads", value: "500K+", icon: Download },
-  { label: "Supported Games", value: "10+", icon: Gamepad2 },
-  { label: "Premium Mods", value: "50+", icon: Gem },
+  { label: "Supported Games", value: "1", icon: Gamepad2 },
+  { label: "Premium Mods", value: "5+", icon: Gem },
 ];
 
 const featuredMods = [
@@ -45,24 +42,6 @@ const featuredMods = [
     image: "/assets/fusionx.png",
     href: "/downloads",
   },
-  {/*
-    title: "Neon Overdrive",
-    description: "Cyberpunk-themed visual overhaul with neon lighting and futuristic UI",
-    version: "V1.2",
-    status: "beta",
-    tags: ["Visual Mod", "UI Redesign", "Custom Shaders"],
-    image: "/assets/neon-overdrive.png",
-    href: "/downloads",
-  },
-  {
-    title: "Ultra Physics",
-    description: "Advanced physics engine for realistic ball dynamics and player movements",
-    version: "V3.1",
-    status: "available",
-    tags: ["Gameplay", "Physics", "Realism"],
-    image: "/assets/physics-mod.png",
-    href: "/downloads",
-  */},
 ];
 
 const modFeatures = [
@@ -74,7 +53,7 @@ const modFeatures = [
   },
   {
     feature: "Visual Mastery",
-    description: "Stunning 4K textures, ray tracing, and custom shaders",
+    description: "Stunning 4K textures and custom shaders",
     icon: Palette,
     color: "text-purple-400",
   },
@@ -125,6 +104,25 @@ const socialLinks = [
   },
 ];
 
+const TypeWriter = ({ texts }: { texts: string[] }) => {
+  const [currentText, setCurrentText] = useState(texts[0]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % texts.length);
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [texts.length]);
+
+  useEffect(() => {
+    setCurrentText(texts[currentIndex]);
+  }, [currentIndex, texts]);
+
+  return <span>{currentText}</span>;
+};
+
 export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("featured");
@@ -135,7 +133,6 @@ export default function Home() {
   });
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
 
-  // Glow effect colors
   const glows = [
     "bg-emerald-500/20",
     "bg-purple-500/20",
@@ -317,7 +314,7 @@ export default function Home() {
                   Next-Level
                 </span>{" "}
                 <br />
-                Game Modifications
+                Cricket Mods
               </motion.h1>
 
               <motion.p
@@ -326,21 +323,12 @@ export default function Home() {
                 transition={{ duration: 0.8, delay: 0.4 }}
                 className="text-xl text-gray-400 max-w-2xl mx-auto mb-10"
               >
-                <TypeAnimation
-                  sequence={[
-                    "Enhance your gaming experience",
-                    1500,
-                    "Ultra HD textures & effects",
-                    1500,
-                    "Advanced gameplay mechanics",
-                    1500,
-                    "Exclusive premium content",
-                    1500,
-                  ]}
-                  wrapper="span"
-                  speed={50}
-                  repeat={Infinity}
-                />
+                <TypeWriter texts={[
+                  "Enhance your cricket experience",
+                  "Ultra HD textures & effects",
+                  "Advanced gameplay mechanics",
+                  "Exclusive premium content"
+                ]} />
               </motion.p>
 
               <motion.div
@@ -353,7 +341,7 @@ export default function Home() {
                   size="lg"
                   className="bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-600 hover:to-cyan-700 font-bold"
                 >
-                  Explore Mods <ChevronRight className="ml-2 h-4 w-4" />
+                  Download Mod <ChevronRight className="ml-2 h-4 w-4" />
                 </Button>
                 <Button
                   variant="outline"
@@ -434,9 +422,8 @@ export default function Home() {
                 className="text-4xl md:text-5xl font-bold mb-4"
               >
                 <span className="bg-gradient-to-r from-emerald-400 to-cyan-500 bg-clip-text text-transparent">
-                  Featured
-                </span>{" "}
-                Mods
+                  Cricket Fusion X
+                </span>
               </motion.h2>
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
@@ -445,25 +432,11 @@ export default function Home() {
                 viewport={{ once: true }}
                 className="text-lg text-gray-400"
               >
-                Our most popular and innovative game modifications
+                The ultimate cricket modification experience
               </motion.p>
             </div>
 
-            <div className="flex justify-center mb-8">
-              <div className="inline-flex bg-gray-900 rounded-lg p-1 border border-gray-800">
-                {["featured", "popular", "new"].map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === tab ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white'}`}
-                  >
-                    {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-center">
               {featuredMods.map((mod, index) => (
                 <motion.div
                   key={mod.title}
@@ -471,7 +444,7 @@ export default function Home() {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   viewport={{ once: true }}
-                  className="bg-gray-900/50 border border-gray-800 rounded-xl overflow-hidden hover:border-emerald-500/50 transition-all group"
+                  className="bg-gray-900/50 border border-gray-800 rounded-xl overflow-hidden hover:border-emerald-500/50 transition-all group mx-auto max-w-md"
                 >
                   <div className="relative h-48 bg-gradient-to-br from-gray-800 to-gray-900 overflow-hidden">
                     <div className="absolute inset-0 bg-[url('/assets/mod-pattern.svg')] opacity-10"></div>
@@ -519,14 +492,6 @@ export default function Home() {
                 </motion.div>
               ))}
             </div>
-
-            <div className="text-center mt-12">
-              <Link href="/mods">
-                <Button variant="outline" className="border-gray-700 hover:bg-gray-900">
-                  View All Mods <ChevronRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
           </div>
         </section>
 
@@ -543,7 +508,7 @@ export default function Home() {
               >
                 Why Choose{" "}
                 <span className="bg-gradient-to-r from-emerald-400 to-cyan-500 bg-clip-text text-transparent">
-                  Shiva X Mods?
+                  Cricket Fusion X?
                 </span>
               </motion.h2>
               <motion.p
@@ -553,8 +518,7 @@ export default function Home() {
                 viewport={{ once: true }}
                 className="text-lg text-gray-400"
               >
-                We combine cutting-edge technology with creative vision to deliver
-                unparalleled modding experiences
+                Experience cricket like never before with our cutting-edge modifications
               </motion.p>
             </div>
 
@@ -598,7 +562,7 @@ export default function Home() {
                 <span className="bg-gradient-to-r from-emerald-400 to-cyan-500 bg-clip-text text-transparent">
                   Transform
                 </span>{" "}
-                Your Gaming Experience?
+                Your Cricket Game?
               </motion.h2>
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
@@ -607,8 +571,7 @@ export default function Home() {
                 viewport={{ once: true }}
                 className="text-lg text-gray-400 max-w-2xl mx-auto mb-8"
               >
-                Join thousands of players who have already enhanced their games
-                with our premium modifications
+                Join thousands of players who have already enhanced their cricket experience
               </motion.p>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -621,14 +584,14 @@ export default function Home() {
                   size="lg"
                   className="bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-600 hover:to-cyan-700 font-bold"
                 >
-                  Get Started
+                  Download Now
                 </Button>
                 <Button
                   variant="outline"
                   size="lg"
                   className="border-gray-700 hover:bg-gray-900 font-bold"
                 >
-                  Learn More
+                  Join Community
                 </Button>
               </motion.div>
             </div>
@@ -658,7 +621,7 @@ export default function Home() {
                 viewport={{ once: true }}
                 className="text-lg text-gray-400"
               >
-                Connect with modders, get support, and stay updated on new releases
+                Connect with other players, get support, and stay updated
               </motion.p>
             </div>
 
@@ -706,8 +669,7 @@ export default function Home() {
                 </span>
               </Link>
               <p className="text-gray-400 text-sm">
-                Pushing the boundaries of game modification with innovative
-                technology and creative vision.
+                The ultimate cricket modification experience
               </p>
             </div>
 
@@ -750,44 +712,6 @@ export default function Home() {
             </div>
 
             <div>
-              <h4 className="text-lg font-semibold mb-4">Resources</h4>
-              <ul className="space-y-3">
-                <li>
-                  <Link
-                    href="/tutorials"
-                    className="text-gray-400 hover:text-emerald-400 transition-colors text-sm"
-                  >
-                    Tutorials
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/documentation"
-                    className="text-gray-400 hover:text-emerald-400 transition-colors text-sm"
-                  >
-                    Documentation
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/faq"
-                    className="text-gray-400 hover:text-emerald-400 transition-colors text-sm"
-                  >
-                    FAQ
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/support"
-                    className="text-gray-400 hover:text-emerald-400 transition-colors text-sm"
-                  >
-                    Support
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            <div>
               <h4 className="text-lg font-semibold mb-4">Legal</h4>
               <ul className="space-y-3">
                 <li>
@@ -806,23 +730,37 @@ export default function Home() {
                     Privacy Policy
                   </Link>
                 </li>
-                <li>
-                  <Link
-                    href="/cookies"
-                    className="text-gray-400 hover:text-emerald-400 transition-colors text-sm"
-                  >
-                    Cookie Policy
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/dmca"
-                    className="text-gray-400 hover:text-emerald-400 transition-colors text-sm"
-                  >
-                    DMCA
-                  </Link>
-                </li>
               </ul>
+            </div>
+
+            <div>
+              <h4 className="text-lg font-semibold mb-4">Connect</h4>
+              <div className="flex items-center gap-4">
+                <Link
+                  href="https://discord.gg/nY4hxDvfAb"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-400 hover:text-emerald-400 transition-colors"
+                >
+                  <Users className="h-5 w-5" />
+                </Link>
+                <Link
+                  href="https://t.me/shivaxmods"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-400 hover:text-emerald-400 transition-colors"
+                >
+                  <MessageSquare className="h-5 w-5" />
+                </Link>
+                <Link
+                  href="https://youtube.com/@shivaxmods"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-400 hover:text-emerald-400 transition-colors"
+                >
+                  <ScanEye className="h-5 w-5" />
+                </Link>
+              </div>
             </div>
           </div>
 
@@ -830,32 +768,6 @@ export default function Home() {
             <p className="text-gray-500 text-sm mb-4 md:mb-0">
               © {new Date().getFullYear()} Shiva X Mods. All rights reserved.
             </p>
-            <div className="flex items-center gap-4">
-              <Link
-                href="https://discord.gg/nY4hxDvfAb"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-400 hover:text-emerald-400 transition-colors"
-              >
-                <Users className="h-5 w-5" />
-              </Link>
-              <Link
-                href="https://t.me/shivaxmods"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-400 hover:text-emerald-400 transition-colors"
-              >
-                <MessageSquare className="h-5 w-5" />
-              </Link>
-              <Link
-                href="https://youtube.com/@shivaxmods"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-400 hover:text-emerald-400 transition-colors"
-              >
-                <ScanEye className="h-5 w-5" />
-              </Link>
-            </div>
           </div>
         </div>
       </footer>
