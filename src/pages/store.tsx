@@ -1,24 +1,5 @@
 import { useState, useEffect } from 'react';
-import { 
-  ShoppingCart, 
-  Tag, 
-  Star, 
-  ShieldCheck, 
-  Send, 
-  History, 
-  Search, 
-  AlertTriangle, 
-  ChevronDown, 
-  ChevronUp, 
-  Check,
-  Gamepad2,
-  Ticket,
-  Film,
-  Settings,
-  Shield,
-  Smartphone,
-  Joystick
-} from 'lucide-react';
+import { ShoppingCart, Tag, Star, ShieldCheck, Send, History, Search, AlertTriangle, ChevronDown, ChevronUp, Check } from 'lucide-react';
 import Link from 'next/link';
 
 interface Product {
@@ -30,7 +11,6 @@ interface Product {
   image: string;
   tags: string[];
   modMenuItems?: ModMenuItem[];
-  icon?: JSX.Element;
 }
 
 interface ModMenuItem {
@@ -77,8 +57,7 @@ const storeData: Product[] = [
     originalPrice: 300,
     description: 'Premium account with exclusive items and unlocked features',
     image: '/store/rc24-id.jpg',
-    tags: ['Digital', 'Limited'],
-    icon: <Star size={40} className="text-purple-400" />
+    tags: ['Digital', 'Limited']
   },
   {
     id: 'all-in-one-checker',
@@ -86,8 +65,7 @@ const storeData: Product[] = [
     price: 80,
     description: 'Comprehensive tool for verifying jerseys, helmets, bats and more across all games',
     image: '/store/checker.jpg',
-    tags: ['Tool', 'Instant Delivery'],
-    icon: <Shield size={40} className="text-blue-400" />
+    tags: ['Tool', 'Instant Delivery']
   },
   {
     id: 'rc20-legends',
@@ -95,8 +73,7 @@ const storeData: Product[] = [
     price: 70,
     description: 'Unlock exclusive hero legends pack with rare players',
     image: '/store/rc20-legends.jpg',
-    tags: ['DLC', 'Popular'],
-    icon: <Star size={40} className="text-yellow-400" />
+    tags: ['DLC', 'Popular']
   },
   {
     id: 'boundary-hoarding-checker',
@@ -104,8 +81,7 @@ const storeData: Product[] = [
     price: 70,
     description: 'Professional tool for verifying boundary hoardings in Real Cricket games',
     image: '/store/hoarding-checker.jpg',
-    tags: ['Tool', 'Instant Delivery'],
-    icon: <Ticket size={40} className="text-green-400" />
+    tags: ['Tool', 'Instant Delivery']
   },
   {
     id: 'netflix-premium',
@@ -113,8 +89,7 @@ const storeData: Product[] = [
     price: 100,
     description: '1-month premium account with 4K UHD streaming and multiple screens',
     image: '/store/netflix.jpg',
-    tags: ['Digital', 'Popular'],
-    icon: <Film size={40} className="text-red-400" />
+    tags: ['Digital', 'Popular']
   },
   {
     id: 'squad-editor',
@@ -122,8 +97,7 @@ const storeData: Product[] = [
     price: 100,
     description: 'Advanced squad editing tool for all Real Cricket games',
     image: '/store/squad-editor.jpg',
-    tags: ['Tool', 'Instant Delivery'],
-    icon: <Settings size={40} className="text-orange-400" />
+    tags: ['Tool', 'Instant Delivery']
   },
   {
     id: 'shots-checker',
@@ -131,18 +105,16 @@ const storeData: Product[] = [
     price: 120,
     description: 'Complete shots verification tool for Real Cricket series',
     image: '/store/shots-checker.jpg',
-    tags: ['Tool', 'Instant Delivery', 'New'],
-    icon: <Gamepad2 size={40} className="text-pink-400" />
+    tags: ['Tool', 'Instant Delivery', 'New']
   },
-  {
+{
     id: 'rc24-swap-id',
     title: 'Real Cricket Swap ID',
     price: 130,
     originalPrice: 300,
     description: 'Premium account with exclusive items and unlocked features',
     image: '/store/rc24-id.jpg',
-    tags: ['Digital', 'Limited'],
-    icon: <Smartphone size={40} className="text-teal-400" />
+    tags: ['Digital', 'Limited']
   },
   {
     id: 'mod-menus',
@@ -151,7 +123,6 @@ const storeData: Product[] = [
     description: 'Advanced modification menus for popular mobile games with regular updates',
     image: '/store/mod-menus.jpg',
     tags: ['Digital', 'Instant Delivery', 'Exclusive'],
-    icon: <Joystick size={40} className="text-indigo-400" />,
     modMenuItems: [
       {
         id: 'among-us',
@@ -490,15 +461,12 @@ export default function StorePage() {
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           {storeData.map(product => (
             <div key={product.id} className="bg-gray-800 rounded-xl overflow-hidden border border-gray-700 hover:border-purple-400 transition-all hover:shadow-lg hover:shadow-purple-500/10">
-              <div className="h-48 bg-gray-700 relative overflow-hidden flex items-center justify-center">
-                <div className="absolute inset-0 bg-gradient-to-br from-gray-900/50 to-gray-800/50"></div>
-                {product.icon && (
-                  <div className="relative z-10 p-4 bg-gray-800/50 rounded-full backdrop-blur-sm">
-                    {product.icon}
-                  </div>
-                )}
+              <div className="h-48 bg-gray-700 relative overflow-hidden">
+                <div className="absolute inset-0 flex items-center justify-center text-gray-400">
+                  <span className="text-lg">SX Product</span>
+                </div>
                 {product.originalPrice && (
-                  <div className="absolute top-4 left-4 bg-purple-500 text-xs font-bold px-2 py-1 rounded z-10">
+                  <div className="absolute top-4 left-4 bg-purple-500 text-xs font-bold px-2 py-1 rounded">
                     {Math.round((1 - product.price / product.originalPrice) * 100)}% OFF
                   </div>
                 )}
@@ -639,13 +607,7 @@ export default function StorePage() {
                                   : 'bg-gray-700'
                               }`}>
                                 <div className="h-full w-full flex items-center justify-center text-white">
-                                  {item.icon ? (
-                                    <div className="scale-125">
-                                      {item.icon}
-                                    </div>
-                                  ) : (
-                                    <Tag size={20} />
-                                  )}
+                                  <Tag size={20} />
                                 </div>
                               </div>
                               <div className="ml-4 flex-1">
