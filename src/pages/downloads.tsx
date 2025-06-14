@@ -1,6 +1,6 @@
 // src/pages/downloads.tsx
 import { useState } from 'react';
-import { Download, Clock, Zap, CheckCircle, ArrowRight, Star, Award, Users, Trophy, Shirt, Activity, Smile, Film, Globe, Volume2, Joystick, List } from 'lucide-react';
+import { Download, Clock, Zap, CheckCircle, ArrowRight, Star, Award, Users, Trophy, Shirt, Activity, Smile, Film, Globe, Volume2, Joystick, List, Flag, Coins, Cricket } from 'lucide-react';
 import Link from 'next/link';
 
 interface Game {
@@ -33,30 +33,46 @@ const gamesData: Game[] = [
     downloadLink: 'https://drive.google.com/file/d/14usS--oRdbJRBxL5JjWhZHHzuEhaZWYK/view?usp=drivesdk',
     features: [
       {
-        category: 'New Features',
+        category: 'Commentary & Audio',
         items: [
           { icon: <Volume2 size={16} className="text-blue-400" />, text: 'Brand new commentary (Aakash & Siddhu)' },
-          { icon: <Trophy size={16} className="text-purple-400" />, text: 'Champions Trophy 2025 with real fixtures' },
-          { icon: <List size={16} className="text-green-400" />, text: 'New scorecard system' },
-          { icon: <Zap size={16} className="text-yellow-400" />, text: '80+ new shots with enhanced physics' }
+          { icon: <Volume2 size={16} className="text-blue-400" />, text: 'New crowd sounds and BGM' },
+          { icon: <Volume2 size={16} className="text-blue-400" />, text: 'No low volume issues' }
         ]
       },
       {
-        category: 'Gameplay',
+        category: 'Tournaments & Teams',
         items: [
-          { icon: <Activity size={16} className="text-red-400" />, text: 'Suspense while ball going to boundary' },
-          { icon: <Joystick size={16} className="text-cyan-400" />, text: '10-direction joystick control' },
-          { icon: <Globe size={16} className="text-orange-400" />, text: 'New stadiums (Karachi, Lahore, etc.)' },
-          { icon: <Users size={16} className="text-pink-400" />, text: 'Improved AI for realistic matches' }
+          { icon: <Trophy size={16} className="text-purple-400" />, text: 'Champions Trophy 2025 (real fixtures)' },
+          { icon: <Trophy size={16} className="text-purple-400" />, text: 'Updated IPL 2024 fixtures' },
+          { icon: <Users size={16} className="text-purple-400" />, text: 'Champions Trophy new squads' },
+          { icon: <Award size={16} className="text-purple-400" />, text: 'Improved IPL auction system' }
         ]
       },
       {
-        category: 'Content',
+        category: 'Gameplay Features',
         items: [
-          { icon: <Film size={16} className="text-blue-400" />, text: 'All new cut scenes (removed old ones)' },
-          { icon: <Shirt size={16} className="text-purple-400" />, text: 'Brand new jerseys (T20 & ODI)' },
-          { icon: <Award size={16} className="text-green-400" />, text: 'IPL 2024 real fixtures & updated auction' },
-          { icon: <Star size={16} className="text-yellow-400" />, text: 'New adboards and main menu design' }
+          { icon: <Zap size={16} className="text-green-400" />, text: '80+ new shots with enhanced physics' },
+          { icon: <Cricket size={16} className="text-green-400" />, text: 'New bowling actions' },
+          { icon: <Activity size={16} className="text-green-400" />, text: 'Super smooth gameplay' },
+          { icon: <Star size={16} className="text-green-400" />, text: 'Improved AI for realistic matches' }
+        ]
+      },
+      {
+        category: 'Visual & Content',
+        items: [
+          { icon: <Film size={16} className="text-yellow-400" />, text: 'All new cut scenes (old ones removed)' },
+          { icon: <Shirt size={16} className="text-yellow-400" />, text: 'Brand new jerseys (T20 & ODI)' },
+          { icon: <Globe size={16} className="text-yellow-400" />, text: 'New Pakistan stadiums (Karachi, Lahore)' },
+          { icon: <List size={16} className="text-yellow-400" />, text: 'New scorecard system' },
+          { icon: <Flag size={16} className="text-yellow-400" />, text: 'New adboards and main menu design' }
+        ]
+      },
+      {
+        category: 'Economy System',
+        items: [
+          { icon: <Coins size={16} className="text-red-400" />, text: 'Unlimited coins/tickets' },
+          { icon: <Coins size={16} className="text-red-400" />, text: '(Not everything unlocked)' }
         ]
       }
     ]
@@ -71,30 +87,30 @@ const gamesData: Game[] = [
     status: 'coming-soon',
     features: [
       {
-        category: 'New Features',
+        category: 'Core Features',
         items: [
           { icon: <List size={16} className="text-blue-400" />, text: 'Completely redesigned main menu' },
-          { icon: <Users size={16} className="text-purple-400" />, text: 'Impact Player rule implementation' },
-          { icon: <Award size={16} className="text-green-400" />, text: '10 teams in auction system' },
-          { icon: <Shirt size={16} className="text-yellow-400" />, text: 'Jersey selector for T20/ODI formats' }
+          { icon: <Users size={16} className="text-blue-400" />, text: 'Impact Player rule implementation' },
+          { icon: <Award size={16} className="text-blue-400" />, text: '10 teams in auction system' },
+          { icon: <Shirt size={16} className="text-blue-400" />, text: 'Jersey selector for T20/ODI formats' }
         ]
       },
       {
         category: 'Tournaments',
         items: [
-          { icon: <Trophy size={16} className="text-red-400" />, text: 'Champions Trophy 2025' },
-          { icon: <Globe size={16} className="text-cyan-400" />, text: 'IPL 2025 with PSL draft system' },
-          { icon: <Activity size={16} className="text-orange-400" />, text: 'T20 World Cup 2024' },
-          { icon: <Star size={16} className="text-pink-400" />, text: 'ICC World Cup 2023' }
+          { icon: <Trophy size={16} className="text-purple-400" />, text: 'Champions Trophy 2025' },
+          { icon: <Globe size={16} className="text-purple-400" />, text: 'IPL 2025 with PSL draft system' },
+          { icon: <Activity size={16} className="text-purple-400" />, text: 'T20 World Cup 2024' },
+          { icon: <Star size={16} className="text-purple-400" />, text: 'ICC World Cup 2023' }
         ]
       },
       {
         category: 'Mod Creator',
         items: [
-          { icon: <Zap size={16} className="text-blue-400" />, text: 'Advanced team customization' },
-          { icon: <Film size={16} className="text-purple-400" />, text: 'New scorecards for all tournaments' },
+          { icon: <Zap size={16} className="text-green-400" />, text: 'Advanced team customization' },
+          { icon: <Film size={16} className="text-green-400" />, text: 'New scorecards for all tournaments' },
           { icon: <Volume2 size={16} className="text-green-400" />, text: 'New commentary & crowd sounds' },
-          { icon: <Joystick size={16} className="text-yellow-400" />, text: 'Extra button in controls' }
+          { icon: <Joystick size={16} className="text-green-400" />, text: 'Extra button in controls' }
         ]
       }
     ]
@@ -127,10 +143,10 @@ export default function DownloadsPage() {
             Premium Cricket Experiences
           </div>
           <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent leading-tight">
-            Download Next-Gen Cricket Games
+            The Ultimate Cricket Simulation
           </h1>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            Experience the most realistic cricket simulation with advanced features, stunning visuals, and complete customization
+            Experience professional cricket with advanced features, stunning visuals, and complete customization
           </p>
         </section>
 
@@ -172,7 +188,7 @@ export default function DownloadsPage() {
                           {featureCategory.category}
                         </span>
                       </h3>
-                      <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <ul className="grid grid-cols-1 gap-3">
                         {featureCategory.items.map((feature, featIndex) => (
                           <li key={featIndex} className="flex items-start bg-gray-800/50 p-3 rounded-lg border border-gray-700/50">
                             <span className="mt-0.5 mr-2 flex-shrink-0">
@@ -206,65 +222,52 @@ export default function DownloadsPage() {
               {/* Ribbon for best version */}
               {game.id === 'cricket-fusion-x' && (
                 <div className="absolute top-0 right-0 bg-gradient-to-r from-yellow-500 to-yellow-600 text-black text-xs font-bold px-4 py-1 transform rotate-45 translate-x-12 -translate-y-1 shadow-md">
-                  RECOMMENDED
+                  MOST POPULAR
                 </div>
               )}
             </div>
           ))}
         </div>
 
-        {/* Comparison Section */}
+        {/* Feature Highlights */}
         <section className="mb-20 bg-gray-800/50 rounded-2xl p-8 border border-gray-700">
           <h2 className="text-2xl font-bold mb-8 text-center bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">
-            Version Comparison
+            Why Choose Crick Fusion X?
           </h2>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-700">
-                  <th className="text-left pb-4 pl-2">Feature</th>
-                  <th className="text-center pb-4">Crick Fusion V1</th>
-                  <th className="text-center pb-4">Crick Fusion X V2</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="border-b border-gray-700/50">
-                  <td className="py-3 pl-2">Mod Creator</td>
-                  <td className="text-center text-green-400"><CheckCircle size={18} className="inline" /></td>
-                  <td className="text-center text-green-400"><CheckCircle size={18} className="inline" /></td>
-                </tr>
-                <tr className="border-b border-gray-700/50">
-                  <td className="py-3 pl-2">Impact Player Rule</td>
-                  <td className="text-center text-green-400"><CheckCircle size={18} className="inline" /></td>
-                  <td className="text-center text-green-400"><CheckCircle size={18} className="inline" /></td>
-                </tr>
-                <tr className="border-b border-gray-700/50">
-                  <td className="py-3 pl-2">10-Team Auction</td>
-                  <td className="text-center text-green-400"><CheckCircle size={18} className="inline" /></td>
-                  <td className="text-center text-green-400"><CheckCircle size={18} className="inline" /></td>
-                </tr>
-                <tr className="border-b border-gray-700/50">
-                  <td className="py-3 pl-2">New Commentary</td>
-                  <td className="text-center text-gray-500"><Clock size={18} className="inline" /></td>
-                  <td className="text-center text-green-400"><CheckCircle size={18} className="inline" /></td>
-                </tr>
-                <tr className="border-b border-gray-700/50">
-                  <td className="py-3 pl-2">80+ New Shots</td>
-                  <td className="text-center text-gray-500"><Clock size={18} className="inline" /></td>
-                  <td className="text-center text-green-400"><CheckCircle size={18} className="inline" /></td>
-                </tr>
-                <tr className="border-b border-gray-700/50">
-                  <td className="py-3 pl-2">Champions Trophy 2025</td>
-                  <td className="text-center text-green-400"><CheckCircle size={18} className="inline" /></td>
-                  <td className="text-center text-green-400"><CheckCircle size={18} className="inline" /></td>
-                </tr>
-                <tr>
-                  <td className="py-3 pl-2">PSL Draft System</td>
-                  <td className="text-center text-green-400"><CheckCircle size={18} className="inline" /></td>
-                  <td className="text-center text-gray-500"><Clock size={18} className="inline" /></td>
-                </tr>
-              </tbody>
-            </table>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-gradient-to-b from-gray-800 to-gray-900 p-6 rounded-xl border border-gray-700">
+              <div className="flex items-center mb-4">
+                <div className="bg-blue-500/20 p-2 rounded-full mr-3">
+                  <Volume2 size={20} className="text-blue-400" />
+                </div>
+                <h3 className="font-bold text-lg">Immersive Audio</h3>
+              </div>
+              <p className="text-gray-300 text-sm">
+                Brand new commentary from Aakash and Siddhu with perfect volume balance, plus enhanced crowd sounds and stadium atmosphere.
+              </p>
+            </div>
+            <div className="bg-gradient-to-b from-gray-800 to-gray-900 p-6 rounded-xl border border-gray-700">
+              <div className="flex items-center mb-4">
+                <div className="bg-purple-500/20 p-2 rounded-full mr-3">
+                  <Cricket size={20} className="text-purple-400" />
+                </div>
+                <h3 className="font-bold text-lg">Enhanced Gameplay</h3>
+              </div>
+              <p className="text-gray-300 text-sm">
+                80+ new shots, realistic bowling actions, and super smooth gameplay mechanics for the most authentic cricket experience.
+              </p>
+            </div>
+            <div className="bg-gradient-to-b from-gray-800 to-gray-900 p-6 rounded-xl border border-gray-700">
+              <div className="flex items-center mb-4">
+                <div className="bg-green-500/20 p-2 rounded-full mr-3">
+                  <Trophy size={20} className="text-green-400" />
+                </div>
+                <h3 className="font-bold text-lg">Updated Tournaments</h3>
+              </div>
+              <p className="text-gray-300 text-sm">
+                Complete Champions Trophy 2025 with real fixtures, updated IPL 2024, and all new squads for authentic team lineups.
+              </p>
+            </div>
           </div>
         </section>
 
@@ -272,11 +275,11 @@ export default function DownloadsPage() {
         <section className="bg-gradient-to-br from-purple-900/50 via-gray-800 to-blue-900/50 rounded-2xl p-8 border border-purple-500/30">
           <div className="max-w-3xl mx-auto text-center">
             <div className="inline-block bg-gradient-to-r from-purple-500 to-blue-500 text-white px-4 py-1 rounded-full text-sm font-medium mb-4">
-              Early Access
+              Stay Updated
             </div>
-            <h2 className="text-2xl md:text-3xl font-bold mb-3">Join the Crick Fusion Beta Program</h2>
+            <h2 className="text-2xl md:text-3xl font-bold mb-3">Get Notified About New Releases</h2>
             <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
-              Be among the first to experience the completely rebuilt Crick Fusion V1 with next-gen features
+              Join our mailing list to be the first to know about updates, new features, and upcoming versions
             </p>
             <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
               <input 
@@ -287,10 +290,10 @@ export default function DownloadsPage() {
                 className="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-3 px-6 rounded-lg transition flex items-center justify-center gap-2">
-                <ArrowRight size={18} /> Join Beta
+                <ArrowRight size={18} /> Subscribe
               </button>
             </div>
-            <p className="text-xs text-gray-400 mt-3">We'll notify you when beta testing begins. No spam, ever.</p>
+            <p className="text-xs text-gray-400 mt-3">We'll never spam you. Unsubscribe anytime.</p>
           </div>
         </section>
       </main>
