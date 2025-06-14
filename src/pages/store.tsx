@@ -116,6 +116,15 @@ const storeData: Product[] = [
     image: '/store/rc24-id.jpg',
     tags: ['Digital', 'Limited']
   },
+   {
+    id: 'website',
+    title: 'Custom webpage',
+    price: 100,
+    originalPrice: 2500,
+    description: 'Premium website with hosting starting from 100RS per page',
+    image: '/store/rc24-id.jpg',
+    tags: ['Digital', 'Custom']
+  },
   {
     id: 'mod-menus',
     title: 'Premium Mod Menus',
