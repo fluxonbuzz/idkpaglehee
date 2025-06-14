@@ -1,6 +1,6 @@
 // src/pages/downloads.tsx
 import { useState } from 'react';
-import { Download, Clock, Zap, CheckCircle, ArrowRight, Star, Award, Users, Trophy, Shirt, Activity, Smile, Film, Globe, Volume2, Joystick, List, Flag, Coins, Cricket } from 'lucide-react';
+import { Download, Clock, Zap, CheckCircle, ArrowRight, Star, Award, Users, Trophy, Shirt, Activity, Smile, Film, Globe, Volume2, Joystick, List, Flag, Coins } from 'lucide-react';
 import Link from 'next/link';
 
 interface Game {
@@ -53,7 +53,7 @@ const gamesData: Game[] = [
         category: 'Gameplay Features',
         items: [
           { icon: <Zap size={16} className="text-green-400" />, text: '80+ new shots with enhanced physics' },
-          { icon: <Cricket size={16} className="text-green-400" />, text: 'New bowling actions' },
+          { icon: <Activity size={16} className="text-green-400" />, text: 'New bowling actions' },
           { icon: <Activity size={16} className="text-green-400" />, text: 'Super smooth gameplay' },
           { icon: <Star size={16} className="text-green-400" />, text: 'Improved AI for realistic matches' }
         ]
@@ -118,8 +118,6 @@ const gamesData: Game[] = [
 ];
 
 export default function DownloadsPage() {
-  const [email, setEmail] = useState('');
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
       {/* Header */}
@@ -228,74 +226,6 @@ export default function DownloadsPage() {
             </div>
           ))}
         </div>
-
-        {/* Feature Highlights */}
-        <section className="mb-20 bg-gray-800/50 rounded-2xl p-8 border border-gray-700">
-          <h2 className="text-2xl font-bold mb-8 text-center bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">
-            Why Choose Crick Fusion X?
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-gradient-to-b from-gray-800 to-gray-900 p-6 rounded-xl border border-gray-700">
-              <div className="flex items-center mb-4">
-                <div className="bg-blue-500/20 p-2 rounded-full mr-3">
-                  <Volume2 size={20} className="text-blue-400" />
-                </div>
-                <h3 className="font-bold text-lg">Immersive Audio</h3>
-              </div>
-              <p className="text-gray-300 text-sm">
-                Brand new commentary from Aakash and Siddhu with perfect volume balance, plus enhanced crowd sounds and stadium atmosphere.
-              </p>
-            </div>
-            <div className="bg-gradient-to-b from-gray-800 to-gray-900 p-6 rounded-xl border border-gray-700">
-              <div className="flex items-center mb-4">
-                <div className="bg-purple-500/20 p-2 rounded-full mr-3">
-                  <Cricket size={20} className="text-purple-400" />
-                </div>
-                <h3 className="font-bold text-lg">Enhanced Gameplay</h3>
-              </div>
-              <p className="text-gray-300 text-sm">
-                80+ new shots, realistic bowling actions, and super smooth gameplay mechanics for the most authentic cricket experience.
-              </p>
-            </div>
-            <div className="bg-gradient-to-b from-gray-800 to-gray-900 p-6 rounded-xl border border-gray-700">
-              <div className="flex items-center mb-4">
-                <div className="bg-green-500/20 p-2 rounded-full mr-3">
-                  <Trophy size={20} className="text-green-400" />
-                </div>
-                <h3 className="font-bold text-lg">Updated Tournaments</h3>
-              </div>
-              <p className="text-gray-300 text-sm">
-                Complete Champions Trophy 2025 with real fixtures, updated IPL 2024, and all new squads for authentic team lineups.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Newsletter */}
-        <section className="bg-gradient-to-br from-purple-900/50 via-gray-800 to-blue-900/50 rounded-2xl p-8 border border-purple-500/30">
-          <div className="max-w-3xl mx-auto text-center">
-            <div className="inline-block bg-gradient-to-r from-purple-500 to-blue-500 text-white px-4 py-1 rounded-full text-sm font-medium mb-4">
-              Stay Updated
-            </div>
-            <h2 className="text-2xl md:text-3xl font-bold mb-3">Get Notified About New Releases</h2>
-            <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
-              Join our mailing list to be the first to know about updates, new features, and upcoming versions
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-              <input 
-                type="email" 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Your email address" 
-                className="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-3 px-6 rounded-lg transition flex items-center justify-center gap-2">
-                <ArrowRight size={18} /> Subscribe
-              </button>
-            </div>
-            <p className="text-xs text-gray-400 mt-3">We'll never spam you. Unsubscribe anytime.</p>
-          </div>
-        </section>
       </main>
 
       {/* Footer */}
