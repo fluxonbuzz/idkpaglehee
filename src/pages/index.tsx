@@ -35,12 +35,12 @@ const modStats = [
 
 const featuredMods = [
   {
-    title: "Premium Game Mod",
-    description: "Next-gen gaming experience with enhanced physics, 4K textures, and new gameplay modes",
+    title: "Cricket Fusion X",
+    description: "Next-gen cricket experience with enhanced physics, 4K textures, and new gameplay modes",
     version: "V2.5",
     status: "available",
-    tags: ["HD Graphics", "Multiplayer", "New Features"],
-    image: "/assets/mod-preview.png",
+    tags: ["HD Graphics", "Multiplayer", "New Teams"],
+    image: "/assets/fusionx.png",
     href: "/downloads",
   },
 ];
@@ -325,7 +325,7 @@ export default function Home() {
                   Next-Level
                 </span>{" "}
                 <br />
-                Game Mods
+                Cricket Mods
               </motion.h1>
 
               <motion.p
@@ -335,7 +335,7 @@ export default function Home() {
                 className="text-xl text-gray-400 max-w-2xl mx-auto mb-10"
               >
                 <TypeWriter texts={[
-                  "Enhance your gaming experience",
+                  "Enhance your cricket experience",
                   "Ultra HD textures & effects",
                   "Advanced gameplay mechanics",
                   "Exclusive premium content"
@@ -348,12 +348,14 @@ export default function Home() {
                 transition={{ duration: 0.8, delay: 0.6 }}
                 className="flex flex-col sm:flex-row justify-center gap-4"
               >
-                <Button
-                  size="lg"
-                  className="bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-600 hover:to-cyan-700 font-bold"
-                >
-                  Download Mod <ChevronRight className="ml-2 h-4 w-4" />
-                </Button>
+                <Link href="/downloads">
+                  <Button
+                    size="lg"
+                    className="bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-600 hover:to-cyan-700 font-bold"
+                  >
+                    Our Games <ChevronRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
                 <Link href="/store">
                   <Button
                     size="lg"
@@ -434,7 +436,7 @@ export default function Home() {
                 className="text-4xl md:text-5xl font-bold mb-4"
               >
                 <span className="bg-gradient-to-r from-emerald-400 to-cyan-500 bg-clip-text text-transparent">
-                  Premium Game Mod
+                  Cricket Fusion X
                 </span>
               </motion.h2>
               <motion.p
@@ -444,7 +446,7 @@ export default function Home() {
                 viewport={{ once: true }}
                 className="text-lg text-gray-400"
               >
-                The ultimate gaming modification experience
+                The ultimate cricket modification experience
               </motion.p>
             </div>
 
@@ -530,7 +532,7 @@ export default function Home() {
                 viewport={{ once: true }}
                 className="text-lg text-gray-400"
               >
-                Experience gaming like never before with our cutting-edge modifications
+                Experience cricket like never before with our cutting-edge modifications
               </motion.p>
             </div>
 
@@ -574,7 +576,7 @@ export default function Home() {
                 <span className="bg-gradient-to-r from-emerald-400 to-cyan-500 bg-clip-text text-transparent">
                   Transform
                 </span>{" "}
-                Your Gaming Experience?
+                Your Cricket Game?
               </motion.h2>
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
@@ -583,7 +585,7 @@ export default function Home() {
                 viewport={{ once: true }}
                 className="text-lg text-gray-400 max-w-2xl mx-auto mb-8"
               >
-                Join thousands of players who have already enhanced their gaming experience
+                Join thousands of players who have already enhanced their cricket experience
               </motion.p>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -592,12 +594,14 @@ export default function Home() {
                 viewport={{ once: true }}
                 className="flex flex-col sm:flex-row justify-center gap-4"
               >
-                <Button
-                  size="lg"
-                  className="bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-600 hover:to-cyan-700 font-bold"
-                >
-                  Download Now
-                </Button>
+                <Link href="/downloads">
+                  <Button
+                    size="lg"
+                    className="bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-600 hover:to-cyan-700 font-bold"
+                  >
+                    Our Games
+                  </Button>
+                </Link>
                 <Link href="/store">
                   <Button
                     size="lg"
@@ -682,7 +686,7 @@ export default function Home() {
                 </span>
               </Link>
               <p className="text-gray-400 text-sm">
-                The ultimate gaming modification experience
+                The ultimate cricket modification experience
               </p>
             </div>
 
