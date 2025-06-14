@@ -40,7 +40,7 @@ export default function PrivacyPage() {
         {/* Last Updated */}
         <div className="bg-emerald-900/10 border border-emerald-800 rounded-xl p-6 mb-8 text-center">
           <p className="text-emerald-300">
-            <strong>Last Updated:</strong> June 12, 2024
+            <strong>Last Updated:</strong> June 12, 2025
           </p>
         </div>
 
