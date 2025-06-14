@@ -1,5 +1,24 @@
 import { useState, useEffect } from 'react';
-import { ShoppingCart, Tag, Star, ShieldCheck, Send, History, Search, AlertTriangle, ChevronDown, ChevronUp, Check, Gamepad2, Ticket, Film, Settings, Shield, Cricket, Smartphone, Joystick } from 'lucide-react';
+import { 
+  ShoppingCart, 
+  Tag, 
+  Star, 
+  ShieldCheck, 
+  Send, 
+  History, 
+  Search, 
+  AlertTriangle, 
+  ChevronDown, 
+  ChevronUp, 
+  Check,
+  Gamepad2,
+  Ticket,
+  Film,
+  Settings,
+  Shield,
+  Smartphone,
+  Joystick
+} from 'lucide-react';
 import Link from 'next/link';
 
 interface Product {
@@ -59,7 +78,7 @@ const storeData: Product[] = [
     description: 'Premium account with exclusive items and unlocked features',
     image: '/store/rc24-id.jpg',
     tags: ['Digital', 'Limited'],
-    icon: <Cricket size={40} className="text-purple-400" />
+    icon: <Star size={40} className="text-purple-400" />
   },
   {
     id: 'all-in-one-checker',
