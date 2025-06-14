@@ -199,6 +199,7 @@ export default function StorePage() {
   const [viewHistory, setViewHistory] = useState(false);
   const [selectedModProduct, setSelectedModProduct] = useState<Product | null>(null);
   const [selectedModItem, setSelectedModItem] = useState<ModMenuItem | null>(null);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   useEffect(() => {
     const savedCart = localStorage.getItem('sx-store-cart');
@@ -327,6 +328,7 @@ export default function StorePage() {
     setReceiptData(receipt);
     setReceiptHistory(prev => [receipt, ...prev]);
     setCart([]);
+    setAcceptedTerms(false);
   };
 
   const copyReceiptToClipboard = () => {
@@ -592,7 +594,7 @@ export default function StorePage() {
                             <li key={item.id + (item.selectedModItem?.id ?? '')} className="py-6 flex">
                               <div className={`h-16 w-16 flex-shrink-0 rounded-md overflow-hidden ${
                                 item.selectedModItem 
-                                  ? `bg-gradient-to-r ${item.selectedModItem.color}`
+                                  ? `border-transparent bg-gradient-to-r ${item.selectedModItem.color} shadow-lg`
                                   : 'bg-gray-700'
                               }`}>
                                 <div className="h-full w-full flex items-center justify-center text-white">
@@ -706,13 +708,43 @@ export default function StorePage() {
                         </div>
                       </div>
                     ) : (
-                      <button
-                        onClick={generateReceipt}
-                        className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded transition"
-                        disabled={subtotal <= 0}
-                      >
-                        Proceed to Checkout
-                      </button>
+                      <div className="space-y-4">
+                        <div className="flex items-start">
+                          <input
+                            type="checkbox"
+                            id="accept-terms"
+                            checked={acceptedTerms}
+                            onChange={(e) => setAcceptedTerms(e.target.checked)}
+                            className="mt-1 mr-2"
+                          />
+                          <label htmlFor="accept-terms" className="text-sm text-gray-300">
+                            I agree to the{' '}
+                            <Link href="/terms" className="text-purple-400 hover:underline" target="_blank">
+                              Terms & Conditions
+                            </Link>
+                            ,{' '}
+                            <Link href="/privacy" className="text-purple-400 hover:underline" target="_blank">
+                              Privacy Policy
+                            </Link>
+                            , and{' '}
+                            <Link href="/refund" className="text-purple-400 hover:underline" target="_blank">
+                              Refund Policy
+                            </Link>
+                            . I understand all purchases are final and non-refundable.
+                          </label>
+                        </div>
+                        <button
+                          onClick={generateReceipt}
+                          className={`w-full text-white font-bold py-3 px-4 rounded transition ${
+                            subtotal <= 0 || !acceptedTerms
+                              ? 'bg-gray-600 cursor-not-allowed'
+                              : 'bg-purple-600 hover:bg-purple-700'
+                          }`}
+                          disabled={subtotal <= 0 || !acceptedTerms}
+                        >
+                          Proceed to Checkout
+                        </button>
+                      </div>
                     )}
                   </div>
                 )}
