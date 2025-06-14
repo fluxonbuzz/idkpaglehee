@@ -22,6 +22,7 @@ import {
   Gem,
   Zap,
   Activity,
+  Instagram,
 } from "lucide-react";
 import Link from "next/link";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
@@ -102,6 +103,12 @@ const socialLinks = [
     href: "https://youtube.com/@shivaxmods",
     color: "bg-red-600 hover:bg-red-700",
     icon: ScanEye,
+  },
+  {
+    name: "Instagram",
+    href: "https://instagram.com/shivaxmods",
+    color: "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600",
+    icon: Instagram,
   },
 ];
 
@@ -244,47 +251,47 @@ export default function Home() {
                 </button>
               </div>
               <nav className="flex flex-col p-6 space-y-4">
-  <Link
-    href="/"
-    className="px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium"
-    onClick={() => setSidebarOpen(false)}
-  >
-    Home
-  </Link>
-  <Link
-    href="/downloads"
-    className="px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium"
-    onClick={() => setSidebarOpen(false)}
-  >
-    Mods
-  </Link>
-  <Link
-    href="/store"
-    className="px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium"
-    onClick={() => setSidebarOpen(false)}
-  >
-    Store
-  </Link>
-  <Link
-    href="/community"
-    className="px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium"
-    onClick={() => setSidebarOpen(false)}
-  >
-    Community
-  </Link>
-  <Link
-    href="/status"
-    className="px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium"
-    onClick={() => setSidebarOpen(false)}
-  >
-    Status
-  </Link>
-  <div className="pt-4 mt-4 border-t border-gray-800">
-    <Button className="w-full bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-600 hover:to-cyan-700">
-      Join Discord
-    </Button>
-  </div>
-</nav>
+                <Link
+                  href="/"
+                  className="px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium"
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  Home
+                </Link>
+                <Link
+                  href="/downloads"
+                  className="px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium"
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  Mods
+                </Link>
+                <Link
+                  href="/store"
+                  className="px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium"
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  Store
+                </Link>
+                <Link
+                  href="/community"
+                  className="px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium"
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  Community
+                </Link>
+                <Link
+                  href="/status"
+                  className="px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium"
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  Status
+                </Link>
+                <div className="pt-4 mt-4 border-t border-gray-800">
+                  <Button className="w-full bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-600 hover:to-cyan-700">
+                    Join Discord
+                  </Button>
+                </div>
+              </nav>
             </motion.div>
           </>
         )}
@@ -639,7 +646,7 @@ export default function Home() {
               </motion.p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
               {socialLinks.map((social, index) => (
                 <motion.div
                   key={social.name}
@@ -781,6 +788,14 @@ export default function Home() {
                   className="text-gray-400 hover:text-emerald-400 transition-colors"
                 >
                   <ScanEye className="h-5 w-5" />
+                </Link>
+                <Link
+                  href="https://instagram.com/shivaxmods"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-400 hover:text-emerald-400 transition-colors"
+                >
+                  <Instagram className="h-5 w-5" />
                 </Link>
               </div>
             </div>
