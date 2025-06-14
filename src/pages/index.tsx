@@ -233,7 +233,7 @@ export default function Home() {
                     <Zap className="h-5 w-5 text-gray-950" />
                   </div>
                   <span className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-500 bg-clip-text text-transparent">
-                    SHIVA X
+                    SHIVA X MODS
                   </span>
                 </Link>
                 <button
@@ -244,50 +244,47 @@ export default function Home() {
                 </button>
               </div>
               <nav className="flex flex-col p-6 space-y-4">
-                <Link
-                  href="/"
-                  className="px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium"
-                  onClick={() => setSidebarOpen(false)}
-                >
-                  Home
-                </Link>
-                <Link
-                  href="/downloads"
-                  className="px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium"
-                  onClick={() => setSidebarOpen(false)}
-                >
-                  Mods
-                </Link>
-                <Link
-                  href="/store"
-                  className="px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium"
-                  onClick={() => setSidebarOpen(false)}
-                >
-                  Store
-                </Link>
-                <Link
-                  href="/community"
-                  className="px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium"
-                  onClick={() => setSidebarOpen(false)}
-                >
-                  Community
-                </Link>
-                <Link
-                  href="/status"
-                  className="px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium"
-                  onClick={() => setSidebarOpen(false)}
-                >
-                  <div className="flex items-center">
-                    <Activity className="h-5 w-5 mr-3" />
-                    Status
-                  </div>
-                </Link>
-                <div className="pt-4 mt-4 border-t border-gray-800">
-                  <Button className="w-full bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-600 hover:to-cyan-700">
-                    Join Discord
-                  </Button>
-                </div>
-              </nav>
+  <Link
+    href="/"
+    className="px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium"
+    onClick={() => setSidebarOpen(false)}
+  >
+    Home
+  </Link>
+  <Link
+    href="/downloads"
+    className="px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium"
+    onClick={() => setSidebarOpen(false)}
+  >
+    Mods
+  </Link>
+  <Link
+    href="/store"
+    className="px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium"
+    onClick={() => setSidebarOpen(false)}
+  >
+    Store
+  </Link>
+  <Link
+    href="/community"
+    className="px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium"
+    onClick={() => setSidebarOpen(false)}
+  >
+    Community
+  </Link>
+  <Link
+    href="/status"
+    className="px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium"
+    onClick={() => setSidebarOpen(false)}
+  >
+    Status
+  </Link>
+  <div className="pt-4 mt-4 border-t border-gray-800">
+    <Button className="w-full bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-600 hover:to-cyan-700">
+      Join Discord
+    </Button>
+  </div>
+</nav>
             </motion.div>
           </>
         )}
