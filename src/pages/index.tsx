@@ -21,6 +21,7 @@ import {
   Rocket,
   Gem,
   Zap,
+  Activity,
 } from "lucide-react";
 import Link from "next/link";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
@@ -34,12 +35,12 @@ const modStats = [
 
 const featuredMods = [
   {
-    title: "Crick Fusion X",
-    description: "Next-gen cricket experience with enhanced physics, 4K textures, and new gameplay modes",
+    title: "Premium Game Mod",
+    description: "Next-gen gaming experience with enhanced physics, 4K textures, and new gameplay modes",
     version: "V2.5",
     status: "available",
-    tags: ["HD Graphics", "Multiplayer", "New Teams"],
-    image: "/assets/fusionx.png",
+    tags: ["HD Graphics", "Multiplayer", "New Features"],
+    image: "/assets/mod-preview.png",
     href: "/downloads",
   },
 ];
@@ -64,7 +65,7 @@ const modFeatures = [
     color: "text-green-400",
   },
   {
-    feature: "Mod Creator",
+    feature: "Secure Mods",
     description: "Built-in protection for fair gameplay",
     icon: ShieldCheck,
     color: "text-yellow-400",
@@ -271,6 +272,16 @@ export default function Home() {
                 >
                   Community
                 </Link>
+                <Link
+                  href="/status"
+                  className="px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium"
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  <div className="flex items-center">
+                    <Activity className="h-5 w-5 mr-3" />
+                    Status
+                  </div>
+                </Link>
                 <div className="pt-4 mt-4 border-t border-gray-800">
                   <Button className="w-full bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-600 hover:to-cyan-700">
                     Join Discord
@@ -314,7 +325,7 @@ export default function Home() {
                   Next-Level
                 </span>{" "}
                 <br />
-                Cricket Mods
+                Game Mods
               </motion.h1>
 
               <motion.p
@@ -324,7 +335,7 @@ export default function Home() {
                 className="text-xl text-gray-400 max-w-2xl mx-auto mb-10"
               >
                 <TypeWriter texts={[
-                  "Enhance your cricket experience",
+                  "Enhance your gaming experience",
                   "Ultra HD textures & effects",
                   "Advanced gameplay mechanics",
                   "Exclusive premium content"
@@ -423,7 +434,7 @@ export default function Home() {
                 className="text-4xl md:text-5xl font-bold mb-4"
               >
                 <span className="bg-gradient-to-r from-emerald-400 to-cyan-500 bg-clip-text text-transparent">
-                  Cricket Fusion X
+                  Premium Game Mod
                 </span>
               </motion.h2>
               <motion.p
@@ -433,7 +444,7 @@ export default function Home() {
                 viewport={{ once: true }}
                 className="text-lg text-gray-400"
               >
-                The ultimate cricket modification experience
+                The ultimate gaming modification experience
               </motion.p>
             </div>
 
@@ -509,7 +520,7 @@ export default function Home() {
               >
                 Why Choose{" "}
                 <span className="bg-gradient-to-r from-emerald-400 to-cyan-500 bg-clip-text text-transparent">
-                  Cricket Fusion X?
+                  Our Mods?
                 </span>
               </motion.h2>
               <motion.p
@@ -519,7 +530,7 @@ export default function Home() {
                 viewport={{ once: true }}
                 className="text-lg text-gray-400"
               >
-                Experience cricket like never before with our cutting-edge modifications
+                Experience gaming like never before with our cutting-edge modifications
               </motion.p>
             </div>
 
@@ -563,7 +574,7 @@ export default function Home() {
                 <span className="bg-gradient-to-r from-emerald-400 to-cyan-500 bg-clip-text text-transparent">
                   Transform
                 </span>{" "}
-                Your Cricket Game?
+                Your Gaming Experience?
               </motion.h2>
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
@@ -572,7 +583,7 @@ export default function Home() {
                 viewport={{ once: true }}
                 className="text-lg text-gray-400 max-w-2xl mx-auto mb-8"
               >
-                Join thousands of players who have already enhanced their cricket experience
+                Join thousands of players who have already enhanced their gaming experience
               </motion.p>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -671,7 +682,7 @@ export default function Home() {
                 </span>
               </Link>
               <p className="text-gray-400 text-sm">
-                The ultimate cricket modification experience
+                The ultimate gaming modification experience
               </p>
             </div>
 
@@ -688,7 +699,7 @@ export default function Home() {
                 </li>
                 <li>
                   <Link
-                    href="/mods"
+                    href="/downloads"
                     className="text-gray-400 hover:text-emerald-400 transition-colors text-sm"
                   >
                     Mods
@@ -708,6 +719,14 @@ export default function Home() {
                     className="text-gray-400 hover:text-emerald-400 transition-colors text-sm"
                   >
                     Community
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/status"
+                    className="text-gray-400 hover:text-emerald-400 transition-colors text-sm"
+                  >
+                    Status
                   </Link>
                 </li>
               </ul>
