@@ -686,7 +686,7 @@ export default function Home() {
                   <Zap className="h-5 w-5 text-gray-950" />
                 </div>
                 <span className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-500 bg-clip-text text-transparent">
-                  SHIVA X
+                  SHIVA X MODS
                 </span>
               </Link>
               <p className="text-gray-400 text-sm">
