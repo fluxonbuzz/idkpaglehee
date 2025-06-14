@@ -96,7 +96,7 @@ export default function RefundPage() {
                     <strong>Manual Delivery</strong> products require 24-48 hours processing time
                   </li>
                   <li>
-                    In rare cases, delivery may take up to <strong>1 week</strong> during high demand
+                    In rare cases, delivery may take up to <strong>weeks</strong> during high demand
                   </li>
                   <li>
                     <strong>No refunds</strong> will be issued for delivery delays
