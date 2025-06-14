@@ -107,6 +107,15 @@ const storeData: Product[] = [
     image: '/store/shots-checker.jpg',
     tags: ['Tool', 'Instant Delivery', 'New']
   },
+{
+    id: 'rc24-swap-id',
+    title: 'Real Cricket Swap ID',
+    price: 130,
+    originalPrice: 300,
+    description: 'Premium account with exclusive items and unlocked features',
+    image: '/store/rc24-id.jpg',
+    tags: ['Digital', 'Limited']
+  },
   {
     id: 'mod-menus',
     title: 'Premium Mod Menus',
