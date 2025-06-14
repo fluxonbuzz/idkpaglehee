@@ -157,14 +157,14 @@ const sellers: Seller[] = [
     id: 'd4vd',
     name: 'd4vd',
     role: 'Co-Owner',
-    avatar: '/store/d4vd-avatar.jpg',
+    avatar: '/assets/d4vd-avatar.jpg',
     telegram: 'https://t.me/lyastral'
   },
   {
     id: 'shiva',
     name: 'Shiva',
     role: 'Owner',
-    avatar: '/store/shiva-avatar.jpg',
+    avatar: '/assets/shiva-avatar.jpg',
     telegram: 'https://t.me/shivaxd42'
   }
 ];
