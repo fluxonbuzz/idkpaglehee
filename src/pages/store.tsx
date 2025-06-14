@@ -53,7 +53,7 @@ const storeData: Product[] = [
   {
     id: 'rc24-id',
     title: 'Real Cricket 24 ID',
-    price: 130,
+    price: 250,
     originalPrice: 300,
     description: 'Premium account with exclusive items and unlocked features',
     image: '/store/rc24-id.jpg',
