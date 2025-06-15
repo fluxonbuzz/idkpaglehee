@@ -61,7 +61,6 @@ interface DiscountCode {
 }
 
 const storeData: Product[] = [
- const storeData: Product[] = [
   {
     id: 'rc24-id-level20',
     title: 'RC24 ID (Level 20)',
