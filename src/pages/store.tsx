@@ -61,6 +61,47 @@ interface DiscountCode {
 }
 
 const storeData: Product[] = [
+ const storeData: Product[] = [
+  {
+    id: 'rc24-id-level20',
+    title: 'RC24 ID (Level 20)',
+    price: 30,
+    originalPrice: 50,
+    description: 'Real Cricket 24 account with level 20 progression',
+    image: '/store/rc24-id.jpg',
+    tags: ['Digital', 'Limited', 'Discount'],
+    category: 'Accounts'
+  },
+  {
+    id: 'rc24-id-level50',
+    title: 'RC24 ID (Level 50)',
+    price: 50,
+    originalPrice: 80,
+    description: 'Real Cricket 24 account with level 50 progression',
+    image: '/store/rc24-id.jpg',
+    tags: ['Digital', 'Limited', 'Discount'],
+    category: 'Accounts'
+  },
+  {
+    id: 'rc24-id-level85',
+    title: 'RC24 ID (Level 85)',
+    price: 100,
+    originalPrice: 150,
+    description: 'Real Cricket 24 account with level 85 progression',
+    image: '/store/rc24-id.jpg',
+    tags: ['Digital', 'Limited', 'Discount'],
+    category: 'Accounts'
+  },
+  {
+    id: 'rc24-id-level100',
+    title: 'RC24 ID (Level 100)',
+    price: 130,
+    originalPrice: 200,
+    description: 'Real Cricket 24 premium account with max level 100',
+    image: '/store/rc24-id.jpg',
+    tags: ['Digital', 'Limited', 'Discount'],
+    category: 'Accounts'
+  },
   {
     id: 'rc24-id',
     title: 'Real Cricket 24 ID',
