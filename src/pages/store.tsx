@@ -102,16 +102,6 @@ const storeData: Product[] = [
     category: 'Accounts'
   },
   {
-    id: 'rc24-id',
-    title: 'Real Cricket 24 ID',
-    price: 120,
-    originalPrice: 300,
-    description: 'Premium account with exclusive items and unlocked features',
-    image: '/store/rc24-id.jpg',
-    tags: ['Digital', 'Limited'],
-    category: 'Accounts'
-  },
-  {
     id: 'all-in-one-checker',
     title: 'All-in-One Checker',
     price: 80,
