@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ShoppingCart, Tag, Star, ShieldCheck, Send, History, Search, AlertTriangle, ChevronDown, ChevronUp, Check } from 'lucide-react';
+import { ShoppingCart, Tag, Star, ShieldCheck, Send, History, Search, AlertTriangle, ChevronDown, ChevronUp, Check, X } from 'lucide-react';
 import Link from 'next/link';
 
 interface Product {
@@ -10,6 +10,7 @@ interface Product {
   description: string;
   image: string;
   tags: string[];
+  category: string;
   modMenuItems?: ModMenuItem[];
 }
 
@@ -37,6 +38,8 @@ interface ReceiptData {
   date: string;
   items: ReceiptItem[];
   total: number;
+  discountAmount?: number;
+  discountCode?: string;
   transactionId: string;
   status: 'pending' | 'completed';
 }
@@ -49,6 +52,14 @@ interface Seller {
   telegram: string;
 }
 
+interface DiscountCode {
+  code: string;
+  discountType: 'percentage' | 'fixed';
+  value: number;
+  minPurchase?: number;
+  validUntil?: Date;
+}
+
 const storeData: Product[] = [
   {
     id: 'rc24-id',
@@ -57,7 +68,8 @@ const storeData: Product[] = [
     originalPrice: 300,
     description: 'Premium account with exclusive items and unlocked features',
     image: '/store/rc24-id.jpg',
-    tags: ['Digital', 'Limited']
+    tags: ['Digital', 'Limited'],
+    category: 'Accounts'
   },
   {
     id: 'all-in-one-checker',
@@ -65,7 +77,8 @@ const storeData: Product[] = [
     price: 80,
     description: 'Comprehensive tool for verifying jerseys, helmets, bats and more across all games',
     image: '/store/checker.jpg',
-    tags: ['Tool', 'Instant Delivery']
+    tags: ['Tool', 'Instant Delivery'],
+    category: 'Tools'
   },
   {
     id: 'rc20-legends',
@@ -73,7 +86,8 @@ const storeData: Product[] = [
     price: 70,
     description: 'Unlock exclusive hero legends pack with rare players',
     image: '/store/rc20-legends.jpg',
-    tags: ['DLC', 'Popular']
+    tags: ['DLC', 'Popular'],
+    category: 'DLC'
   },
   {
     id: 'boundary-hoarding-checker',
@@ -81,7 +95,8 @@ const storeData: Product[] = [
     price: 70,
     description: 'Professional tool for verifying boundary hoardings in Real Cricket games',
     image: '/store/hoarding-checker.jpg',
-    tags: ['Tool', 'Instant Delivery']
+    tags: ['Tool', 'Instant Delivery'],
+    category: 'Tools'
   },
   {
     id: 'netflix-premium',
@@ -89,7 +104,8 @@ const storeData: Product[] = [
     price: 100,
     description: '1-month premium account with 4K UHD streaming and multiple screens',
     image: '/store/netflix.jpg',
-    tags: ['Digital', 'Popular']
+    tags: ['Digital', 'Popular'],
+    category: 'Accounts'
   },
   {
     id: 'squad-editor',
@@ -97,7 +113,8 @@ const storeData: Product[] = [
     price: 100,
     description: 'Advanced squad editing tool for all Real Cricket games',
     image: '/store/squad-editor.jpg',
-    tags: ['Tool', 'Instant Delivery']
+    tags: ['Tool', 'Instant Delivery'],
+    category: 'Tools'
   },
   {
     id: 'shots-checker',
@@ -105,25 +122,28 @@ const storeData: Product[] = [
     price: 120,
     description: 'Complete shots verification tool for Real Cricket series',
     image: '/store/shots-checker.jpg',
-    tags: ['Tool', 'Instant Delivery', 'New']
+    tags: ['Tool', 'Instant Delivery', 'New'],
+    category: 'Tools'
   },
-{
+  {
     id: 'rc24-swap-id',
     title: 'Real Cricket Swap ID',
     price: 130,
     originalPrice: 300,
     description: 'Premium account with exclusive items and unlocked features',
     image: '/store/rc24-id.jpg',
-    tags: ['Digital', 'Limited']
+    tags: ['Digital', 'Limited'],
+    category: 'Accounts'
   },
-   {
+  {
     id: 'website',
     title: 'Custom webpage',
     price: 100,
     originalPrice: 2500,
     description: 'Premium website with hosting starting from 100RS per page',
     image: '/store/rc24-id.jpg',
-    tags: ['Digital', 'Custom']
+    tags: ['Digital', 'Custom'],
+    category: 'Services'
   },
   {
     id: 'mod-menus',
@@ -132,6 +152,7 @@ const storeData: Product[] = [
     description: 'Advanced modification menus for popular mobile games with regular updates',
     image: '/store/mod-menus.jpg',
     tags: ['Digital', 'Instant Delivery', 'Exclusive'],
+    category: 'Mods',
     modMenuItems: [
       {
         id: 'among-us',
@@ -178,6 +199,44 @@ const sellers: Seller[] = [
   }
 ];
 
+const discountCodes: DiscountCode[] = [
+  {
+    code: 'WELCOME10',
+    discountType: 'percentage',
+    value: 10,
+    minPurchase: 100,
+    validUntil: new Date('2024-12-31')
+  },
+  {
+    code: 'SX20',
+    discountType: 'percentage',
+    value: 20,
+    minPurchase: 200,
+    validUntil: new Date('2024-12-31')
+  },
+  {
+    code: 'SAVE50',
+    discountType: 'fixed',
+    value: 50,
+    minPurchase: 250,
+    validUntil: new Date('2024-12-31')
+  }
+];
+
+const categories = [
+  'All',
+  ...Array.from(new Set(storeData.map(product => product.category)))
+];
+
+const sortOptions = [
+  { value: 'default', label: 'Default' },
+  { value: 'price-asc', label: 'Price: Low to High' },
+  { value: 'price-desc', label: 'Price: High to Low' },
+  { value: 'name-asc', label: 'Name: A to Z' },
+  { value: 'name-desc', label: 'Name: Z to A' },
+  { value: 'discount', label: 'Best Discount' }
+];
+
 function isCartItem(item: unknown): item is CartItem {
   if (typeof item !== 'object' || item === null) return false;
   
@@ -191,7 +250,8 @@ function isCartItem(item: unknown): item is CartItem {
     typeof cartItem.description === 'string' &&
     typeof cartItem.image === 'string' &&
     Array.isArray(cartItem.tags) &&
-    cartItem.tags.every((tag: unknown) => typeof tag === 'string')
+    cartItem.tags.every((tag: unknown) => typeof tag === 'string') &&
+    typeof cartItem.category === 'string'
   );
 }
 
@@ -218,6 +278,13 @@ export default function StorePage() {
   const [selectedModProduct, setSelectedModProduct] = useState<Product | null>(null);
   const [selectedModItem, setSelectedModItem] = useState<ModMenuItem | null>(null);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [discountCode, setDiscountCode] = useState('');
+  const [appliedDiscount, setAppliedDiscount] = useState<DiscountCode | null>(null);
+  const [discountError, setDiscountError] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [sortOption, setSortOption] = useState('default');
+  const [showCategories, setShowCategories] = useState(false);
+  const [showSortOptions, setShowSortOptions] = useState(false);
 
   useEffect(() => {
     const savedCart = localStorage.getItem('sx-store-cart');
@@ -327,7 +394,55 @@ export default function StorePage() {
     return cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   };
 
+  const calculateDiscount = (subtotal: number) => {
+    if (!appliedDiscount) return 0;
+    
+    if (appliedDiscount.discountType === 'percentage') {
+      return subtotal * (appliedDiscount.value / 100);
+    } else {
+      return appliedDiscount.value;
+    }
+  };
+
+  const applyDiscountCode = () => {
+    setDiscountError('');
+    const code = discountCode.trim().toUpperCase();
+    
+    if (!code) {
+      setDiscountError('Please enter a discount code');
+      return;
+    }
+    
+    const validCode = discountCodes.find(dc => 
+      dc.code === code && 
+      (!dc.validUntil || new Date(dc.validUntil) > new Date())
+    );
+    
+    if (!validCode) {
+      setDiscountError('Invalid or expired discount code');
+      return;
+    }
+    
+    const subtotal = calculateSubtotal();
+    if (validCode.minPurchase && subtotal < validCode.minPurchase) {
+      setDiscountError(`Minimum purchase of ₹${validCode.minPurchase} required`);
+      return;
+    }
+    
+    setAppliedDiscount(validCode);
+    setDiscountCode('');
+  };
+
+  const removeDiscount = () => {
+    setAppliedDiscount(null);
+    setDiscountError('');
+  };
+
   const generateReceipt = () => {
+    const subtotal = calculateSubtotal();
+    const discountAmount = appliedDiscount ? calculateDiscount(subtotal) : 0;
+    const total = subtotal - discountAmount;
+    
     const receipt: ReceiptData = {
       date: new Date().toLocaleString(),
       items: cart.map(item => ({
@@ -339,13 +454,17 @@ export default function StorePage() {
         quantity: item.quantity,
         selectedModItem: item.selectedModItem ?? undefined
       })),
-      total: calculateSubtotal(),
+      total: total,
+      discountAmount: discountAmount,
+      discountCode: appliedDiscount?.code,
       transactionId: `SX-${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
       status: 'pending'
     };
+    
     setReceiptData(receipt);
     setReceiptHistory(prev => [receipt, ...prev]);
     setCart([]);
+    setAppliedDiscount(null);
     setAcceptedTerms(false);
   };
 
@@ -362,6 +481,10 @@ export default function StorePage() {
       ${receiptData.items.map(item => `
       - ${item.title} x${item.quantity}: ₹${item.price * item.quantity}
       `).join('')}
+      
+      ${receiptData.discountCode ? `
+      DISCOUNT (${receiptData.discountCode}): -₹${receiptData.discountAmount}
+      ` : ''}
       
       TOTAL: ₹${receiptData.total}
       
@@ -401,8 +524,37 @@ export default function StorePage() {
     )
   );
 
+  const filteredProducts = storeData.filter(product => {
+    const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
+    const matchesSearch = product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+    return matchesCategory && matchesSearch;
+  });
+
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    switch (sortOption) {
+      case 'price-asc':
+        return a.price - b.price;
+      case 'price-desc':
+        return b.price - a.price;
+      case 'name-asc':
+        return a.title.localeCompare(b.title);
+      case 'name-desc':
+        return b.title.localeCompare(a.title);
+      case 'discount':
+        const discountA = a.originalPrice ? (a.originalPrice - a.price) / a.originalPrice : 0;
+        const discountB = b.originalPrice ? (b.originalPrice - b.price) / b.originalPrice : 0;
+        return discountB - discountA;
+      default:
+        return 0;
+    }
+  });
+
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = calculateSubtotal();
+  const discountAmount = appliedDiscount ? calculateDiscount(subtotal) : 0;
+  const total = subtotal - discountAmount;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
@@ -467,52 +619,128 @@ export default function StorePage() {
           </div>
         </section>
 
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {storeData.map(product => (
-            <div key={product.id} className="bg-gray-800 rounded-xl overflow-hidden border border-gray-700 hover:border-purple-400 transition-all hover:shadow-lg hover:shadow-purple-500/10">
-              <div className="h-48 bg-gray-700 relative overflow-hidden">
-                <div className="absolute inset-0 flex items-center justify-center text-gray-400">
-                  <span className="text-lg">SX Product</span>
-                </div>
-                {product.originalPrice && (
-                  <div className="absolute top-4 left-4 bg-purple-500 text-xs font-bold px-2 py-1 rounded">
-                    {Math.round((1 - product.price / product.originalPrice) * 100)}% OFF
-                  </div>
-                )}
-              </div>
-              <div className="p-5">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="text-xl font-bold">{product.title}</h3>
-                  <div className="text-right">
-                    {product.modMenuItems ? (
-                      <span className="text-sm text-gray-400">Starting at ₹{Math.min(...product.modMenuItems.map(i => i.price))}</span>
-                    ) : (
-                      <>
-                        <span className="text-2xl font-bold text-purple-400">₹{product.price}</span>
-                        {product.originalPrice && (
-                          <span className="block text-sm text-gray-400 line-through">₹{product.originalPrice}</span>
-                        )}
-                      </>
-                    )}
-                  </div>
-                </div>
-                <p className="text-gray-300 mb-4">{product.description}</p>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {product.tags.map(tag => (
-                    <span key={tag} className="text-xs bg-gray-700 px-2 py-1 rounded">
-                      {tag}
-                    </span>
+        <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <div className="relative flex-1">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search className="text-gray-400" size={20} />
+            </div>
+            <input
+              type="text"
+              placeholder="Search products..."
+              className="w-full pl-10 pr-4 py-2 bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          
+          <div className="flex gap-2">
+            <div className="relative">
+              <button 
+                onClick={() => setShowCategories(!showCategories)}
+                className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg transition"
+              >
+                {selectedCategory}
+                {showCategories ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              </button>
+              {showCategories && (
+                <div className="absolute z-10 mt-1 w-48 bg-gray-800 rounded-lg shadow-lg border border-gray-700">
+                  {categories.map(category => (
+                    <button
+                      key={category}
+                      onClick={() => {
+                        setSelectedCategory(category);
+                        setShowCategories(false);
+                      }}
+                      className={`block w-full text-left px-4 py-2 hover:bg-gray-700 ${category === selectedCategory ? 'bg-purple-600/50' : ''}`}
+                    >
+                      {category}
+                    </button>
                   ))}
                 </div>
-                <button
-                  onClick={() => addToCart(product)}
-                  className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded transition flex items-center justify-center gap-2"
-                >
-                  <ShoppingCart size={18} /> {product.modMenuItems ? 'Select Options' : 'Add to Cart'}
-                </button>
-              </div>
+              )}
             </div>
-          ))}
+            
+            <div className="relative">
+              <button 
+                onClick={() => setShowSortOptions(!showSortOptions)}
+                className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg transition"
+              >
+                {sortOptions.find(opt => opt.value === sortOption)?.label || 'Sort'}
+                {showSortOptions ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              </button>
+              {showSortOptions && (
+                <div className="absolute z-10 right-0 mt-1 w-48 bg-gray-800 rounded-lg shadow-lg border border-gray-700">
+                  {sortOptions.map(option => (
+                    <button
+                      key={option.value}
+                      onClick={() => {
+                        setSortOption(option.value);
+                        setShowSortOptions(false);
+                      }}
+                      className={`block w-full text-left px-4 py-2 hover:bg-gray-700 ${option.value === sortOption ? 'bg-purple-600/50' : ''}`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+          {sortedProducts.length > 0 ? (
+            sortedProducts.map(product => (
+              <div key={product.id} className="bg-gray-800 rounded-xl overflow-hidden border border-gray-700 hover:border-purple-400 transition-all hover:shadow-lg hover:shadow-purple-500/10">
+                <div className="h-48 bg-gray-700 relative overflow-hidden">
+                  <div className="absolute inset-0 flex items-center justify-center text-gray-400">
+                    <span className="text-lg">SX Product</span>
+                  </div>
+                  {product.originalPrice && (
+                    <div className="absolute top-4 left-4 bg-purple-500 text-xs font-bold px-2 py-1 rounded">
+                      {Math.round((1 - product.price / product.originalPrice) * 100)}% OFF
+                    </div>
+                  )}
+                </div>
+                <div className="p-5">
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="text-xl font-bold">{product.title}</h3>
+                    <div className="text-right">
+                      {product.modMenuItems ? (
+                        <span className="text-sm text-gray-400">Starting at ₹{Math.min(...product.modMenuItems.map(i => i.price))}</span>
+                      ) : (
+                        <>
+                          <span className="text-2xl font-bold text-purple-400">₹{product.price}</span>
+                          {product.originalPrice && (
+                            <span className="block text-sm text-gray-400 line-through">₹{product.originalPrice}</span>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <p className="text-gray-300 mb-4">{product.description}</p>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {product.tags.map(tag => (
+                      <span key={tag} className="text-xs bg-gray-700 px-2 py-1 rounded">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => addToCart(product)}
+                    className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded transition flex items-center justify-center gap-2"
+                  >
+                    <ShoppingCart size={18} /> {product.modMenuItems ? 'Select Options' : 'Add to Cart'}
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="col-span-full text-center py-12">
+              <Search size={48} className="mx-auto text-gray-600 mb-4" />
+              <p className="text-gray-400">No products found matching your search</p>
+            </div>
+          )}
         </section>
 
         <section className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl p-6 mb-12">
@@ -661,14 +889,64 @@ export default function StorePage() {
 
                 {cart.length > 0 && (
                   <div className="border-t border-gray-700 p-6">
+                    {!receiptData && !appliedDiscount && (
+                      <div className="mb-4">
+                        <div className="flex gap-2 mb-2">
+                          <input
+                            type="text"
+                            placeholder="Discount code"
+                            className="flex-1 px-3 py-2 bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            value={discountCode}
+                            onChange={(e) => setDiscountCode(e.target.value)}
+                          />
+                          <button
+                            onClick={applyDiscountCode}
+                            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg"
+                          >
+                            Apply
+                          </button>
+                        </div>
+                        {discountError && (
+                          <p className="text-red-400 text-sm">{discountError}</p>
+                        )}
+                      </div>
+                    )}
+
+                    {appliedDiscount && !receiptData && (
+                      <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3 mb-4 flex justify-between items-center">
+                        <div>
+                          <div className="font-medium text-green-400">
+                            Discount Applied: {appliedDiscount.code}
+                          </div>
+                          <div className="text-sm text-green-300">
+                            {appliedDiscount.discountType === 'percentage' 
+                              ? `${appliedDiscount.value}% off`
+                              : `₹${appliedDiscount.value} off`}
+                          </div>
+                        </div>
+                        <button 
+                          onClick={removeDiscount}
+                          className="text-green-300 hover:text-green-200"
+                        >
+                          <X size={18} />
+                        </button>
+                      </div>
+                    )}
+
                     <div className="space-y-2 mb-4">
                       <div className="flex justify-between">
                         <span>Subtotal</span>
                         <span>₹{subtotal}</span>
                       </div>
+                      {appliedDiscount && (
+                        <div className="flex justify-between text-green-400">
+                          <span>Discount ({appliedDiscount.code})</span>
+                          <span>-₹{discountAmount}</span>
+                        </div>
+                      )}
                       <div className="flex justify-between text-lg font-bold border-t border-gray-700 pt-2">
                         <span>Total</span>
-                        <span>₹{subtotal}</span>
+                        <span>₹{total}</span>
                       </div>
                     </div>
 
@@ -754,11 +1032,11 @@ export default function StorePage() {
                         <button
                           onClick={generateReceipt}
                           className={`w-full text-white font-bold py-3 px-4 rounded transition ${
-                            subtotal <= 0 || !acceptedTerms
+                            total <= 0 || !acceptedTerms
                               ? 'bg-gray-600 cursor-not-allowed'
                               : 'bg-purple-600 hover:bg-purple-700'
                           }`}
-                          disabled={subtotal <= 0 || !acceptedTerms}
+                          disabled={total <= 0 || !acceptedTerms}
                         >
                           Proceed to Checkout
                         </button>
@@ -910,6 +1188,12 @@ export default function StorePage() {
                           <span>Items:</span>
                           <span>{receipt.items.reduce((sum, item) => sum + item.quantity, 0)}</span>
                         </div>
+                        {receipt.discountCode && (
+                          <div className="flex justify-between text-sm text-green-400">
+                            <span>Discount ({receipt.discountCode}):</span>
+                            <span>-₹{receipt.discountAmount}</span>
+                          </div>
+                        )}
                         <div className="flex justify-between text-sm font-bold">
                           <span>Total:</span>
                           <span>₹{receipt.total}</span>
