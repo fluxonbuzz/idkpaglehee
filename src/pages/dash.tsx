@@ -27,6 +27,28 @@ export default function PaymentsPage() {
   const totalRevenue = paymentData.reduce((sum, item) => item.status === 'completed' ? sum + item.price : sum, 0);
   const pendingAmount = paymentData.reduce((sum, item) => item.status === 'pending' ? sum + item.price : sum, 0);
 
+  // Function to export data as CSV
+  const exportToCSV = () => {
+    // CSV header
+    let csv = 'Customer,Product,Price,Date,Status\n';
+    
+    // Add data rows
+    paymentData.forEach(item => {
+      csv += `"${item.customer}","${item.product}",${item.price},"${item.date}","${item.status}"\n`;
+    });
+
+    // Create download link
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `payments_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className={`min-h-screen transition-colors ${darkMode ? 'bg-gradient-to-br from-gray-900 to-gray-800 text-white' : 'bg-gray-50 text-gray-900'}`}>
       {/* Header */}
@@ -124,7 +146,7 @@ export default function PaymentsPage() {
           </div>
         </section>
 
-        {/* Revenue Summary Section (replacing charts) */}
+        {/* Revenue Summary Section */}
         <section className="mb-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Monthly Revenue Summary */}
@@ -182,7 +204,10 @@ export default function PaymentsPage() {
           <div className={`rounded-xl overflow-hidden ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border shadow`}>
             <div className={`p-6 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'} flex justify-between items-center`}>
               <h2 className="text-xl font-bold">Payment Details</h2>
-              <button className={`px-4 py-2 rounded-md text-sm font-medium flex items-center ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'}`}>
+              <button 
+                onClick={exportToCSV}
+                className={`px-4 py-2 rounded-md text-sm font-medium flex items-center ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'}`}
+              >
                 <Download size={16} className="mr-2" /> Export CSV
               </button>
             </div>
