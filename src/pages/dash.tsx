@@ -1,9 +1,7 @@
 // pages/payments.tsx
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { 
-  BarChart2, 
-  PieChart, 
   DollarSign, 
   CheckCircle, 
   Clock, 
@@ -13,18 +11,6 @@ import {
   Home,
   Download
 } from 'lucide-react';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from 'chart.js';
-import { Pie, Bar } from 'react-chartjs-2';
-
-// Register ChartJS components
-ChartJS.register(
-  ArcElement,
-  Tooltip,
-  Legend,
-  CategoryScale,
-  LinearScale,
-  BarElement
-);
 
 export default function PaymentsPage() {
   const [darkMode, setDarkMode] = useState(true);
@@ -41,83 +27,9 @@ export default function PaymentsPage() {
   const totalRevenue = paymentData.reduce((sum, item) => item.status === 'completed' ? sum + item.price : sum, 0);
   const pendingAmount = paymentData.reduce((sum, item) => item.status === 'pending' ? sum + item.price : sum, 0);
 
-  // Chart data
-  const monthlyData = {
-    labels: ['April', 'May', 'June'],
-    datasets: [
-      {
-        label: 'Revenue (₹)',
-        data: [0, 830, 130],
-        backgroundColor: [
-          darkMode ? 'rgba(156, 163, 175, 0.7)' : 'rgba(209, 213, 219, 0.7)',
-          darkMode ? 'rgba(234, 88, 12, 0.7)' : 'rgba(249, 115, 22, 0.7)',
-          darkMode ? 'rgba(239, 68, 68, 0.7)' : 'rgba(239, 68, 68, 0.7)'
-        ],
-        borderColor: [
-          darkMode ? 'rgba(156, 163, 175, 1)' : 'rgba(209, 213, 219, 1)',
-          darkMode ? 'rgba(234, 88, 12, 1)' : 'rgba(249, 115, 22, 1)',
-          darkMode ? 'rgba(239, 68, 68, 1)' : 'rgba(239, 68, 68, 1)'
-        ],
-        borderWidth: 1,
-      },
-    ],
-  };
-
-  const productData = {
-    labels: ['Squad Editor', 'Game Making Kit', 'RC ID'],
-    datasets: [
-      {
-        label: 'Revenue (₹)',
-        data: [200, 500, 130],
-        backgroundColor: [
-          darkMode ? 'rgba(59, 130, 246, 0.7)' : 'rgba(59, 130, 246, 0.7)',
-          darkMode ? 'rgba(16, 185, 129, 0.7)' : 'rgba(16, 185, 129, 0.7)',
-          darkMode ? 'rgba(239, 68, 68, 0.7)' : 'rgba(239, 68, 68, 0.7)'
-        ],
-        borderColor: [
-          darkMode ? 'rgba(59, 130, 246, 1)' : 'rgba(59, 130, 246, 1)',
-          darkMode ? 'rgba(16, 185, 129, 1)' : 'rgba(16, 185, 129, 1)',
-          darkMode ? 'rgba(239, 68, 68, 1)' : 'rgba(239, 68, 68, 1)'
-        ],
-        borderWidth: 1,
-      },
-    ],
-  };
-
-  const options = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'top' as const,
-        labels: {
-          color: darkMode ? '#fff' : '#111827'
-        }
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        ticks: {
-          color: darkMode ? '#9CA3AF' : '#6B7280'
-        },
-        grid: {
-          color: darkMode ? 'rgba(55, 65, 81, 0.5)' : 'rgba(209, 213, 219, 0.5)'
-        }
-      },
-      x: {
-        ticks: {
-          color: darkMode ? '#9CA3AF' : '#6B7280'
-        },
-        grid: {
-          color: darkMode ? 'rgba(55, 65, 81, 0.5)' : 'rgba(209, 213, 219, 0.5)'
-        }
-      }
-    }
-  };
-
   return (
     <div className={`min-h-screen transition-colors ${darkMode ? 'bg-gradient-to-br from-gray-900 to-gray-800 text-white' : 'bg-gray-50 text-gray-900'}`}>
-      {/* New Header Style */}
+      {/* Header */}
       <header className={`${darkMode ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'} border-b shadow-sm`}>
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
@@ -212,32 +124,54 @@ export default function PaymentsPage() {
           </div>
         </section>
 
-        {/* Charts Section */}
+        {/* Revenue Summary Section (replacing charts) */}
         <section className="mb-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Monthly Revenue Bar Chart */}
+            {/* Monthly Revenue Summary */}
             <div className={`p-6 rounded-xl ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border shadow`}>
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold">Monthly Revenue</h2>
                 <div className={`p-2 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
-                  <BarChart2 size={20} />
+                  <DollarSign size={20} />
                 </div>
               </div>
-              <div className="h-64">
-                <Bar data={monthlyData} options={options} />
+              <div className="space-y-4">
+                <div className="flex justify-between">
+                  <span className={`${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>April</span>
+                  <span className="font-medium">₹0</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className={`${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>May</span>
+                  <span className="font-medium">₹830</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className={`${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>June</span>
+                  <span className="font-medium">₹130</span>
+                </div>
               </div>
             </div>
             
-            {/* Product Revenue Pie Chart */}
+            {/* Product Revenue Summary */}
             <div className={`p-6 rounded-xl ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border shadow`}>
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold">Revenue by Product</h2>
                 <div className={`p-2 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
-                  <PieChart size={20} />
+                  <DollarSign size={20} />
                 </div>
               </div>
-              <div className="h-64">
-                <Pie data={productData} options={options} />
+              <div className="space-y-4">
+                <div className="flex justify-between">
+                  <span className={`${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>Squad Editor</span>
+                  <span className="font-medium">₹200</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className={`${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>Game Making Kit</span>
+                  <span className="font-medium">₹500</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className={`${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>RC ID</span>
+                  <span className="font-medium">₹130</span>
+                </div>
               </div>
             </div>
           </div>
