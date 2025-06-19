@@ -1,5 +1,5 @@
 // pages/payments.tsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   BarChart2, 
@@ -9,8 +9,22 @@ import {
   Clock, 
   ChevronRight,
   Sun,
-  Moon
+  Moon,
+  Home,
+  Download
 } from 'lucide-react';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from 'chart.js';
+import { Pie, Bar } from 'react-chartjs-2';
+
+// Register ChartJS components
+ChartJS.register(
+  ArcElement,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  LinearScale,
+  BarElement
+);
 
 export default function PaymentsPage() {
   const [darkMode, setDarkMode] = useState(true);
@@ -28,55 +42,134 @@ export default function PaymentsPage() {
   const pendingAmount = paymentData.reduce((sum, item) => item.status === 'pending' ? sum + item.price : sum, 0);
 
   // Chart data
-  const monthlyData = [
-    { month: 'Apr', revenue: 0 },
-    { month: 'May', revenue: 830 },
-    { month: 'Jun', revenue: 130 },
-  ];
+  const monthlyData = {
+    labels: ['April', 'May', 'June'],
+    datasets: [
+      {
+        label: 'Revenue (₹)',
+        data: [0, 830, 130],
+        backgroundColor: [
+          darkMode ? 'rgba(156, 163, 175, 0.7)' : 'rgba(209, 213, 219, 0.7)',
+          darkMode ? 'rgba(234, 88, 12, 0.7)' : 'rgba(249, 115, 22, 0.7)',
+          darkMode ? 'rgba(239, 68, 68, 0.7)' : 'rgba(239, 68, 68, 0.7)'
+        ],
+        borderColor: [
+          darkMode ? 'rgba(156, 163, 175, 1)' : 'rgba(209, 213, 219, 1)',
+          darkMode ? 'rgba(234, 88, 12, 1)' : 'rgba(249, 115, 22, 1)',
+          darkMode ? 'rgba(239, 68, 68, 1)' : 'rgba(239, 68, 68, 1)'
+        ],
+        borderWidth: 1,
+      },
+    ],
+  };
 
-  const productRevenue = [
-    { product: 'Squad Editor', revenue: 200 },
-    { product: 'Game Making Kit', revenue: 500 },
-    { product: 'RC ID', revenue: 130 },
-  ];
+  const productData = {
+    labels: ['Squad Editor', 'Game Making Kit', 'RC ID'],
+    datasets: [
+      {
+        label: 'Revenue (₹)',
+        data: [200, 500, 130],
+        backgroundColor: [
+          darkMode ? 'rgba(59, 130, 246, 0.7)' : 'rgba(59, 130, 246, 0.7)',
+          darkMode ? 'rgba(16, 185, 129, 0.7)' : 'rgba(16, 185, 129, 0.7)',
+          darkMode ? 'rgba(239, 68, 68, 0.7)' : 'rgba(239, 68, 68, 0.7)'
+        ],
+        borderColor: [
+          darkMode ? 'rgba(59, 130, 246, 1)' : 'rgba(59, 130, 246, 1)',
+          darkMode ? 'rgba(16, 185, 129, 1)' : 'rgba(16, 185, 129, 1)',
+          darkMode ? 'rgba(239, 68, 68, 1)' : 'rgba(239, 68, 68, 1)'
+        ],
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top' as const,
+        labels: {
+          color: darkMode ? '#fff' : '#111827'
+        }
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          color: darkMode ? '#9CA3AF' : '#6B7280'
+        },
+        grid: {
+          color: darkMode ? 'rgba(55, 65, 81, 0.5)' : 'rgba(209, 213, 219, 0.5)'
+        }
+      },
+      x: {
+        ticks: {
+          color: darkMode ? '#9CA3AF' : '#6B7280'
+        },
+        grid: {
+          color: darkMode ? 'rgba(55, 65, 81, 0.5)' : 'rgba(209, 213, 219, 0.5)'
+        }
+      }
+    }
+  };
 
   return (
     <div className={`min-h-screen transition-colors ${darkMode ? 'bg-gradient-to-br from-gray-900 to-gray-800 text-white' : 'bg-gray-50 text-gray-900'}`}>
-      {/* Header */}
-      <header className={`${darkMode ? 'bg-gray-800/50 border-gray-700' : 'bg-white/80 border-gray-200'} backdrop-blur-md sticky top-0 z-10 border-b`}>
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
-            Shiva X Payments
-          </Link>
-          <div className="flex items-center gap-4">
-            <button 
-              onClick={() => setDarkMode(!darkMode)}
-              className={`p-2 rounded-full ${darkMode ? 'bg-gray-700 text-yellow-300' : 'bg-gray-200 text-gray-700'}`}
-            >
-              {darkMode ? <Sun size={20} /> : <Moon size={20} />}
-            </button>
-            <Link 
-              href="/" 
-              className={`px-4 py-2 ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'} rounded-lg transition flex items-center gap-1`}
-            >
-              <ChevronRight size={16} /> Back Home
-            </Link>
+      {/* New Header Style */}
+      <header className={`${darkMode ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'} border-b shadow-sm`}>
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center space-x-4">
+              <Link href="/" className="flex items-center">
+                <div className={`p-2 rounded-lg ${darkMode ? 'bg-red-500' : 'bg-gradient-to-r from-red-500 to-orange-500'}`}>
+                  <DollarSign className="text-white" size={20} />
+                </div>
+                <span className="ml-3 text-xl font-bold">ShivaPay</span>
+              </Link>
+              <nav className="hidden md:flex items-center space-x-1 ml-8">
+                <Link href="/" className={`px-3 py-2 rounded-md text-sm font-medium ${darkMode ? 'text-gray-300 hover:bg-gray-800' : 'text-gray-700 hover:bg-gray-100'}`}>
+                  <Home size={16} className="inline mr-1" /> Home
+                </Link>
+              </nav>
+            </div>
+            <div className="flex items-center space-x-4">
+              <button 
+                onClick={() => setDarkMode(!darkMode)}
+                className={`p-2 rounded-full ${darkMode ? 'bg-gray-800 text-yellow-300 hover:bg-gray-700' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
+              >
+                {darkMode ? <Sun size={18} /> : <Moon size={18} />}
+              </button>
+              <Link 
+                href="/status" 
+                className={`px-4 py-2 rounded-md text-sm font-medium flex items-center ${darkMode ? 'bg-gray-800 hover:bg-gray-700' : 'bg-gray-100 hover:bg-gray-200'}`}
+              >
+                <ChevronRight size={16} className="mr-1" /> Status
+              </Link>
+            </div>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-12">
+      <main className="container mx-auto px-4 py-8">
         {/* Stats Overview */}
-        <section className="mb-12">
-          <h1 className="text-3xl font-bold mb-6">Payment Dashboard</h1>
+        <section className="mb-8">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+            <h1 className="text-2xl md:text-3xl font-bold">Payment Dashboard</h1>
+            <div className={`mt-4 md:mt-0 px-4 py-2 rounded-lg ${darkMode ? 'bg-gray-800' : 'bg-gray-100'} flex items-center`}>
+              <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Last Updated:</span>
+              <span className="ml-2 text-sm font-medium">{new Date().toLocaleString()}</span>
+            </div>
+          </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className={`p-6 rounded-xl ${darkMode ? 'bg-gray-800/50 border-gray-700' : 'bg-white border-gray-200'} border`}>
+            <div className={`p-6 rounded-xl ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border shadow`}>
               <div className="flex items-center justify-between">
                 <div>
                   <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Total Revenue</p>
-                  <p className="text-3xl font-bold mt-1">₹{totalRevenue}</p>
+                  <p className="text-2xl md:text-3xl font-bold mt-1">₹{totalRevenue}</p>
                 </div>
                 <div className={`p-3 rounded-full ${darkMode ? 'bg-green-500/10 text-green-400' : 'bg-green-100 text-green-600'}`}>
                   <DollarSign size={24} />
@@ -87,11 +180,11 @@ export default function PaymentsPage() {
               </div>
             </div>
             
-            <div className={`p-6 rounded-xl ${darkMode ? 'bg-gray-800/50 border-gray-700' : 'bg-white border-gray-200'} border`}>
+            <div className={`p-6 rounded-xl ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border shadow`}>
               <div className="flex items-center justify-between">
                 <div>
                   <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Completed Payments</p>
-                  <p className="text-3xl font-bold mt-1">4</p>
+                  <p className="text-2xl md:text-3xl font-bold mt-1">4</p>
                 </div>
                 <div className={`p-3 rounded-full ${darkMode ? 'bg-blue-500/10 text-blue-400' : 'bg-blue-100 text-blue-600'}`}>
                   <CheckCircle size={24} />
@@ -102,11 +195,11 @@ export default function PaymentsPage() {
               </div>
             </div>
             
-            <div className={`p-6 rounded-xl ${darkMode ? 'bg-gray-800/50 border-gray-700' : 'bg-white border-gray-200'} border`}>
+            <div className={`p-6 rounded-xl ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border shadow`}>
               <div className="flex items-center justify-between">
                 <div>
                   <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Pending Payments</p>
-                  <p className="text-3xl font-bold mt-1">₹{pendingAmount}</p>
+                  <p className="text-2xl md:text-3xl font-bold mt-1">₹{pendingAmount}</p>
                 </div>
                 <div className={`p-3 rounded-full ${darkMode ? 'bg-yellow-500/10 text-yellow-400' : 'bg-yellow-100 text-yellow-600'}`}>
                   <Clock size={24} />
@@ -120,10 +213,10 @@ export default function PaymentsPage() {
         </section>
 
         {/* Charts Section */}
-        <section className="mb-12">
+        <section className="mb-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Monthly Revenue Bar Chart */}
-            <div className={`p-6 rounded-xl ${darkMode ? 'bg-gray-800/50 border-gray-700' : 'bg-white border-gray-200'} border`}>
+            <div className={`p-6 rounded-xl ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border shadow`}>
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold">Monthly Revenue</h2>
                 <div className={`p-2 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
@@ -131,62 +224,20 @@ export default function PaymentsPage() {
                 </div>
               </div>
               <div className="h-64">
-                <div className="flex items-end h-48 gap-2 mt-4">
-                  {monthlyData.map((item, index) => (
-                    <div key={index} className="flex-1 flex flex-col items-center">
-                      <div 
-                        className={`w-full rounded-t-sm ${index === monthlyData.length - 1 ? 'bg-gradient-to-t from-orange-500 to-red-500' : 'bg-gray-500'}`}
-                        style={{ height: `${(item.revenue / 830) * 100}%` }}
-                      ></div>
-                      <span className={`text-xs mt-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{item.month}</span>
-                      <span className="text-xs font-medium mt-1">₹{item.revenue}</span>
-                    </div>
-                  ))}
-                </div>
+                <Bar data={monthlyData} options={options} />
               </div>
             </div>
             
             {/* Product Revenue Pie Chart */}
-            <div className={`p-6 rounded-xl ${darkMode ? 'bg-gray-800/50 border-gray-700' : 'bg-white border-gray-200'} border`}>
+            <div className={`p-6 rounded-xl ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border shadow`}>
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold">Revenue by Product</h2>
                 <div className={`p-2 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
                   <PieChart size={20} />
                 </div>
               </div>
-              <div className="h-64 flex flex-col lg:flex-row items-center justify-center">
-                <div className="relative w-40 h-40 mb-4 lg:mb-0 lg:mr-8">
-                  {/* Pie chart representation */}
-                  <div className="absolute inset-0 rounded-full border-8 border-transparent"
-                    style={{
-                      background: `conic-gradient(
-                        #3b82f6 0% 24%,
-                        #10b981 24% 82%,
-                        #ef4444 82% 100%
-                      )`
-                    }}
-                  ></div>
-                  <div className={`absolute inset-4 rounded-full ${darkMode ? 'bg-gray-800' : 'bg-white'}`}></div>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-xl font-bold">₹{totalRevenue}</span>
-                  </div>
-                </div>
-                <div className="space-y-3">
-                  {productRevenue.map((item, index) => (
-                    <div key={index} className="flex items-center">
-                      <div 
-                        className="w-3 h-3 rounded-full mr-2"
-                        style={{
-                          backgroundColor: 
-                            index === 0 ? '#3b82f6' : 
-                            index === 1 ? '#10b981' : '#ef4444'
-                        }}
-                      ></div>
-                      <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>{item.product}</span>
-                      <span className="ml-auto text-sm font-medium">₹{item.revenue}</span>
-                    </div>
-                  ))}
-                </div>
+              <div className="h-64">
+                <Pie data={productData} options={options} />
               </div>
             </div>
           </div>
@@ -194,38 +245,41 @@ export default function PaymentsPage() {
 
         {/* Payment Details Section */}
         <section>
-          <div className={`rounded-xl overflow-hidden ${darkMode ? 'bg-gray-800/50 border-gray-700' : 'bg-white border-gray-200'} border`}>
-            <div className={`p-6 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-              <h2 className="text-2xl font-bold">Payment Details</h2>
+          <div className={`rounded-xl overflow-hidden ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border shadow`}>
+            <div className={`p-6 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'} flex justify-between items-center`}>
+              <h2 className="text-xl font-bold">Payment Details</h2>
+              <button className={`px-4 py-2 rounded-md text-sm font-medium flex items-center ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'}`}>
+                <Download size={16} className="mr-2" /> Export CSV
+              </button>
             </div>
             
             {/* Customers Table */}
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className={`${darkMode ? 'border-gray-700' : 'border-gray-200'} border-b`}>
-                    <th className="px-6 py-3 text-left font-semibold">Customer</th>
-                    <th className="px-6 py-3 text-left font-semibold">Product</th>
-                    <th className="px-6 py-3 text-right font-semibold">Amount</th>
-                    <th className="px-6 py-3 text-left font-semibold">Date</th>
-                    <th className="px-6 py-3 text-right font-semibold">Status</th>
+                  <tr className={`${darkMode ? 'bg-gray-900 border-gray-700' : 'bg-gray-50 border-gray-200'} border-b`}>
+                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Customer</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Product</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">Amount</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Date</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">Status</th>
                   </tr>
                 </thead>
                 <tbody>
                   {paymentData.map((item, index) => (
                     <tr 
                       key={index} 
-                      className={`${index !== paymentData.length - 1 ? (darkMode ? 'border-gray-700' : 'border-gray-200') : ''} border-b`}
+                      className={`${index !== paymentData.length - 1 ? (darkMode ? 'border-gray-700' : 'border-gray-200') : ''} border-b ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`}
                     >
-                      <td className="px-6 py-4 font-medium">{item.customer}</td>
-                      <td className="px-6 py-4">{item.product}</td>
-                      <td className="px-6 py-4 text-right font-mono">₹{item.price}</td>
-                      <td className="px-6 py-4">{item.date || '-'}</td>
-                      <td className="px-6 py-4 text-right">
-                        <span className={`inline-block px-3 py-1 text-xs rounded-full ${
+                      <td className="px-6 py-4 whitespace-nowrap font-medium">{item.customer}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">{item.product}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right font-mono">₹{item.price}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">{item.date || '-'}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           item.status === 'completed' ? 
-                            (darkMode ? 'bg-green-500/10 text-green-400' : 'bg-green-100 text-green-800') :
-                            (darkMode ? 'bg-yellow-500/10 text-yellow-400' : 'bg-yellow-100 text-yellow-800')
+                            (darkMode ? 'bg-green-900 text-green-200' : 'bg-green-100 text-green-800') :
+                            (darkMode ? 'bg-yellow-900 text-yellow-200' : 'bg-yellow-100 text-yellow-800')
                         }`}>
                           {item.status === 'completed' ? 'Completed' : 'Pending'}
                         </span>
@@ -237,20 +291,17 @@ export default function PaymentsPage() {
             </div>
             
             {/* Summary */}
-            <div className={`p-6 ${darkMode ? 'bg-gray-800/30' : 'bg-gray-50'} flex justify-between items-center`}>
+            <div className={`p-4 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'} flex justify-between items-center`}>
               <div>
                 <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                  Showing {paymentData.length} payments
+                  Showing {paymentData.length} of {paymentData.length} payments
                 </p>
               </div>
-              <div className="flex items-center gap-4">
-                <div className="text-right">
+              <div className="flex items-center">
+                <div className="text-right mr-6">
                   <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Total Revenue</p>
                   <p className="text-lg font-bold">₹{totalRevenue}</p>
                 </div>
-                <button className={`px-4 py-2 rounded-lg ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'} transition`}>
-                  Export
-                </button>
               </div>
             </div>
           </div>
@@ -258,9 +309,17 @@ export default function PaymentsPage() {
       </main>
 
       {/* Footer */}
-      <footer className={`${darkMode ? 'bg-gray-800/50 border-gray-700' : 'bg-white/80 border-gray-200'} border-t py-8`}>
-        <div className="container mx-auto px-4 text-center">
-          <p className={darkMode ? 'text-gray-400' : 'text-gray-600'}>© 2025 Shiva X Mods. All rights reserved.</p>
+      <footer className={`${darkMode ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'} border-t py-8 mt-12`}>
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="flex items-center">
+              <DollarSign className={`${darkMode ? 'text-red-500' : 'text-orange-500'} mr-2`} size={20} />
+              <span className="text-lg font-bold">ShivaPay</span>
+            </div>
+            <div className={`mt-4 md:mt-0 text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              © 2025 Shiva X Mods. All rights reserved.
+            </div>
+          </div>
         </div>
       </footer>
     </div>
