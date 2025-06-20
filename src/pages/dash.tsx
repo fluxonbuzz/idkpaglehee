@@ -1,5 +1,4 @@
-// pages/payments.tsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   DollarSign, 
@@ -13,15 +12,21 @@ import {
   Search,
   User,
   CreditCard,
-  Package
+  Package,
+  Lock,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 
 export default function PaymentsPage() {
   const [darkMode, setDarkMode] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [viewMode, setViewMode] = useState<'customer' | 'admin'>('customer'); // Toggle between views
+  const [viewMode, setViewMode] = useState<'customer' | 'admin'>('customer');
+  const [adminLoggedIn, setAdminLoggedIn] = useState(false);
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loginError, setLoginError] = useState('');
 
-  // Sample data
   const paymentData = [
     { id: 'PAY-001', customer: 'TH Cricket', product: 'Squad Editor', price: 100, status: 'completed', date: '2025-05-15', method: 'UPI' },
     { id: 'PAY-002', customer: 'Driven X', product: 'Squad Editor', price: 100, status: 'completed', date: '2025-05-18', method: 'UPI' },
@@ -30,7 +35,6 @@ export default function PaymentsPage() {
     { id: 'PAY-005', customer: 'KULDEEP', product: 'RC ID', price: 130, status: 'pending', date: '', method: 'UPI' },
   ];
 
-  // Filter data based on search query
   const filteredData = paymentData.filter(item =>
     item.customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -40,17 +44,12 @@ export default function PaymentsPage() {
   const totalRevenue = paymentData.reduce((sum, item) => item.status === 'completed' ? sum + item.price : sum, 0);
   const pendingAmount = paymentData.reduce((sum, item) => item.status === 'pending' ? sum + item.price : sum, 0);
 
-  // Function to export data as CSV
   const exportToCSV = () => {
-    // CSV header
     let csv = 'ID,Customer,Product,Price,Date,Status,Method\n';
-    
-    // Add data rows
     paymentData.forEach(item => {
       csv += `"${item.id}","${item.customer}","${item.product}",${item.price},"${item.date}","${item.status}","${item.method}"\n`;
     });
 
-    // Create download link
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -62,9 +61,89 @@ export default function PaymentsPage() {
     document.body.removeChild(link);
   };
 
+  const handleAdminLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password === 'shivaxadmins009') {
+      setAdminLoggedIn(true);
+      setViewMode('admin');
+      setLoginError('');
+    } else {
+      setLoginError('Incorrect password. Please try again.');
+    }
+  };
+
+  const handleLogout = () => {
+    setAdminLoggedIn(false);
+    setViewMode('customer');
+    setPassword('');
+  };
+
+  if (viewMode === 'admin' && !adminLoggedIn) {
+    return (
+      <div className={`min-h-screen flex items-center justify-center transition-colors ${darkMode ? 'bg-gradient-to-br from-gray-900 to-gray-800 text-white' : 'bg-gray-50 text-gray-900'}`}>
+        <div className={`w-full max-w-md p-8 rounded-2xl shadow-xl ${darkMode ? 'bg-gray-800' : 'bg-white'} border ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+          <div className="text-center mb-8">
+            <div className={`inline-flex items-center justify-center p-4 rounded-full ${darkMode ? 'bg-red-500/20' : 'bg-red-100'}`}>
+              <Lock className={`${darkMode ? 'text-red-400' : 'text-red-500'}`} size={32} />
+            </div>
+            <h1 className="text-2xl font-bold mt-4">Admin Portal</h1>
+            <p className={`mt-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Enter password to continue</p>
+          </div>
+
+          <form onSubmit={handleAdminLogin}>
+            <div className="mb-6">
+              <div className={`relative ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Lock size={18} />
+                </div>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter admin password"
+                  className={`block w-full pl-10 pr-10 py-3 rounded-lg ${darkMode ? 'bg-gray-700 border-gray-600 placeholder-gray-400' : 'bg-white border-gray-300 placeholder-gray-500'} border focus:outline-none focus:ring-2 ${darkMode ? 'focus:ring-red-500' : 'focus:ring-orange-500'} focus:border-transparent`}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff size={18} className={darkMode ? 'text-gray-400' : 'text-gray-500'} />
+                  ) : (
+                    <Eye size={18} className={darkMode ? 'text-gray-400' : 'text-gray-500'} />
+                  )}
+                </button>
+              </div>
+              {loginError && (
+                <p className="mt-2 text-sm text-red-500">{loginError}</p>
+              )}
+            </div>
+            <button
+              type="submit"
+              className={`w-full py-3 px-4 rounded-lg font-medium ${darkMode ? 'bg-red-600 hover:bg-red-700 text-white' : 'bg-red-500 hover:bg-red-600 text-white'} transition-colors flex items-center justify-center`}
+            >
+              <Lock size={18} className="mr-2" />
+              Unlock Admin Dashboard
+            </button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <button
+              onClick={() => setViewMode('customer')}
+              className={`text-sm ${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600 hover:text-gray-800'} flex items-center justify-center w-full`}
+            >
+              <ChevronLeft size={16} className="mr-1" />
+              Return to Customer View
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={`min-h-screen transition-colors ${darkMode ? 'bg-gradient-to-br from-gray-900 to-gray-800 text-white' : 'bg-gray-50 text-gray-900'}`}>
-      {/* Header */}
       <header className={`${darkMode ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'} border-b shadow-sm`}>
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
@@ -88,28 +167,27 @@ export default function PaymentsPage() {
               >
                 {darkMode ? <Sun size={18} /> : <Moon size={18} />}
               </button>
-              <button
-                onClick={() => setViewMode(viewMode === 'admin' ? 'customer' : 'admin')}
-                className={`px-4 py-2 rounded-md text-sm font-medium ${darkMode ? 'bg-gray-800 hover:bg-gray-700' : 'bg-gray-100 hover:bg-gray-200'}`}
-              >
-                {viewMode === 'admin' ? (
-                  <>
-                    <User size={16} className="inline mr-1" /> Customer View
-                  </>
-                ) : (
-                  <>
-                    <CreditCard size={16} className="inline mr-1" /> Admin View
-                  </>
-                )}
-              </button>
+              {adminLoggedIn ? (
+                <button
+                  onClick={handleLogout}
+                  className={`px-4 py-2 rounded-md text-sm font-medium ${darkMode ? 'bg-red-600 hover:bg-red-700' : 'bg-red-500 hover:bg-red-600'} text-white`}
+                >
+                  <Lock size={16} className="inline mr-1" /> Logout
+                </button>
+              ) : (
+                <button
+                  onClick={() => setViewMode('admin')}
+                  className={`px-4 py-2 rounded-md text-sm font-medium ${darkMode ? 'bg-gray-800 hover:bg-gray-700' : 'bg-gray-100 hover:bg-gray-200'}`}
+                >
+                  <CreditCard size={16} className="inline mr-1" /> Admin View
+                </button>
+              )}
             </div>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        {/* Search and Filter Section */}
         <section className="mb-8">
           <div className={`p-6 rounded-xl ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border shadow`}>
             <h2 className="text-xl font-bold mb-4">Find Your Payments</h2>
@@ -138,7 +216,6 @@ export default function PaymentsPage() {
           </div>
         </section>
 
-        {/* Customer Summary Section */}
         {viewMode === 'customer' && (
           <section className="mb-8">
             <div className={`p-6 rounded-xl ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border shadow`}>
@@ -190,11 +267,10 @@ export default function PaymentsPage() {
           </section>
         )}
 
-        {/* Admin Stats Overview */}
         {viewMode === 'admin' && (
           <section className="mb-8">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-              <h1 className="text-2xl md:text-3xl font-bold">Payment Dashboard</h1>
+              <h1 className="text-2xl md:text-3xl font-bold">Admin Dashboard</h1>
               <div className={`mt-4 md:mt-0 px-4 py-2 rounded-lg ${darkMode ? 'bg-gray-800' : 'bg-gray-100'} flex items-center`}>
                 <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Last Updated:</span>
                 <span className="ml-2 text-sm font-medium">{new Date().toLocaleString()}</span>
@@ -252,7 +328,6 @@ export default function PaymentsPage() {
           </section>
         )}
 
-        {/* Payment Details Section */}
         <section>
           <div className={`rounded-xl overflow-hidden ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border shadow`}>
             <div className={`p-6 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'} flex justify-between items-center`}>
@@ -269,7 +344,6 @@ export default function PaymentsPage() {
               )}
             </div>
             
-            {/* Customers Table */}
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
@@ -336,7 +410,6 @@ export default function PaymentsPage() {
               </table>
             </div>
             
-            {/* Summary */}
             {viewMode === 'admin' && (
               <div className={`p-4 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'} flex justify-between items-center`}>
                 <div>
@@ -356,7 +429,6 @@ export default function PaymentsPage() {
         </section>
       </main>
 
-      {/* Footer */}
       <footer className={`${darkMode ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'} border-t py-8 mt-12`}>
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
