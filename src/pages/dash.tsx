@@ -5,6 +5,7 @@ import {
   CheckCircle, 
   Clock, 
   ChevronRight,
+  ChevronLeft,
   Sun,
   Moon,
   Home,
