@@ -46,7 +46,7 @@ export default function PaymentsPage() {
   // Extended list from Telegram screenshot
   { id: 'PAY-010', customer: 'Mohammad Isham', product: 'RC24 ID', price: 130, status: 'pending', date: '2025-06-20', method: 'UPI' },
   { id: 'PAY-011', customer: 'король', product: 'Premium Mod Menu', price: 50, status: 'pending', date: '2025-06-20', method: 'UPI' },
-  { id: 'PAY-012', customer: 'Amit Jadon', product: 'Payout', price: 100, status: 'pending', date: '2025-06-20', method: 'UPI' },
+  { id: 'PAY-012', customer: 'Amit Jadon', product: 'RC24 ID (Level 85)', price: 100, status: 'pending', date: '2025-06-20', method: 'UPI' },
   { id: 'PAY-013', customer: 'Aman Bhai', product: 'Netflix Premium', price: 100, status: 'pending', date: '2025-06-20', method: 'UPI' },
   { id: 'PAY-014', customer: 'Tripun Singh', product: 'RC24 ID', price: 130, status: 'pending', date: '2025-06-20', method: 'UPI' },
   { id: 'PAY-015', customer: 'GamiN', product: 'Squad Editor Pro', price: 100, status: 'pending', date: '2025-06-20', method: 'UPI' },
