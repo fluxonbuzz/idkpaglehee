@@ -25,7 +25,7 @@ export default function PaymentsPage() {
   const paymentData = [
     { id: 'PAY-001', customer: 'TH Cricket', product: 'Squad Editor', price: 100, status: 'completed', date: '2025-05-15', method: 'UPI' },
     { id: 'PAY-002', customer: 'Driven X', product: 'Squad Editor', price: 100, status: 'completed', date: '2025-05-18', method: 'UPI' },
-    { id: 'PAY-003', customer: 'Simply Dev', product: 'Game Making Kit', price: 500, status: 'completed', date: '2025-05-20', method: 'Card' },
+    { id: 'PAY-003', customer: 'Simply Dev', product: 'Game Making Kit', price: 500, status: 'pending', date: '', method: 'UPI' },
     { id: 'PAY-004', customer: 'Yadav', product: 'RC ID', price: 130, status: 'completed', date: '2025-05-22', method: 'UPI' },
     { id: 'PAY-005', customer: 'KULDEEP', product: 'RC ID', price: 130, status: 'pending', date: '', method: 'UPI' },
   ];
