@@ -16,7 +16,8 @@ import {
   Package,
   Lock,
   Eye,
-  EyeOff
+  EyeOff,
+  XCircle
 } from 'lucide-react';
 
 export default function PaymentsPage() {
@@ -29,7 +30,7 @@ export default function PaymentsPage() {
   const [loginError, setLoginError] = useState('');
 
   const paymentData = [
-    { id: 'PAY-001', customer: 'TH Cricket', product: 'Squad Editor', price: 100, status: 'completed', date: '2025-05-15', method: 'UPI' },
+    { id: 'PAY-001', customer: 'TH Cricket', product: 'Squad Editor', price: 100, status: 'cancelled', date: '2025-05-15', method: 'UPI' },
     { id: 'PAY-002', customer: 'Driven X', product: 'Squad Editor', price: 100, status: 'completed', date: '2025-05-18', method: 'UPI' },
     { id: 'PAY-003', customer: 'Simply Dev', product: 'Game Making Kit', price: 500, status: 'pending', date: '', method: 'UPI' },
     { id: 'PAY-004', customer: 'Yadav', product: 'RC ID', price: 130, status: 'completed', date: '2025-05-22', method: 'UPI' },
@@ -44,6 +45,7 @@ export default function PaymentsPage() {
 
   const totalRevenue = paymentData.reduce((sum, item) => item.status === 'completed' ? sum + item.price : sum, 0);
   const pendingAmount = paymentData.reduce((sum, item) => item.status === 'pending' ? sum + item.price : sum, 0);
+  const cancelledAmount = paymentData.reduce((sum, item) => item.status === 'cancelled' ? sum + item.price : sum, 0);
 
   const exportToCSV = () => {
     let csv = 'ID,Customer,Product,Price,Date,Status,Method\n';
@@ -278,7 +280,7 @@ export default function PaymentsPage() {
               </div>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
               <div className={`p-6 rounded-xl ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border shadow`}>
                 <div className="flex items-center justify-between">
                   <div>
@@ -323,6 +325,21 @@ export default function PaymentsPage() {
                 </div>
                 <div className={`mt-4 h-2 rounded-full ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
                   <div className="h-full rounded-full bg-yellow-500" style={{ width: '20%' }}></div>
+                </div>
+              </div>
+
+              <div className={`p-6 rounded-xl ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border shadow`}>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Cancelled Payments</p>
+                    <p className="text-2xl md:text-3xl font-bold mt-1">₹{cancelledAmount}</p>
+                  </div>
+                  <div className={`p-3 rounded-full ${darkMode ? 'bg-red-500/10 text-red-400' : 'bg-red-100 text-red-600'}`}>
+                    <XCircle size={24} />
+                  </div>
+                </div>
+                <div className={`mt-4 h-2 rounded-full ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
+                  <div className="h-full rounded-full bg-red-500" style={{ width: '5%' }}></div>
                 </div>
               </div>
             </div>
@@ -389,9 +406,11 @@ export default function PaymentsPage() {
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                             item.status === 'completed' ? 
                               (darkMode ? 'bg-green-900 text-green-200' : 'bg-green-100 text-green-800') :
-                              (darkMode ? 'bg-yellow-900 text-yellow-200' : 'bg-yellow-100 text-yellow-800')
+                              item.status === 'pending' ?
+                              (darkMode ? 'bg-yellow-900 text-yellow-200' : 'bg-yellow-100 text-yellow-800') :
+                              (darkMode ? 'bg-red-900 text-red-200' : 'bg-red-100 text-red-800')
                           }`}>
-                            {item.status === 'completed' ? 'Completed' : 'Pending'}
+                            {item.status === 'completed' ? 'Completed' : item.status === 'pending' ? 'Pending' : 'Cancelled'}
                           </span>
                         </td>
                       </tr>
