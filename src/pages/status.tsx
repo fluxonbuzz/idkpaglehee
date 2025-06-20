@@ -30,12 +30,40 @@ export default function PaymentsPage() {
   const [loginError, setLoginError] = useState('');
 
   const paymentData = [
-    { id: 'PAY-001', customer: 'TH Cricket', product: 'Squad Editor', price: 100, status: 'cancelled', date: '2025-05-15', method: 'UPI' },
-    { id: 'PAY-002', customer: 'Driven X', product: 'Squad Editor', price: 100, status: 'completed', date: '2025-05-18', method: 'UPI' },
-    { id: 'PAY-003', customer: 'Simply Dev', product: 'Game Making Kit', price: 500, status: 'pending', date: '', method: 'UPI' },
-    { id: 'PAY-004', customer: 'Yadav', product: 'RC ID', price: 130, status: 'completed', date: '2025-05-22', method: 'UPI' },
-    { id: 'PAY-005', customer: 'KULDEEP', product: 'RC ID', price: 130, status: 'pending', date: '', method: 'UPI' },
-  ];
+  // Existing payments
+  { id: 'PAY-001', customer: 'TH Cricket', product: 'Squad Editor', price: 100, status: 'cancelled', date: '2025-05-15', method: 'UPI' },
+  { id: 'PAY-002', customer: 'Driven X', product: 'Squad Editor', price: 100, status: 'completed', date: '2025-05-18', method: 'UPI' },
+  { id: 'PAY-003', customer: 'Simply Dev', product: 'Game Making Kit', price: 500, status: 'pending', date: '', method: 'UPI' },
+  { id: 'PAY-004', customer: 'Yadav', product: 'RC ID', price: 130, status: 'completed', date: '2025-05-22', method: 'UPI' },
+  { id: 'PAY-005', customer: 'KULDEEP', product: 'RC ID', price: 130, status: 'pending', date: '', method: 'UPI' },
+
+  // New pending payments from structured chart
+  { id: 'PAY-006', customer: 'Jas Wanth', product: '2 IDs (1 paid)', price: 130, status: 'pending', date: '2025-06-20', method: 'UPI' },
+  { id: 'PAY-007', customer: 'Danish', product: 'RC24 ID', price: 130, status: 'pending', date: '2025-06-20', method: 'UPI' },
+  { id: 'PAY-008', customer: 'Smoker', product: 'RC24 ID', price: 130, status: 'pending', date: '2025-06-20', method: 'UPI' },
+  { id: 'PAY-009', customer: 'Sudha', product: 'Personal OBB', price: 100, status: 'pending', date: '2025-06-20', method: 'UPI' },
+
+  // Extended list from Telegram screenshot
+  { id: 'PAY-010', customer: 'Mohammad Isham', product: 'RC24 ID', price: 130, status: 'pending', date: '2025-06-20', method: 'UPI' },
+  { id: 'PAY-011', customer: 'король', product: 'Premium Mod Menu', price: 50, status: 'pending', date: '2025-06-20', method: 'UPI' },
+  { id: 'PAY-012', customer: 'Amit Jadon', product: 'Payout', price: 100, status: 'pending', date: '2025-06-20', method: 'UPI' },
+  { id: 'PAY-013', customer: 'Aman Bhai', product: 'Netflix Premium', price: 100, status: 'pending', date: '2025-06-20', method: 'UPI' },
+  { id: 'PAY-014', customer: 'Tripun Singh', product: 'RC24 ID', price: 130, status: 'pending', date: '2025-06-20', method: 'UPI' },
+  { id: 'PAY-015', customer: 'GamiN', product: 'Squad Editor Pro', price: 100, status: 'pending', date: '2025-06-20', method: 'UPI' },
+  { id: 'PAY-016', customer: 'Virat Kholi', product: 'RC24 ID', price: 130, status: 'pending', date: '2025-06-20', method: 'UPI' },
+
+  // Additional payments based on product list
+  { id: 'PAY-017', customer: 'RC Fan', product: 'RC24 ID (Level 20)', price: 30, status: 'completed', date: '2025-06-19', method: 'UPI' },
+  { id: 'PAY-018', customer: 'Pro Gamer', product: 'RC24 ID (Level 50)', price: 50, status: 'completed', date: '2025-06-18', method: 'UPI' },
+  { id: 'PAY-019', customer: 'Cricket Lover', product: 'RC24 ID (Level 85)', price: 100, status: 'completed', date: '2025-06-17', method: 'UPI' },
+  { id: 'PAY-020', customer: 'Mod Enthusiast', product: 'All-in-One Checker', price: 80, status: 'completed', date: '2025-06-16', method: 'UPI' },
+  { id: 'PAY-021', customer: 'Legends Fan', product: 'Real Cricket 20 Legends', price: 70, status: 'pending', date: '2025-06-20', method: 'UPI' },
+  { id: 'PAY-022', customer: 'Stadium Designer', product: 'Boundary Hoarding Checker', price: 70, status: 'pending', date: '2025-06-20', method: 'UPI' },
+  { id: 'PAY-023', customer: 'Stream Lover', product: 'Netflix Premium Account', price: 100, status: 'completed', date: '2025-06-15', method: 'UPI' },
+  { id: 'PAY-024', customer: 'Team Manager', product: 'Shots Checker Pro', price: 120, status: 'pending', date: '2025-06-20', method: 'UPI' },
+  { id: 'PAY-025', customer: 'Web Developer', product: 'Custom webpage', price: 100, status: 'pending', date: '2025-06-20', method: 'UPI' },
+  { id: 'PAY-026', customer: 'VIP Member', product: 'SX Premium Membership', price: 200, status: 'completed', date: '2025-06-10', method: 'UPI' },
+];
 
   const filteredData = paymentData.filter(item =>
     item.customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
