@@ -33,7 +33,7 @@ export default function TermsPage() {
             Terms & Conditions
           </h1>
           <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-            Last Updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+            Last Updated: June 20, 2025
           </p>
         </section>
 
@@ -52,7 +52,7 @@ export default function TermsPage() {
         {/* Policy Content */}
         <div className="max-w-3xl mx-auto space-y-8">
           {/* Section 1 */}
-          <section className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
+          <section id="general-terms" className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
             <div className="flex items-start gap-4 mb-4">
               <BookText className="text-blue-400 mt-1 flex-shrink-0" size={24} />
               <div>
@@ -79,7 +79,7 @@ export default function TermsPage() {
           </section>
 
           {/* Section 2 */}
-          <section className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
+          <section id="account-responsibilities" className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
             <div className="flex items-start gap-4 mb-4">
               <Shield className="text-purple-400 mt-1 flex-shrink-0" size={24} />
               <div>
@@ -106,11 +106,43 @@ export default function TermsPage() {
           </section>
 
           {/* Section 3 */}
-          <section className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
+          <section id="delivery-terms" className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
+            <div className="flex items-start gap-4 mb-4">
+              <Shield className="text-orange-400 mt-1 flex-shrink-0" size={24} />
+              <div>
+                <h2 className="text-2xl font-bold mb-3 text-orange-300">3. Product Delivery</h2>
+                <p className="text-gray-300 mb-4">
+                  Regarding product delivery and availability:
+                </p>
+                <ul className="space-y-3 text-gray-300 pl-5 list-disc">
+                  <li>
+                    Delivery dates <strong>are not fixed</strong> and may vary depending on stock availability
+                  </li>
+                  <li>
+                    We will provide delivery estimates <strong>when items are in stock</strong>
+                  </li>
+                  <li>
+                    <strong>Pre-order items</strong> will be shipped once they become available
+                  </li>
+                  <li>
+                    We reserve the right to <strong>cancel orders</strong> for out-of-stock items
+                  </li>
+                </ul>
+                <div className="bg-gray-700/50 p-4 rounded-lg mt-4 border-l-4 border-orange-500">
+                  <p className="text-orange-300 font-medium">
+                    Delivery times are estimates only and not guaranteed.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Section 4 */}
+          <section id="intellectual-property" className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
             <div className="flex items-start gap-4 mb-4">
               <Lock className="text-purple-400 mt-1 flex-shrink-0" size={24} />
               <div>
-                <h2 className="text-2xl font-bold mb-3 text-purple-300">3. Intellectual Property</h2>
+                <h2 className="text-2xl font-bold mb-3 text-purple-300">4. Intellectual Property</h2>
                 <p className="text-gray-300 mb-4">
                   All content and materials available through SX Store:
                 </p>
@@ -137,12 +169,12 @@ export default function TermsPage() {
             </div>
           </section>
 
-          {/* Section 4 */}
-          <section className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
+          {/* Section 5 */}
+          <section id="liability" className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
             <div className="flex items-start gap-4 mb-4">
               <AlertTriangle className="text-red-400 mt-1 flex-shrink-0" size={24} />
               <div>
-                <h2 className="text-2xl font-bold mb-3 text-red-300">4. Limitations of Liability</h2>
+                <h2 className="text-2xl font-bold mb-3 text-red-300">5. Limitations of Liability</h2>
                 <p className="text-gray-300 mb-4">
                   SX Store shall not be liable for:
                 </p>
@@ -167,12 +199,12 @@ export default function TermsPage() {
             </div>
           </section>
 
-          {/* Section 5 */}
-          <section className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
+          {/* Section 6 */}
+          <section id="changes-to-terms" className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
             <div className="flex items-start gap-4 mb-4">
               <Scale className="text-blue-400 mt-1 flex-shrink-0" size={24} />
               <div>
-                <h2 className="text-2xl font-bold mb-3 text-blue-300">5. Changes to Terms</h2>
+                <h2 className="text-2xl font-bold mb-3 text-blue-300">6. Changes to Terms</h2>
                 <p className="text-gray-300 mb-4">
                   We may update these Terms from time to time:
                 </p>
@@ -215,7 +247,7 @@ export default function TermsPage() {
       <footer className="bg-gray-800/50 border-t border-gray-700 py-8 mt-12">
         <div className="container mx-auto px-4 text-center">
           <div className="flex justify-center gap-6 mb-4">
-            <Link href="/terms" className="text-blue-400 font-medium">
+            <Link href="/terms#general-terms" className="text-blue-400 font-medium">
               Terms of Service
             </Link>
             <Link href="/privacy" className="text-gray-400 hover:text-orange-400 transition">
