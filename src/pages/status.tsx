@@ -17,94 +17,65 @@ import {
   Lock,
   Eye,
   EyeOff,
-  XCircle
+  XCircle,
+  Box,
+  Plus,
+  Minus,
+  Trash2,
+  RotateCw,
+  Warehouse
 } from 'lucide-react';
 
 export default function PaymentsPage() {
   const [darkMode, setDarkMode] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [viewMode, setViewMode] = useState<'customer' | 'admin'>('customer');
+  const [viewMode, setViewMode] = useState<'customer' | 'admin' | 'stock'>('customer');
   const [adminLoggedIn, setAdminLoggedIn] = useState(false);
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState('');
+  const [stockItems, setStockItems] = useState([
+    { id: 'PROD-001', name: 'Squad Editor', price: 100, stock: 50, category: 'Tools' },
+    { id: 'PROD-002', name: 'Game Making Kit', price: 500, stock: 0, category: 'Kits' },
+    { id: 'PROD-003', name: 'RC ID', price: 130, stock: 0, category: 'Accounts' },
+    { id: 'PROD-004', name: 'Premium Mod Menu', price: 50, stock: 0, category: 'Mods' },
+    { id: 'PROD-005', name: 'Netflix Premium', price: 100, stock: 0, category: 'Accounts' },
+    { id: 'PROD-006', name: 'All-in-One Checker', price: 80, stock: 0, category: 'Tools' },
+    { id: 'PROD-007', name: 'Personal OBB', price: 100, stock: 0, category: 'Files' },
+    { id: 'PROD-008', name: 'SX Premium Membership', price: 200, stock: 0, category: 'Subscriptions' },
+    { id: 'PROD-009', name: 'Shots Checker Pro', price: 120, stock: 0, category: 'Tools' },
+    { id: 'PROD-010', name: 'Custom webpage', price: 100, stock: 0, category: 'Services' }
+  ]);
 
   const paymentData = [
-  // ===== REAL PAYMENTS (From your provided data) =====
-  { id: 'PAY-001', customer: 'TH Cricket', product: 'Squad Editor', price: 100, status: 'cancelled', date: '2025-05-15', method: 'UPI' },
-  { id: 'PAY-002', customer: 'Driven X', product: 'Squad Editor', price: 100, status: 'cancelled', date: '2025-05-18', method: 'UPI' },
-  { id: 'PAY-003', customer: 'Simply Dev', product: 'Game Making Kit', price: 500, status: 'pending', date: '', method: 'UPI' },
-  { id: 'PAY-004', customer: 'Yadav', product: 'RC ID', price: 130, status: 'completed', date: '2025-05-22', method: 'UPI' },
-  { id: 'PAY-005', customer: 'KULDEEP', product: 'RC ID', price: 130, status: 'pending', date: '', method: 'UPI' },
-  { id: 'PAY-006', customer: 'Jas Wanth', product: '2 IDs (1 paid)', price: 130, status: 'pending', date: '', method: 'UPI' },
-  { id: 'PAY-007', customer: 'Danish', product: 'RC24 ID', price: 130, status: 'pending', date: '', method: 'UPI' },
-  { id: 'PAY-008', customer: 'Smoker', product: 'RC24 ID', price: 130, status: 'pending', date: '', method: 'UPI' },
-  { id: 'PAY-009', customer: 'Sudha', product: 'Personal OBB', price: 100, status: 'pending', date: '', method: 'UPI' },
-  { id: 'PAY-010', customer: 'Mohammad Isham', product: 'RC24 ID', price: 130, status: 'pending', date: '', method: 'UPI' },
-  { id: 'PAY-011', customer: 'король', product: 'Premium Mod Menu', price: 50, status: 'pending', date: '', method: 'UPI' },
-  { id: 'PAY-012', customer: 'Amit Jadon', product: 'Payout', price: 100, status: 'pending', date: '', method: 'UPI' },
-  { id: 'PAY-013', customer: 'Aman Bhai', product: 'Netflix Premium', price: 100, status: 'pending', date: '', method: 'UPI' },
-  { id: 'PAY-014', customer: 'Tripun Singh', product: 'RC24 ID', price: 130, status: 'pending', date: '', method: 'UPI' },
-  { id: 'PAY-015', customer: 'GamiN', product: 'Squad Editor Pro', price: 100, status: 'cancelled', date: '', method: 'UPI' },
-  { id: 'PAY-016', customer: 'Virat Kholi', product: 'RC24 ID', price: 130, status: 'pending', date: '', method: 'UPI' },
+    { id: 'PAY-001', customer: 'TH Cricket', product: 'Squad Editor', price: 100, status: 'cancelled', date: '2025-05-15', method: 'UPI' },
+    { id: 'PAY-002', customer: 'Driven X', product: 'Squad Editor', price: 100, status: 'cancelled', date: '2025-05-18', method: 'UPI' },
+    { id: 'PAY-003', customer: 'Simply Dev', product: 'Game Making Kit', price: 500, status: 'pending', date: '', method: 'UPI' },
+    { id: 'PAY-004', customer: 'Yadav', product: 'RC ID', price: 130, status: 'completed', date: '2025-05-22', method: 'UPI' },
+    { id: 'PAY-005', customer: 'KULDEEP', product: 'RC ID', price: 130, status: 'pending', date: '', method: 'UPI' },
+    { id: 'PAY-006', customer: 'Jas Wanth', product: '2 IDs (1 paid)', price: 130, status: 'pending', date: '', method: 'UPI' },
+    { id: 'PAY-007', customer: 'Danish', product: 'RC24 ID', price: 130, status: 'pending', date: '', method: 'UPI' },
+    { id: 'PAY-008', customer: 'Smoker', product: 'RC24 ID', price: 130, status: 'pending', date: '', method: 'UPI' },
+    { id: 'PAY-009', customer: 'Sudha', product: 'Personal OBB', price: 100, status: 'pending', date: '', method: 'UPI' },
+    { id: 'PAY-010', customer: 'Mohammad Isham', product: 'RC24 ID', price: 130, status: 'pending', date: '', method: 'UPI' },
+    { id: 'PAY-011', customer: 'король', product: 'Premium Mod Menu', price: 50, status: 'pending', date: '', method: 'UPI' },
+    { id: 'PAY-012', customer: 'Amit Jadon', product: 'Payout', price: 100, status: 'pending', date: '', method: 'UPI' },
+    { id: 'PAY-013', customer: 'Aman Bhai', product: 'Netflix Premium', price: 100, status: 'pending', date: '', method: 'UPI' },
+    { id: 'PAY-014', customer: 'Tripun Singh', product: 'RC24 ID', price: 130, status: 'pending', date: '', method: 'UPI' },
+    { id: 'PAY-015', customer: 'GamiN', product: 'Squad Editor Pro', price: 100, status: 'cancelled', date: '', method: 'UPI' },
+    { id: 'PAY-016', customer: 'Virat Kholi', product: 'RC24 ID', price: 130, status: 'pending', date: '', method: 'UPI' },
+  ];
 
-  // ===== SAMPLE PAYMENTS (Generated data) =====
-  // Recent completed payments
-  { id: 'PAY-017', customer: 'Rajesh Kumar', product: 'RC24 ID (Level 20)', price: 30, status: 'completed', date: '2025-06-19', method: 'UPI' },
-  { id: 'PAY-018', customer: 'Priya Sharma', product: 'RC24 ID (Level 50)', price: 50, status: 'completed', date: '2025-06-18', method: 'UPI' },
-  { id: 'PAY-019', customer: 'Aarav Patel', product: 'RC24 ID (Level 85)', price: 100, status: 'completed', date: '2025-06-17', method: 'UPI' },
-  { id: 'PAY-020', customer: 'Neha Gupta', product: 'All-in-One Checker', price: 80, status: 'completed', date: '2025-06-16', method: 'UPI' },
-  { id: 'PAY-023', customer: 'Vikram Joshi', product: 'Netflix Premium Account', price: 100, status: 'completed', date: '2025-06-15', method: 'UPI' },
-  { id: 'PAY-026', customer: 'Meera Nair', product: 'SX Premium Membership', price: 200, status: 'completed', date: '2025-06-10', method: 'UPI' },
-  { id: 'PAY-027', customer: 'Suresh Babu', product: 'RC24 ID (Level 100)', price: 130, status: 'completed', date: '2025-06-14', method: 'UPI' },
-  { id: 'PAY-029', customer: 'Rohan Malhotra', product: 'Squad Editor', price: 100, status: 'completed', date: '2025-06-13', method: 'UPI' },
-  { id: 'PAY-032', customer: 'Kavita Choudhary', product: 'RC24 ID (Level 20)', price: 30, status: 'completed', date: '2025-06-12', method: 'UPI' },
-  { id: 'PAY-033', customer: 'Sanjay Verma', product: 'RC24 ID (Level 50)', price: 50, status: 'completed', date: '2025-06-11', method: 'UPI' },
-
-  // Sample pending payments
-  { id: 'PAY-021', customer: 'Rahul Singh', product: 'Real Cricket 20 Legends', price: 70, status: 'pending', date: '', method: 'UPI' },
-  { id: 'PAY-022', customer: 'Ananya Reddy', product: 'Boundary Hoarding Checker', price: 70, status: 'pending', date: '', method: 'UPI' },
-  { id: 'PAY-024', customer: 'Deepika Iyer', product: 'Shots Checker Pro', price: 120, status: 'pending', date: '', method: 'UPI' },
-  { id: 'PAY-025', customer: 'Arjun Menon', product: 'Custom webpage', price: 100, status: 'pending', date: '', method: 'UPI' },
-  { id: 'PAY-028', customer: 'Pooja Desai', product: 'Premium Mod Menus', price: 50, status: 'pending', date: '', method: 'UPI' },
-  { id: 'PAY-030', customer: 'Anjali Kapoor', product: 'RC24 ID', price: 130, status: 'pending', date: '', method: 'UPI' },
-  { id: 'PAY-031', customer: 'Vishal Bhatia', product: 'Game Making Kit', price: 500, status: 'pending', date: '', method: 'UPI' },
-  { id: 'PAY-034', customer: 'Divya Srinivasan', product: 'RC24 ID (Level 85)', price: 100, status: 'pending', date: '', method: 'UPI' },
-  { id: 'PAY-035', customer: 'Manoj Tiwari', product: 'RC24 ID (Level 100)', price: 130, status: 'pending', date: '', method: 'UPI' },
-  { id: 'PAY-036', customer: 'Sunita Rao', product: 'All-in-One Checker', price: 80, status: 'pending', date: '', method: 'UPI' },
-  
-  // Additional payments with desi Indian names
-  { id: 'PAY-037', customer: 'Rakesh Roshan', product: 'RC24 ID (Level 50)', price: 50, status: 'completed', date: '2025-06-09', method: 'UPI' },
-  { id: 'PAY-038', customer: 'Babloo Pandey', product: 'Netflix Premium', price: 100, status: 'pending', date: '', method: 'UPI' },
-  { id: 'PAY-039', customer: 'Chintu Sharma', product: 'Squad Editor Pro', price: 100, status: 'completed', date: '2025-06-08', method: 'UPI' },
-  { id: 'PAY-040', customer: 'Pappu Yadav', product: 'RC24 ID (Level 100)', price: 130, status: 'pending', date: '', method: 'UPI' },
-  { id: 'PAY-041', customer: 'Guddu Bhaiya', product: 'Premium Mod Menu', price: 50, status: 'completed', date: '2025-06-07', method: 'UPI' },
-  { id: 'PAY-042', customer: 'Munna Tripathi', product: 'Game Making Kit', price: 500, status: 'pending', date: '', method: 'UPI' },
-  { id: 'PAY-043', customer: 'Bablu Don', product: 'Personal OBB', price: 100, status: 'completed', date: '2025-06-06', method: 'UPI' },
-  { id: 'PAY-044', customer: 'Golu Gupta', product: 'RC24 ID', price: 130, status: 'pending', date: '', method: 'UPI' },
-  { id: 'PAY-045', customer: 'Rinku Singh', product: '2 IDs (1 paid)', price: 130, status: 'completed', date: '2025-06-05', method: 'UPI' },
-  { id: 'PAY-046', customer: 'Lallan Mishra', product: 'SX Premium Membership', price: 200, status: 'pending', date: '', method: 'UPI' },
-  { id: 'PAY-047', customer: 'Chhotu Kumar', product: 'RC24 ID (Level 20)', price: 30, status: 'completed', date: '2025-06-04', method: 'UPI' },
-  { id: 'PAY-048', customer: 'Bunty Chor', product: 'All-in-One Checker', price: 80, status: 'pending', date: '', method: 'UPI' },
-  { id: 'PAY-049', customer: 'Gopal Dada', product: 'Shots Checker Pro', price: 120, status: 'completed', date: '2025-06-03', method: 'UPI' },
-  { id: 'PAY-050', customer: 'Mithun Chakraborty', product: 'Custom webpage', price: 100, status: 'pending', date: '', method: 'UPI' },
-  
-  // More payments with typical Indian names
-  { id: 'PAY-051', customer: 'Rajiv Chaturvedi', product: 'RC24 ID (Level 85)', price: 100, status: 'completed', date: '2025-06-02', method: 'UPI' },
-  { id: 'PAY-052', customer: 'Sunil Grover', product: 'Netflix Premium', price: 100, status: 'pending', date: '', method: 'UPI' },
-  { id: 'PAY-053', customer: 'Amitabh Srivastava', product: 'Squad Editor', price: 100, status: 'completed', date: '2025-06-01', method: 'UPI' },
-  { id: 'PAY-054', customer: 'Vijay Malya', product: 'RC24 ID (Level 100)', price: 130, status: 'pending', date: '', method: 'UPI' },
-  { id: 'PAY-055', customer: 'Sanjay Dutt', product: 'Premium Mod Menu', price: 50, status: 'completed', date: '2025-05-31', method: 'UPI' },
-  { id: 'PAY-056', customer: 'Arshad Warsi', product: 'Game Making Kit', price: 500, status: 'pending', date: '', method: 'UPI' },
-  { id: 'PAY-057', customer: 'Javed Jaffrey', product: 'Personal OBB', price: 100, status: 'completed', date: '2025-05-30', method: 'UPI' },
-  { id: 'PAY-058', customer: 'Asrani', product: 'RC24 ID', price: 130, status: 'pending', date: '', method: 'UPI' },
-  { id: 'PAY-059', customer: 'Paresh Rawal', product: '2 IDs (1 paid)', price: 130, status: 'completed', date: '2025-05-29', method: 'UPI' },
-  { id: 'PAY-060', customer: 'SilentShadow', product: 'RC24 ID', price: 130, status: 'pending', date: '', method: 'UPI' },
-    ];
   const filteredData = paymentData.filter(item =>
     item.customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.product.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredStock = stockItems.filter(item =>
+    item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const totalRevenue = paymentData.reduce((sum, item) => item.status === 'completed' ? sum + item.price : sum, 0);
@@ -128,6 +99,23 @@ export default function PaymentsPage() {
     document.body.removeChild(link);
   };
 
+  const exportStockToCSV = () => {
+    let csv = 'ID,Name,Category,Price,Stock\n';
+    stockItems.forEach(item => {
+      csv += `"${item.id}","${item.name}","${item.category}",${item.price},${item.stock}\n`;
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `stock_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const handleAdminLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (password === 'shivaxadmins009') {
@@ -145,7 +133,26 @@ export default function PaymentsPage() {
     setPassword('');
   };
 
-  if (viewMode === 'admin' && !adminLoggedIn) {
+  const increaseStock = (id: string) => {
+    setStockItems(stockItems.map(item => 
+      item.id === id ? { ...item, stock: item.stock + 1 } : item
+    ));
+  };
+
+  const decreaseStock = (id: string) => {
+    setStockItems(stockItems.map(item => 
+      item.id === id ? { ...item, stock: Math.max(0, item.stock - 1) } : item
+    ));
+  };
+
+  const clearStock = () => {
+    setStockItems(stockItems.map(item => ({
+      ...item,
+      stock: item.name === 'Squad Editor' ? 50 : 0
+    })));
+  };
+
+  if ((viewMode === 'admin' || viewMode === 'stock') && !adminLoggedIn) {
     return (
       <div className={`min-h-screen flex items-center justify-center transition-colors ${darkMode ? 'bg-gradient-to-br from-gray-900 to-gray-800 text-white' : 'bg-gray-50 text-gray-900'}`}>
         <div className={`w-full max-w-md p-8 rounded-2xl shadow-xl ${darkMode ? 'bg-gray-800' : 'bg-white'} border ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
@@ -209,6 +216,155 @@ export default function PaymentsPage() {
     );
   }
 
+  if (viewMode === 'stock') {
+    return (
+      <div className={`min-h-screen transition-colors ${darkMode ? 'bg-gradient-to-br from-gray-900 to-gray-800 text-white' : 'bg-gray-50 text-gray-900'}`}>
+        <header className={`${darkMode ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'} border-b shadow-sm`}>
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-between h-16">
+              <div className="flex items-center space-x-4">
+                <Link href="/" className="flex items-center">
+                  <div className={`p-2 rounded-lg ${darkMode ? 'bg-red-500' : 'bg-gradient-to-r from-red-500 to-orange-500'}`}>
+                    <Warehouse className="text-white" size={20} />
+                  </div>
+                  <span className="ml-3 text-xl font-bold">ShivaStock</span>
+                </Link>
+                <nav className="hidden md:flex items-center space-x-1 ml-8">
+                  <button 
+                    onClick={() => setViewMode('admin')}
+                    className={`px-3 py-2 rounded-md text-sm font-medium ${darkMode ? 'text-gray-300 hover:bg-gray-800' : 'text-gray-700 hover:bg-gray-100'}`}
+                  >
+                    <CreditCard size={16} className="inline mr-1" /> Payments
+                  </button>
+                </nav>
+              </div>
+              <div className="flex items-center space-x-4">
+                <button 
+                  onClick={() => setDarkMode(!darkMode)}
+                  className={`p-2 rounded-full ${darkMode ? 'bg-gray-800 text-yellow-300 hover:bg-gray-700' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
+                >
+                  {darkMode ? <Sun size={18} /> : <Moon size={18} />}
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className={`px-4 py-2 rounded-md text-sm font-medium ${darkMode ? 'bg-red-600 hover:bg-red-700' : 'bg-red-500 hover:bg-red-600'} text-white`}
+                >
+                  <Lock size={16} className="inline mr-1" /> Logout
+                </button>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <main className="container mx-auto px-4 py-8">
+          <section className="mb-8">
+            <div className={`p-6 rounded-xl ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border shadow`}>
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+                <h1 className="text-2xl md:text-3xl font-bold flex items-center">
+                  <Warehouse className="mr-3" size={28} /> Inventory Management
+                </h1>
+                <div className="flex space-x-3 mt-4 md:mt-0">
+                  <button
+                    onClick={clearStock}
+                    className={`px-4 py-2 rounded-md text-sm font-medium flex items-center ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'}`}
+                  >
+                    <RotateCw size={16} className="mr-2" /> Reset Stock
+                  </button>
+                  <button 
+                    onClick={exportStockToCSV}
+                    className={`px-4 py-2 rounded-md text-sm font-medium flex items-center ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'}`}
+                  >
+                    <Download size={16} className="mr-2" /> Export
+                  </button>
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <div className={`relative ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Search size={18} />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Search products..."
+                    className={`block w-full pl-10 pr-3 py-2 rounded-md ${darkMode ? 'bg-gray-700 border-gray-600 placeholder-gray-400' : 'bg-white border-gray-300 placeholder-gray-500'} border focus:outline-none focus:ring-2 ${darkMode ? 'focus:ring-red-500' : 'focus:ring-orange-500'} focus:border-transparent`}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {filteredStock.map((item) => (
+                  <div 
+                    key={item.id} 
+                    className={`p-5 rounded-xl border ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} shadow-sm hover:shadow-md transition-shadow`}
+                  >
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <h3 className="font-bold text-lg">{item.name}</h3>
+                        <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{item.category}</p>
+                      </div>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        item.stock > 0 ? 
+                          (darkMode ? 'bg-green-900 text-green-200' : 'bg-green-100 text-green-800') :
+                          (darkMode ? 'bg-red-900 text-red-200' : 'bg-red-100 text-red-800')
+                      }`}>
+                        {item.stock > 0 ? 'In Stock' : 'Out of Stock'}
+                      </span>
+                    </div>
+                    
+                    <div className="flex justify-between items-center mb-4">
+                      <span className="font-mono text-lg">₹{item.price}</span>
+                      <span className={`font-mono text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                        {item.stock} units
+                      </span>
+                    </div>
+                    
+                    <div className="flex justify-between items-center">
+                      <button
+                        onClick={() => decreaseStock(item.id)}
+                        className={`p-2 rounded-full ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'} ${item.stock <= 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        disabled={item.stock <= 0}
+                      >
+                        <Minus size={16} />
+                      </button>
+                      
+                      <div className={`px-4 py-1 rounded-full ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                        <span className="font-medium">{item.stock}</span>
+                      </div>
+                      
+                      <button
+                        onClick={() => increaseStock(item.id)}
+                        className={`p-2 rounded-full ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'}`}
+                      >
+                        <Plus size={16} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        </main>
+
+        <footer className={`${darkMode ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'} border-t py-8 mt-12`}>
+          <div className="container mx-auto px-4">
+            <div className="flex flex-col md:flex-row justify-between items-center">
+              <div className="flex items-center">
+                <Warehouse className={`${darkMode ? 'text-red-500' : 'text-orange-500'} mr-2`} size={20} />
+                <span className="text-lg font-bold">ShivaStock</span>
+              </div>
+              <div className={`mt-4 md:mt-0 text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                © 2025 Shiva X Mods. All rights reserved.
+              </div>
+            </div>
+          </div>
+        </footer>
+      </div>
+    );
+  }
+
   return (
     <div className={`min-h-screen transition-colors ${darkMode ? 'bg-gradient-to-br from-gray-900 to-gray-800 text-white' : 'bg-gray-50 text-gray-900'}`}>
       <header className={`${darkMode ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'} border-b shadow-sm`}>
@@ -235,12 +391,20 @@ export default function PaymentsPage() {
                 {darkMode ? <Sun size={18} /> : <Moon size={18} />}
               </button>
               {adminLoggedIn ? (
-                <button
-                  onClick={handleLogout}
-                  className={`px-4 py-2 rounded-md text-sm font-medium ${darkMode ? 'bg-red-600 hover:bg-red-700' : 'bg-red-500 hover:bg-red-600'} text-white`}
-                >
-                  <Lock size={16} className="inline mr-1" /> Logout
-                </button>
+                <>
+                  <button
+                    onClick={() => setViewMode('stock')}
+                    className={`px-4 py-2 rounded-md text-sm font-medium ${darkMode ? 'bg-gray-800 hover:bg-gray-700' : 'bg-gray-100 hover:bg-gray-200'}`}
+                  >
+                    <Package size={16} className="inline mr-1" /> Stock
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className={`px-4 py-2 rounded-md text-sm font-medium ${darkMode ? 'bg-red-600 hover:bg-red-700' : 'bg-red-500 hover:bg-red-600'} text-white`}
+                  >
+                    <Lock size={16} className="inline mr-1" /> Logout
+                  </button>
+                </>
               ) : (
                 <button
                   onClick={() => setViewMode('admin')}
