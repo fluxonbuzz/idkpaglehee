@@ -66,6 +66,8 @@ export default function PaymentsPage() {
   { id: 'PAY-015', customer: 'GamiN', product: 'Squad Editor Pro', price: 100, status: 'cancelled', date: '', method: 'UPI' },
   { id: 'PAY-016', customer: 'Virat Kholi', product: 'RC24 ID', price: 130, status: 'pending', date: '', method: 'UPI' },
   { id: 'PAY-060', customer: 'SilentShadow', product: 'RC24 ID', price: 130, status: 'pending', date: '', method: 'UPI' },
+  { id: 'PAY-061', customer: 'Muneer', product: 'RC24 ID', price: 130, status: 'pending', date: '', method: 'UPI' },
+     
 
   // ===== SAMPLE PAYMENTS (Generated data) =====
   // Recent completed payments
