@@ -6,8 +6,6 @@ import {
   Clock, 
   ChevronRight,
   ChevronLeft,
-  Sun,
-  Moon,
   Home,
   Download,
   Search,
@@ -39,11 +37,14 @@ import {
   Wrench,
   Key,
   RefreshCw,
-  ArrowRight
+  ArrowRight,
+  Menu,
+  X,
+  Zap as Lightning
 } from 'lucide-react';
 
 export default function PaymentsPage() {
-  const [darkMode, setDarkMode] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'customer' | 'admin' | 'stock'>('customer');
   const [adminLoggedIn, setAdminLoggedIn] = useState(false);
@@ -230,26 +231,26 @@ export default function PaymentsPage() {
 
   if ((viewMode === 'admin' || viewMode === 'stock') && !adminLoggedIn) {
     return (
-      <div className={`min-h-screen flex items-center justify-center transition-colors ${darkMode ? 'bg-gradient-to-br from-gray-900 to-gray-800 text-white' : 'bg-gray-50 text-gray-900'}`}>
-        <div className={`w-full max-w-md p-8 rounded-2xl shadow-xl ${darkMode ? 'bg-gray-800' : 'bg-white'} border ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+      <div className="min-h-screen bg-gray-950 text-white flex items-center justify-center">
+        <div className="w-full max-w-md p-8 rounded-2xl shadow-xl bg-gray-900 border border-gray-800">
           <div className="text-center mb-8">
-            <div className={`inline-flex items-center justify-center p-4 rounded-full ${darkMode ? 'bg-red-500/20' : 'bg-red-100'}`}>
-              <Lock className={`${darkMode ? 'text-red-400' : 'text-red-500'}`} size={32} />
+            <div className="inline-flex items-center justify-center p-4 rounded-full bg-red-500/20">
+              <Lock className="text-red-400" size={32} />
             </div>
             <h1 className="text-2xl font-bold mt-4">Admin Portal</h1>
-            <p className={`mt-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Enter password to continue</p>
+            <p className="mt-2 text-gray-400">Enter password to continue</p>
           </div>
 
           <form onSubmit={handleAdminLogin}>
             <div className="mb-6">
-              <div className={`relative ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+              <div className="relative text-gray-300">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Lock size={18} />
                 </div>
                 <input
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter admin password"
-                  className={`block w-full pl-10 pr-10 py-3 rounded-lg ${darkMode ? 'bg-gray-700 border-gray-600 placeholder-gray-400' : 'bg-white border-gray-300 placeholder-gray-500'} border focus:outline-none focus:ring-2 ${darkMode ? 'focus:ring-red-500' : 'focus:ring-orange-500'} focus:border-transparent`}
+                  className="block w-full pl-10 pr-10 py-3 rounded-lg bg-gray-800 border-gray-700 placeholder-gray-500 border focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
@@ -259,9 +260,9 @@ export default function PaymentsPage() {
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
-                    <EyeOff size={18} className={darkMode ? 'text-gray-400' : 'text-gray-500'} />
+                    <EyeOff size={18} className="text-gray-400" />
                   ) : (
-                    <Eye size={18} className={darkMode ? 'text-gray-400' : 'text-gray-500'} />
+                    <Eye size={18} className="text-gray-400" />
                   )}
                 </button>
               </div>
@@ -271,7 +272,7 @@ export default function PaymentsPage() {
             </div>
             <button
               type="submit"
-              className={`w-full py-3 px-4 rounded-lg font-medium ${darkMode ? 'bg-red-600 hover:bg-red-700 text-white' : 'bg-red-500 hover:bg-red-600 text-white'} transition-colors flex items-center justify-center`}
+              className="w-full py-3 px-4 rounded-lg font-medium bg-red-600 hover:bg-red-700 text-white transition-colors flex items-center justify-center"
             >
               <Lock size={18} className="mr-2" />
               Unlock Admin Dashboard
@@ -281,7 +282,7 @@ export default function PaymentsPage() {
           <div className="mt-6 text-center">
             <button
               onClick={() => setViewMode('customer')}
-              className={`text-sm ${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600 hover:text-gray-800'} flex items-center justify-center w-full`}
+              className="text-sm text-gray-400 hover:text-gray-300 flex items-center justify-center w-full"
             >
               <ChevronLeft size={16} className="mr-1" />
               Return to Customer View
@@ -294,47 +295,90 @@ export default function PaymentsPage() {
 
   if (viewMode === 'stock') {
     return (
-      <div className={`min-h-screen transition-colors ${darkMode ? 'bg-gradient-to-br from-gray-900 to-gray-800 text-white' : 'bg-gray-50 text-gray-900'}`}>
-        <header className={`${darkMode ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'} border-b shadow-sm`}>
-          <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between h-16">
-              <div className="flex items-center space-x-4">
-                <Link href="/" className="flex items-center">
-                  <div className={`p-2 rounded-lg ${darkMode ? 'bg-red-500' : 'bg-gradient-to-r from-red-500 to-orange-500'}`}>
-                    <Warehouse className="text-white" size={20} />
-                  </div>
-                  <span className="ml-3 text-xl font-bold">ShivaStock</span>
-                </Link>
-                <nav className="hidden md:flex items-center space-x-1 ml-8">
-                  <button 
-                    onClick={() => setViewMode('admin')}
-                    className={`px-3 py-2 rounded-md text-sm font-medium ${darkMode ? 'text-gray-300 hover:bg-gray-800' : 'text-gray-700 hover:bg-gray-100'}`}
-                  >
-                    <CreditCard size={16} className="inline mr-1" /> Payments
-                  </button>
-                </nav>
+      <div className="min-h-screen bg-gray-950 text-white">
+        <header className="fixed w-full z-50 bg-gray-950/80 backdrop-blur-md border-b border-gray-800">
+          <div className="container mx-auto px-6 py-4 flex justify-between items-center">
+            <Link href="/" className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-emerald-400 to-cyan-500 rounded-md flex items-center justify-center">
+                <Warehouse className="h-5 w-5 text-gray-950" />
               </div>
-              <div className="flex items-center space-x-4">
-                <button 
-                  onClick={() => setDarkMode(!darkMode)}
-                  className={`p-2 rounded-full ${darkMode ? 'bg-gray-800 text-yellow-300 hover:bg-gray-700' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
-                >
-                  {darkMode ? <Sun size={18} /> : <Moon size={18} />}
-                </button>
-                <button
-                  onClick={handleLogout}
-                  className={`px-4 py-2 rounded-md text-sm font-medium ${darkMode ? 'bg-red-600 hover:bg-red-700' : 'bg-red-500 hover:bg-red-600'} text-white`}
-                >
-                  <Lock size={16} className="inline mr-1" /> Logout
-                </button>
-              </div>
+              <span className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-500 bg-clip-text text-transparent">
+                ShivaStock
+              </span>
+            </Link>
+
+            <nav className="hidden md:flex items-center gap-8">
+              <button 
+                onClick={() => setViewMode('admin')}
+                className="text-sm font-medium hover:text-emerald-400 transition-colors flex items-center"
+              >
+                <CreditCard className="h-4 w-4 mr-2" /> Payments
+              </button>
+            </nav>
+
+            <div className="flex items-center gap-4">
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 rounded-md text-sm font-medium bg-red-600 hover:bg-red-700 text-white flex items-center"
+              >
+                <Lock className="h-4 w-4 mr-2" /> Logout
+              </button>
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="p-2 rounded-md hover:bg-gray-800 transition-colors md:hidden"
+              >
+                <Menu className="h-6 w-6" />
+              </button>
             </div>
           </div>
         </header>
 
-        <main className="container mx-auto px-4 py-8">
+        {/* Mobile Sidebar */}
+        {sidebarOpen && (
+          <div className="fixed inset-0 z-40 bg-black/80 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
+        )}
+        <div className={`fixed inset-y-0 right-0 z-50 w-80 bg-gray-900 border-l border-gray-800 shadow-2xl transform ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'} transition-transform duration-300 ease-in-out`}>
+          <div className="flex justify-between items-center p-6 border-b border-gray-800">
+            <Link href="/" className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-emerald-400 to-cyan-500 rounded-md flex items-center justify-center">
+                <Warehouse className="h-5 w-5 text-gray-950" />
+              </div>
+              <span className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-500 bg-clip-text text-transparent">
+                ShivaStock
+              </span>
+            </Link>
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="p-2 rounded-md hover:bg-gray-800 transition-colors"
+            >
+              <X className="h-6 w-6" />
+            </button>
+          </div>
+          <nav className="flex flex-col p-6 space-y-4">
+            <button
+              onClick={() => {
+                setViewMode('admin');
+                setSidebarOpen(false);
+              }}
+              className="px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium text-left flex items-center"
+            >
+              <CreditCard className="h-5 w-5 mr-3" /> Payments
+            </button>
+            <button
+              onClick={() => {
+                setViewMode('customer');
+                setSidebarOpen(false);
+              }}
+              className="px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium text-left flex items-center"
+            >
+              <Home className="h-5 w-5 mr-3" /> Customer View
+            </button>
+          </nav>
+        </div>
+
+        <main className="container mx-auto px-4 py-8 pt-24">
           <section className="mb-8">
-            <div className={`p-6 rounded-xl ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border shadow`}>
+            <div className="p-6 rounded-xl bg-gray-900 border border-gray-800 shadow">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
                 <h1 className="text-2xl md:text-3xl font-bold flex items-center">
                   <Warehouse className="mr-3" size={28} /> Inventory Management
@@ -342,13 +386,13 @@ export default function PaymentsPage() {
                 <div className="flex space-x-3 mt-4 md:mt-0">
                   <button
                     onClick={clearStock}
-                    className={`px-4 py-2 rounded-md text-sm font-medium flex items-center ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'}`}
+                    className="px-4 py-2 rounded-md text-sm font-medium flex items-center bg-gray-800 hover:bg-gray-700"
                   >
                     <RotateCw size={16} className="mr-2" /> Reset Stock
                   </button>
                   <button 
                     onClick={exportStockToCSV}
-                    className={`px-4 py-2 rounded-md text-sm font-medium flex items-center ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'}`}
+                    className="px-4 py-2 rounded-md text-sm font-medium flex items-center bg-gray-800 hover:bg-gray-700"
                   >
                     <Download size={16} className="mr-2" /> Export
                   </button>
@@ -356,14 +400,14 @@ export default function PaymentsPage() {
               </div>
 
               <div className="mb-6">
-                <div className={`relative ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                <div className="relative text-gray-300">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Search size={18} />
                   </div>
                   <input
                     type="text"
                     placeholder="Search products..."
-                    className={`block w-full pl-10 pr-3 py-2 rounded-md ${darkMode ? 'bg-gray-700 border-gray-600 placeholder-gray-400' : 'bg-white border-gray-300 placeholder-gray-500'} border focus:outline-none focus:ring-2 ${darkMode ? 'focus:ring-red-500' : 'focus:ring-orange-500'} focus:border-transparent`}
+                    className="block w-full pl-10 pr-3 py-2 rounded-md bg-gray-800 border-gray-700 placeholder-gray-500 border focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
@@ -376,24 +420,24 @@ export default function PaymentsPage() {
                   return (
                     <div 
                       key={item.id} 
-                      className={`p-5 rounded-xl border ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} shadow-sm hover:shadow-md transition-shadow`}
+                      className="p-5 rounded-xl border bg-gray-900 border-gray-800 shadow-sm hover:shadow-md transition-shadow"
                     >
                       <div className="flex justify-between items-start mb-3">
                         <div className="flex items-start">
-                          <div className={`p-2 rounded-lg mr-3 ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                          <div className="p-2 rounded-lg mr-3 bg-gray-800">
                             {item.icon}
                           </div>
                           <div>
                             <h3 className="font-bold text-lg">{item.name}</h3>
-                            <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{item.category}</p>
+                            <p className="text-sm text-gray-400">{item.category}</p>
                           </div>
                         </div>
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          status.level === 0 ? (darkMode ? 'bg-red-900 text-red-200' : 'bg-red-100 text-red-800') :
-                          status.level === 1 ? (darkMode ? 'bg-orange-900 text-orange-200' : 'bg-orange-100 text-orange-800') :
-                          status.level === 2 ? (darkMode ? 'bg-yellow-900 text-yellow-200' : 'bg-yellow-100 text-yellow-800') :
-                          status.level === 3 ? (darkMode ? 'bg-blue-900 text-blue-200' : 'bg-blue-100 text-blue-800') :
-                          (darkMode ? 'bg-green-900 text-green-200' : 'bg-green-100 text-green-800')
+                          status.level === 0 ? 'bg-red-900 text-red-200' :
+                          status.level === 1 ? 'bg-orange-900 text-orange-200' :
+                          status.level === 2 ? 'bg-yellow-900 text-yellow-200' :
+                          status.level === 3 ? 'bg-blue-900 text-blue-200' :
+                          'bg-green-900 text-green-200'
                         }`}>
                           {status.text}
                         </span>
@@ -402,9 +446,7 @@ export default function PaymentsPage() {
                       <div className="flex justify-between items-center mb-4">
                         <span className="font-mono text-lg">₹{item.price}</span>
                         <div className="flex items-center">
-                          <span className={`text-xs font-medium mr-2 ${
-                            darkMode ? 'text-gray-400' : 'text-gray-600'
-                          }`}>
+                          <span className="text-xs font-medium mr-2 text-gray-400">
                             Stock:
                           </span>
                           <span className="font-mono text-sm">
@@ -416,19 +458,19 @@ export default function PaymentsPage() {
                       <div className="flex justify-between items-center">
                         <button
                           onClick={() => decreaseStock(item.id)}
-                          className={`p-2 rounded-full ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'} ${item.stock <= 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          className={`p-2 rounded-full bg-gray-800 hover:bg-gray-700 ${item.stock <= 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
                           disabled={item.stock <= 0}
                         >
                           <Minus size={16} />
                         </button>
                         
-                        <div className={`px-4 py-1 rounded-full ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                        <div className="px-4 py-1 rounded-full bg-gray-800">
                           <span className="font-medium">{item.stock}</span>
                         </div>
                         
                         <button
                           onClick={() => increaseStock(item.id)}
-                          className={`p-2 rounded-full ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'}`}
+                          className="p-2 rounded-full bg-gray-800 hover:bg-gray-700"
                         >
                           <Plus size={16} />
                         </button>
@@ -441,14 +483,14 @@ export default function PaymentsPage() {
           </section>
         </main>
 
-        <footer className={`${darkMode ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'} border-t py-8 mt-12`}>
+        <footer className="bg-gray-900 border-t border-gray-800 py-8 mt-12">
           <div className="container mx-auto px-4">
             <div className="flex flex-col md:flex-row justify-between items-center">
               <div className="flex items-center">
-                <Warehouse className={`${darkMode ? 'text-red-500' : 'text-orange-500'} mr-2`} size={20} />
+                <Warehouse className="text-red-500 mr-2" size={20} />
                 <span className="text-lg font-bold">ShivaStock</span>
               </div>
-              <div className={`mt-4 md:mt-0 text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              <div className="text-sm text-gray-400 mt-4 md:mt-0">
                 © 2025 Shiva X Mods. All rights reserved.
               </div>
             </div>
@@ -459,71 +501,135 @@ export default function PaymentsPage() {
   }
 
   return (
-    <div className={`min-h-screen transition-colors ${darkMode ? 'bg-gradient-to-br from-gray-900 to-gray-800 text-white' : 'bg-gray-50 text-gray-900'}`}>
-      <header className={`${darkMode ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'} border-b shadow-sm`}>
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
-              <Link href="/" className="flex items-center">
-                <div className={`p-2 rounded-lg ${darkMode ? 'bg-red-500' : 'bg-gradient-to-r from-red-500 to-orange-500'}`}>
-                  <DollarSign className="text-white" size={20} />
-                </div>
-                <span className="ml-3 text-xl font-bold">ShivaPay</span>
-              </Link>
-              <nav className="hidden md:flex items-center space-x-1 ml-8">
-                <Link href="/" className={`px-3 py-2 rounded-md text-sm font-medium ${darkMode ? 'text-gray-300 hover:bg-gray-800' : 'text-gray-700 hover:bg-gray-100'}`}>
-                  <Home size={16} className="inline mr-1" /> Home
-                </Link>
-              </nav>
+    <div className="min-h-screen bg-gray-950 text-white">
+      <header className="fixed w-full z-50 bg-gray-950/80 backdrop-blur-md border-b border-gray-800">
+        <div className="container mx-auto px-6 py-4 flex justify-between items-center">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-emerald-400 to-cyan-500 rounded-md flex items-center justify-center">
+              <DollarSign className="h-5 w-5 text-gray-950" />
             </div>
-            <div className="flex items-center space-x-4">
-              <button 
-                onClick={() => setDarkMode(!darkMode)}
-                className={`p-2 rounded-full ${darkMode ? 'bg-gray-800 text-yellow-300 hover:bg-gray-700' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
-              >
-                {darkMode ? <Sun size={18} /> : <Moon size={18} />}
-              </button>
-              {adminLoggedIn ? (
-                <>
-                  <button
-                    onClick={() => setViewMode('stock')}
-                    className={`px-4 py-2 rounded-md text-sm font-medium ${darkMode ? 'bg-gray-800 hover:bg-gray-700' : 'bg-gray-100 hover:bg-gray-200'}`}
-                  >
-                    <Package size={16} className="inline mr-1" /> Stock
-                  </button>
-                  <button
-                    onClick={handleLogout}
-                    className={`px-4 py-2 rounded-md text-sm font-medium ${darkMode ? 'bg-red-600 hover:bg-red-700' : 'bg-red-500 hover:bg-red-600'} text-white`}
-                  >
-                    <Lock size={16} className="inline mr-1" /> Logout
-                  </button>
-                </>
-              ) : (
+            <span className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-500 bg-clip-text text-transparent">
+              ShivaPay
+            </span>
+          </Link>
+
+          <nav className="hidden md:flex items-center gap-8">
+            <Link href="/" className="text-sm font-medium hover:text-emerald-400 transition-colors flex items-center">
+              <Home className="h-4 w-4 mr-2" /> Home
+            </Link>
+          </nav>
+
+          <div className="flex items-center gap-4">
+            {adminLoggedIn ? (
+              <>
                 <button
-                  onClick={() => setViewMode('admin')}
-                  className={`px-4 py-2 rounded-md text-sm font-medium ${darkMode ? 'bg-gray-800 hover:bg-gray-700' : 'bg-gray-100 hover:bg-gray-200'}`}
+                  onClick={() => setViewMode('stock')}
+                  className="px-4 py-2 rounded-md text-sm font-medium bg-gray-800 hover:bg-gray-700 flex items-center"
                 >
-                  <CreditCard size={16} className="inline mr-1" /> Admin View
+                  <Package className="h-4 w-4 mr-2" /> Stock
                 </button>
-              )}
-            </div>
+                <button
+                  onClick={handleLogout}
+                  className="px-4 py-2 rounded-md text-sm font-medium bg-red-600 hover:bg-red-700 text-white flex items-center"
+                >
+                  <Lock className="h-4 w-4 mr-2" /> Logout
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => setViewMode('admin')}
+                className="px-4 py-2 rounded-md text-sm font-medium bg-gray-800 hover:bg-gray-700 flex items-center"
+              >
+                <CreditCard className="h-4 w-4 mr-2" /> Admin View
+              </button>
+            )}
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="p-2 rounded-md hover:bg-gray-800 transition-colors md:hidden"
+            >
+              <Menu className="h-6 w-6" />
+            </button>
           </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
+      {/* Mobile Sidebar */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 z-40 bg-black/80 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
+      )}
+      <div className={`fixed inset-y-0 right-0 z-50 w-80 bg-gray-900 border-l border-gray-800 shadow-2xl transform ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'} transition-transform duration-300 ease-in-out`}>
+        <div className="flex justify-between items-center p-6 border-b border-gray-800">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-emerald-400 to-cyan-500 rounded-md flex items-center justify-center">
+              <DollarSign className="h-5 w-5 text-gray-950" />
+            </div>
+            <span className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-500 bg-clip-text text-transparent">
+              ShivaPay
+            </span>
+          </Link>
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="p-2 rounded-md hover:bg-gray-800 transition-colors"
+          >
+            <X className="h-6 w-6" />
+          </button>
+        </div>
+        <nav className="flex flex-col p-6 space-y-4">
+          <Link
+            href="/"
+            className="px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium flex items-center"
+            onClick={() => setSidebarOpen(false)}
+          >
+            <Home className="h-5 w-5 mr-3" /> Home
+          </Link>
+          {adminLoggedIn ? (
+            <>
+              <button
+                onClick={() => {
+                  setViewMode('admin');
+                  setSidebarOpen(false);
+                }}
+                className="px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium text-left flex items-center"
+              >
+                <CreditCard className="h-5 w-5 mr-3" /> Payments
+              </button>
+              <button
+                onClick={() => {
+                  setViewMode('stock');
+                  setSidebarOpen(false);
+                }}
+                className="px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium text-left flex items-center"
+              >
+                <Package className="h-5 w-5 mr-3" /> Stock
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={() => {
+                setViewMode('admin');
+                setSidebarOpen(false);
+              }}
+              className="px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium text-left flex items-center"
+            >
+              <CreditCard className="h-5 w-5 mr-3" /> Admin View
+            </button>
+          )}
+        </nav>
+      </div>
+
+      <main className="container mx-auto px-4 py-8 pt-24">
         <section className="mb-8">
-          <div className={`p-6 rounded-xl ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border shadow`}>
+          <div className="p-6 rounded-xl bg-gray-900 border border-gray-800 shadow">
             <h2 className="text-xl font-bold mb-4">Find Your Payments</h2>
             <div className="flex flex-col md:flex-row gap-4">
-              <div className={`flex-1 relative ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+              <div className="flex-1 relative text-gray-300">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Search size={18} />
                 </div>
                 <input
                   type="text"
                   placeholder="Search by customer name, payment ID or product..."
-                  className={`block w-full pl-10 pr-3 py-2 rounded-md ${darkMode ? 'bg-gray-700 border-gray-600 placeholder-gray-400' : 'bg-white border-gray-300 placeholder-gray-500'} border focus:outline-none focus:ring-2 ${darkMode ? 'focus:ring-red-500' : 'focus:ring-orange-500'} focus:border-transparent`}
+                  className="block w-full pl-10 pr-3 py-2 rounded-md bg-gray-800 border-gray-700 placeholder-gray-500 border focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -531,7 +637,7 @@ export default function PaymentsPage() {
               {viewMode === 'admin' && (
                 <button 
                   onClick={exportToCSV}
-                  className={`px-4 py-2 rounded-md text-sm font-medium flex items-center justify-center ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'}`}
+                  className="px-4 py-2 rounded-md text-sm font-medium flex items-center justify-center bg-gray-800 hover:bg-gray-700"
                 >
                   <Download size={16} className="mr-2" /> Export
                 </button>
@@ -543,45 +649,45 @@ export default function PaymentsPage() {
         {viewMode === 'customer' && (
           <>
             <section className="mb-8">
-              <div className={`p-6 rounded-xl ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border shadow`}>
+              <div className="p-6 rounded-xl bg-gray-900 border border-gray-800 shadow">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-bold">Your Payment Summary</h2>
-                  <div className={`p-2 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                  <div className="p-2 rounded-lg bg-gray-800">
                     <User size={20} />
                   </div>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                  <div className={`p-4 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-gray-100'} flex items-center`}>
-                    <div className={`p-3 rounded-full ${darkMode ? 'bg-green-500/10 text-green-400' : 'bg-green-100 text-green-600'} mr-4`}>
+                  <div className="p-4 rounded-lg bg-gray-800 flex items-center">
+                    <div className="p-3 rounded-full bg-green-500/10 text-green-400 mr-4">
                       <CheckCircle size={20} />
                     </div>
                     <div>
-                      <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Completed</p>
+                      <p className="text-sm text-gray-400">Completed</p>
                       <p className="text-lg font-bold">
                         {filteredData.filter(item => item.status === 'completed').length} payments
                       </p>
                     </div>
                   </div>
                   
-                  <div className={`p-4 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-gray-100'} flex items-center`}>
-                    <div className={`p-3 rounded-full ${darkMode ? 'bg-yellow-500/10 text-yellow-400' : 'bg-yellow-100 text-yellow-600'} mr-4`}>
+                  <div className="p-4 rounded-lg bg-gray-800 flex items-center">
+                    <div className="p-3 rounded-full bg-yellow-500/10 text-yellow-400 mr-4">
                       <Clock size={20} />
                     </div>
                     <div>
-                      <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Pending</p>
+                      <p className="text-sm text-gray-400">Pending</p>
                       <p className="text-lg font-bold">
                         {filteredData.filter(item => item.status === 'pending').length} payments
                       </p>
                     </div>
                   </div>
                   
-                  <div className={`p-4 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-gray-100'} flex items-center`}>
-                    <div className={`p-3 rounded-full ${darkMode ? 'bg-blue-500/10 text-blue-400' : 'bg-blue-100 text-blue-600'} mr-4`}>
+                  <div className="p-4 rounded-lg bg-gray-800 flex items-center">
+                    <div className="p-3 rounded-full bg-blue-500/10 text-blue-400 mr-4">
                       <Package size={20} />
                     </div>
                     <div>
-                      <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Products</p>
+                      <p className="text-sm text-gray-400">Products</p>
                       <p className="text-lg font-bold">
                         {[...new Set(filteredData.map(item => item.product))].length} products
                       </p>
@@ -592,136 +698,107 @@ export default function PaymentsPage() {
             </section>
 
             <section className="mb-12 relative overflow-hidden">
-  {/* Animated background elements */}
-  <div className="absolute inset-0 overflow-hidden pointer-events-none">
-    {[...Array(12)].map((_, i) => (
-      <div 
-        key={i} 
-        className={`absolute rounded-full opacity-10 ${i % 2 ? 'bg-indigo-400' : 'bg-purple-400'}`}
-        style={{
-          width: `${Math.random() * 200 + 50}px`,
-          height: `${Math.random() * 200 + 50}px`,
-          left: `${Math.random() * 100}%`,
-          top: `${Math.random() * 100}%`,
-          animation: `float ${Math.random() * 15 + 10}s infinite ease-in-out ${Math.random() * 5}s`
-        }}
-      />
-    ))}
-  </div>
-
-  <div className={`p-6 rounded-2xl bg-gradient-to-br from-purple-900/80 via-indigo-900/80 to-gray-900/90 text-white border border-white/10 backdrop-blur-xl shadow-2xl shadow-purple-500/20 relative overflow-hidden`}>
-    {/* Glow effects */}
-    <div className="absolute -top-20 -left-20 w-64 h-64 rounded-full bg-purple-600/30 blur-3xl"></div>
-    <div className="absolute -bottom-20 -right-20 w-64 h-64 rounded-full bg-indigo-600/30 blur-3xl"></div>
-    
-    {/* Header */}
-    <div className="flex items-center justify-between mb-6 relative z-10">
-      <div className="flex items-center">
-        <div className="relative mr-4">
-          <div className="absolute inset-0 rounded-xl bg-purple-500/30 animate-pulse"></div>
-          <div className={`p-3 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 shadow-lg relative z-10 flex items-center justify-center`}>
-            <BatteryCharging className="h-6 w-6" />
-          </div>
-        </div>
-        <div>
-          <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-300 to-indigo-200">
-            Inventory Pulse
-          </h2>
-          <p className="text-sm text-purple-300/80">Real-time stock monitoring</p>
-        </div>
-      </div>
-      <div className={`p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300 cursor-pointer hover:rotate-12`}>
-        <RefreshCw className="h-5 w-5 text-purple-300" />
-      </div>
-    </div>
-
-    {/* Product grid */}
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5 relative z-10">
-      {stockItems.map((item) => {
-        const status = getStockStatus(item.stock);
-        const statusColors = {
-          0: { bg: 'bg-red-500/90', text: 'text-red-100', border: 'border-red-400/50' },
-          1: { bg: 'bg-amber-500/90', text: 'text-amber-100', border: 'border-amber-400/50' },
-          2: { bg: 'bg-blue-500/90', text: 'text-blue-100', border: 'border-blue-400/50' },
-          3: { bg: 'bg-green-500/90', text: 'text-green-100', border: 'border-green-400/50' },
-          4: { bg: 'bg-emerald-500/90', text: 'text-emerald-100', border: 'border-emerald-400/50' }
-        };
-        
-        return (
-          <div 
-            key={item.id}
-            className="group transition-all duration-500 hover:z-10"
-          >
-            <div className={`relative p-5 rounded-2xl bg-gradient-to-br from-white/5 to-white/10 border border-white/10 shadow-lg transition-all duration-500 group-hover:scale-105 group-hover:shadow-xl h-full group-hover:rotate-y-3`}>
-              {/* Hover shine effect */}
-              <div className="absolute inset-0 rounded-2xl overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 -translate-x-full group-hover:translate-x-full"></div>
-              </div>
-              
-              <div className="flex items-start mb-4">
-                <div className={`p-3 rounded-xl mr-4 ${statusColors[status.level].bg} shadow-md`}>
-                  {React.cloneElement(item.icon, { className: "h-5 w-5" })}
-                </div>
-                <div>
-                  <h3 className="font-bold text-white/90">{item.name}</h3>
-                  <p className="text-xs text-purple-300/70">{item.category}</p>
-                </div>
-              </div>
-              
-              <div className="flex justify-between items-center mb-3">
-                <span className="font-mono text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-300 to-indigo-200">
-                  ₹{item.price}
-                </span>
-                <span className={`text-xs px-2.5 py-1 rounded-full ${statusColors[status.level].bg} ${statusColors[status.level].text} backdrop-blur-sm`}>
-                  {status.text}
-                </span>
-              </div>
-              
-              {/* Progress bar */}
-              <div className="mt-4">
-                <div className="flex justify-between text-xs text-white/60 mb-1">
-                  <span>Stock</span>
-                  <span>{item.stock} units</span>
-                </div>
-                <div className={`h-2 rounded-full bg-white/10 overflow-hidden`}>
-                  <div 
-                    className={`h-full rounded-full ${statusColors[status.level].bg} transition-all duration-1000 ease-out`}
-                    style={{ width: `${Math.min(100, (item.stock / 20) * 100)}%` }}
-                  ></div>
-                </div>
-              </div>
-              
-              {/* Floating particles */}
               <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                {[...Array(3)].map((_, i) => (
+                {[...Array(12)].map((_, i) => (
                   <div 
                     key={i} 
-                    className={`absolute rounded-full ${i % 2 ? 'bg-purple-400/30' : 'bg-indigo-400/30'}`}
+                    className="absolute rounded-full opacity-10 bg-indigo-400"
                     style={{
-                      width: '6px',
-                      height: '6px',
-                      left: `${Math.random() * 80 + 10}%`,
-                      top: `${Math.random() * 80 + 10}%`,
-                      animation: `float ${Math.random() * 10 + 5}s infinite ease-in-out ${Math.random() * 3}s`
+                      width: `${Math.random() * 200 + 50}px`,
+                      height: `${Math.random() * 200 + 50}px`,
+                      left: `${Math.random() * 100}%`,
+                      top: `${Math.random() * 100}%`,
                     }}
                   />
                 ))}
               </div>
-            </div>
-          </div>
-        );
-      })}
-    </div>
-    
-    {/* Footer */}
-    <div className="mt-8 pt-6 border-t border-white/10 flex justify-center relative z-10">
-      <button className="px-6 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium shadow-lg hover:shadow-xl hover:from-purple-500 hover:to-indigo-500 transition-all duration-300 transform hover:-translate-y-1 flex items-center group">
-        <span>View Full Inventory</span>
-        <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-      </button>
-    </div>
-  </div>
-</section>
+
+              <div className="p-8 rounded-2xl bg-gradient-to-br from-purple-900/80 via-indigo-900/80 to-gray-900/90 text-white border border-white/10 backdrop-blur-xl shadow-2xl shadow-purple-500/20 relative overflow-hidden">
+                <div className="absolute -top-20 -left-20 w-64 h-64 rounded-full bg-purple-600/30 blur-3xl"></div>
+                <div className="absolute -bottom-20 -right-20 w-64 h-64 rounded-full bg-indigo-600/30 blur-3xl"></div>
+                
+                <div className="flex items-center justify-between mb-8 relative z-10">
+                  <div className="flex items-center">
+                    <div className="relative mr-4">
+                      <div className="absolute inset-0 rounded-xl bg-purple-500/30 animate-pulse"></div>
+                      <div className="p-3 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 shadow-lg relative z-10 flex items-center justify-center">
+                        <BatteryCharging className="h-6 w-6" />
+                      </div>
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-300 to-indigo-200">
+                        Inventory Pulse
+                      </h2>
+                      <p className="text-sm text-purple-300/80">Real-time stock monitoring</p>
+                    </div>
+                  </div>
+                  <div className="p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300 cursor-pointer hover:rotate-12">
+                    <RefreshCw className="h-5 w-5 text-purple-300" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5 relative z-10">
+                  {stockItems.map((item) => {
+                    const status = getStockStatus(item.stock);
+                    const statusColors = {
+                      0: { bg: 'bg-red-500/90', text: 'text-red-100', border: 'border-red-400/50' },
+                      1: { bg: 'bg-amber-500/90', text: 'text-amber-100', border: 'border-amber-400/50' },
+                      2: { bg: 'bg-blue-500/90', text: 'text-blue-100', border: 'border-blue-400/50' },
+                      3: { bg: 'bg-green-500/90', text: 'text-green-100', border: 'border-green-400/50' },
+                      4: { bg: 'bg-emerald-500/90', text: 'text-emerald-100', border: 'border-emerald-400/50' }
+                    };
+                    
+                    return (
+                      <div 
+                        key={item.id}
+                        className="group transition-all duration-500 hover:z-10"
+                      >
+                        <div className="relative p-5 rounded-2xl bg-gradient-to-br from-white/5 to-white/10 border border-white/10 shadow-lg transition-all duration-500 group-hover:scale-105 group-hover:shadow-xl h-full">
+                          <div className="flex items-start mb-4">
+                            <div className={`p-3 rounded-xl mr-4 ${statusColors[status.level].bg} shadow-md`}>
+                              {item.icon}
+                            </div>
+                            <div>
+                              <h3 className="font-bold text-white/90">{item.name}</h3>
+                              <p className="text-xs text-purple-300/70">{item.category}</p>
+                            </div>
+                          </div>
+                          
+                          <div className="flex justify-between items-center mb-3">
+                            <span className="font-mono text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-300 to-indigo-200">
+                              ₹{item.price}
+                            </span>
+                            <span className={`text-xs px-2.5 py-1 rounded-full ${statusColors[status.level].bg} ${statusColors[status.level].text} backdrop-blur-sm`}>
+                              {status.text}
+                            </span>
+                          </div>
+                          
+                          <div className="mt-4">
+                            <div className="flex justify-between text-xs text-white/60 mb-1">
+                              <span>Stock</span>
+                              <span>{item.stock} units</span>
+                            </div>
+                            <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+                              <div 
+                                className={`h-full rounded-full ${statusColors[status.level].bg} transition-all duration-1000 ease-out`}
+                                style={{ width: `${Math.min(100, (item.stock / 20) * 100)}%` }}
+                              ></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                
+                <div className="mt-8 pt-6 border-t border-white/10 flex justify-center relative z-10">
+                  <button className="px-6 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium shadow-lg hover:shadow-xl hover:from-purple-500 hover:to-indigo-500 transition-all duration-300 transform hover:-translate-y-1 flex items-center group">
+                    <span>View Full Inventory</span>
+                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                </div>
+              </div>
+            </section>
           </>
         )}
 
@@ -729,71 +806,71 @@ export default function PaymentsPage() {
           <section className="mb-8">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
               <h1 className="text-2xl md:text-3xl font-bold">Admin Dashboard</h1>
-              <div className={`mt-4 md:mt-0 px-4 py-2 rounded-lg ${darkMode ? 'bg-gray-800' : 'bg-gray-100'} flex items-center`}>
-                <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Last Updated:</span>
+              <div className="mt-4 md:mt-0 px-4 py-2 rounded-lg bg-gray-800 flex items-center">
+                <span className="text-sm text-gray-400">Last Updated:</span>
                 <span className="ml-2 text-sm font-medium">{new Date().toLocaleString()}</span>
               </div>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-              <div className={`p-6 rounded-xl ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border shadow`}>
+              <div className="p-6 rounded-xl bg-gray-900 border border-gray-800 shadow">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Total Revenue</p>
+                    <p className="text-sm text-gray-400">Total Revenue</p>
                     <p className="text-2xl md:text-3xl font-bold mt-1">₹{totalRevenue}</p>
                   </div>
-                  <div className={`p-3 rounded-full ${darkMode ? 'bg-green-500/10 text-green-400' : 'bg-green-100 text-green-600'}`}>
+                  <div className="p-3 rounded-full bg-green-500/10 text-green-400">
                     <DollarSign size={24} />
                   </div>
                 </div>
-                <div className={`mt-4 h-2 rounded-full ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
+                <div className="mt-4 h-2 rounded-full bg-gray-800">
                   <div className="h-full rounded-full bg-green-500" style={{ width: '100%' }}></div>
                 </div>
               </div>
               
-              <div className={`p-6 rounded-xl ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border shadow`}>
+              <div className="p-6 rounded-xl bg-gray-900 border border-gray-800 shadow">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Completed Payments</p>
+                    <p className="text-sm text-gray-400">Completed Payments</p>
                     <p className="text-2xl md:text-3xl font-bold mt-1">
                       {paymentData.filter(item => item.status === 'completed').length}
                     </p>
                   </div>
-                  <div className={`p-3 rounded-full ${darkMode ? 'bg-blue-500/10 text-blue-400' : 'bg-blue-100 text-blue-600'}`}>
+                  <div className="p-3 rounded-full bg-blue-500/10 text-blue-400">
                     <CheckCircle size={24} />
                   </div>
                 </div>
-                <div className={`mt-4 h-2 rounded-full ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
+                <div className="mt-4 h-2 rounded-full bg-gray-800">
                   <div className="h-full rounded-full bg-blue-500" style={{ width: '80%' }}></div>
                 </div>
               </div>
               
-              <div className={`p-6 rounded-xl ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border shadow`}>
+              <div className="p-6 rounded-xl bg-gray-900 border border-gray-800 shadow">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Pending Payments</p>
+                    <p className="text-sm text-gray-400">Pending Payments</p>
                     <p className="text-2xl md:text-3xl font-bold mt-1">₹{pendingAmount}</p>
                   </div>
-                  <div className={`p-3 rounded-full ${darkMode ? 'bg-yellow-500/10 text-yellow-400' : 'bg-yellow-100 text-yellow-600'}`}>
+                  <div className="p-3 rounded-full bg-yellow-500/10 text-yellow-400">
                     <Clock size={24} />
                   </div>
                 </div>
-                <div className={`mt-4 h-2 rounded-full ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
+                <div className="mt-4 h-2 rounded-full bg-gray-800">
                   <div className="h-full rounded-full bg-yellow-500" style={{ width: '20%' }}></div>
                 </div>
               </div>
 
-              <div className={`p-6 rounded-xl ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border shadow`}>
+              <div className="p-6 rounded-xl bg-gray-900 border border-gray-800 shadow">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Cancelled Payments</p>
+                    <p className="text-sm text-gray-400">Cancelled Payments</p>
                     <p className="text-2xl md:text-3xl font-bold mt-1">₹{cancelledAmount}</p>
                   </div>
-                  <div className={`p-3 rounded-full ${darkMode ? 'bg-red-500/10 text-red-400' : 'bg-red-100 text-red-600'}`}>
+                  <div className="p-3 rounded-full bg-red-500/10 text-red-400">
                     <XCircle size={24} />
                   </div>
                 </div>
-                <div className={`mt-4 h-2 rounded-full ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
+                <div className="mt-4 h-2 rounded-full bg-gray-800">
                   <div className="h-full rounded-full bg-red-500" style={{ width: '5%' }}></div>
                 </div>
               </div>
@@ -802,15 +879,15 @@ export default function PaymentsPage() {
         )}
 
         <section>
-          <div className={`rounded-xl overflow-hidden ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border shadow`}>
-            <div className={`p-6 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'} flex justify-between items-center`}>
+          <div className="rounded-xl overflow-hidden bg-gray-900 border border-gray-800 shadow">
+            <div className="p-6 border-b border-gray-800 flex justify-between items-center">
               <h2 className="text-xl font-bold">
                 {viewMode === 'admin' ? 'Payment Details' : 'Your Payment History'}
               </h2>
               {viewMode === 'admin' && (
                 <button 
                   onClick={exportToCSV}
-                  className={`px-4 py-2 rounded-md text-sm font-medium flex items-center ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'}`}
+                  className="px-4 py-2 rounded-md text-sm font-medium flex items-center bg-gray-800 hover:bg-gray-700"
                 >
                   <Download size={16} className="mr-2" /> Export CSV
                 </button>
@@ -820,7 +897,7 @@ export default function PaymentsPage() {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className={`${darkMode ? 'bg-gray-900 border-gray-700' : 'bg-gray-50 border-gray-200'} border-b`}>
+                  <tr className="bg-gray-950 border-b border-gray-800">
                     {viewMode === 'admin' && (
                       <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Payment ID</th>
                     )}
@@ -839,7 +916,7 @@ export default function PaymentsPage() {
                     filteredData.map((item, index) => (
                       <tr 
                         key={index} 
-                        className={`${index !== filteredData.length - 1 ? (darkMode ? 'border-gray-700' : 'border-gray-200') : ''} border-b ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`}
+                        className={`${index !== filteredData.length - 1 ? 'border-gray-800' : ''} border-b hover:bg-gray-800`}
                       >
                         {viewMode === 'admin' && (
                           <td className="px-6 py-4 whitespace-nowrap font-mono text-sm">{item.id}</td>
@@ -850,20 +927,16 @@ export default function PaymentsPage() {
                         <td className="px-6 py-4 whitespace-nowrap">{item.date || '-'}</td>
                         {viewMode === 'admin' && (
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                              darkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-800'
-                            }`}>
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-800 text-gray-300">
                               {item.method}
                             </span>
                           </td>
                         )}
                         <td className="px-6 py-4 whitespace-nowrap text-right">
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            item.status === 'completed' ? 
-                              (darkMode ? 'bg-green-900 text-green-200' : 'bg-green-100 text-green-800') :
-                              item.status === 'pending' ?
-                              (darkMode ? 'bg-yellow-900 text-yellow-200' : 'bg-yellow-100 text-yellow-800') :
-                              (darkMode ? 'bg-red-900 text-red-200' : 'bg-red-100 text-red-800')
+                            item.status === 'completed' ? 'bg-green-900 text-green-200' :
+                            item.status === 'pending' ? 'bg-yellow-900 text-yellow-200' :
+                            'bg-red-900 text-red-200'
                           }`}>
                             {item.status === 'completed' ? 'Completed' : item.status === 'pending' ? 'Pending' : 'Cancelled'}
                           </span>
@@ -873,7 +946,7 @@ export default function PaymentsPage() {
                   ) : (
                     <tr>
                       <td colSpan={viewMode === 'admin' ? 7 : 5} className="px-6 py-4 text-center">
-                        <div className={`p-8 text-center ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                        <div className="p-8 text-center text-gray-400">
                           <Search size={48} className="mx-auto mb-4" />
                           <h3 className="text-lg font-medium">No payments found</h3>
                           <p className="mt-1">Try adjusting your search query</p>
@@ -886,15 +959,15 @@ export default function PaymentsPage() {
             </div>
             
             {viewMode === 'admin' && (
-              <div className={`p-4 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'} flex justify-between items-center`}>
+              <div className="p-4 bg-gray-950 flex justify-between items-center">
                 <div>
-                  <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  <p className="text-sm text-gray-400">
                     Showing {filteredData.length} of {paymentData.length} payments
                   </p>
                 </div>
                 <div className="flex items-center">
                   <div className="text-right mr-6">
-                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Total Revenue</p>
+                    <p className="text-sm text-gray-400">Total Revenue</p>
                     <p className="text-lg font-bold">₹{totalRevenue}</p>
                   </div>
                 </div>
@@ -904,14 +977,14 @@ export default function PaymentsPage() {
         </section>
       </main>
 
-      <footer className={`${darkMode ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'} border-t py-8 mt-12`}>
+      <footer className="bg-gray-950 border-t border-gray-800 py-8 mt-12">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center">
-              <DollarSign className={`${darkMode ? 'text-red-500' : 'text-orange-500'} mr-2`} size={20} />
+              <DollarSign className="text-red-500 mr-2" size={20} />
               <span className="text-lg font-bold">ShivaPay</span>
             </div>
-            <div className={`mt-4 md:mt-0 text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+            <div className="text-sm text-gray-400 mt-4 md:mt-0">
               © 2025 Shiva X Mods. All rights reserved.
             </div>
           </div>
