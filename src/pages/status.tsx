@@ -36,7 +36,7 @@ import {
   Gift,
   FileText,
   Server,
-  Tool,
+  Wrench,
   Key
 } from 'lucide-react';
 
@@ -49,7 +49,7 @@ export default function PaymentsPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState('');
   const [stockItems, setStockItems] = useState([
-    { id: 'PROD-001', name: 'Squad Editor', price: 100, stock: 12, category: 'Tools', icon: <Tool className="text-blue-500" /> },
+    { id: 'PROD-001', name: 'Squad Editor', price: 100, stock: 12, category: 'Tools', icon: <Wrench className="text-blue-500" /> },
     { id: 'PROD-002', name: 'Game Making Kit', price: 500, stock: 0, category: 'Kits', icon: <Gift className="text-purple-500" /> },
     { id: 'PROD-003', name: 'RC ID', price: 130, stock: 3, category: 'Accounts', icon: <Key className="text-yellow-500" /> },
     { id: 'PROD-004', name: 'Premium Mod Menu', price: 50, stock: 8, category: 'Mods', icon: <Zap className="text-green-500" /> },
@@ -57,7 +57,7 @@ export default function PaymentsPage() {
     { id: 'PROD-006', name: 'All-in-One Checker', price: 80, stock: 0, category: 'Tools', icon: <Server className="text-indigo-500" /> },
     { id: 'PROD-007', name: 'Personal OBB', price: 100, stock: 15, category: 'Files', icon: <FileText className="text-pink-500" /> },
     { id: 'PROD-008', name: 'SX Premium Membership', price: 200, stock: 20, category: 'Subscriptions', icon: <Star className="text-orange-500" /> },
-    { id: 'PROD-009', name: 'Shots Checker Pro', price: 120, stock: 2, category: 'Tools', icon: <Tool className="text-teal-500" /> },
+    { id: 'PROD-009', name: 'Shots Checker Pro', price: 120, stock: 2, category: 'Tools', icon: <Wrench className="text-teal-500" /> },
     { id: 'PROD-010', name: 'Custom Webpage', price: 100, stock: 10, category: 'Services', icon: <Box className="text-amber-500" /> }
   ]);
 
@@ -123,7 +123,7 @@ export default function PaymentsPage() {
     { id: 'PAY-057', customer: 'Javed Jaffrey', product: 'Personal OBB', price: 100, status: 'completed', date: '2025-05-30', method: 'UPI' },
     { id: 'PAY-058', customer: 'Asrani', product: 'RC24 ID', price: 130, status: 'pending', date: '', method: 'UPI' },
     { id: 'PAY-059', customer: 'Paresh Rawal', product: '2 IDs (1 paid)', price: 130, status: 'completed', date: '2025-05-29', method: 'UPI' },
-  ];
+  ]);
 
   const filteredData = paymentData.filter(item =>
     item.customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
