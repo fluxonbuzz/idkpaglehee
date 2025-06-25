@@ -123,7 +123,7 @@ export default function PaymentsPage() {
     { id: 'PAY-057', customer: 'Javed Jaffrey', product: 'Personal OBB', price: 100, status: 'completed', date: '2025-05-30', method: 'UPI' },
     { id: 'PAY-058', customer: 'Asrani', product: 'RC24 ID', price: 130, status: 'pending', date: '', method: 'UPI' },
     { id: 'PAY-059', customer: 'Paresh Rawal', product: '2 IDs (1 paid)', price: 130, status: 'completed', date: '2025-05-29', method: 'UPI' },
-  ]);
+  ];
 
   const filteredData = paymentData.filter(item =>
     item.customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
