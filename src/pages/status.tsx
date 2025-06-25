@@ -590,59 +590,67 @@ export default function PaymentsPage() {
             </section>
 
             <section className="mb-8">
-              <div className={`p-6 rounded-xl ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border shadow`}>
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-bold flex items-center">
-                    <BatteryCharging className="mr-2" /> Product Availability
-                  </h2>
-                  <div className={`p-2 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
-                    <Package size={20} />
-                  </div>
-                </div>
+  <div className={`p-6 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white border shadow`}>
+    <div className="flex items-center justify-between mb-6">
+      <h2 className="text-xl font-bold flex items-center">
+        <BatteryCharging className="mr-2" /> Product Availability
+      </h2>
+      <div className={`p-2 rounded-lg bg-purple-500/20`}>
+        <Package size={20} />
+      </div>
+    </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-                  {stockItems.map((item) => {
-                    const status = getStockStatus(item.stock);
-                    return (
-                      <div 
-                        key={item.id} 
-                        className={`p-4 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-gray-100'} border-l-4 ${status.color} border-opacity-80`}
-                      >
-                        <div className="flex items-center mb-3">
-                          <div className={`p-2 rounded-lg mr-3 ${darkMode ? 'bg-gray-600' : 'bg-gray-200'}`}>
-                            {item.icon}
-                          </div>
-                          <div>
-                            <h3 className="font-bold">{item.name}</h3>
-                            <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{item.category}</p>
-                          </div>
-                        </div>
-                        <div className="flex justify-between items-center mb-2">
-                          <span className="font-mono">₹{item.price}</span>
-                          <span className={`text-xs px-2 py-1 rounded-full ${
-                            status.level === 0 ? (darkMode ? 'bg-red-900 text-red-200' : 'bg-red-100 text-red-800') :
-                            status.level === 1 ? (darkMode ? 'bg-orange-900 text-orange-200' : 'bg-orange-100 text-orange-800') :
-                            status.level === 2 ? (darkMode ? 'bg-yellow-900 text-yellow-200' : 'bg-yellow-100 text-yellow-800') :
-                            status.level === 3 ? (darkMode ? 'bg-blue-900 text-blue-200' : 'bg-blue-100 text-blue-800') :
-                            (darkMode ? 'bg-green-900 text-green-200' : 'bg-green-100 text-green-800')
-                          }`}>
-                            {status.text}
-                          </span>
-                        </div>
-                        <div className="mt-2">
-                          <div className={`h-1.5 rounded-full ${darkMode ? 'bg-gray-600' : 'bg-gray-300'}`}>
-                            <div 
-                              className={`h-full rounded-full ${status.color}`}
-                              style={{ width: `${Math.min(100, (item.stock / 20) * 100)}%` }}
-                            ></div>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+      {stockItems.map((item) => {
+        const status = getStockStatus(item.stock);
+        // Different colors for each status line
+        const lineColor = 
+          status.level === 0 ? 'bg-red-500' :
+          status.level === 1 ? 'bg-yellow-500' :
+          status.level === 2 ? 'bg-blue-500' :
+          status.level === 3 ? 'bg-green-500' : 
+          'bg-emerald-400';
+        
+        return (
+          <div 
+            key={item.id} 
+            className={`p-4 rounded-lg bg-purple-700/30 backdrop-blur-sm border-l-4 ${lineColor} border-opacity-90 hover:bg-purple-700/50 transition-colors`}
+          >
+            <div className="flex items-center mb-3">
+              <div className={`p-2 rounded-lg mr-3 bg-purple-600/30`}>
+                {item.icon}
               </div>
-            </section>
+              <div>
+                <h3 className="font-bold">{item.name}</h3>
+                <p className={`text-xs text-purple-200`}>{item.category}</p>
+              </div>
+            </div>
+            <div className="flex justify-between items-center mb-2">
+              <span className="font-mono">₹{item.price}</span>
+              <span className={`text-xs px-2 py-1 rounded-full ${
+                status.level === 0 ? 'bg-red-500/20 text-red-100' :
+                status.level === 1 ? 'bg-yellow-500/20 text-yellow-100' :
+                status.level === 2 ? 'bg-blue-500/20 text-blue-100' :
+                status.level === 3 ? 'bg-green-500/20 text-green-100' :
+                'bg-emerald-500/20 text-emerald-100'
+              }`}>
+                {status.text}
+              </span>
+            </div>
+            <div className="mt-2">
+              <div className={`h-1.5 rounded-full bg-purple-800/50`}>
+                <div 
+                  className={`h-full rounded-full ${lineColor}`}
+                  style={{ width: `${Math.min(100, (item.stock / 20) * 100)}%` }}
+                ></div>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+</section>
           </>
         )}
 
