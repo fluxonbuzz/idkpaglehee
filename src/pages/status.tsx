@@ -592,7 +592,7 @@ export default function PaymentsPage() {
             </section>
 
             <section className="mb-12 relative overflow-hidden">
-  {/* Floating background elements */}
+  {/* Animated background elements */}
   <div className="absolute inset-0 overflow-hidden pointer-events-none">
     {[...Array(12)].map((_, i) => (
       <div 
@@ -609,13 +609,13 @@ export default function PaymentsPage() {
     ))}
   </div>
 
-  <div className={`p-8 rounded-2xl bg-gradient-to-br from-purple-900/80 via-indigo-900/80 to-gray-900/90 text-white border border-white/10 backdrop-blur-xl shadow-2xl shadow-purple-500/20 relative overflow-hidden`}>
+  <div className={`p-6 rounded-2xl bg-gradient-to-br from-purple-900/80 via-indigo-900/80 to-gray-900/90 text-white border border-white/10 backdrop-blur-xl shadow-2xl shadow-purple-500/20 relative overflow-hidden`}>
     {/* Glow effects */}
     <div className="absolute -top-20 -left-20 w-64 h-64 rounded-full bg-purple-600/30 blur-3xl"></div>
     <div className="absolute -bottom-20 -right-20 w-64 h-64 rounded-full bg-indigo-600/30 blur-3xl"></div>
     
     {/* Header */}
-    <div className="flex items-center justify-between mb-8 relative z-10">
+    <div className="flex items-center justify-between mb-6 relative z-10">
       <div className="flex items-center">
         <div className="relative mr-4">
           <div className="absolute inset-0 rounded-xl bg-purple-500/30 animate-pulse"></div>
