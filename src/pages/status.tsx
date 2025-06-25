@@ -589,65 +589,134 @@ export default function PaymentsPage() {
               </div>
             </section>
 
-            <section className="mb-8">
-  <div className={`p-6 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white border shadow`}>
-    <div className="flex items-center justify-between mb-6">
-      <h2 className="text-xl font-bold flex items-center">
-        <BatteryCharging className="mr-2" /> Product Availability
-      </h2>
-      <div className={`p-2 rounded-lg bg-purple-500/20`}>
-        <Package size={20} />
+            <section className="mb-12 relative overflow-hidden">
+  {/* Floating background elements */}
+  <div className="absolute inset-0 overflow-hidden pointer-events-none">
+    {[...Array(12)].map((_, i) => (
+      <div 
+        key={i} 
+        className={`absolute rounded-full opacity-10 ${i % 2 ? 'bg-indigo-400' : 'bg-purple-400'}`}
+        style={{
+          width: `${Math.random() * 200 + 50}px`,
+          height: `${Math.random() * 200 + 50}px`,
+          left: `${Math.random() * 100}%`,
+          top: `${Math.random() * 100}%`,
+          animation: `float ${Math.random() * 15 + 10}s infinite ease-in-out ${Math.random() * 5}s`
+        }}
+      />
+    ))}
+  </div>
+
+  <div className={`p-8 rounded-2xl bg-gradient-to-br from-purple-900/80 via-indigo-900/80 to-gray-900/90 text-white border border-white/10 backdrop-blur-xl shadow-2xl shadow-purple-500/20 relative overflow-hidden`}>
+    {/* Glow effects */}
+    <div className="absolute -top-20 -left-20 w-64 h-64 rounded-full bg-purple-600/30 blur-3xl"></div>
+    <div className="absolute -bottom-20 -right-20 w-64 h-64 rounded-full bg-indigo-600/30 blur-3xl"></div>
+    
+    {/* Header */}
+    <div className="flex items-center justify-between mb-8 relative z-10">
+      <div className="flex items-center">
+        <div className="relative mr-4">
+          <div className="absolute inset-0 rounded-xl bg-purple-500/30 animate-pulse"></div>
+          <div className={`p-3 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 shadow-lg relative z-10 flex items-center justify-center`}>
+            <BatteryCharging className="h-6 w-6" />
+          </div>
+        </div>
+        <div>
+          <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-300 to-indigo-200">
+            Inventory Pulse
+          </h2>
+          <p className="text-sm text-purple-300/80">Real-time stock monitoring</p>
+        </div>
+      </div>
+      <div className={`p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300 cursor-pointer hover:rotate-12`}>
+        <RefreshCw className="h-5 w-5 text-purple-300" />
       </div>
     </div>
 
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+    {/* Product grid */}
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5 relative z-10">
       {stockItems.map((item) => {
         const status = getStockStatus(item.stock);
-        // Different colors for each status line
-        const lineColor = 
-          status.level === 0 ? 'bg-red-500' :
-          status.level === 1 ? 'bg-yellow-500' :
-          status.level === 2 ? 'bg-blue-500' :
-          status.level === 3 ? 'bg-green-500' : 
-          'bg-emerald-400';
+        const statusColors = {
+          0: { bg: 'bg-red-500/90', text: 'text-red-100', border: 'border-red-400/50' },
+          1: { bg: 'bg-amber-500/90', text: 'text-amber-100', border: 'border-amber-400/50' },
+          2: { bg: 'bg-blue-500/90', text: 'text-blue-100', border: 'border-blue-400/50' },
+          3: { bg: 'bg-green-500/90', text: 'text-green-100', border: 'border-green-400/50' },
+          4: { bg: 'bg-emerald-500/90', text: 'text-emerald-100', border: 'border-emerald-400/50' }
+        };
         
         return (
           <div 
-            key={item.id} 
-            className={`p-4 rounded-lg bg-purple-700/30 backdrop-blur-sm border-l-4 ${lineColor} border-opacity-90 hover:bg-purple-700/50 transition-colors`}
+            key={item.id}
+            className="group transition-all duration-500 hover:z-10"
           >
-            <div className="flex items-center mb-3">
-              <div className={`p-2 rounded-lg mr-3 bg-purple-600/30`}>
-                {item.icon}
+            <div className={`relative p-5 rounded-2xl bg-gradient-to-br from-white/5 to-white/10 border border-white/10 shadow-lg transition-all duration-500 group-hover:scale-105 group-hover:shadow-xl h-full group-hover:rotate-y-3`}>
+              {/* Hover shine effect */}
+              <div className="absolute inset-0 rounded-2xl overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 -translate-x-full group-hover:translate-x-full"></div>
               </div>
-              <div>
-                <h3 className="font-bold">{item.name}</h3>
-                <p className={`text-xs text-purple-200`}>{item.category}</p>
+              
+              <div className="flex items-start mb-4">
+                <div className={`p-3 rounded-xl mr-4 ${statusColors[status.level].bg} shadow-md`}>
+                  {React.cloneElement(item.icon, { className: "h-5 w-5" })}
+                </div>
+                <div>
+                  <h3 className="font-bold text-white/90">{item.name}</h3>
+                  <p className="text-xs text-purple-300/70">{item.category}</p>
+                </div>
               </div>
-            </div>
-            <div className="flex justify-between items-center mb-2">
-              <span className="font-mono">₹{item.price}</span>
-              <span className={`text-xs px-2 py-1 rounded-full ${
-                status.level === 0 ? 'bg-red-500/20 text-red-100' :
-                status.level === 1 ? 'bg-yellow-500/20 text-yellow-100' :
-                status.level === 2 ? 'bg-blue-500/20 text-blue-100' :
-                status.level === 3 ? 'bg-green-500/20 text-green-100' :
-                'bg-emerald-500/20 text-emerald-100'
-              }`}>
-                {status.text}
-              </span>
-            </div>
-            <div className="mt-2">
-              <div className={`h-1.5 rounded-full bg-purple-800/50`}>
-                <div 
-                  className={`h-full rounded-full ${lineColor}`}
-                  style={{ width: `${Math.min(100, (item.stock / 20) * 100)}%` }}
-                ></div>
+              
+              <div className="flex justify-between items-center mb-3">
+                <span className="font-mono text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-300 to-indigo-200">
+                  ₹{item.price}
+                </span>
+                <span className={`text-xs px-2.5 py-1 rounded-full ${statusColors[status.level].bg} ${statusColors[status.level].text} backdrop-blur-sm`}>
+                  {status.text}
+                </span>
+              </div>
+              
+              {/* Progress bar */}
+              <div className="mt-4">
+                <div className="flex justify-between text-xs text-white/60 mb-1">
+                  <span>Stock</span>
+                  <span>{item.stock} units</span>
+                </div>
+                <div className={`h-2 rounded-full bg-white/10 overflow-hidden`}>
+                  <div 
+                    className={`h-full rounded-full ${statusColors[status.level].bg} transition-all duration-1000 ease-out`}
+                    style={{ width: `${Math.min(100, (item.stock / 20) * 100)}%` }}
+                  ></div>
+                </div>
+              </div>
+              
+              {/* Floating particles */}
+              <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                {[...Array(3)].map((_, i) => (
+                  <div 
+                    key={i} 
+                    className={`absolute rounded-full ${i % 2 ? 'bg-purple-400/30' : 'bg-indigo-400/30'}`}
+                    style={{
+                      width: '6px',
+                      height: '6px',
+                      left: `${Math.random() * 80 + 10}%`,
+                      top: `${Math.random() * 80 + 10}%`,
+                      animation: `float ${Math.random() * 10 + 5}s infinite ease-in-out ${Math.random() * 3}s`
+                    }}
+                  />
+                ))}
               </div>
             </div>
           </div>
         );
       })}
+    </div>
+    
+    {/* Footer */}
+    <div className="mt-8 pt-6 border-t border-white/10 flex justify-center relative z-10">
+      <button className="px-6 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium shadow-lg hover:shadow-xl hover:from-purple-500 hover:to-indigo-500 transition-all duration-300 transform hover:-translate-y-1 flex items-center group">
+        <span>View Full Inventory</span>
+        <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+      </button>
     </div>
   </div>
 </section>
