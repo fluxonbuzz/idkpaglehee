@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { 
   DollarSign, 
@@ -29,7 +29,15 @@ import {
   BatteryFull,
   BatteryMedium,
   BatteryLow,
-  BatteryCharging
+  BatteryCharging,
+  Star,
+  Zap,
+  Award,
+  Gift,
+  FileText,
+  Server,
+  Tool,
+  Key
 } from 'lucide-react';
 
 export default function PaymentsPage() {
@@ -41,20 +49,19 @@ export default function PaymentsPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState('');
   const [stockItems, setStockItems] = useState([
-    { id: 'PROD-001', name: 'Squad Editor', price: 100, stock: 50, category: 'Tools' },
-    { id: 'PROD-002', name: 'Game Making Kit', price: 500, stock: 0, category: 'Kits' },
-    { id: 'PROD-003', name: 'RC ID', price: 130, stock: 0, category: 'Accounts' },
-    { id: 'PROD-004', name: 'Premium Mod Menu', price: 50, stock: 0, category: 'Mods' },
-    { id: 'PROD-005', name: 'Netflix Premium', price: 100, stock: 0, category: 'Accounts' },
-    { id: 'PROD-006', name: 'All-in-One Checker', price: 80, stock: 0, category: 'Tools' },
-    { id: 'PROD-007', name: 'Personal OBB', price: 100, stock: 0, category: 'Files' },
-    { id: 'PROD-008', name: 'SX Premium Membership', price: 200, stock: 0, category: 'Subscriptions' },
-    { id: 'PROD-009', name: 'Shots Checker Pro', price: 120, stock: 0, category: 'Tools' },
-    { id: 'PROD-010', name: 'Custom webpage', price: 100, stock: 0, category: 'Services' }
+    { id: 'PROD-001', name: 'Squad Editor', price: 100, stock: 12, category: 'Tools', icon: <Tool className="text-blue-500" /> },
+    { id: 'PROD-002', name: 'Game Making Kit', price: 500, stock: 0, category: 'Kits', icon: <Gift className="text-purple-500" /> },
+    { id: 'PROD-003', name: 'RC ID', price: 130, stock: 3, category: 'Accounts', icon: <Key className="text-yellow-500" /> },
+    { id: 'PROD-004', name: 'Premium Mod Menu', price: 50, stock: 8, category: 'Mods', icon: <Zap className="text-green-500" /> },
+    { id: 'PROD-005', name: 'Netflix Premium', price: 100, stock: 5, category: 'Accounts', icon: <Award className="text-red-500" /> },
+    { id: 'PROD-006', name: 'All-in-One Checker', price: 80, stock: 0, category: 'Tools', icon: <Server className="text-indigo-500" /> },
+    { id: 'PROD-007', name: 'Personal OBB', price: 100, stock: 15, category: 'Files', icon: <FileText className="text-pink-500" /> },
+    { id: 'PROD-008', name: 'SX Premium Membership', price: 200, stock: 20, category: 'Subscriptions', icon: <Star className="text-orange-500" /> },
+    { id: 'PROD-009', name: 'Shots Checker Pro', price: 120, stock: 2, category: 'Tools', icon: <Tool className="text-teal-500" /> },
+    { id: 'PROD-010', name: 'Custom Webpage', price: 100, stock: 10, category: 'Services', icon: <Box className="text-amber-500" /> }
   ]);
 
   const paymentData = [
-    // ===== REAL PAYMENTS (From your provided data) =====
     { id: 'PAY-001', customer: 'TH Cricket', product: 'Squad Editor', price: 100, status: 'cancelled', date: '2025-05-15', method: 'UPI' },
     { id: 'PAY-002', customer: 'Driven X', product: 'Squad Editor', price: 100, status: 'cancelled', date: '2025-05-18', method: 'UPI' },
     { id: 'PAY-003', customer: 'Simply Dev', product: 'Game Making Kit', price: 500, status: 'pending', date: '', method: 'UPI' },
@@ -73,10 +80,6 @@ export default function PaymentsPage() {
     { id: 'PAY-016', customer: 'Virat Kholi', product: 'RC24 ID', price: 130, status: 'pending', date: '', method: 'UPI' },
     { id: 'PAY-060', customer: 'SilentShadow', product: 'RC24 ID', price: 130, status: 'pending', date: '', method: 'UPI' },
     { id: 'PAY-061', customer: 'Muneer', product: 'RC24 ID', price: 130, status: 'pending', date: '', method: 'UPI' },
-      
-
-    // ===== SAMPLE PAYMENTS (Generated data) =====
-    // Recent completed payments
     { id: 'PAY-017', customer: 'Rajesh Kumar', product: 'RC24 ID (Level 20)', price: 30, status: 'completed', date: '2025-06-19', method: 'UPI' },
     { id: 'PAY-018', customer: 'Priya Sharma', product: 'RC24 ID (Level 50)', price: 50, status: 'completed', date: '2025-06-18', method: 'UPI' },
     { id: 'PAY-019', customer: 'Aarav Patel', product: 'RC24 ID (Level 85)', price: 100, status: 'completed', date: '2025-06-17', method: 'UPI' },
@@ -87,8 +90,6 @@ export default function PaymentsPage() {
     { id: 'PAY-029', customer: 'Rohan Malhotra', product: 'Squad Editor', price: 100, status: 'completed', date: '2025-06-13', method: 'UPI' },
     { id: 'PAY-032', customer: 'Kavita Choudhary', product: 'RC24 ID (Level 20)', price: 30, status: 'completed', date: '2025-06-12', method: 'UPI' },
     { id: 'PAY-033', customer: 'Sanjay Verma', product: 'RC24 ID (Level 50)', price: 50, status: 'completed', date: '2025-06-11', method: 'UPI' },
-
-    // Sample pending payments
     { id: 'PAY-021', customer: 'Rahul Singh', product: 'Real Cricket 20 Legends', price: 70, status: 'pending', date: '', method: 'UPI' },
     { id: 'PAY-022', customer: 'Ananya Reddy', product: 'Boundary Hoarding Checker', price: 70, status: 'pending', date: '', method: 'UPI' },
     { id: 'PAY-024', customer: 'Deepika Iyer', product: 'Shots Checker Pro', price: 120, status: 'pending', date: '', method: 'UPI' },
@@ -99,8 +100,6 @@ export default function PaymentsPage() {
     { id: 'PAY-034', customer: 'Divya Srinivasan', product: 'RC24 ID (Level 85)', price: 100, status: 'pending', date: '', method: 'UPI' },
     { id: 'PAY-035', customer: 'Manoj Tiwari', product: 'RC24 ID (Level 100)', price: 130, status: 'pending', date: '', method: 'UPI' },
     { id: 'PAY-036', customer: 'Sunita Rao', product: 'All-in-One Checker', price: 80, status: 'pending', date: '', method: 'UPI' },
-    
-    // Additional payments with desi Indian names
     { id: 'PAY-037', customer: 'Rakesh Roshan', product: 'RC24 ID (Level 50)', price: 50, status: 'completed', date: '2025-06-09', method: 'UPI' },
     { id: 'PAY-038', customer: 'Babloo Pandey', product: 'Netflix Premium', price: 100, status: 'pending', date: '', method: 'UPI' },
     { id: 'PAY-039', customer: 'Chintu Sharma', product: 'Squad Editor Pro', price: 100, status: 'completed', date: '2025-06-08', method: 'UPI' },
@@ -115,8 +114,6 @@ export default function PaymentsPage() {
     { id: 'PAY-048', customer: 'Bunty Chor', product: 'All-in-One Checker', price: 80, status: 'pending', date: '', method: 'UPI' },
     { id: 'PAY-049', customer: 'Gopal Dada', product: 'Shots Checker Pro', price: 120, status: 'completed', date: '2025-06-03', method: 'UPI' },
     { id: 'PAY-050', customer: 'Mithun Chakraborty', product: 'Custom webpage', price: 100, status: 'pending', date: '', method: 'UPI' },
-    
-    // More payments with typical Indian names
     { id: 'PAY-051', customer: 'Rajiv Chaturvedi', product: 'RC24 ID (Level 85)', price: 100, status: 'completed', date: '2025-06-02', method: 'UPI' },
     { id: 'PAY-052', customer: 'Sunil Grover', product: 'Netflix Premium', price: 100, status: 'pending', date: '', method: 'UPI' },
     { id: 'PAY-053', customer: 'Amitabh Srivastava', product: 'Squad Editor', price: 100, status: 'completed', date: '2025-06-01', method: 'UPI' },
@@ -126,7 +123,7 @@ export default function PaymentsPage() {
     { id: 'PAY-057', customer: 'Javed Jaffrey', product: 'Personal OBB', price: 100, status: 'completed', date: '2025-05-30', method: 'UPI' },
     { id: 'PAY-058', customer: 'Asrani', product: 'RC24 ID', price: 130, status: 'pending', date: '', method: 'UPI' },
     { id: 'PAY-059', customer: 'Paresh Rawal', product: '2 IDs (1 paid)', price: 130, status: 'completed', date: '2025-05-29', method: 'UPI' },
-  ];
+  ]);
 
   const filteredData = paymentData.filter(item =>
     item.customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -210,15 +207,23 @@ export default function PaymentsPage() {
   const clearStock = () => {
     setStockItems(stockItems.map(item => ({
       ...item,
-      stock: item.name === 'Squad Editor' ? 50 : 0
+      stock: item.name === 'Squad Editor' ? 12 : 
+             item.name === 'Personal OBB' ? 15 :
+             item.name === 'SX Premium Membership' ? 20 :
+             item.name === 'Custom Webpage' ? 10 :
+             item.name === 'Premium Mod Menu' ? 8 :
+             item.name === 'Netflix Premium' ? 5 :
+             item.name === 'RC ID' ? 3 :
+             item.name === 'Shots Checker Pro' ? 2 : 0
     })));
   };
 
   const getStockStatus = (stock: number) => {
-    if (stock > 20) return { text: 'In Stock', color: 'bg-green-500', icon: <BatteryFull size={16} /> };
-    if (stock > 10) return { text: 'Limited Stock', color: 'bg-yellow-500', icon: <BatteryMedium size={16} /> };
-    if (stock > 0) return { text: 'Low Stock', color: 'bg-orange-500', icon: <BatteryLow size={16} /> };
-    return { text: 'Out of Stock', color: 'bg-red-500', icon: <Battery size={16} /> };
+    if (stock === 0) return { text: 'Empty', color: 'bg-red-500', level: 0 };
+    if (stock <= 2) return { text: 'Very Low', color: 'bg-orange-500', level: 1 };
+    if (stock <= 5) return { text: 'Low', color: 'bg-yellow-500', level: 2 };
+    if (stock <= 10) return { text: 'Medium', color: 'bg-blue-500', level: 3 };
+    return { text: 'High', color: 'bg-green-500', level: 4 };
   };
 
   if ((viewMode === 'admin' || viewMode === 'stock') && !adminLoggedIn) {
@@ -364,54 +369,71 @@ export default function PaymentsPage() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {filteredStock.map((item) => (
-                  <div 
-                    key={item.id} 
-                    className={`p-5 rounded-xl border ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} shadow-sm hover:shadow-md transition-shadow`}
-                  >
-                    <div className="flex justify-between items-start mb-3">
-                      <div>
-                        <h3 className="font-bold text-lg">{item.name}</h3>
-                        <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{item.category}</p>
-                      </div>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        item.stock > 0 ? 
-                          (darkMode ? 'bg-green-900 text-green-200' : 'bg-green-100 text-green-800') :
-                          (darkMode ? 'bg-red-900 text-red-200' : 'bg-red-100 text-red-800')
-                      }`}>
-                        {item.stock > 0 ? 'In Stock' : 'Out of Stock'}
-                      </span>
-                    </div>
-                    
-                    <div className="flex justify-between items-center mb-4">
-                      <span className="font-mono text-lg">₹{item.price}</span>
-                      <span className={`font-mono text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                        {item.stock} units
-                      </span>
-                    </div>
-                    
-                    <div className="flex justify-between items-center">
-                      <button
-                        onClick={() => decreaseStock(item.id)}
-                        className={`p-2 rounded-full ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'} ${item.stock <= 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        disabled={item.stock <= 0}
-                      >
-                        <Minus size={16} />
-                      </button>
-                      
-                      <div className={`px-4 py-1 rounded-full ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
-                        <span className="font-medium">{item.stock}</span>
+                {filteredStock.map((item) => {
+                  const status = getStockStatus(item.stock);
+                  return (
+                    <div 
+                      key={item.id} 
+                      className={`p-5 rounded-xl border ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} shadow-sm hover:shadow-md transition-shadow`}
+                    >
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="flex items-start">
+                          <div className={`p-2 rounded-lg mr-3 ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                            {item.icon}
+                          </div>
+                          <div>
+                            <h3 className="font-bold text-lg">{item.name}</h3>
+                            <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{item.category}</p>
+                          </div>
+                        </div>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          status.level === 0 ? (darkMode ? 'bg-red-900 text-red-200' : 'bg-red-100 text-red-800') :
+                          status.level === 1 ? (darkMode ? 'bg-orange-900 text-orange-200' : 'bg-orange-100 text-orange-800') :
+                          status.level === 2 ? (darkMode ? 'bg-yellow-900 text-yellow-200' : 'bg-yellow-100 text-yellow-800') :
+                          status.level === 3 ? (darkMode ? 'bg-blue-900 text-blue-200' : 'bg-blue-100 text-blue-800') :
+                          (darkMode ? 'bg-green-900 text-green-200' : 'bg-green-100 text-green-800')
+                        }`}>
+                          {status.text}
+                        </span>
                       </div>
                       
-                      <button
-                        onClick={() => increaseStock(item.id)}
-                        className={`p-2 rounded-full ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'}`}
-                      >
-                        <Plus size={16} />
-                      </button>
+                      <div className="flex justify-between items-center mb-4">
+                        <span className="font-mono text-lg">₹{item.price}</span>
+                        <div className="flex items-center">
+                          <span className={`text-xs font-medium mr-2 ${
+                            darkMode ? 'text-gray-400' : 'text-gray-600'
+                          }`}>
+                            Stock:
+                          </span>
+                          <span className="font-mono text-sm">
+                            {item.stock}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <div className="flex justify-between items-center">
+                        <button
+                          onClick={() => decreaseStock(item.id)}
+                          className={`p-2 rounded-full ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'} ${item.stock <= 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          disabled={item.stock <= 0}
+                        >
+                          <Minus size={16} />
+                        </button>
+                        
+                        <div className={`px-4 py-1 rounded-full ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                          <span className="font-medium">{item.stock}</span>
+                        </div>
+                        
+                        <button
+                          onClick={() => increaseStock(item.id)}
+                          className={`p-2 rounded-full ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'}`}
+                        >
+                          <Plus size={16} />
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </section>
@@ -567,7 +589,6 @@ export default function PaymentsPage() {
               </div>
             </section>
 
-            {/* New Stock Status Section for Customers */}
             <section className="mb-8">
               <div className={`p-6 rounded-xl ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border shadow`}>
                 <div className="flex items-center justify-between mb-6">
@@ -587,18 +608,24 @@ export default function PaymentsPage() {
                         key={item.id} 
                         className={`p-4 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-gray-100'} border-l-4 ${status.color} border-opacity-80`}
                       >
-                        <div className="flex justify-between items-start">
+                        <div className="flex items-center mb-3">
+                          <div className={`p-2 rounded-lg mr-3 ${darkMode ? 'bg-gray-600' : 'bg-gray-200'}`}>
+                            {item.icon}
+                          </div>
                           <div>
                             <h3 className="font-bold">{item.name}</h3>
-                            <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{item.category}</p>
-                          </div>
-                          <div className={`flex items-center ${status.color.replace('bg', 'text')}`}>
-                            {status.icon}
+                            <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{item.category}</p>
                           </div>
                         </div>
-                        <div className="mt-3 flex justify-between items-center">
+                        <div className="flex justify-between items-center mb-2">
                           <span className="font-mono">₹{item.price}</span>
-                          <span className={`text-xs px-2 py-1 rounded-full ${darkMode ? 'bg-gray-600' : 'bg-gray-200'}`}>
+                          <span className={`text-xs px-2 py-1 rounded-full ${
+                            status.level === 0 ? (darkMode ? 'bg-red-900 text-red-200' : 'bg-red-100 text-red-800') :
+                            status.level === 1 ? (darkMode ? 'bg-orange-900 text-orange-200' : 'bg-orange-100 text-orange-800') :
+                            status.level === 2 ? (darkMode ? 'bg-yellow-900 text-yellow-200' : 'bg-yellow-100 text-yellow-800') :
+                            status.level === 3 ? (darkMode ? 'bg-blue-900 text-blue-200' : 'bg-blue-100 text-blue-800') :
+                            (darkMode ? 'bg-green-900 text-green-200' : 'bg-green-100 text-green-800')
+                          }`}>
                             {status.text}
                           </span>
                         </div>
@@ -606,12 +633,8 @@ export default function PaymentsPage() {
                           <div className={`h-1.5 rounded-full ${darkMode ? 'bg-gray-600' : 'bg-gray-300'}`}>
                             <div 
                               className={`h-full rounded-full ${status.color}`}
-                              style={{ width: `${Math.min(100, (item.stock / 50) * 100)}%` }}
+                              style={{ width: `${Math.min(100, (item.stock / 20) * 100)}%` }}
                             ></div>
-                          </div>
-                          <div className="flex justify-between text-xs mt-1">
-                            <span className={darkMode ? 'text-gray-400' : 'text-gray-600'}>Available</span>
-                            <span className="font-medium">{item.stock} units</span>
                           </div>
                         </div>
                       </div>
