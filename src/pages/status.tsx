@@ -37,7 +37,9 @@ import {
   FileText,
   Server,
   Wrench,
-  Key
+  Key,
+  RefreshCw,
+  ArrowRight
 } from 'lucide-react';
 
 export default function PaymentsPage() {
