@@ -425,28 +425,52 @@ export default function ApplyPage() {
           </div>
         </div>
 
-        {/* Application Form */}
-        <div id="application-form" className="bg-gray-800/50 border border-purple-500 rounded-xl p-8 mb-16">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold mb-2 text-purple-300">Application Form</h2>
-            <p className="text-gray-400 max-w-2xl mx-auto">
-              Please complete all sections thoroughly. Incomplete applications will be rejected automatically.
-            </p>
-          </div>
-          
-          <div className="aspect-w-16 aspect-h-9">
-            <iframe 
-              src="https://docs.google.com/forms/d/e/1FAIpQLS.../viewform?embedded=true" 
-              className="w-full h-[800px] rounded-lg border border-gray-700 bg-gray-900"
-              frameBorder="0"
-              marginHeight={0}
-              marginWidth={0}
-            >
-              Loading...
-            </iframe>
-          </div>
-        </div>
+{/* Application Form */}
+<div id="application-form" className="bg-gray-800/50 border border-purple-500 rounded-xl p-8 mb-16">
+  <div className="text-center mb-10">
+    <h2 className="text-3xl font-bold mb-2 text-purple-300">Application Form</h2>
+    <p className="text-gray-400 max-w-2xl mx-auto">
+      Complete all sections thoroughly. Incomplete applications will be rejected.
+    </p>
+  </div>
+  
+  {/* Option 1: Direct Link Button (Recommended for Mobile Users) */}
+  <div className="text-center mb-8">
+    <a
+      href="https://docs.google.com/forms/d/e/1FAIpQLSeOiz4OVIDXI5ineMOdhMPkCwDAxVuUqPdTKQsP6Q5j18crDQ/viewform"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-block px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-lg font-medium"
+    >
+      Open Application Form in New Tab
+    </a>
+  </div>
 
+  {/* Option 2: Embedded Form (Desktop-Friendly) */}
+  <div className="aspect-w-16 aspect-h-9 hidden md:block">
+    <iframe
+      src="https://docs.google.com/forms/d/e/1FAIpQLSeOiz4OVIDXI5ineMOdhMPkCwDAxVuUqPdTKQsP6Q5j18crDQ/viewform?embedded=true"
+      className="w-full h-[800px] rounded-lg border border-gray-700 bg-gray-900"
+      frameBorder="0"
+      marginHeight={0}
+      marginWidth={0}
+    >
+      Loading Google Form...
+    </iframe>
+  </div>
+
+  {/* Mobile Fallback Notice */}
+  <div className="md:hidden text-center text-sm text-gray-400 mt-4">
+    <p>Form not loading? <a 
+      href="https://docs.google.com/forms/d/e/1FAIpQLSeOiz4OVIDXI5ineMOdhMPkCwDAxVuUqPdTKQsP6Q5j18crDQ/viewform" 
+      target="_blank" 
+      rel="noopener noreferrer"
+      className="text-purple-400 hover:underline"
+    >
+      Click here to open it directly
+    </a>.</p>
+  </div>
+</div>
         {/* FAQ Section */}
         <div className="my-16 bg-gray-800/30 p-8 rounded-xl border border-gray-700">
           <h2 className="text-3xl font-bold text-center mb-12">Frequently Asked Questions</h2>
