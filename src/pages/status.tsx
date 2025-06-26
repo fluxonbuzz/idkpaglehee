@@ -54,7 +54,7 @@ export default function PaymentsPage() {
   const [stockItems, setStockItems] = useState([
     { id: 'PROD-001', name: 'Squad Editor', price: 100, stock: 12, category: 'Tools', icon: <Wrench className="text-blue-500" /> },
     { id: 'PROD-002', name: 'Game Making Kit', price: 500, stock: 0, category: 'Kits', icon: <Gift className="text-purple-500" /> },
-    { id: 'PROD-003', name: 'RC ID', price: 130, stock: 3, category: 'Accounts', icon: <Key className="text-yellow-500" /> },
+    { id: 'PROD-003', name: 'RC ID', price: 250, stock: 3, category: 'Accounts', icon: <Key className="text-yellow-500" /> },
     { id: 'PROD-004', name: 'Premium Mod Menu', price: 50, stock: 8, category: 'Mods', icon: <Zap className="text-green-500" /> },
     { id: 'PROD-005', name: 'Netflix Premium', price: 100, stock: 5, category: 'Accounts', icon: <Award className="text-red-500" /> },
     { id: 'PROD-006', name: 'All-in-One Checker', price: 80, stock: 0, category: 'Tools', icon: <Server className="text-indigo-500" /> },
