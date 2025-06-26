@@ -1,124 +1,211 @@
-// src/pages/login.tsx
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { signIn } from 'next-auth/react';
-import { Key, AlertCircle, Loader2 } from 'lucide-react';
+import { Crown, Shield, Lock, Key, Star, Zap, Award, Gem, Sword, Scroll } from 'lucide-react';
 import Link from 'next/link';
-import toast from 'react-hot-toast';
 
-export default function LoginPage() {
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-
-  const handleGoogleSignIn = async () => {
-    setIsLoading(true);
-    setError('');
-
-    try {
-      const result = await signIn('google', {
-        callbackUrl: '/dashboard', // Where to redirect after successful login
-        redirect: false, // We'll handle the redirect manually
-      });
-
-      if (result?.error) {
-        throw new Error(result.error);
-      }
-
-      // If no error and URL is present, redirect to callbackUrl
-      if (result?.url) {
-        router.push(result.url);
-      }
-    } catch (error) {
-      console.error('Google Sign-In Error:', error);
-      setError('Failed to sign in with Google. Please try again.');
-      toast.error('Failed to sign in with Google');
-    } finally {
-      setIsLoading(false);
+export default function TrustedStaffPage() {
+  const staffMembers = [
+    {
+      id: 1,
+      name: 'Fantom',
+      role: 'Lead Admin',
+      level: 'Legendary',
+      icon: <Crown className="text-yellow-500" />,
+      privileges: ['Full system access', 'User management', 'Content oversight'],
+      joinDate: '2022-01-15',
+      lastActive: 'Today',
+      specialBadge: 'Founder'
+    },
+    {
+      id: 2,
+      name: 'SilentShadow',
+      role: 'Senior Admin',
+      level: 'Elite',
+      icon: <Shield className="text-blue-500" />,
+      privileges: ['Moderation powers', 'Event coordination', 'Security oversight'],
+      joinDate: '2022-03-22',
+      lastActive: 'Today',
+      specialBadge: 'Security Expert'
+    },
+    {
+      id: 3,
+      name: '-- OPEN --',
+      role: 'Trusted Staff',
+      level: 'Recruit',
+      icon: <Star className="text-purple-500" />,
+      privileges: ['Basic moderation', 'Community support'],
+      joinDate: 'Future',
+      lastActive: '--',
+      specialBadge: 'Your Name Here?'
+    },
+    {
+      id: 4,
+      name: '-- OPEN --',
+      role: 'Trusted Staff',
+      level: 'Recruit',
+      icon: <Star className="text-purple-500" />,
+      privileges: ['Basic moderation', 'Community support'],
+      joinDate: 'Future',
+      lastActive: '--',
+      specialBadge: 'Your Name Here?'
     }
-  };
+  ];
+
+  const upcomingFeatures = [
+    'Staff achievement system',
+    'Moderation leaderboard',
+    'Trust score progression',
+    'Exclusive staff channels',
+    'Special event privileges'
+  ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="flex justify-center">
-          <Key className="h-12 w-12 text-purple-500" />
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
+      <div className="container mx-auto px-4 py-12">
+        <div className="text-center mb-12">
+          <div className="flex justify-center mb-4">
+            <Lock className="h-12 w-12 text-purple-500" />
+          </div>
+          <h1 className="text-4xl font-bold mb-2">Trusted Staff Portal</h1>
+          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+            Our elite team maintaining security and quality across the platform
+          </p>
         </div>
-        <h2 className="mt-6 text-center text-3xl font-extrabold">
-          Sign in to your account
-        </h2>
-        <p className="mt-2 text-center text-sm text-gray-400">
-          Or{' '}
-          <Link
-            href="/register"
-            className="font-medium text-purple-500 hover:text-purple-400"
-          >
-            create a new account
-          </Link>
-        </p>
-      </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-gray-800/50 border border-gray-700 hover:border-purple-500/50 transition-all hover:shadow-lg hover:shadow-purple-500/10 py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          {error && (
-            <div className="mb-4 p-3 bg-red-900/50 border border-red-700 rounded-lg text-sm text-red-200 flex items-center gap-2">
-              <AlertCircle size={16} />
-              {error}
-            </div>
-          )}
-
-          <div className="mt-6">
-            <button
-              onClick={handleGoogleSignIn}
-              disabled={isLoading}
-              className="w-full flex items-center justify-center gap-2 bg-white text-gray-800 hover:bg-gray-100 font-medium rounded-lg px-5 py-3 transition-colors"
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+          {staffMembers.map((member) => (
+            <div 
+              key={member.id} 
+              className={`bg-gray-800/50 border rounded-xl p-6 hover:shadow-lg transition-all ${
+                member.name.includes('OPEN') 
+                  ? 'border-dashed border-purple-500/30 hover:border-purple-500/50' 
+                  : 'border-gray-700 hover:border-purple-500/50'
+              }`}
             >
-              {isLoading ? (
-                <Loader2 className="animate-spin h-5 w-5" />
-              ) : (
+              <div className="flex items-start gap-4">
+                <div className="p-3 bg-gray-700/50 rounded-lg">
+                  {member.icon}
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-3">
+                    <h2 className="text-2xl font-bold">
+                      {member.name}
+                      {member.specialBadge && (
+                        <span className="ml-2 text-xs bg-purple-900/50 text-purple-300 px-2 py-1 rounded-full">
+                          {member.specialBadge}
+                        </span>
+                      )}
+                    </h2>
+                  </div>
+                  <div className="flex items-center gap-2 mt-1 text-sm text-gray-400">
+                    <span className="flex items-center gap-1">
+                      <Zap className="w-4 h-4" />
+                      {member.role}
+                    </span>
+                    <span>•</span>
+                    <span className="flex items-center gap-1">
+                      <Award className="w-4 h-4" />
+                      {member.level}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {!member.name.includes('OPEN') ? (
                 <>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    className="w-5 h-5"
-                  >
-                    <path
-                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                      fill="#4285F4"
-                    />
-                    <path
-                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                      fill="#34A853"
-                    />
-                    <path
-                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                      fill="#FBBC05"
-                    />
-                    <path
-                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                      fill="#EA4335"
-                    />
-                  </svg>
+                  <div className="mt-6">
+                    <h3 className="text-sm font-semibold text-gray-500 mb-2">PRIVILEGES</h3>
+                    <ul className="space-y-2">
+                      {member.privileges.map((priv, i) => (
+                        <li key={i} className="flex items-center gap-2">
+                          <Key className="w-4 h-4 text-purple-500" />
+                          <span>{priv}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="mt-6 flex justify-between text-xs text-gray-500">
+                    <span>Joined: {member.joinDate}</span>
+                    <span>Active: {member.lastActive}</span>
+                  </div>
                 </>
+              ) : (
+                <div className="mt-6 text-center py-8">
+                  <p className="text-gray-400 mb-4">This position could be yours!</p>
+                  <Link
+                    href="/apply"
+                    className="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg font-medium transition-colors"
+                  >
+                    Apply to Join
+                  </Link>
+                </div>
               )}
-              <span>Continue with Google</span>
-            </button>
+            </div>
+          ))}
+        </div>
+
+        <div className="bg-gray-800/30 border border-gray-700 rounded-xl p-8 max-w-4xl mx-auto">
+          <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+            <Gem className="text-purple-500" />
+            Staff Perks & Upcoming
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h3 className="text-lg font-semibold mb-3">Current Benefits</h3>
+              <ul className="space-y-3">
+                <li className="flex items-start gap-2">
+                  <span className="text-purple-500">✓</span>
+                  <span>Exclusive staff badge</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-purple-500">✓</span>
+                  <span>Special channel access</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-purple-500">✓</span>
+                  <span>Early feature previews</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-purple-500">✓</span>
+                  <span>VIP event invitations</span>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold mb-3">Coming Soon</h3>
+              <ul className="space-y-3">
+                {upcomingFeatures.map((feature, i) => (
+                  <li key={i} className="flex items-start gap-2">
+                    <span className="text-gray-500">⌛</span>
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
 
-          <div className="mt-6 text-center text-sm text-gray-400">
-            <p>
-              By signing in, you agree to our{' '}
-              <Link href="/terms" className="text-purple-400 hover:underline">
-                Terms of Service
-              </Link>{' '}
-              and{' '}
-              <Link href="/privacy" className="text-purple-400 hover:underline">
-                Privacy Policy
-              </Link>
-              .
-            </p>
+          <div className="mt-8 pt-6 border-t border-gray-700">
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <Scroll className="text-purple-500" />
+              Staff Requirements
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+              <div className="bg-gray-800/50 p-4 rounded-lg">
+                <h4 className="font-medium mb-2">Activity</h4>
+                <p>Minimum 10h/week</p>
+              </div>
+              <div className="bg-gray-800/50 p-4 rounded-lg">
+                <h4 className="font-medium mb-2">Reputation</h4>
+                <p>Clean record</p>
+              </div>
+              <div className="bg-gray-800/50 p-4 rounded-lg">
+                <h4 className="font-medium mb-2">Knowledge</h4>
+                <p>Platform expertise</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
