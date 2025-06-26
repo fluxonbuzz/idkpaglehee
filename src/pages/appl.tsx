@@ -1,11 +1,35 @@
 'use client';
 
-import { LockKeyhole, Clock, ScrollText, ShieldCheck, UserCog, AlertTriangle, CheckCircle } from 'lucide-react';
+import { LockKeyhole, Clock, ScrollText, ShieldCheck, UserCog, AlertTriangle, CheckCircle, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ApplyPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
+      {/* Header */}
+      <header className="bg-gray-900 border-b border-gray-800">
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-300">
+            SHIVA X MODS
+          </h1>
+          <nav>
+            <ul className="flex space-x-6">
+              <li>
+                <Link href="/" className="hover:text-purple-300 transition-colors">Home</Link>
+              </li>
+              <li>
+                <Link href="/testimonials" className="hover:text-purple-300 transition-colors flex items-center">
+                  Testimonials <ArrowRight className="ml-1 h-4 w-4" />
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact" className="hover:text-purple-300 transition-colors">Contact</Link>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </header>
+
       <div className="container mx-auto px-4 py-16">
         <div className="text-center mb-16">
           <div className="flex justify-center mb-6">
@@ -22,6 +46,37 @@ export default function ApplyPage() {
           <p className="text-xl text-gray-400 max-w-3xl mx-auto">
             Join our trusted circle and help shape the future of our community
           </p>
+        </div>
+
+        {/* Eligibility Checker */}
+        <div className="my-16 bg-gray-800/50 p-8 rounded-xl border border-blue-500/30">
+          <h2 className="text-3xl font-bold text-center mb-8">Am I Eligible?</h2>
+          <div className="max-w-md mx-auto space-y-6">
+            {[
+              "Have you been a member for at least 3 months?",
+              "Do you have at least 10 hours weekly to dedicate?",
+              "Are you comfortable with conflict resolution?",
+              "Do you have no active warnings on your account?"
+            ].map((question, i) => (
+              <div key={i} className="flex items-center justify-between">
+                <span>{question}</span>
+                <div className="flex space-x-2">
+                  <button className="px-3 py-1 rounded bg-green-900/50 hover:bg-green-800 border border-green-700">
+                    Yes
+                  </button>
+                  <button className="px-3 py-1 rounded bg-red-900/50 hover:bg-red-800 border border-red-700">
+                    No
+                  </button>
+                </div>
+              </div>
+            ))}
+            <div className="pt-6 mt-6 border-t border-gray-700 text-center">
+              <p className="text-sm text-gray-400">Based on your answers: <span className="font-bold text-purple-300">Potential Candidate</span></p>
+              <Link href="/testimonials" className="mt-4 inline-flex items-center text-purple-400 hover:underline">
+                Hear from current Guardians <ArrowRight className="ml-1 h-4 w-4" />
+              </Link>
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
@@ -108,6 +163,113 @@ export default function ApplyPage() {
           </div>
         </div>
 
+        {/* Role-Specific Information */}
+        <div className="my-16">
+          <h2 className="text-3xl font-bold text-center mb-12">Guardian Roles</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {[
+              {
+                title: "Community Guardians",
+                description: "Moderate discussions, welcome new members, and foster positive engagement.",
+                perks: ["Frontline experience", "Daily interaction", "Culture shaping"]
+              },
+              {
+                title: "Safety Guardians",
+                description: "Handle reports, investigate issues, and enforce community standards.",
+                perks: ["Advanced training", "Conflict resolution", "Policy input"]
+              },
+              {
+                title: "Event Guardians",
+                description: "Organize and oversee community events and special programs.",
+                perks: ["Creative freedom", "Leadership opportunities", "Event planning"]
+              },
+              {
+                title: "Mentor Guardians",
+                description: "Train new Guardians and provide ongoing support to the team.",
+                perks: ["Teaching experience", "Strategic influence", "Team leadership"]
+              }
+            ].map((role, i) => (
+              <div key={i} className="bg-gray-800/30 p-6 rounded-xl border border-gray-700 hover:border-purple-500 transition-all">
+                <h3 className="text-xl font-bold text-purple-300 mb-2">{role.title}</h3>
+                <p className="text-gray-400 mb-4">{role.description}</p>
+                <div className="space-y-2">
+                  {role.perks.map((perk, j) => (
+                    <div key={j} className="flex items-center">
+                      <CheckCircle className="h-4 w-4 text-green-400 mr-2" />
+                      <span className="text-sm">{perk}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Stats/Impact Section */}
+        <div className="my-16 text-center">
+          <h2 className="text-3xl font-bold mb-12">Our Guardians Make a Difference</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+            {[
+              { value: "98%", label: "Member Satisfaction" },
+              { value: "24/7", label: "Coverage" },
+              { value: "500+", label: "Issues Resolved Monthly" },
+              { value: "4.8★", label: "Team Rating" }
+            ].map((stat, i) => (
+              <div key={i} className="bg-gradient-to-b from-gray-800 to-gray-900 p-6 rounded-xl border border-gray-700">
+                <p className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-300 mb-2">
+                  {stat.value}
+                </p>
+                <p className="text-gray-400">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Application Tips */}
+        <div className="my-16 bg-gray-800/50 p-8 rounded-xl border border-pink-500/30">
+          <h2 className="text-3xl font-bold text-center mb-8">Application Tips</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            <div>
+              <h3 className="text-xl font-bold text-pink-300 mb-4 flex items-center">
+                <CheckCircle className="mr-2 h-5 w-5" /> Do's
+              </h3>
+              <ul className="space-y-3">
+                <li className="flex items-start">
+                  <span className="text-green-400 mr-2">✓</span>
+                  <span>Be authentic and personal in your responses</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-green-400 mr-2">✓</span>
+                  <span>Highlight specific contributions you've made</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-green-400 mr-2">✓</span>
+                  <span>Demonstrate understanding of our values</span>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-amber-300 mb-4 flex items-center">
+                <AlertTriangle className="mr-2 h-5 w-5" /> Don'ts
+              </h3>
+              <ul className="space-y-3">
+                <li className="flex items-start">
+                  <span className="text-red-400 mr-2">✗</span>
+                  <span>Don't give one-word or generic answers</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-red-400 mr-2">✗</span>
+                  <span>Avoid criticizing current moderation</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-red-400 mr-2">✗</span>
+                  <span>Don't exaggerate your availability</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
         {/* Warning Notice */}
         <div className="bg-gradient-to-r from-red-900/50 to-amber-900/50 border border-amber-500/30 rounded-xl p-6 mb-16">
           <div className="flex items-start gap-4">
@@ -148,6 +310,32 @@ export default function ApplyPage() {
           </div>
         </div>
 
+        {/* FAQ Section */}
+        <div className="my-16 bg-gray-800/30 p-8 rounded-xl border border-gray-700">
+          <h2 className="text-3xl font-bold text-center mb-12">Frequently Asked Questions</h2>
+          <div className="space-y-6 max-w-3xl mx-auto">
+            {[
+              {
+                question: "Can I apply if I've had warnings in the past?",
+                answer: "Minor infractions more than 3 months old may be forgiven, but serious violations typically disqualify applicants."
+              },
+              {
+                question: "Is there training provided?",
+                answer: "Yes, all new Guardians go through a comprehensive training program with ongoing support."
+              },
+              {
+                question: "Can I take breaks during my service?",
+                answer: "We allow temporary leaves of absence with proper notice and coverage arrangements."
+              }
+            ].map((faq, i) => (
+              <div key={i} className="border-b border-gray-700 pb-6">
+                <h3 className="text-xl font-bold text-purple-300 mb-2">{faq.question}</h3>
+                <p className="text-gray-400">{faq.answer}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* Next Steps */}
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-6">What Happens Next?</h2>
@@ -180,6 +368,28 @@ export default function ApplyPage() {
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 border-t border-gray-800 py-8">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="mb-4 md:mb-0">
+              <h2 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-300">
+                SHIVA X MODS
+              </h2>
+              <p className="text-gray-500 text-sm mt-1">Community Guardianship Program</p>
+            </div>
+            <div className="flex space-x-6">
+              <Link href="/privacy" className="text-gray-400 hover:text-purple-300 transition-colors">Privacy</Link>
+              <Link href="/terms" className="text-gray-400 hover:text-purple-300 transition-colors">Terms</Link>
+              <Link href="/contact" className="text-gray-400 hover:text-purple-300 transition-colors">Contact</Link>
+            </div>
+          </div>
+          <div className="mt-8 pt-8 border-t border-gray-800 text-center text-gray-600 text-sm">
+            © {new Date().getFullYear()} SHIVA X MODS. All rights reserved.
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
