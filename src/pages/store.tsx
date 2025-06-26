@@ -74,7 +74,7 @@ const storeData: Product[] = [
   {
     id: 'rc24-id-level50',
     title: 'RC24 ID (Level 50)',
-    price: 50,
+    price: 70,
     originalPrice: 150,
     description: 'Real Cricket 24 account with level 50 progression',
     image: '/store/rc24-id.jpg',
@@ -84,7 +84,7 @@ const storeData: Product[] = [
   {
     id: 'rc24-id-level85',
     title: 'RC24 ID (Level 85)',
-    price: 100,
+    price: 110,
     originalPrice: 270,
     description: 'Real Cricket 24 account with level 85 progression',
     image: '/store/rc24-id.jpg',
