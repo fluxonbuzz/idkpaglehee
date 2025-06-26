@@ -1,9 +1,42 @@
 'use client';
 
-import { LockKeyhole, Clock, ScrollText, ShieldCheck, UserCog, AlertTriangle, CheckCircle, ArrowRight } from 'lucide-react';
+import { LockKeyhole, Clock, ScrollText, ShieldCheck, UserCog, AlertTriangle, CheckCircle, ArrowRight, X, Menu } from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
 
 export default function ApplyPage() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [eligibilityAnswers, setEligibilityAnswers] = useState<boolean[]>([]);
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+
+  const questions = [
+    "Have you been a member for at least 3 months?",
+    "Do you have at least 10 hours weekly to dedicate?",
+    "Are you comfortable with conflict resolution?",
+    "Do you have no active warnings on your account?"
+  ];
+
+  const handleAnswer = (answer: boolean) => {
+    const newAnswers = [...eligibilityAnswers];
+    newAnswers[currentQuestion] = answer;
+    setEligibilityAnswers(newAnswers);
+
+    if (!answer) {
+      // Redirect to home page if any answer is no
+      window.location.href = '/';
+      return;
+    }
+
+    if (currentQuestion < questions.length - 1) {
+      setCurrentQuestion(currentQuestion + 1);
+    }
+  };
+
+  const resetEligibilityCheck = () => {
+    setEligibilityAnswers([]);
+    setCurrentQuestion(0);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
       {/* Header */}
@@ -12,7 +45,17 @@ export default function ApplyPage() {
           <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-300">
             SHIVA X MODS
           </h1>
-          <nav>
+          
+          {/* Mobile Menu Button */}
+          <button 
+            className="md:hidden p-2 rounded-md text-gray-400 hover:text-white focus:outline-none"
+            onClick={() => setSidebarOpen(true)}
+          >
+            <Menu className="h-6 w-6" />
+          </button>
+          
+          {/* Desktop Navigation */}
+          <nav className="hidden md:block">
             <ul className="flex space-x-6">
               <li>
                 <Link href="/" className="hover:text-purple-300 transition-colors">Home</Link>
@@ -29,6 +72,67 @@ export default function ApplyPage() {
           </nav>
         </div>
       </header>
+
+      {/* Mobile Sidebar */}
+      <div className={`fixed inset-y-0 right-0 z-50 w-64 bg-gray-900 shadow-lg transform ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'} transition-transform duration-300 ease-in-out`}>
+        <div className="flex items-center justify-between p-4 border-b border-gray-800">
+          <h2 className="text-xl font-bold">Menu</h2>
+          <button 
+            className="p-1 rounded-md text-gray-400 hover:text-white focus:outline-none"
+            onClick={() => setSidebarOpen(false)}
+          >
+            <X className="h-6 w-6" />
+          </button>
+        </div>
+        <nav className="p-4">
+          <ul className="space-y-4">
+            <li>
+              <Link 
+                href="/" 
+                className="block hover:text-purple-300 transition-colors p-2 rounded hover:bg-gray-800"
+                onClick={() => setSidebarOpen(false)}
+              >
+                Home
+              </Link>
+            </li>
+            <li>
+              <Link 
+                href="/testimonials" 
+                className="block hover:text-purple-300 transition-colors p-2 rounded hover:bg-gray-800 flex items-center"
+                onClick={() => setSidebarOpen(false)}
+              >
+                Testimonials <ArrowRight className="ml-1 h-4 w-4" />
+              </Link>
+            </li>
+            <li>
+              <Link 
+                href="/contact" 
+                className="block hover:text-purple-300 transition-colors p-2 rounded hover:bg-gray-800"
+                onClick={() => setSidebarOpen(false)}
+              >
+                Contact
+              </Link>
+            </li>
+            <li>
+              <Link 
+                href="/apply" 
+                className="block bg-purple-900/50 text-purple-300 p-2 rounded border border-purple-700"
+                onClick={() => setSidebarOpen(false)}
+              >
+                Apply Now
+              </Link>
+            </li>
+          </ul>
+        </nav>
+      </div>
+
+      {/* Overlay for sidebar */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-black bg-opacity-50"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
 
       <div className="container mx-auto px-4 py-16">
         <div className="text-center mb-16">
@@ -51,34 +155,67 @@ export default function ApplyPage() {
         {/* Eligibility Checker */}
         <div className="my-16 bg-gray-800/50 p-8 rounded-xl border border-blue-500/30">
           <h2 className="text-3xl font-bold text-center mb-8">Am I Eligible?</h2>
-          <div className="max-w-md mx-auto space-y-6">
-            {[
-              "Have you been a member for at least 3 months?",
-              "Do you have at least 10 hours weekly to dedicate?",
-              "Are you comfortable with conflict resolution?",
-              "Do you have no active warnings on your account?"
-            ].map((question, i) => (
-              <div key={i} className="flex items-center justify-between">
-                <span>{question}</span>
-                <div className="flex space-x-2">
-                  <button className="px-3 py-1 rounded bg-green-900/50 hover:bg-green-800 border border-green-700">
-                    Yes
+          <div className="max-w-md mx-auto">
+            {eligibilityAnswers.length < questions.length ? (
+              <div className="space-y-6">
+                <div className="bg-gray-700/50 p-4 rounded-lg border-l-4 border-purple-500">
+                  <p className="text-sm text-gray-400 mb-1">Question {currentQuestion + 1} of {questions.length}</p>
+                  <h3 className="font-medium">{questions[currentQuestion]}</h3>
+                </div>
+                
+                <div className="flex justify-center space-x-4 pt-4">
+                  <button 
+                    onClick={() => handleAnswer(true)}
+                    className="px-6 py-2 rounded-lg bg-green-900/50 hover:bg-green-800 border border-green-700 flex items-center"
+                  >
+                    <CheckCircle className="mr-2 h-5 w-5" /> Yes
                   </button>
-                  <button className="px-3 py-1 rounded bg-red-900/50 hover:bg-red-800 border border-red-700">
-                    No
+                  <button 
+                    onClick={() => handleAnswer(false)}
+                    className="px-6 py-2 rounded-lg bg-red-900/50 hover:bg-red-800 border border-red-700 flex items-center"
+                  >
+                    <X className="mr-2 h-5 w-5" /> No
                   </button>
                 </div>
+                
+                {/* Progress indicator */}
+                <div className="w-full bg-gray-700 rounded-full h-2.5 mt-6">
+                  <div 
+                    className="bg-purple-500 h-2.5 rounded-full" 
+                    style={{ width: `${((currentQuestion) / questions.length) * 100}%` }}
+                  ></div>
+                </div>
               </div>
-            ))}
-            <div className="pt-6 mt-6 border-t border-gray-700 text-center">
-              <p className="text-sm text-gray-400">Based on your answers: <span className="font-bold text-purple-300">Potential Candidate</span></p>
-              <Link href="/testimonials" className="mt-4 inline-flex items-center text-purple-400 hover:underline">
-                Hear from current Guardians <ArrowRight className="ml-1 h-4 w-4" />
-              </Link>
-            </div>
+            ) : (
+              <div className="text-center">
+                <div className="mb-6">
+                  <CheckCircle className="h-16 w-16 text-green-400 mx-auto animate-bounce" />
+                </div>
+                <h3 className="text-2xl font-bold text-green-400 mb-4">You're Eligible!</h3>
+                <p className="text-gray-400 mb-6">Based on your answers, you meet our basic requirements.</p>
+                <div className="flex justify-center space-x-4">
+                  <button 
+                    onClick={resetEligibilityCheck}
+                    className="px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 border border-gray-600"
+                  >
+                    Retake Check
+                  </button>
+                  <Link 
+                    href="#application-form" 
+                    className="px-4 py-2 rounded-lg bg-purple-900/50 hover:bg-purple-800 border border-purple-700"
+                  >
+                    Continue to Application
+                  </Link>
+                </div>
+                <Link href="/testimonials" className="mt-6 inline-flex items-center text-purple-400 hover:underline">
+                  Hear from current Guardians <ArrowRight className="ml-1 h-4 w-4" />
+                </Link>
+              </div>
+            )}
           </div>
         </div>
 
+        {/* Rest of the content remains the same */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
           {/* Requirements */}
           <div className="bg-gray-800/50 border border-blue-500/30 rounded-xl p-6 hover:shadow-lg hover:shadow-blue-500/10 transition-all">
@@ -289,7 +426,7 @@ export default function ApplyPage() {
         </div>
 
         {/* Application Form */}
-        <div className="bg-gray-800/50 border border-purple-500 rounded-xl p-8 mb-16">
+        <div id="application-form" className="bg-gray-800/50 border border-purple-500 rounded-xl p-8 mb-16">
           <div className="text-center mb-10">
             <h2 className="text-3xl font-bold mb-2 text-purple-300">Application Form</h2>
             <p className="text-gray-400 max-w-2xl mx-auto">
