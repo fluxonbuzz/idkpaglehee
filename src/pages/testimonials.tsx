@@ -1,7 +1,6 @@
 'use client';
 
 import { Crown, Shield, Lock, Key, Star, Zap, Award, Gem, Sword, Scroll, Sparkles, MessageSquare, Gift, Users, BadgeCheck, Trophy, Target, BarChart2, Clock, Calendar, CheckCircle, Medal, Ribbon, Eye, EyeOff } from 'lucide-react';
-import Link from 'next/link';
 import { useState } from 'react';
 
 export default function TrustedStaffPage() {
@@ -596,7 +595,7 @@ export default function TrustedStaffPage() {
                               <div className="text-xs space-y-1">
                                 {badgeTiers.find(b => b.id === selectedBadge).requirements.map((req, i) => (
                                   <div key={i} className="flex items-start gap-2">
-                                    {req.includes('messages') && member.progress.totalMessages < parseInt(req.match(/\d+/)[0] ? (
+                                    {req.includes('messages') && member.progress.totalMessages < parseInt(req.match(/\d+/)[0]) ? (
                                       <span className="text-red-400">✗</span>
                                     ) : req.includes('activity') && member.progress.activityScore < parseInt(req.match(/\d+/)[0]) ? (
                                       <span className="text-red-400">✗</span>
@@ -640,12 +639,12 @@ export default function TrustedStaffPage() {
 
                 {member.name === '-- OPEN --' && (
                   <div className="mt-6 text-center">
-                    <Link
+                    <a
                       href="/apply"
                       className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg font-medium hover:opacity-90 transition-opacity"
                     >
                       Apply for Position
-                    </Link>
+                    </a>
                   </div>
                 )}
               </div>
@@ -660,13 +659,13 @@ export default function TrustedStaffPage() {
             <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
               Help shape our community while earning exclusive rewards and recognition
             </p>
-            <Link
+            <a
               href="/apply"
               className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg font-medium hover:shadow-lg hover:shadow-purple-500/20 transition-all"
             >
               <Shield className="mr-2 h-5 w-5" />
               Apply for Staff Position
-            </Link>
+            </a>
           </div>
         </div>
       </div>
