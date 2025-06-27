@@ -251,11 +251,11 @@ export default function TrustedStaffPage() {
       joinDate: 'Jan 2022',
       badge: 'Guardian',
       progress: {
-        messages: '647/500',
-        activity: '95%',
+        messages: '140/500',
+        activity: '28%',
         targets: 'Platinum tier',
         totalMessages: 6470,
-        activityScore: 95,
+        activityScore: 28,
         ticketsResolved: 240,
         weeksActive: 85
       },
@@ -270,11 +270,11 @@ export default function TrustedStaffPage() {
       joinDate: 'Mar 2022',
       badge: 'Sentinel',
       progress: {
-        messages: '423/300',
-        activity: '92%',
+        messages: '139/300',
+        activity: '27%',
         targets: 'Gold tier',
         totalMessages: 4230,
-        activityScore: 92,
+        activityScore: 27,
         ticketsResolved: 180,
         weeksActive: 65
       },
