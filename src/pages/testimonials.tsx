@@ -55,7 +55,7 @@ export default function TrustedStaffPage() {
     {
       level: 'Bronze',
       requirements: [
-        { target: '50 weekly messages', reward: 'Basic emoji pack' },
+        { target: '200 weekly messages', reward: 'Basic emoji pack' },
         { target: '1 week active', reward: 'Starter badge' }
       ],
       color: 'bg-amber-700'
@@ -63,7 +63,7 @@ export default function TrustedStaffPage() {
     {
       level: 'Silver',
       requirements: [
-        { target: '150 weekly messages', reward: '₹20 discount code' },
+        { target: '300 weekly messages', reward: '₹20 discount code' },
         { target: '3 resolved tickets', reward: 'Custom color' },
         { target: '1 month active', reward: 'Basic Pro membership (1 week)' }
       ],
@@ -72,7 +72,7 @@ export default function TrustedStaffPage() {
     {
       level: 'Gold',
       requirements: [
-        { target: '300 weekly messages', reward: '₹50 discount code' },
+        { target: '500 weekly messages', reward: '₹50 discount code' },
         { target: '5 event participations', reward: 'Special badge' },
         { target: '3 months active', reward: 'Premium membership (2 weeks)' }
       ],
@@ -81,16 +81,16 @@ export default function TrustedStaffPage() {
     {
       level: 'Platinum',
       requirements: [
-        { target: '500 weekly messages', reward: '₹100 discount code' },
+        { target: '800 weekly messages', reward: '₹70 discount code' },
         { target: '10 referrals', reward: 'Exclusive emoji pack' },
-        { target: '6 months active', reward: 'Premium Pro (1 month)' }
+        { target: '6 months active', reward: 'Pro (1 month)' }
       ],
       color: 'bg-teal-400'
     },
     {
       level: 'Diamond',
       requirements: [
-        { target: '1000 weekly messages', reward: '₹200 discount code' },
+        { target: '1200 weekly messages', reward: '₹100 discount code' },
         { target: '25 quality posts', reward: 'VIP status' },
         { target: '1 year active', reward: 'Legendary badge + All perks' }
       ],
