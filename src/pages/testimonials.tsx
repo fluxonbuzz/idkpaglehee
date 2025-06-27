@@ -118,7 +118,7 @@ export default function TrustedStaffPage() {
       id: 1,
       name: 'Fluxon',
       role: 'Co-Founder',
-      level: 'Legendary',
+      level: 'Mythic',
       icon: <Crown className="text-purple-500" />,
       joinDate: 'Day One',
       badge: 'Legendary',
