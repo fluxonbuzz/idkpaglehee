@@ -139,7 +139,7 @@ export default function ApplyPage() {
                   <p className="text-sm">Join our announcement channel to stay updated</p>
                 </div>
                 <Link 
-                  href="/contact" 
+                  href="/community" 
                   className="inline-block px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg font-medium border border-gray-600 transition-colors"
                 >
                   Contact Us for Information
