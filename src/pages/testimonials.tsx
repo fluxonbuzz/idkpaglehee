@@ -1,6 +1,7 @@
 'use client';
 
 import { Crown, Shield, Lock, Key, Star, Zap, Award, Gem, Sword, Scroll, Sparkles, MessageSquare, Gift, Users, BadgeCheck, Trophy, Target, BarChart2, Clock, Calendar, CheckCircle, Medal, Ribbon, Eye, EyeOff } from 'lucide-react';
+import { useState } from 'react';
 
 export default function TrustedStaffPage() {
   const [selectedBadge, setSelectedBadge] = useState(null);
