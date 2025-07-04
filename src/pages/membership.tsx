@@ -1,14 +1,17 @@
 // pages/membership.tsx
 import { useState } from 'react';
 import Link from 'next/link';
-import { ShieldCheck, Send, Star, Zap, Crown, Gift } from 'lucide-react';
+import { ShieldCheck, Send, Crown, Zap, Clock, Eye, MessageSquare, Video, Gamepad } from 'lucide-react';
 
 interface MembershipTier {
   id: string;
   name: string;
   price: number;
   duration: string;
-  features: string[];
+  features: {
+    text: string;
+    icon: React.ReactNode;
+  }[];
   popular?: boolean;
   discount?: string;
   originalPrice?: number;
@@ -29,9 +32,18 @@ const membershipTiers: MembershipTier[] = [
     price: 50,
     duration: 'month',
     features: [
-      '5% discount on all products',
-      'Basic support',
-      'Access to limited content',
+      {
+        text: 'Premium game leaks',
+        icon: <Eye className="w-5 h-5 text-blue-400" />
+      },
+      {
+        text: 'Standard support response',
+        icon: <MessageSquare className="w-5 h-5 text-blue-400" />
+      },
+      {
+        text: 'Access to limited content',
+        icon: <Gamepad className="w-5 h-5 text-blue-400" />
+      }
     ]
   },
   {
@@ -40,11 +52,22 @@ const membershipTiers: MembershipTier[] = [
     price: 100,
     duration: 'month',
     features: [
-      '20% discount on all products',
-      'Priority support',
-      'Access to all content',
-      'Daily tips and tricks',
-      'Early access to new products'
+      {
+        text: 'Early access to Shiva X mod videos',
+        icon: <Video className="w-5 h-5 text-purple-400" />
+      },
+      {
+        text: 'Priority replies from ShivaXD',
+        icon: <MessageSquare className="w-5 h-5 text-purple-400" />
+      },
+      {
+        text: 'Premium game leaks',
+        icon: <Eye className="w-5 h-5 text-purple-400" />
+      },
+      {
+        text: 'Get games 15 min before release',
+        icon: <Clock className="w-5 h-5 text-purple-400" />
+      }
     ],
     popular: true,
     discount: 'Most Popular'
@@ -55,14 +78,29 @@ const membershipTiers: MembershipTier[] = [
     price: 250,
     duration: 'month',
     features: [
-      '30% discount on all products',
-      '24/7 VIP support',
-      'All Pro features',
-      'Exclusive items',
-      'Buy one get one free'
+      {
+        text: 'Watch Shiva X videos before upload',
+        icon: <Video className="w-5 h-5 text-yellow-400" />
+      },
+      {
+        text: 'Instant replies from ShivaXD',
+        icon: <MessageSquare className="w-5 h-5 text-yellow-400" />
+      },
+      {
+        text: 'Exclusive premium leaks',
+        icon: <Eye className="w-5 h-5 text-yellow-400" />
+      },
+      {
+        text: 'Get games 30 min before release',
+        icon: <Clock className="w-5 h-5 text-yellow-400" />
+      },
+      {
+        text: 'VIP support channel access',
+        icon: <ShieldCheck className="w-5 h-5 text-yellow-400" />
+      }
     ],
     originalPrice: 500,
-    discount: 'Best Value'
+    discount: 'VIP Access'
   }
 ];
 
@@ -112,47 +150,44 @@ export default function MembershipPage() {
     if (!selectedTier) return;
     
     const receiptText = `
-      SX STORE - MEMBERSHIP PURCHASE
-      -----------------------------
+      SX STORE - PREMIUM MEMBERSHIP
+      ----------------------------
       Transaction ID: ${receiptData.transactionId}
       Date: ${receiptData.date}
       
       MEMBERSHIP:
       - ${selectedTier.name} Tier: ₹${selectedTier.price}/${selectedTier.duration}
       
-      FEATURES:
-      ${selectedTier.features.map(feature => `      • ${feature}`).join('\n')}
+      EXCLUSIVE BENEFITS:
+      ${selectedTier.features.map(feature => `      • ${feature.text}`).join('\n')}
       
       CONTACT SELLERS:
       - d4vd (Co-Owner): https://t.me/lyastral
       - Shiva (Owner): https://t.me/shivaxd42
       
-      DIGITALLY SIGNED:
-      ${new Date().toISOString()}
-      🚀 SX Store - Premium Gaming Marketplace
+      🚀 SX Store - Premium Gaming Content
     `;
 
     navigator.clipboard.writeText(receiptText)
       .then(() => alert('Receipt copied to clipboard! Share it with the seller.'))
       .catch(() => alert('Failed to copy receipt. Please manually copy the transaction ID.'));
     
-    // Update receipt status to completed
     setReceiptData({ ...receiptData, status: 'completed' });
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
+    <div className="min-h-screen bg-gray-900 text-white">
       {/* Header */}
-      <header className="bg-gray-800/50 backdrop-blur-md sticky top-0 z-10 border-b border-gray-700">
+      <header className="bg-gray-800/80 backdrop-blur-md sticky top-0 z-10 border-b border-gray-700">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-purple-500 to-blue-500 bg-clip-text text-transparent">
-            SX Store
+          <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-purple-500 to-blue-500 bg-clip-text text-transparent flex items-center gap-2">
+            <Gamepad className="text-blue-400" /> SX Store
           </Link>
           <Link 
             href="/store" 
-            className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition"
+            className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition flex items-center gap-2"
           >
-            Back to Store
+            <Zap className="w-4 h-4" /> Back to Store
           </Link>
         </div>
       </header>
@@ -161,11 +196,16 @@ export default function MembershipPage() {
       <main className="container mx-auto px-4 py-12">
         {/* Hero Section */}
         <section className="mb-16 text-center">
+          <div className="inline-block mb-4 bg-gradient-to-r from-purple-500 to-blue-500 p-1 rounded-full">
+            <div className="bg-gray-900 rounded-full px-4 py-1 text-sm font-bold flex items-center gap-2">
+              <Crown className="w-4 h-4 text-yellow-300" /> EXCLUSIVE ACCESS
+            </div>
+          </div>
           <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-purple-500 to-blue-500 bg-clip-text text-transparent">
-            SX Premium Memberships
+            SX Premium Content Access
           </h1>
           <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-            Unlock exclusive benefits, discounts, and content with our membership tiers
+            Unlock early content, premium leaks, and direct access to ShivaXD
           </p>
         </section>
 
@@ -189,9 +229,9 @@ export default function MembershipPage() {
               
               <div className="p-6">
                 <div className="flex items-center gap-3 mb-4">
-                  {tier.id === 'basic' && <Star className="text-blue-400" size={24} />}
-                  {tier.id === 'pro' && <Zap className="text-purple-400" size={24} />}
-                  {tier.id === 'premium' && <Crown className="text-yellow-400" size={24} />}
+                  {tier.id === 'basic' && <Zap className="text-blue-400" size={24} />}
+                  {tier.id === 'pro' && <Crown className="text-purple-400" size={24} />}
+                  {tier.id === 'premium' && <ShieldCheck className="text-yellow-400" size={24} />}
                   <h3 className="text-2xl font-bold">{tier.name}</h3>
                 </div>
                 
@@ -203,21 +243,20 @@ export default function MembershipPage() {
                   )}
                 </div>
                 
-                <ul className="space-y-3 mb-8">
+                <ul className="space-y-4 mb-8">
                   {tier.features.map((feature, index) => (
-                    <li key={index} className="flex items-start gap-2">
-                      <svg className="h-5 w-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span>{feature}</span>
+                    <li key={index} className="flex items-start gap-3">
+                      {feature.icon}
+                      <span>{feature.text}</span>
                     </li>
                   ))}
                 </ul>
                 
                 <button
                   onClick={() => generateReceipt(tier)}
-                  className={`w-full py-3 px-4 rounded-lg font-bold transition ${tier.popular ? 'bg-purple-600 hover:bg-purple-700' : 'bg-gray-700 hover:bg-gray-600'}`}
+                  className={`w-full py-3 px-4 rounded-lg font-bold transition flex items-center justify-center gap-2 ${tier.popular ? 'bg-purple-600 hover:bg-purple-700' : 'bg-gray-700 hover:bg-gray-600'}`}
                 >
+                  {tier.id === 'premium' ? <ShieldCheck size={18} /> : <Zap size={18} />}
                   Get {tier.name}
                 </button>
               </div>
@@ -227,34 +266,40 @@ export default function MembershipPage() {
 
         {/* Testimonials */}
         <section className="max-w-4xl mx-auto mb-16">
-          <h2 className="text-2xl font-bold text-center mb-8">What Our Members Say</h2>
+          <h2 className="text-2xl font-bold text-center mb-8 flex items-center justify-center gap-2">
+            <MessageSquare className="text-purple-400" /> Member Experiences
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-gray-800/50 p-6 rounded-xl border border-gray-700">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center font-bold">
-                  A
+                <div className="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center">
+                  <Gamepad className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="font-bold">Aarav</h4>
-                  <p className="text-sm text-gray-400">Pro Member</p>
+                  <h4 className="font-bold">Pro Gamer</h4>
+                  <p className="text-sm text-gray-400 flex items-center gap-1">
+                    <Video className="w-3 h-3" /> Pro Member
+                  </p>
                 </div>
               </div>
               <p className="text-gray-300">
-                &quot;The 20% discount pays for itself in just a few purchases. The priority support is amazing too!&quot;
+                &quot;Getting Shiva's mod videos early gives me a huge advantage in tournaments!&quot;
               </p>
             </div>
             <div className="bg-gray-800/50 p-6 rounded-xl border border-gray-700">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center font-bold">
-                  P
+                <div className="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center">
+                  <Crown className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="font-bold">Priya</h4>
-                  <p className="text-sm text-gray-400">Premium Member</p>
+                  <h4 className="font-bold">VIP Leaker</h4>
+                  <p className="text-sm text-gray-400 flex items-center gap-1">
+                    <ShieldCheck className="w-3 h-3" /> Premium Member
+                  </p>
                 </div>
               </div>
               <p className="text-gray-300">
-                &quot;The exclusive items and personal account manager make the Premium tier totally worth it!&quot;
+                &quot;The 30-minute early access to games is insane! I'm always first with content.&quot;
               </p>
             </div>
           </div>
@@ -262,24 +307,32 @@ export default function MembershipPage() {
 
         {/* FAQ */}
         <section className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-8">Frequently Asked Questions</h2>
+          <h2 className="text-2xl font-bold text-center mb-8 flex items-center justify-center gap-2">
+            <MessageSquare className="text-blue-400" /> Common Questions
+          </h2>
           <div className="space-y-4">
             <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700">
-              <h3 className="font-bold mb-2">How do I activate my membership?</h3>
-              <p className="text-gray-300">
-                After purchasing, share your receipt with one of our sellers. They will activate your membership within 24 hours.
+              <h3 className="font-bold mb-2 flex items-center gap-2">
+                <Clock className="w-5 h-5 text-blue-400" /> How fast is activation?
+              </h3>
+              <p className="text-gray-300 pl-7">
+                Memberships are activated within 1 hour during business hours (10AM-10PM IST). Night purchases may take up to 12 hours.
               </p>
             </div>
             <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700">
-              <h3 className="font-bold mb-2">Can I upgrade my membership?</h3>
-              <p className="text-gray-300">
-                Yes! Contact any seller to upgrade. You&apos;ll only pay the difference between your current and new membership.
+              <h3 className="font-bold mb-2 flex items-center gap-2">
+                <Video className="w-5 h-5 text-purple-400" /> How early do I get videos?
+              </h3>
+              <p className="text-gray-300 pl-7">
+                Pro members get videos 1 hour early. Premium members get them 3-6 hours early, sometimes even the raw footage!
               </p>
             </div>
             <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700">
-              <h3 className="font-bold mb-2">Is there a yearly payment option?</h3>
-              <p className="text-gray-300">
-                Currently we only offer monthly memberships. Yearly plans with additional discounts are coming soon!
+              <h3 className="font-bold mb-2 flex items-center gap-2">
+                <Gamepad className="w-5 h-5 text-yellow-400" /> Is game early access guaranteed?
+              </h3>
+              <p className="text-gray-300 pl-7">
+                We guarantee at least 30 minutes early for Premium, 15 for Pro. Sometimes we get them even earlier!
               </p>
             </div>
           </div>
@@ -293,8 +346,19 @@ export default function MembershipPage() {
           <div className="relative bg-gray-800 rounded-xl max-w-md w-full p-6 border border-gray-700">
             <div className="flex justify-between items-start mb-6">
               <div>
-                <h2 className="text-2xl font-bold">{selectedTier.name} Membership</h2>
-                <p className="text-gray-400">Transaction ID: {receiptData.transactionId}</p>
+                <h2 className="text-2xl font-bold flex items-center gap-2">
+                  {selectedTier.id === 'premium' ? (
+                    <ShieldCheck className="text-yellow-400" />
+                  ) : selectedTier.id === 'pro' ? (
+                    <Crown className="text-purple-400" />
+                  ) : (
+                    <Zap className="text-blue-400" />
+                  )}
+                  {selectedTier.name} Access
+                </h2>
+                <p className="text-gray-400 flex items-center gap-1 text-sm">
+                  <Clock className="w-4 h-4" /> ID: {receiptData.transactionId}
+                </p>
               </div>
               <button 
                 onClick={() => setSelectedTier(null)}
@@ -305,16 +369,22 @@ export default function MembershipPage() {
             </div>
 
             <div className="space-y-4 mb-6">
-              <div className="flex justify-between">
-                <span>Membership Tier</span>
+              <div className="flex justify-between items-center">
+                <span className="flex items-center gap-2">
+                  <Gamepad className="w-5 h-5" /> Tier
+                </span>
                 <span className="font-bold">{selectedTier.name}</span>
               </div>
-              <div className="flex justify-between">
-                <span>Duration</span>
+              <div className="flex justify-between items-center">
+                <span className="flex items-center gap-2">
+                  <Clock className="w-5 h-5" /> Duration
+                </span>
                 <span>1 {selectedTier.duration}</span>
               </div>
-              <div className="flex justify-between text-lg font-bold border-t border-gray-700 pt-2">
-                <span>Total</span>
+              <div className="flex justify-between items-center text-lg font-bold border-t border-gray-700 pt-2">
+                <span className="flex items-center gap-2">
+                  <ShieldCheck className="w-5 h-5" /> Total
+                </span>
                 <span>₹{selectedTier.price}</span>
               </div>
             </div>
@@ -322,23 +392,27 @@ export default function MembershipPage() {
             {receiptData.status === 'pending' ? (
               <>
                 <div className="bg-gray-700/50 p-4 rounded-lg mb-6">
-                  <h3 className="font-bold mb-3 text-center">Contact Sellers</h3>
+                  <h3 className="font-bold mb-3 text-center flex items-center justify-center gap-2">
+                    <Send className="w-5 h-5" /> Contact For Activation
+                  </h3>
                   <div className="flex flex-col gap-4">
                     {sellers.map(seller => (
                       <div key={seller.id} className="flex items-center gap-3">
                         <div className="relative">
-                          <div className="w-12 h-12 rounded-full bg-gray-600 overflow-hidden">
-                            <div className="w-full h-full flex items-center justify-center text-gray-300">
-                              {seller.name.charAt(0)}
-                            </div>
+                          <div className="w-12 h-12 rounded-full bg-gray-600 overflow-hidden flex items-center justify-center">
+                            {seller.id === 'shiva' ? (
+                              <Crown className="w-5 h-5 text-yellow-400" />
+                            ) : (
+                              <Zap className="w-5 h-5 text-purple-400" />
+                            )}
                           </div>
-                          <span className="absolute -bottom-1 -right-1 bg-purple-500 text-xs px-1 rounded-full">
+                          <span className={`absolute -bottom-1 -right-1 text-xs px-1 rounded-full ${seller.role === 'Owner' ? 'bg-yellow-500' : 'bg-purple-500'}`}>
                             {seller.role}
                           </span>
                         </div>
                         <div className="flex-1">
                           <h4 className="font-medium">{seller.name}</h4>
-                          <p className="text-xs text-gray-400">{seller.role} of SX Store</p>
+                          <p className="text-xs text-gray-400">@{seller.telegram.split('/').pop()}</p>
                         </div>
                         <a
                           href={seller.telegram}
@@ -367,7 +441,7 @@ export default function MembershipPage() {
                   <span className="font-bold">Purchase Complete!</span>
                 </div>
                 <p className="text-sm text-gray-300">
-                  Your membership will be activated within 24 hours after verification
+                  Your exclusive access will be activated shortly
                 </p>
               </div>
             )}
