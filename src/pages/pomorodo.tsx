@@ -4,18 +4,30 @@ import { Play, Pause, RotateCw, Settings, X, Check, Bell } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function PomodoroTimer() {
+  // Load data from localStorage if available
+  const loadFromLocalStorage = (key, defaultValue) => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(key);
+      return saved !== null ? JSON.parse(saved) : defaultValue;
+    }
+    return defaultValue;
+  };
+
   const [timeLeft, setTimeLeft] = useState(25 * 60); // 25 minutes in seconds
   const [isActive, setIsActive] = useState(false);
   const [mode, setMode] = useState("pomodoro"); // pomodoro, shortBreak, longBreak
-  const [cycles, setCycles] = useState(0);
+  const [cycles, setCycles] = useState(loadFromLocalStorage('pomodoroCycles', 0));
   const [showSettings, setShowSettings] = useState(false);
-  const [settings, setSettings] = useState({
-    pomodoro: 25,
-    shortBreak: 5,
-    longBreak: 15,
-    longBreakInterval: 4,
-  });
+  const [settings, setSettings] = useState(
+    loadFromLocalStorage('pomodoroSettings', {
+      pomodoro: 25,
+      shortBreak: 5,
+      longBreak: 15,
+      longBreakInterval: 4,
+    })
+  );
   const audioRef = useRef(null);
+  const wakeLockRef = useRef(null);
 
   const modes = {
     pomodoro: {
@@ -35,9 +47,67 @@ export default function PomodoroTimer() {
     },
   };
 
+  // Save data to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('pomodoroCycles', JSON.stringify(cycles));
+  }, [cycles]);
+
+  useEffect(() => {
+    localStorage.setItem('pomodoroSettings', JSON.stringify(settings));
+  }, [settings]);
+
   useEffect(() => {
     setTimeLeft(modes[mode].time);
   }, [mode, settings]);
+
+  // Screen wake lock implementation
+  const requestWakeLock = async () => {
+    try {
+      if ('wakeLock' in navigator) {
+        wakeLockRef.current = await navigator.wakeLock.request('screen');
+        console.log('Screen Wake Lock is active');
+        
+        wakeLockRef.current.addEventListener('release', () => {
+          console.log('Screen Wake Lock was released');
+        });
+      }
+    } catch (err) {
+      console.error(`${err.name}, ${err.message}`);
+    }
+  };
+
+  const releaseWakeLock = () => {
+    if (wakeLockRef.current !== null) {
+      wakeLockRef.current.release();
+      wakeLockRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    if (isActive) {
+      requestWakeLock();
+    } else {
+      releaseWakeLock();
+    }
+
+    return () => {
+      releaseWakeLock();
+    };
+  }, [isActive]);
+
+  // Handle visibility change to reacquire wake lock when tab becomes visible again
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && isActive) {
+        requestWakeLock();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [isActive]);
 
   useEffect(() => {
     let interval = null;
