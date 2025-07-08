@@ -175,6 +175,16 @@ const storeData: Product[] = [
     tags: ['Digital', 'Custom'],
     category: 'Services'
   },
+   {
+    id: 'obb',
+    title: 'Personal OBB',
+    price: 100,
+    originalPrice: 250,
+    description: 'Premium custom player obb.',
+    image: '/store/rc24-id.jpg',
+    tags: ['Digital', 'Custom'],
+    category: 'Services'
+  },
   {
     id: 'mod-menus',
     title: 'Premium Mod Menus',
