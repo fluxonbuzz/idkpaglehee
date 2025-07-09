@@ -178,8 +178,8 @@ const storeData: Product[] = [
    {
     id: 'obb',
     title: 'Personal OBB',
-    price: 100,
-    originalPrice: 250,
+    price: 349,
+    originalPrice: 700,
     description: 'Premium custom player obb.',
     image: '/store/rc24-id.jpg',
     tags: ['Digital', 'Custom'],
