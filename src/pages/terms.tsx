@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { BookText, Shield, Lock, AlertTriangle, Scale } from 'lucide-react';
+import { BookText, Shield, Lock, AlertTriangle, Scale, Clock, Mail } from 'lucide-react';
 
 export default function TermsPage() {
   return (
@@ -138,11 +138,46 @@ export default function TermsPage() {
           </section>
 
           {/* Section 4 */}
+          <section id="payment-terms" className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
+            <div className="flex items-start gap-4 mb-4">
+              <Clock className="text-green-400 mt-1 flex-shrink-0" size={24} />
+              <div>
+                <h2 className="text-2xl font-bold mb-3 text-green-300">4. Payment Processing Terms</h2>
+                <p className="text-gray-300 mb-4">
+                  Specific conditions regarding payment processing and payouts:
+                </p>
+                <ul className="space-y-3 text-gray-300 pl-5 list-disc">
+                  <li>
+                    <strong>Payment delays</strong> may be applied for certain behaviors
+                  </li>
+                  <li>
+                    Sending a direct message (DM) to our team regarding payment status will result in a <strong>5-hour delay</strong> of your payment processing
+                  </li>
+                  <li>
+                    Pinging in group chats (GC) about payment status will result in a <strong>24-hour delay</strong> of your payment processing
+                  </li>
+                  <li>
+                    Repeated inquiries may result in <strong>additional delays</strong> or account review
+                  </li>
+                  <li>
+                    All payments are processed in the order they are received, minus any applicable delays
+                  </li>
+                </ul>
+                <div className="bg-gray-700/50 p-4 rounded-lg mt-4 border-l-4 border-green-500">
+                  <p className="text-green-300 font-medium">
+                    Please allow standard processing times before inquiring about payment status.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Section 5 */}
           <section id="intellectual-property" className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
             <div className="flex items-start gap-4 mb-4">
               <Lock className="text-purple-400 mt-1 flex-shrink-0" size={24} />
               <div>
-                <h2 className="text-2xl font-bold mb-3 text-purple-300">4. Intellectual Property</h2>
+                <h2 className="text-2xl font-bold mb-3 text-purple-300">5. Intellectual Property</h2>
                 <p className="text-gray-300 mb-4">
                   All content and materials available through SX Store:
                 </p>
@@ -169,12 +204,12 @@ export default function TermsPage() {
             </div>
           </section>
 
-          {/* Section 5 */}
+          {/* Section 6 */}
           <section id="liability" className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
             <div className="flex items-start gap-4 mb-4">
               <AlertTriangle className="text-red-400 mt-1 flex-shrink-0" size={24} />
               <div>
-                <h2 className="text-2xl font-bold mb-3 text-red-300">5. Limitations of Liability</h2>
+                <h2 className="text-2xl font-bold mb-3 text-red-300">6. Limitations of Liability</h2>
                 <p className="text-gray-300 mb-4">
                   SX Store shall not be liable for:
                 </p>
@@ -199,12 +234,12 @@ export default function TermsPage() {
             </div>
           </section>
 
-          {/* Section 6 */}
+          {/* Section 7 */}
           <section id="changes-to-terms" className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
             <div className="flex items-start gap-4 mb-4">
               <Scale className="text-blue-400 mt-1 flex-shrink-0" size={24} />
               <div>
-                <h2 className="text-2xl font-bold mb-3 text-blue-300">6. Changes to Terms</h2>
+                <h2 className="text-2xl font-bold mb-3 text-blue-300">7. Changes to Terms</h2>
                 <p className="text-gray-300 mb-4">
                   We may update these Terms from time to time:
                 </p>
