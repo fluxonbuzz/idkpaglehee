@@ -1,6 +1,6 @@
 'use client';
 
-import { MapPin, Compass, Globe, Satellite, Layers, Clock, User, Lock, ArrowRight, X, Menu } from 'lucide-react';
+import { MapPin, Compass, Globe, Satellite, Layers, Clock, User, Lock, ArrowRight, X, Menu, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 
