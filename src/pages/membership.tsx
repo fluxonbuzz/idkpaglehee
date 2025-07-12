@@ -129,6 +129,7 @@ export default function MembershipPage() {
   const [discountCode, setDiscountCode] = useState('');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [discountApplied, setDiscountApplied] = useState(false);
+  const [showTermsError, setShowTermsError] = useState(false);
 
   const applyDiscount = () => {
     if (discountCode.toUpperCase() === 'SX20' && selectedTier?.id === 'basic') {
@@ -144,11 +145,6 @@ export default function MembershipPage() {
   };
 
   const generateReceipt = (tier: MembershipTier) => {
-    if (!agreedToTerms) {
-      alert('Please agree to the terms before purchasing');
-      return;
-    }
-
     const transactionId = `SX-MEM-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
     const date = new Date().toLocaleString();
     
@@ -161,11 +157,17 @@ export default function MembershipPage() {
     });
     
     setSelectedTier(tier);
+    setShowTermsError(false);
   };
 
   const copyReceiptToClipboard = () => {
     if (!selectedTier) return;
     
+    if (!agreedToTerms) {
+      setShowTermsError(true);
+      return;
+    }
+
     const receiptText = `
       SX STORE - PREMIUM MEMBERSHIP
       ----------------------------
@@ -457,17 +459,22 @@ export default function MembershipPage() {
               </div>
             </div>
 
-            <div className="flex items-start gap-2 mb-6">
-              <input
-                type="checkbox"
-                id="terms-checkbox"
-                checked={agreedToTerms}
-                onChange={(e) => setAgreedToTerms(e.target.checked)}
-                className="mt-1"
-              />
-              <label htmlFor="terms-checkbox" className="text-sm text-gray-300">
-                I agree to the terms of service and understand this is a non-refundable purchase for permanent access to premium content.
-              </label>
+            <div className="mb-6">
+              <div className="flex items-start gap-2 mb-2">
+                <input
+                  type="checkbox"
+                  id="terms-checkbox"
+                  checked={agreedToTerms}
+                  onChange={(e) => setAgreedToTerms(e.target.checked)}
+                  className="mt-1"
+                />
+                <label htmlFor="terms-checkbox" className="text-sm text-gray-300">
+                  I agree to the terms of service and understand this is a non-refundable purchase for permanent access to premium content.
+                </label>
+              </div>
+              {showTermsError && !agreedToTerms && (
+                <p className="text-red-400 text-sm">You must agree to the terms before proceeding</p>
+              )}
             </div>
 
             {receiptData.status === 'pending' ? (
@@ -511,7 +518,6 @@ export default function MembershipPage() {
                 <button
                   onClick={copyReceiptToClipboard}
                   className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded transition flex items-center justify-center gap-2"
-                  disabled={!agreedToTerms}
                 >
                   <ShieldCheck size={18} /> Copy Receipt to Clipboard
                 </button>
