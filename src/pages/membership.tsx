@@ -1,13 +1,12 @@
 // pages/membership.tsx
 import { useState } from 'react';
 import Link from 'next/link';
-import { ShieldCheck, Send, Crown, Zap, Clock, Eye, MessageSquare, Video, Gamepad } from 'lucide-react';
+import { ShieldCheck, Send, Crown, Zap, Clock, Eye, MessageSquare, Video, Gamepad, Info, Check } from 'lucide-react';
 
 interface MembershipTier {
   id: string;
   name: string;
   price: number;
-  duration: string;
   features: {
     text: string;
     icon: React.ReactNode;
@@ -30,7 +29,6 @@ const membershipTiers: MembershipTier[] = [
     id: 'basic',
     name: 'Basic',
     price: 50,
-    duration: 'month',
     features: [
       {
         text: 'Premium game leaks',
@@ -50,7 +48,6 @@ const membershipTiers: MembershipTier[] = [
     id: 'pro',
     name: 'Pro',
     price: 100,
-    duration: 'month',
     features: [
       {
         text: 'Early access to Shiva X mod videos',
@@ -76,7 +73,6 @@ const membershipTiers: MembershipTier[] = [
     id: 'premium',
     name: 'Premium',
     price: 250,
-    duration: 'month',
     features: [
       {
         text: 'Watch Shiva X videos before upload',
@@ -130,8 +126,29 @@ export default function MembershipPage() {
     price: 0,
     status: 'pending'
   });
+  const [discountCode, setDiscountCode] = useState('');
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [discountApplied, setDiscountApplied] = useState(false);
+
+  const applyDiscount = () => {
+    if (discountCode.toUpperCase() === 'SX20' && selectedTier?.id === 'basic') {
+      setReceiptData(prev => ({
+        ...prev,
+        price: Math.max(0, selectedTier.price - 20)
+      }));
+      setDiscountApplied(true);
+      alert('Discount of ₹20 applied to Basic membership!');
+    } else {
+      alert('Invalid discount code or not applicable to this tier');
+    }
+  };
 
   const generateReceipt = (tier: MembershipTier) => {
+    if (!agreedToTerms) {
+      alert('Please agree to the terms before purchasing');
+      return;
+    }
+
     const transactionId = `SX-MEM-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
     const date = new Date().toLocaleString();
     
@@ -139,7 +156,7 @@ export default function MembershipPage() {
       transactionId,
       date,
       tier: tier.name,
-      price: tier.price,
+      price: discountApplied && tier.id === 'basic' ? tier.price - 20 : tier.price,
       status: 'pending'
     });
     
@@ -156,7 +173,8 @@ export default function MembershipPage() {
       Date: ${receiptData.date}
       
       MEMBERSHIP:
-      - ${selectedTier.name} Tier: ₹${selectedTier.price}/${selectedTier.duration}
+      - ${selectedTier.name} Tier: ₹${receiptData.price} (PERMANENT ACCESS)
+      ${discountApplied ? '      - Discount Applied: ₹20 (SX20 code)\n' : ''}
       
       EXCLUSIVE BENEFITS:
       ${selectedTier.features.map(feature => `      • ${feature.text}`).join('\n')}
@@ -194,6 +212,20 @@ export default function MembershipPage() {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-12">
+        {/* Announcement Banner */}
+        <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl p-4 mb-8 flex items-start gap-3">
+          <div className="bg-white/20 p-2 rounded-full">
+            <Info className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h3 className="font-bold text-lg mb-1">Exciting Updates!</h3>
+            <p className="text-sm">
+              • All memberships are now <span className="font-bold">PERMANENT</span> - one-time payment for lifetime access!<br />
+              • Use code <span className="font-bold bg-black/30 px-2 py-1 rounded">SX20</span> to get ₹20 off Basic membership (limited time)
+            </p>
+          </div>
+        </div>
+
         {/* Hero Section */}
         <section className="mb-16 text-center">
           <div className="inline-block mb-4 bg-gradient-to-r from-purple-500 to-blue-500 p-1 rounded-full">
@@ -205,7 +237,7 @@ export default function MembershipPage() {
             SX Premium Content Access
           </h1>
           <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-            Unlock early content, premium leaks, and direct access to ShivaXD
+            Unlock premium content and direct access to ShivaXD - Permanent access with one payment!
           </p>
         </section>
 
@@ -237,9 +269,14 @@ export default function MembershipPage() {
                 
                 <div className="mb-6">
                   <span className="text-4xl font-bold">₹{tier.price}</span>
-                  <span className="text-gray-400">/{tier.duration}</span>
+                  <span className="text-gray-400"> (Lifetime)</span>
                   {tier.originalPrice && (
                     <span className="block text-sm text-gray-400 line-through">₹{tier.originalPrice}</span>
+                  )}
+                  {tier.id === 'basic' && (
+                    <div className="mt-2 text-sm text-blue-400 flex items-center gap-1">
+                      <Info className="w-4 h-4" /> Use code SX20 for ₹20 off
+                    </div>
                   )}
                 </div>
                 
@@ -299,7 +336,7 @@ export default function MembershipPage() {
                 </div>
               </div>
               <p className="text-gray-300">
-                &quot;The 30-minute early access to games is insane! I'm always first with content.&quot;
+                &quot;The permanent access is worth every rupee! I'm always first with content.&quot;
               </p>
             </div>
           </div>
@@ -313,26 +350,26 @@ export default function MembershipPage() {
           <div className="space-y-4">
             <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700">
               <h3 className="font-bold mb-2 flex items-center gap-2">
-                <Clock className="w-5 h-5 text-blue-400" /> How fast is activation?
+                <Clock className="w-5 h-5 text-blue-400" /> Is access really permanent?
               </h3>
               <p className="text-gray-300 pl-7">
-                Memberships are activated within 1 hour during business hours (10AM-10PM IST). Night purchases may take up to 12 hours.
+                Yes! All memberships now provide lifetime access with a single payment. No renewals needed.
               </p>
             </div>
             <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700">
               <h3 className="font-bold mb-2 flex items-center gap-2">
-                <Video className="w-5 h-5 text-purple-400" /> How early do I get videos?
+                <Video className="w-5 h-5 text-purple-400" /> How does the discount work?
               </h3>
               <p className="text-gray-300 pl-7">
-                Pro members get videos 1 hour early. Premium members get them 3-6 hours early, sometimes even the raw footage!
+                Use code <span className="font-mono bg-gray-700 px-1">SX20</span> during Basic membership purchase to get ₹20 off (limited time offer).
               </p>
             </div>
             <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700">
               <h3 className="font-bold mb-2 flex items-center gap-2">
-                <Gamepad className="w-5 h-5 text-yellow-400" /> Is game early access guaranteed?
+                <Gamepad className="w-5 h-5 text-yellow-400" /> What if I want to upgrade later?
               </h3>
               <p className="text-gray-300 pl-7">
-                We guarantee at least 30 minutes early for Premium, 15 for Pro. Sometimes we get them even earlier!
+                You can upgrade anytime by paying the difference between your current membership and the new one.
               </p>
             </div>
           </div>
@@ -342,7 +379,10 @@ export default function MembershipPage() {
       {/* Membership Purchase Modal */}
       {selectedTier && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/70" onClick={() => setSelectedTier(null)}></div>
+          <div className="absolute inset-0 bg-black/70" onClick={() => {
+            setSelectedTier(null);
+            setDiscountApplied(false);
+          }}></div>
           <div className="relative bg-gray-800 rounded-xl max-w-md w-full p-6 border border-gray-700">
             <div className="flex justify-between items-start mb-6">
               <div>
@@ -361,7 +401,10 @@ export default function MembershipPage() {
                 </p>
               </div>
               <button 
-                onClick={() => setSelectedTier(null)}
+                onClick={() => {
+                  setSelectedTier(null);
+                  setDiscountApplied(false);
+                }}
                 className="text-gray-400 hover:text-white text-2xl"
               >
                 &times;
@@ -379,14 +422,52 @@ export default function MembershipPage() {
                 <span className="flex items-center gap-2">
                   <Clock className="w-5 h-5" /> Duration
                 </span>
-                <span>1 {selectedTier.duration}</span>
+                <span>Lifetime Access</span>
               </div>
+              {selectedTier.id === 'basic' && (
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    placeholder="Discount code (SX20)"
+                    className="flex-1 bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm"
+                    value={discountCode}
+                    onChange={(e) => setDiscountCode(e.target.value)}
+                  />
+                  <button
+                    onClick={applyDiscount}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm"
+                  >
+                    Apply
+                  </button>
+                </div>
+              )}
+              {discountApplied && (
+                <div className="flex justify-between items-center text-green-400">
+                  <span className="flex items-center gap-2">
+                    <Check className="w-5 h-5" /> Discount Applied
+                  </span>
+                  <span>-₹20</span>
+                </div>
+              )}
               <div className="flex justify-between items-center text-lg font-bold border-t border-gray-700 pt-2">
                 <span className="flex items-center gap-2">
                   <ShieldCheck className="w-5 h-5" /> Total
                 </span>
-                <span>₹{selectedTier.price}</span>
+                <span>₹{receiptData.price}</span>
               </div>
+            </div>
+
+            <div className="flex items-start gap-2 mb-6">
+              <input
+                type="checkbox"
+                id="terms-checkbox"
+                checked={agreedToTerms}
+                onChange={(e) => setAgreedToTerms(e.target.checked)}
+                className="mt-1"
+              />
+              <label htmlFor="terms-checkbox" className="text-sm text-gray-300">
+                I agree to the terms of service and understand this is a non-refundable purchase for permanent access to premium content.
+              </label>
             </div>
 
             {receiptData.status === 'pending' ? (
@@ -430,6 +511,7 @@ export default function MembershipPage() {
                 <button
                   onClick={copyReceiptToClipboard}
                   className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded transition flex items-center justify-center gap-2"
+                  disabled={!agreedToTerms}
                 >
                   <ShieldCheck size={18} /> Copy Receipt to Clipboard
                 </button>
@@ -441,7 +523,7 @@ export default function MembershipPage() {
                   <span className="font-bold">Purchase Complete!</span>
                 </div>
                 <p className="text-sm text-gray-300">
-                  Your exclusive access will be activated shortly
+                  Your permanent access will be activated shortly
                 </p>
               </div>
             )}
