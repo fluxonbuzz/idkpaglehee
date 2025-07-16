@@ -47,7 +47,7 @@ const membershipTiers: MembershipTier[] = [
   {
     id: 'pro',
     name: 'Pro',
-    price: 100,
+    price: 150,
     features: [
       {
         text: 'Early access to Shiva X mod videos',
