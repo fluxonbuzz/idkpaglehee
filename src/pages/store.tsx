@@ -12,6 +12,8 @@ interface Product {
   tags: string[];
   category: string;
   modMenuItems?: ModMenuItem[];
+  isSpecialOffer?: boolean;
+  includes?: { id: string; title: string; quantity: number }[];
 }
 
 interface ModMenuItem {
@@ -24,6 +26,7 @@ interface ModMenuItem {
 interface CartItem extends Product {
   quantity: number;
   selectedModItem?: ModMenuItem;
+  isBundleItem?: boolean;
 }
 
 interface ReceiptItem {
@@ -62,6 +65,23 @@ interface DiscountCode {
 
 const storeData: Product[] = [
   {
+    id: 'premium-pack',
+    title: 'PREMIUM PACK (SPECIAL OFFER)',
+    price: 350,
+    originalPrice: 1000,
+    description: 'Includes: 1 Netflix Account + 2 RC24 IDs + 2 RC Swap IDs + PRO Membership + 1 Free Item',
+    image: '/store/premium-pack.jpg',
+    tags: ['Bundle', 'Limited', 'Best Value'],
+    category: 'Bundles',
+    isSpecialOffer: true,
+    includes: [
+      { id: 'netflix-premium', title: 'Netflix Premium Account', quantity: 1 },
+      { id: 'rc24-id-level20', title: 'RC24 ID (Level 20)', quantity: 2 },
+      { id: 'rc24-swap-id', title: 'RC Swap ID', quantity: 2 },
+      { id: 'pro-membership', title: 'PRO Membership', quantity: 1 }
+    ]
+  },
+  {
     id: 'rc24-id-level20',
     title: 'RC24 ID (Level 20)',
     price: 30,
@@ -69,6 +89,34 @@ const storeData: Product[] = [
     description: 'Real Cricket 24 account with level 20 progression',
     image: '/store/rc24-id.jpg',
     tags: ['Digital', 'Limited', 'Discount'],
+    category: 'Accounts'
+  },
+  {
+    id: 'netflix-premium',
+    title: 'Netflix Premium Account',
+    price: 100,
+    description: '1-month premium account with 4K UHD streaming and multiple screens',
+    image: '/store/netflix.jpg',
+    tags: ['Digital', 'Popular'],
+    category: 'Accounts'
+  },
+  {
+    id: 'rc24-swap-id',
+    title: 'Real Cricket Swap ID',
+    price: 130,
+    originalPrice: 300,
+    description: 'Premium account with exclusive items and unlocked features',
+    image: '/store/rc24-id.jpg',
+    tags: ['Digital', 'Limited'],
+    category: 'Accounts'
+  },
+  {
+    id: 'pro-membership',
+    title: 'PRO Membership',
+    price: 200,
+    description: 'Exclusive membership with special benefits',
+    image: '/store/membership.jpg',
+    tags: ['Membership', 'Exclusive'],
     category: 'Accounts'
   },
   {
@@ -92,16 +140,6 @@ const storeData: Product[] = [
     category: 'Accounts'
   },
   {
-    id: 'rc24-id-level100',
-    title: 'RC24 ID (Level 100)',
-    price: 200,
-    originalPrice: 300,
-    description: 'Real Cricket 24 premium account with max level 100',
-    image: '/store/rc24-id.jpg',
-    tags: ['Digital', 'Limited', 'Discount'],
-    category: 'Accounts'
-  },
-  {
     id: 'all-in-one-checker',
     title: 'All-in-One Checker',
     price: 80,
@@ -109,15 +147,6 @@ const storeData: Product[] = [
     image: '/store/checker.jpg',
     tags: ['Tool', 'Instant Delivery'],
     category: 'Tools'
-  },
-  {
-    id: 'rc20-legends',
-    title: 'Real Cricket 20 Legends',
-    price: 70,
-    description: 'Unlock exclusive hero legends pack with rare players',
-    image: '/store/rc20-legends.jpg',
-    tags: ['DLC', 'Popular'],
-    category: 'DLC'
   },
   {
     id: 'boundary-hoarding-checker',
@@ -129,43 +158,6 @@ const storeData: Product[] = [
     category: 'Tools'
   },
   {
-    id: 'netflix-premium',
-    title: 'Netflix Premium Account',
-    price: 100,
-    description: '1-month premium account with 4K UHD streaming and multiple screens',
-    image: '/store/netflix.jpg',
-    tags: ['Digital', 'Popular'],
-    category: 'Accounts'
-  },
-  {
-    id: 'squad-editor',
-    title: 'Squad Editor Pro',
-    price: 100,
-    description: 'Advanced squad editing tool for all Real Cricket games',
-    image: '/store/squad-editor.jpg',
-    tags: ['Tool', 'Instant Delivery'],
-    category: 'Tools'
-  },
-  {
-    id: 'shots-checker',
-    title: 'Shots Checker Pro',
-    price: 120,
-    description: 'Complete shots verification tool for Real Cricket series',
-    image: '/store/shots-checker.jpg',
-    tags: ['Tool', 'Instant Delivery', 'New'],
-    category: 'Tools'
-  },
-  {
-    id: 'rc24-swap-id',
-    title: 'Real Cricket Swap ID',
-    price: 130,
-    originalPrice: 300,
-    description: 'Premium account with exclusive items and unlocked features',
-    image: '/store/rc24-id.jpg',
-    tags: ['Digital', 'Limited'],
-    category: 'Accounts'
-  },
-  {
     id: 'website',
     title: 'Custom webpage',
     price: 100,
@@ -175,7 +167,7 @@ const storeData: Product[] = [
     tags: ['Digital', 'Custom'],
     category: 'Services'
   },
-   {
+  {
     id: 'obb',
     title: 'Personal OBB',
     price: 349,
@@ -211,48 +203,6 @@ const storeData: Product[] = [
         title: 'Real Cricket GO Mod Menu',
         price: 180,
         color: 'from-green-500 to-teal-500'
-      },
-      {
-        id: 'wcc-lite',
-        title: 'WCC Lite Mod Menu',
-        price: 120,
-        color: 'from-blue-500 to-indigo-500'
-      }
-    ]
-  },
-  {
-    id: 'premium-pack',
-    title: 'PREMIUM PACK (SPECIAL OFFER)',
-    price: 350,
-    originalPrice: 1000,
-    description: 'Exclusive premium bundle with amazing discounts and bonuses',
-    image: '/store/premium-pack.jpg',
-    tags: ['Bundle', 'Limited', 'Discount', 'Popular'],
-    category: 'Bundles',
-    modMenuItems: [
-      {
-        id: 'netflix-account',
-        title: 'Netflix Premium Account',
-        price: 100,
-        color: 'from-red-500 to-pink-500'
-      },
-      {
-        id: 'rc24-id',
-        title: 'RC24 ID (Level 20)',
-        price: 30,
-        color: 'from-blue-500 to-indigo-500'
-      },
-      {
-        id: 'rc-swap-id',
-        title: 'RC Swap ID',
-        price: 130,
-        color: 'from-purple-500 to-blue-500'
-      },
-      {
-        id: 'pro-membership',
-        title: 'PRO Membership',
-        price: 200,
-        color: 'from-yellow-500 to-orange-500'
       }
     ]
   }
@@ -301,7 +251,7 @@ const discountCodes: DiscountCode[] = [
 
 const categories = [
   'All',
-  ...Array.from(new Set(storeData.map(product => product.category)))
+  ...Array.from(new Set(storeData.map(product => product.category))
 ];
 
 const sortOptions = [
@@ -312,37 +262,6 @@ const sortOptions = [
   { value: 'name-desc', label: 'Name: Z to A' },
   { value: 'discount', label: 'Best Discount' }
 ];
-
-function isCartItem(item: unknown): item is CartItem {
-  if (typeof item !== 'object' || item === null) return false;
-  
-  const cartItem = item as Record<string, unknown>;
-  return (
-    typeof cartItem.id === 'string' &&
-    typeof cartItem.title === 'string' &&
-    typeof cartItem.price === 'number' &&
-    typeof cartItem.quantity === 'number' &&
-    (cartItem.originalPrice === undefined || typeof cartItem.originalPrice === 'number') &&
-    typeof cartItem.description === 'string' &&
-    typeof cartItem.image === 'string' &&
-    Array.isArray(cartItem.tags) &&
-    cartItem.tags.every((tag: unknown) => typeof tag === 'string') &&
-    typeof cartItem.category === 'string'
-  );
-}
-
-function isReceiptData(item: unknown): item is ReceiptData {
-  if (typeof item !== 'object' || item === null) return false;
-  
-  const receipt = item as Record<string, unknown>;
-  return (
-    typeof receipt.date === 'string' &&
-    typeof receipt.total === 'number' &&
-    typeof receipt.transactionId === 'string' &&
-    (receipt.status === 'pending' || receipt.status === 'completed') &&
-    Array.isArray(receipt.items)
-  );
-}
 
 export default function StorePage() {
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -366,10 +285,9 @@ export default function StorePage() {
     const savedCart = localStorage.getItem('sx-store-cart');
     if (savedCart) {
       try {
-        const parsed: unknown = JSON.parse(savedCart);
+        const parsed = JSON.parse(savedCart);
         if (Array.isArray(parsed)) {
-          const validCart = parsed.filter(isCartItem);
-          setCart(validCart);
+          setCart(parsed);
         }
       } catch (e) {
         console.error('Failed to parse cart data', e);
@@ -378,45 +296,36 @@ export default function StorePage() {
   }, []);
 
   useEffect(() => {
-    const savedHistory = localStorage.getItem('sx-store-receipts');
-    if (savedHistory) {
-      try {
-        const parsed: unknown = JSON.parse(savedHistory);
-        if (Array.isArray(parsed)) {
-          const validReceipts = parsed.filter(isReceiptData);
-          setReceiptHistory(validReceipts);
-        }
-      } catch (e) {
-        console.error('Failed to parse receipt history', e);
-      }
-    }
-  }, []);
-
-  useEffect(() => {
     localStorage.setItem('sx-store-cart', JSON.stringify(cart));
   }, [cart]);
 
-  useEffect(() => {
-    localStorage.setItem('sx-store-receipts', JSON.stringify(receiptHistory));
-  }, [receiptHistory]);
-
   const addToCart = (product: Product) => {
+    if (product.isSpecialOffer && product.includes) {
+      const itemsToAdd: CartItem[] = product.includes.map(included => {
+        const foundProduct = storeData.find(p => p.id === included.id);
+        return {
+          ...foundProduct!,
+          quantity: included.quantity,
+          isBundleItem: true
+        };
+      });
+      setCart(prev => [...prev, ...itemsToAdd]);
+      return;
+    }
+    
     if (product.id === 'mod-menus') {
       setSelectedModProduct(product);
       return;
     }
     
-    setCart(prevCart => {
-      const existingItem = prevCart.find(item => item.id === product.id);
-      if (existingItem) {
-        return prevCart.map(item =>
-          item.id === product.id 
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
-      }
-      return [...prevCart, { ...product, quantity: 1 }];
-    });
+    const existingItem = cart.find(item => item.id === product.id);
+    if (existingItem) {
+      setCart(cart.map(item => 
+        item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+      ));
+    } else {
+      setCart([...cart, { ...product, quantity: 1 }]);
+    }
   };
 
   const selectModMenuItem = (item: ModMenuItem) => {
@@ -583,22 +492,7 @@ export default function StorePage() {
       .catch(() => alert('Failed to copy receipt. Please manually copy the transaction ID.'));
     
     setReceiptData({ ...receiptData, status: 'completed' });
-    setReceiptHistory(prev => 
-      prev.map(r => 
-        r.transactionId === receiptData.transactionId 
-          ? { ...r, status: 'completed' } 
-          : r
-      )
-    );
   };
-
-  const filteredReceipts = receiptHistory.filter(receipt =>
-    receipt.transactionId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    receipt.date.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    receipt.items.some(item => 
-      item.title.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  );
 
   const filteredProducts = storeData.filter(product => {
     const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
@@ -663,35 +557,54 @@ export default function StorePage() {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        <section className="mb-12 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-purple-500 to-blue-500 bg-clip-text text-transparent">
-            SX Premium Store
-          </h1>
-          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-            Exclusive digital products and premium game modifications
-          </p>
-        </section>
+        <section className="mb-12">
+          <h2 className="text-3xl font-bold mb-6 text-center bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
+            Special Offers
+          </h2>
+          <div className="grid grid-cols-1 gap-6">
+            {storeData
+              .filter(product => product.isSpecialOffer)
+              .map(product => (
+                <div key={product.id} className="bg-gradient-to-br from-purple-900 to-blue-900 rounded-xl overflow-hidden border-2 border-purple-500 shadow-lg shadow-purple-500/20">
+                  <div className="p-6">
+                    <div className="flex flex-col md:flex-row gap-6">
+                      <div className="md:w-1/3">
+                        <div className="h-48 bg-gray-700 rounded-lg overflow-hidden flex items-center justify-center">
+                          <span className="text-xl font-bold">PREMIUM BUNDLE</span>
+                        </div>
+                      </div>
+                      <div className="md:w-2/3">
+                        <div className="flex justify-between items-start mb-4">
+                          <h3 className="text-2xl font-bold">{product.title}</h3>
+                          <div className="text-right">
+                            <span className="text-3xl font-bold text-green-400">₹{product.price}</span>
+                            <span className="block text-lg text-gray-400 line-through">₹{product.originalPrice}</span>
+                          </div>
+                        </div>
+                        
+                        <div className="mb-4">
+                          <h4 className="font-bold mb-2">Includes:</h4>
+                          <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            {product.includes?.map(item => (
+                              <li key={item.id} className="flex items-center gap-2">
+                                <span className="text-green-400">✓</span>
+                                <span>{item.quantity}x {item.title}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
 
-        <section className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-6 mb-8">
-          <div className="flex items-start gap-4">
-            <AlertTriangle className="text-yellow-400 mt-1 flex-shrink-0" size={24} />
-            <div>
-              <h2 className="text-xl font-bold mb-3 text-yellow-300">Purchase Guidelines</h2>
-              <ul className="space-y-2 text-yellow-100">
-                <li className="flex items-start gap-2">
-                  <span>•</span>
-                  <span>Please allow 24-48 hours for order processing and delivery can take even weeks so be patient</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span>•</span>
-                  <span>Avoid duplicate messages to ensure faster response times</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span>•</span>
-                  <span>All digital product sales are final and non-refundable</span>
-                </li>
-              </ul>
-            </div>
+                        <button
+                          onClick={() => addToCart(product)}
+                          className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 px-6 rounded-lg transition-all transform hover:scale-[1.02]"
+                        >
+                          Add Premium Pack to Cart - ₹350
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
           </div>
         </section>
 
@@ -766,51 +679,53 @@ export default function StorePage() {
 
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           {sortedProducts.length > 0 ? (
-            sortedProducts.map(product => (
-              <div key={product.id} className="bg-gray-800 rounded-xl overflow-hidden border border-gray-700 hover:border-purple-400 transition-all hover:shadow-lg hover:shadow-purple-500/10">
-                <div className="h-48 bg-gray-700 relative overflow-hidden">
-                  <div className="absolute inset-0 flex items-center justify-center text-gray-400">
-                    <span className="text-lg">SX Product</span>
-                  </div>
-                  {product.originalPrice && (
-                    <div className="absolute top-4 left-4 bg-purple-500 text-xs font-bold px-2 py-1 rounded">
-                      {Math.round((1 - product.price / product.originalPrice) * 100)}% OFF
+            sortedProducts
+              .filter(product => !product.isSpecialOffer)
+              .map(product => (
+                <div key={product.id} className="bg-gray-800 rounded-xl overflow-hidden border border-gray-700 hover:border-purple-400 transition-all hover:shadow-lg hover:shadow-purple-500/10">
+                  <div className="h-48 bg-gray-700 relative overflow-hidden">
+                    <div className="absolute inset-0 flex items-center justify-center text-gray-400">
+                      <span className="text-lg">SX Product</span>
                     </div>
-                  )}
-                </div>
-                <div className="p-5">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-xl font-bold">{product.title}</h3>
-                    <div className="text-right">
-                      {product.modMenuItems ? (
-                        <span className="text-sm text-gray-400">Starting at ₹{Math.min(...product.modMenuItems.map(i => i.price))}</span>
-                      ) : (
-                        <>
-                          <span className="text-2xl font-bold text-purple-400">₹{product.price}</span>
-                          {product.originalPrice && (
-                            <span className="block text-sm text-gray-400 line-through">₹{product.originalPrice}</span>
-                          )}
-                        </>
-                      )}
+                    {product.originalPrice && (
+                      <div className="absolute top-4 left-4 bg-purple-500 text-xs font-bold px-2 py-1 rounded">
+                        {Math.round((1 - product.price / product.originalPrice) * 100)}% OFF
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-5">
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="text-xl font-bold">{product.title}</h3>
+                      <div className="text-right">
+                        {product.modMenuItems ? (
+                          <span className="text-sm text-gray-400">Starting at ₹{Math.min(...product.modMenuItems.map(i => i.price))}</span>
+                        ) : (
+                          <>
+                            <span className="text-2xl font-bold text-purple-400">₹{product.price}</span>
+                            {product.originalPrice && (
+                              <span className="block text-sm text-gray-400 line-through">₹{product.originalPrice}</span>
+                            )}
+                          </>
+                        )}
+                      </div>
                     </div>
+                    <p className="text-gray-300 mb-4">{product.description}</p>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {product.tags.map(tag => (
+                        <span key={tag} className="text-xs bg-gray-700 px-2 py-1 rounded">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                    <button
+                      onClick={() => addToCart(product)}
+                      className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded transition flex items-center justify-center gap-2"
+                    >
+                      <ShoppingCart size={18} /> {product.modMenuItems ? 'Select Options' : 'Add to Cart'}
+                    </button>
                   </div>
-                  <p className="text-gray-300 mb-4">{product.description}</p>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {product.tags.map(tag => (
-                      <span key={tag} className="text-xs bg-gray-700 px-2 py-1 rounded">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                  <button
-                    onClick={() => addToCart(product)}
-                    className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded transition flex items-center justify-center gap-2"
-                  >
-                    <ShoppingCart size={18} /> {product.modMenuItems ? 'Select Options' : 'Add to Cart'}
-                  </button>
                 </div>
-              </div>
-            ))
+              ))
           ) : (
             <div className="col-span-full text-center py-12">
               <Search size={48} className="mx-auto text-gray-600 mb-4" />
@@ -1235,7 +1150,7 @@ export default function StorePage() {
                 />
               </div>
 
-              {filteredReceipts.length === 0 ? (
+              {receiptHistory.length === 0 ? (
                 <div className="text-center py-8">
                   <History size={48} className="mx-auto text-gray-600 mb-4" />
                   <p className="text-gray-400">
@@ -1244,7 +1159,7 @@ export default function StorePage() {
                 </div>
               ) : (
                 <div className="space-y-4 max-h-96 overflow-y-auto">
-                  {filteredReceipts.map(receipt => (
+                  {receiptHistory.map(receipt => (
                     <div key={receipt.transactionId} className="bg-gray-700/50 rounded-lg p-4 border border-gray-600">
                       <div className="flex justify-between items-start">
                         <div>
