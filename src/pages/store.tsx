@@ -218,7 +218,9 @@ const storeData: Product[] = [
         price: 120,
         color: 'from-blue-500 to-indigo-500'
       }
-      {
+    ]
+  },
+  {
     id: 'premium-pack',
     title: 'PREMIUM PACK (SPECIAL OFFER)',
     price: 350,
