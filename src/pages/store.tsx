@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ShoppingCart, Tag, Star, ShieldCheck, Send, History, Search, AlertTriangle, ChevronDown, ChevronUp, Check, X } from 'lucide-react';
 import Link from 'next/link';
-import Particles from 'react-tsparticles';
-import { loadFull } from 'tsparticles';
 
 const products = {
   bundles: [
@@ -223,14 +221,6 @@ export default function StorePage() {
   const [sortOption, setSortOption] = useState('default');
   const [showCategories, setShowCategories] = useState(false);
   const [showSortOptions, setShowSortOptions] = useState(false);
-
-  const particlesInit = async (engine) => {
-    await loadFull(engine);
-  };
-
-  const particlesLoaded = async (container) => {
-    console.log('Particles loaded');
-  };
 
   useEffect(() => {
     const savedCart = localStorage.getItem('sx-store-cart');
@@ -479,73 +469,135 @@ export default function StorePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-800 text-white relative overflow-hidden">
-      <Particles
-        id="tsparticles"
-        init={particlesInit}
-        loaded={particlesLoaded}
-        options={{
-          fpsLimit: 120,
-          interactivity: {
-            events: {
-              onClick: {
-                enable: true,
-                mode: "push",
-              },
-              onHover: {
-                enable: true,
-                mode: "repulse",
-              },
-            },
-            modes: {
-              push: {
-                quantity: 4,
-              },
-              repulse: {
-                distance: 100,
-                duration: 0.4,
-              },
-            },
-          },
-          particles: {
-            color: {
-              value: "#a78bfa",
-            },
-            links: {
-              color: "#a78bfa",
-              distance: 150,
-              enable: true,
-              opacity: 0.3,
-              width: 1,
-            },
-            move: {
-              direction: "none",
-              enable: true,
-              outModes: {
-                default: "bounce",
-              },
-              random: false,
-              speed: 1,
-              straight: false,
-            },
-            number: {
-              density: {
-                enable: true,
-              },
-              value: 80,
-            },
-            opacity: {
-              value: 0.3,
-            },
-            shape: {
-              type: "circle",
-            },
-            size: {
-              value: { min: 1, max: 3 },
-            },
-          },
-          detectRetina: true,
-        }}
-      />
+      <div className="particles-background">
+        <div className="particle"></div>
+        <div className="particle"></div>
+        <div className="particle"></div>
+        <div className="particle"></div>
+        <div className="particle"></div>
+        <div className="particle"></div>
+        <div className="particle"></div>
+        <div className="particle"></div>
+        <div className="particle"></div>
+        <div className="particle"></div>
+      </div>
+
+      <style jsx>{`
+        .particles-background {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          z-index: 0;
+          overflow: hidden;
+        }
+        
+        .particle {
+          position: absolute;
+          background-color: rgba(167, 139, 250, 0.3);
+          border-radius: 50%;
+          pointer-events: none;
+        }
+        
+        .particle:nth-child(1) {
+          width: 3px;
+          height: 3px;
+          top: 10%;
+          left: 20%;
+          animation: float 15s infinite linear;
+        }
+        
+        .particle:nth-child(2) {
+          width: 2px;
+          height: 2px;
+          top: 30%;
+          left: 50%;
+          animation: float 20s infinite linear;
+        }
+        
+        .particle:nth-child(3) {
+          width: 1px;
+          height: 1px;
+          top: 60%;
+          left: 30%;
+          animation: float 25s infinite linear;
+        }
+        
+        .particle:nth-child(4) {
+          width: 2px;
+          height: 2px;
+          top: 80%;
+          left: 70%;
+          animation: float 18s infinite linear;
+        }
+        
+        .particle:nth-child(5) {
+          width: 3px;
+          height: 3px;
+          top: 40%;
+          left: 80%;
+          animation: float 22s infinite linear;
+        }
+        
+        .particle:nth-child(6) {
+          width: 1px;
+          height: 1px;
+          top: 70%;
+          left: 10%;
+          animation: float 17s infinite linear;
+        }
+        
+        .particle:nth-child(7) {
+          width: 2px;
+          height: 2px;
+          top: 20%;
+          left: 60%;
+          animation: float 19s infinite linear;
+        }
+        
+        .particle:nth-child(8) {
+          width: 3px;
+          height: 3px;
+          top: 50%;
+          left: 40%;
+          animation: float 21s infinite linear;
+        }
+        
+        .particle:nth-child(9) {
+          width: 1px;
+          height: 1px;
+          top: 90%;
+          left: 30%;
+          animation: float 16s infinite linear;
+        }
+        
+        .particle:nth-child(10) {
+          width: 2px;
+          height: 2px;
+          top: 10%;
+          left: 90%;
+          animation: float 24s infinite linear;
+        }
+        
+        @keyframes float {
+          0% {
+            transform: translateY(0) translateX(0);
+          }
+          25% {
+            transform: translateY(-50px) translateX(50px);
+          }
+          50% {
+            transform: translateY(0) translateX(100px);
+          }
+          75% {
+            transform: translateY(50px) translateX(50px);
+          }
+          100% {
+            transform: translateY(0) translateX(0);
+          }
+        }
+      `}</style>
 
       <header className="bg-gray-800/50 backdrop-blur-md sticky top-0 z-10 border-b border-purple-900/50">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
