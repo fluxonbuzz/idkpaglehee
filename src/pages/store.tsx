@@ -218,6 +218,40 @@ const storeData: Product[] = [
         price: 120,
         color: 'from-blue-500 to-indigo-500'
       }
+      {
+    id: 'premium-pack',
+    title: 'PREMIUM PACK (SPECIAL OFFER)',
+    price: 350,
+    originalPrice: 1000,
+    description: 'Exclusive premium bundle with amazing discounts and bonuses',
+    image: '/store/premium-pack.jpg',
+    tags: ['Bundle', 'Limited', 'Discount', 'Popular'],
+    category: 'Bundles',
+    modMenuItems: [
+      {
+        id: 'netflix-account',
+        title: 'Netflix Premium Account',
+        price: 100,
+        color: 'from-red-500 to-pink-500'
+      },
+      {
+        id: 'rc24-id',
+        title: 'RC24 ID (Level 20)',
+        price: 30,
+        color: 'from-blue-500 to-indigo-500'
+      },
+      {
+        id: 'rc-swap-id',
+        title: 'RC Swap ID',
+        price: 130,
+        color: 'from-purple-500 to-blue-500'
+      },
+      {
+        id: 'pro-membership',
+        title: 'PRO Membership',
+        price: 200,
+        color: 'from-yellow-500 to-orange-500'
+      }
     ]
   }
 ];
