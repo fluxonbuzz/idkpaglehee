@@ -251,7 +251,7 @@ const discountCodes: DiscountCode[] = [
 
 const categories = [
   'All',
-  ...Array.from(new Set(storeData.map(product => product.category))
+  ...Array.from(new Set(storeData.map(product => product.category)))
 ];
 
 const sortOptions = [
