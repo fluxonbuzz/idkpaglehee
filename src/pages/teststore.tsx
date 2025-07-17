@@ -182,15 +182,15 @@ const sellers: Seller[] = [
   {
     name: 'Fluxon',
     telegram: '@Fluxon',
-    paymentMethods: ['PayPal', 'UPI', 'Bank Transfer'],
+    paymentMethods: ['UPI'],
     profilePic: '/assets/image.png',
     telegramLink: 'https://t.me/lyastral'
   },
   {
     name: 'Shiva XD',
     telegram: '@ShivaXD',
-    paymentMethods: ['PayPal', 'Cryptocurrency'],
-    profilePic: '/assets/image.png',
+    paymentMethods: ['UPI'],
+    profilePic: '/assets/shiva.png',
     telegramLink: 'https://t.me/shivaxmods42'
   }
 ];
@@ -451,7 +451,7 @@ export default function StorePage() {
           <nav className="hidden md:flex gap-6 items-center">
             <Link href="/" className="hover:text-purple-300 transition">Home</Link>
             <Link href="/store" className="hover:text-purple-300 transition">Store</Link>
-            <Link href="/games" className="hover:text-purple-300 transition">Games</Link>
+            <Link href="/downloads" className="hover:text-purple-300 transition">Games</Link>
             <Link href="/community" className="hover:text-purple-300 transition">Community</Link>
             <Link href="/status" className="hover:text-purple-300 transition">Status</Link>
             <Link href="/membership" className="hover:text-purple-300 transition">Membership</Link>
@@ -925,7 +925,7 @@ export default function StorePage() {
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.03-.1.06-.22-.06-.32-.13-.1-.32-.02-.45.02-.2.06-3.39 2.14-4.84 3.06-.52.33-1 .5-1.43.5-.48 0-1.4-.27-2.08-.99-.75-.79-1.4-2.25-1.4-3.43 0-1.64 1.13-2.45 2.11-2.45.53 0 .98.18 1.38.4.25.15.47.33.68.55.23.23.46.46.75.68.32.25.7.38 1.12.38.42 0 .86-.13 1.23-.4 1.37-1.04 2.14-2.6 2.14-2.6.1-.2.25-.3.45-.3.1 0 .25.02.35.1.22.15.3.45.2.75z"/>
                   </svg>
                   <a href="https://t.me/lyastral" target="_blank" rel="noopener noreferrer" className="hover:text-purple-300">
-                    @Fluxon
+                    @fluxon
                   </a>
                 </li>
                 <li className="flex items-center gap-2 text-gray-400 text-sm">
