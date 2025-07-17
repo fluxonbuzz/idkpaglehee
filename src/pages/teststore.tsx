@@ -183,14 +183,14 @@ const sellers: Seller[] = [
     name: 'Fluxon',
     telegram: '@Fluxon',
     paymentMethods: ['UPI'],
-    profilePic: '/assets/image.png',
+    profilePic: '/assets/d4vd-avatar.jpg',
     telegramLink: 'https://t.me/lyastral'
   },
   {
     name: 'Shiva XD',
     telegram: '@ShivaXD',
     paymentMethods: ['UPI'],
-    profilePic: '/assets/shiva.png',
+    profilePic: '/assets/avatar.png',
     telegramLink: 'https://t.me/shivaxmods42'
   }
 ];
