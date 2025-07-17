@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { ShoppingCart, Clock, Zap, Star, Tag, Gift, ShieldCheck, Download, Phone, Mail, X, Check, ArrowRight, Home, Users, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface Product {
   id: string;
@@ -173,18 +174,24 @@ interface Seller {
   name: string;
   telegram: string;
   paymentMethods: string[];
+  profilePic: string;
+  telegramLink: string;
 }
 
 const sellers: Seller[] = [
   {
     name: 'Fluxon',
     telegram: '@Fluxon',
-    paymentMethods: ['PayPal', 'UPI', 'Bank Transfer']
+    paymentMethods: ['PayPal', 'UPI', 'Bank Transfer'],
+    profilePic: '/assets/image.png',
+    telegramLink: 'https://t.me/lyastral'
   },
   {
     name: 'Shiva XD',
     telegram: '@ShivaXD',
-    paymentMethods: ['PayPal', 'Cryptocurrency']
+    paymentMethods: ['PayPal', 'Cryptocurrency'],
+    profilePic: '/assets/image.png',
+    telegramLink: 'https://t.me/shivaxmods42'
   }
 ];
 
@@ -336,37 +343,29 @@ export default function StorePage() {
     const now = new Date();
     const transactionId = generateTransactionId();
     
-    let receipt = `╔══════════════════════════════╗\n`;
-    receipt += `║        SX STORE RECEIPT       ║\n`;
-    receipt += `╠══════════════════════════════╣\n`;
-    receipt += `║ Transaction ID: ${transactionId} ║\n`;
-    receipt += `║ ${now.toLocaleDateString()} ${now.toLocaleTimeString()} ║\n`;
-    receipt += `╠══════════════════════════════╣\n`;
-    receipt += `║ ITEMS PURCHASED:             ║\n`;
+    let receipt = `📃 SX STORE RECEIPT\n`;
+    receipt += `===================\n`;
+    receipt += `PURCHASED ITEMS:\n`;
     
     cart.forEach(item => {
       const itemName = item.selectedMod ? `${item.name} - ${item.selectedMod.name}` : item.name;
       const itemPrice = item.selectedMod ? item.selectedMod.price : item.price;
-      receipt += `║ • ${itemName} (x${item.quantity})   ║\n`;
-      receipt += `║   ₹${itemPrice * item.quantity}                  ║\n`;
+      receipt += `• ${itemName} (x${item.quantity}) - ₹${itemPrice * item.quantity}\n`;
     });
     
-    receipt += `╠══════════════════════════════╣\n`;
-    receipt += `║ Subtotal: ₹${subtotal.toFixed(2)}          ║\n`;
+    receipt += `====================\n`;
+    receipt += `PURCHASE TIME: ${now.toLocaleDateString()} ${now.toLocaleTimeString()}\n`;
     if (discount > 0) {
-      receipt += `║ Discount: -₹${discount.toFixed(2)}          ║\n`;
-      receipt += `║ (Code: ${appliedDiscount?.code})           ║\n`;
+      receipt += `DISCOUNT USED: ${appliedDiscount?.code} (-₹${discount.toFixed(2)})\n`;
     }
-    receipt += `║ Total: ₹${total.toFixed(2)}            ║\n`;
-    receipt += `╠══════════════════════════════╣\n`;
-    receipt += `║ TERMS & CONDITIONS:          ║\n`;
-    receipt += `║ • No refunds after delivery  ║\n`;
-    receipt += `║ • Contact seller for issues ║\n`;
-    receipt += `║ • Digital products only     ║\n`;
-    receipt += `╠══════════════════════════════╣\n`;
-    receipt += `║ THANK YOU FOR YOUR PURCHASE! ║\n`;
-    receipt += `║ Contact: @Fluxon or @ShivaXD ║\n`;
-    receipt += `╚══════════════════════════════╝\n`;
+    receipt += `====================\n`;
+    receipt += `⚠ PLEASE READ TERMS, REFUND & PRIVACY POLICIES BEFORE THE PAYMENT.\n`;
+    receipt += `====================\n`;
+    receipt += `SUBTOTAL: ₹${subtotal.toFixed(2)}\n`;
+    receipt += `TOTAL: ₹${total.toFixed(2)}\n`;
+    receipt += `====================\n`;
+    receipt += `THANKS FOR PURCHASING\n`;
+    receipt += `Contact: @Fluxon or @ShivaXD\n`;
     
     const blob = new Blob([receipt], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -842,12 +841,29 @@ export default function StorePage() {
                       <div className="space-y-4">
                         {sellers.map((seller, index) => (
                           <div key={index} className="bg-gray-700/30 rounded-lg p-4 border border-gray-600/30">
-                            <h4 className="font-bold mb-2">{seller.name}</h4>
-                            <div className="flex items-center gap-2 mb-3">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.03-.1.06-.22-.06-.32-.13-.1-.32-.02-.45.02-.2.06-3.39 2.14-4.84 3.06-.52.33-1 .5-1.43.5-.48 0-1.4-.27-2.08-.99-.75-.79-1.4-2.25-1.4-3.43 0-1.64 1.13-2.45 2.11-2.45.53 0 .98.18 1.38.4.25.15.47.33.68.55.23.23.46.46.75.68.32.25.7.38 1.12.38.42 0 .86-.13 1.23-.4 1.37-1.04 2.14-2.6 2.14-2.6.1-.2.25-.3.45-.3.1 0 .25.02.35.1.22.15.3.45.2.75z"/>
-                              </svg>
-                              <span className="font-mono">{seller.telegram}</span>
+                            <div className="flex items-center gap-3 mb-3">
+                              <div className="relative w-10 h-10 rounded-full overflow-hidden">
+                                <Image 
+                                  src={seller.profilePic} 
+                                  alt={seller.name}
+                                  layout="fill"
+                                  objectFit="cover"
+                                />
+                              </div>
+                              <div>
+                                <h4 className="font-bold">{seller.name}</h4>
+                                <a 
+                                  href={seller.telegramLink} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="text-sm text-purple-300 hover:underline flex items-center gap-1"
+                                >
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.03-.1.06-.22-.06-.32-.13-.1-.32-.02-.45.02-.2.06-3.39 2.14-4.84 3.06-.52.33-1 .5-1.43.5-.48 0-1.4-.27-2.08-.99-.75-.79-1.4-2.25-1.4-3.43 0-1.64 1.13-2.45 2.11-2.45.53 0 .98.18 1.38.4.25.15.47.33.68.55.23.23.46.46.75.68.32.25.7.38 1.12.38.42 0 .86-.13 1.23-.4 1.37-1.04 2.14-2.6 2.14-2.6.1-.2.25-.3.45-.3.1 0 .25.02.35.1.22.15.3.45.2.75z"/>
+                                  </svg>
+                                  {seller.telegram}
+                                </a>
+                              </div>
                             </div>
                             <div className="flex flex-wrap gap-2">
                               {seller.paymentMethods.map((method, i) => (
@@ -908,13 +924,17 @@ export default function StorePage() {
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.03-.1.06-.22-.06-.32-.13-.1-.32-.02-.45.02-.2.06-3.39 2.14-4.84 3.06-.52.33-1 .5-1.43.5-.48 0-1.4-.27-2.08-.99-.75-.79-1.4-2.25-1.4-3.43 0-1.64 1.13-2.45 2.11-2.45.53 0 .98.18 1.38.4.25.15.47.33.68.55.23.23.46.46.75.68.32.25.7.38 1.12.38.42 0 .86-.13 1.23-.4 1.37-1.04 2.14-2.6 2.14-2.6.1-.2.25-.3.45-.3.1 0 .25.02.35.1.22.15.3.45.2.75z"/>
                   </svg>
-                  @Fluxon
+                  <a href="https://t.me/lyastral" target="_blank" rel="noopener noreferrer" className="hover:text-purple-300">
+                    @Fluxon
+                  </a>
                 </li>
                 <li className="flex items-center gap-2 text-gray-400 text-sm">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.03-.1.06-.22-.06-.32-.13-.1-.32-.02-.45.02-.2.06-3.39 2.14-4.84 3.06-.52.33-1 .5-1.43.5-.48 0-1.4-.27-2.08-.99-.75-.79-1.4-2.25-1.4-3.43 0-1.64 1.13-2.45 2.11-2.45.53 0 .98.18 1.38.4.25.15.47.33.68.55.23.23.46.46.75.68.32.25.7.38 1.12.38.42 0 .86-.13 1.23-.4 1.37-1.04 2.14-2.6 2.14-2.6.1-.2.25-.3.45-.3.1 0 .25.02.35.1.22.15.3.45.2.75z"/>
                   </svg>
-                  @ShivaXD
+                  <a href="https://t.me/shivaxmods42" target="_blank" rel="noopener noreferrer" className="hover:text-purple-300">
+                    @ShivaXD
+                  </a>
                 </li>
               </ul>
             </div>
