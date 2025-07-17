@@ -1,6 +1,6 @@
 // src/pages/store.tsx
 import { useState, useEffect } from 'react';
-import { ShoppingCart, Clock, Zap, Star, Tag, Gift, ShieldCheck, Download, Phone, Mail, X, Check, ArrowRight } from 'lucide-react';
+import { ShoppingCart, Clock, Zap, Star, Tag, Gift, ShieldCheck, Download, Phone, Mail, X, Check, ArrowRight, Home, Users, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 
 interface Product {
@@ -44,7 +44,7 @@ const productsData: Product[] = [
     originalPrice: 70,
     description: 'Real Cricket 24 account with level 20 progression',
     tags: ['Digital', 'Limited', 'Discount'],
-    sellerContact: '@SXSupport'
+    sellerContact: '@Fluxon'
   },
   {
     id: 'netflix-premium',
@@ -53,7 +53,7 @@ const productsData: Product[] = [
     price: 100,
     description: '1-month premium account with 4K UHD streaming and multiple screens',
     tags: ['Digital', 'Popular'],
-    sellerContact: '@SXSupport'
+    sellerContact: '@Fluxon'
   },
   {
     id: 'rc-swap-id',
@@ -63,7 +63,7 @@ const productsData: Product[] = [
     originalPrice: 300,
     description: 'Premium account with exclusive items and unlocked features',
     tags: ['Digital', 'Limited'],
-    sellerContact: '@SXSupport'
+    sellerContact: '@Fluxon'
   },
   {
     id: 'pro-membership',
@@ -72,7 +72,7 @@ const productsData: Product[] = [
     price: 200,
     description: 'Exclusive membership with special benefits',
     tags: ['Membership', 'Exclusive'],
-    sellerContact: '@SXSupport'
+    sellerContact: '@Fluxon'
   },
   {
     id: 'rc24-level50',
@@ -82,7 +82,7 @@ const productsData: Product[] = [
     originalPrice: 150,
     description: 'Real Cricket 24 account with level 50 progression',
     tags: ['Digital', 'Limited', 'Discount'],
-    sellerContact: '@SXSupport'
+    sellerContact: '@Fluxon'
   },
   {
     id: 'rc24-level85',
@@ -92,7 +92,7 @@ const productsData: Product[] = [
     originalPrice: 270,
     description: 'Real Cricket 24 account with level 85 progression',
     tags: ['Digital', 'Limited', 'Discount'],
-    sellerContact: '@SXSupport'
+    sellerContact: '@Fluxon'
   },
   {
     id: 'all-in-one-checker',
@@ -101,7 +101,7 @@ const productsData: Product[] = [
     price: 80,
     description: 'Comprehensive tool for verifying jerseys, helmets, bats and more across all games',
     tags: ['Tool', 'Instant Delivery'],
-    sellerContact: '@SXSupport'
+    sellerContact: '@ShivaXD'
   },
   {
     id: 'boundary-hoarding-checker',
@@ -110,7 +110,7 @@ const productsData: Product[] = [
     price: 70,
     description: 'Professional tool for verifying boundary hoardings in Real Cricket games',
     tags: ['Tool', 'Instant Delivery'],
-    sellerContact: '@SXSupport'
+    sellerContact: '@ShivaXD'
   },
   {
     id: 'custom-webpage',
@@ -120,7 +120,7 @@ const productsData: Product[] = [
     originalPrice: 2500,
     description: 'Premium website with hosting starting from ₹100 per page',
     tags: ['Digital', 'Custom'],
-    sellerContact: '@SXSupport'
+    sellerContact: '@ShivaXD'
   },
   {
     id: 'personal-obb',
@@ -130,7 +130,7 @@ const productsData: Product[] = [
     originalPrice: 700,
     description: 'Premium custom player OBB',
     tags: ['Digital', 'Custom'],
-    sellerContact: '@SXSupport'
+    sellerContact: '@ShivaXD'
   },
   {
     id: 'premium-mod-menus',
@@ -144,7 +144,7 @@ const productsData: Product[] = [
       { name: 'Subway Surfers Mod Menu', price: 50 },
       { name: 'Real Cricket GO Mod Menu', price: 180 }
     ],
-    sellerContact: '@SXSupport'
+    sellerContact: '@ShivaXD'
   }
 ];
 
@@ -177,13 +177,13 @@ interface Seller {
 
 const sellers: Seller[] = [
   {
-    name: 'SX Support',
-    telegram: '@SXSupport',
+    name: 'Fluxon',
+    telegram: '@Fluxon',
     paymentMethods: ['PayPal', 'UPI', 'Bank Transfer']
   },
   {
-    name: 'GameMods Pro',
-    telegram: '@GameModsPro',
+    name: 'Shiva XD',
+    telegram: '@ShivaXD',
     paymentMethods: ['PayPal', 'Cryptocurrency']
   }
 ];
@@ -202,6 +202,8 @@ export default function StorePage() {
     seconds: 0
   });
   const [showSellers, setShowSellers] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
 
   useEffect(() => {
     const savedCart = localStorage.getItem('sx-cart');
@@ -319,13 +321,25 @@ export default function StorePage() {
     return { subtotal, discount, total };
   };
 
+  const generateTransactionId = () => {
+    return 'SX-' + Math.random().toString(36).substring(2, 10).toUpperCase() + '-' + 
+           Math.random().toString(36).substring(2, 6).toUpperCase();
+  };
+
   const generateReceipt = () => {
+    if (!agreeToTerms) {
+      setDiscountError('You must agree to the terms and conditions');
+      return;
+    }
+
     const { subtotal, discount, total } = calculateTotal();
     const now = new Date();
+    const transactionId = generateTransactionId();
     
     let receipt = `╔══════════════════════════════╗\n`;
     receipt += `║        SX STORE RECEIPT       ║\n`;
     receipt += `╠══════════════════════════════╣\n`;
+    receipt += `║ Transaction ID: ${transactionId} ║\n`;
     receipt += `║ ${now.toLocaleDateString()} ${now.toLocaleTimeString()} ║\n`;
     receipt += `╠══════════════════════════════╣\n`;
     receipt += `║ ITEMS PURCHASED:             ║\n`;
@@ -345,15 +359,20 @@ export default function StorePage() {
     }
     receipt += `║ Total: ₹${total.toFixed(2)}            ║\n`;
     receipt += `╠══════════════════════════════╣\n`;
+    receipt += `║ TERMS & CONDITIONS:          ║\n`;
+    receipt += `║ • No refunds after delivery  ║\n`;
+    receipt += `║ • Contact seller for issues ║\n`;
+    receipt += `║ • Digital products only     ║\n`;
+    receipt += `╠══════════════════════════════╣\n`;
     receipt += `║ THANK YOU FOR YOUR PURCHASE! ║\n`;
-    receipt += `║ Contact: @SXSupport          ║\n`;
+    receipt += `║ Contact: @Fluxon or @ShivaXD ║\n`;
     receipt += `╚══════════════════════════════╝\n`;
     
     const blob = new Blob([receipt], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `SX_Receipt_${now.getTime()}.txt`;
+    a.download = `SX_Receipt_${transactionId}.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -375,14 +394,68 @@ export default function StorePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-purple-900 text-white">
-      <header className="bg-gray-800/50 backdrop-blur-md sticky top-0 z-50 border-b border-purple-800/30">
+      {/* Mobile Sidebar */}
+      <div className={`fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity ${sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} 
+           onClick={() => setSidebarOpen(false)}></div>
+      
+      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-gray-800/90 backdrop-blur-lg border-r border-purple-800/30 transform transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="p-4">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+              SX Store
+            </h2>
+            <button onClick={() => setSidebarOpen(false)} className="text-gray-400 hover:text-white">
+              <X size={20} />
+            </button>
+          </div>
+          
+          <nav className="space-y-2">
+            <Link href="/" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700/50 transition">
+              <Home size={18} /> Home
+            </Link>
+            <Link href="/store" className="flex items-center gap-3 p-3 rounded-lg bg-purple-900/30 hover:bg-purple-800/30 transition">
+              <ShoppingCart size={18} /> Store
+            </Link>
+            <Link href="/games" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700/50 transition">
+              <Zap size={18} /> Games
+            </Link>
+            <Link href="/community" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700/50 transition">
+              <Users size={18} /> Community
+            </Link>
+            <Link href="/status" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700/50 transition">
+              <AlertCircle size={18} /> Status
+            </Link>
+            <Link href="/membership" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700/50 transition">
+              <Star size={18} /> Membership
+            </Link>
+          </nav>
+        </div>
+      </div>
+
+      <header className="bg-gray-800/50 backdrop-blur-md sticky top-0 z-40 border-b border-purple-800/30">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
-            SX Store
-          </Link>
-          <nav className="flex gap-6 items-center">
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => setSidebarOpen(true)}
+              className="md:hidden text-gray-300 hover:text-white"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+              </svg>
+            </button>
+            <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
+              SX Store
+            </Link>
+          </div>
+          <nav className="hidden md:flex gap-6 items-center">
             <Link href="/" className="hover:text-purple-300 transition">Home</Link>
-            <Link href="/downloads" className="hover:text-purple-300 transition">Downloads</Link>
+            <Link href="/store" className="hover:text-purple-300 transition">Store</Link>
+            <Link href="/games" className="hover:text-purple-300 transition">Games</Link>
+            <Link href="/community" className="hover:text-purple-300 transition">Community</Link>
+            <Link href="/status" className="hover:text-purple-300 transition">Status</Link>
+            <Link href="/membership" className="hover:text-purple-300 transition">Membership</Link>
             <button 
               onClick={() => setShowCart(true)}
               className="relative p-2 rounded-full bg-purple-700/50 hover:bg-purple-600/50 transition"
@@ -395,6 +468,17 @@ export default function StorePage() {
               )}
             </button>
           </nav>
+          <button 
+            onClick={() => setShowCart(true)}
+            className="md:hidden relative p-2 rounded-full bg-purple-700/50 hover:bg-purple-600/50 transition"
+          >
+            <ShoppingCart size={20} />
+            {cart.length > 0 && (
+              <span className="absolute -top-1 -right-1 bg-pink-500 text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                {cart.length}
+              </span>
+            )}
+          </button>
         </div>
       </header>
 
@@ -719,12 +803,28 @@ export default function StorePage() {
                           </div>
                         </div>
                       </div>
+
+                      <div className="mb-6">
+                        <label className="flex items-start gap-3 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={agreeToTerms}
+                            onChange={() => setAgreeToTerms(!agreeToTerms)}
+                            className="mt-1"
+                          />
+                          <span className="text-sm text-gray-300">
+                            I agree to the <Link href="/terms" className="text-purple-400 hover:underline">Terms of Service</Link>, 
+                            <Link href="/privacy" className="text-purple-400 hover:underline"> Privacy Policy</Link>, and 
+                            <Link href="/refund" className="text-purple-400 hover:underline"> Refund Policy</Link>. 
+                            I understand that digital products are non-refundable after delivery.
+                          </span>
+                        </label>
+                      </div>
                       
                       <button
                         onClick={generateReceipt}
-                        className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 px-4 rounded-lg transition shadow-lg hover:shadow-purple-500/20 flex items-center justify-center gap-2"
-                      >
-                        <Download size={18} /> Proceed to Payment
+                        disabled={!agreeToTerms}
+                        className={`w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 px-ceed to Payment
                       </button>
                     </>
                   ) : (
@@ -774,9 +874,52 @@ export default function StorePage() {
       )}
 
       <footer className="bg-gray-900/50 border-t border-gray-800 py-8">
-        <div className="container mx-auto px-4 text-center text-gray-400 text-sm">
-          <p>© {new Date().getFullYear()} SX Store. All rights reserved.</p>
-          <p className="mt-2">Premium digital products for gaming enthusiasts</p>
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+              <h3 className="text-lg font-bold mb-4">SX Store</h3>
+              <p className="text-gray-400 text-sm">
+                Premium digital products for gaming enthusiasts. Get the best accounts, tools, and services.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-lg font-bold mb-4">Quick Links</h3>
+              <ul className="space-y-2">
+                <li><Link href="/" className="text-gray-400 hover:text-purple-300 transition text-sm">Home</Link></li>
+                <li><Link href="/store" className="text-gray-400 hover:text-purple-300 transition text-sm">Store</Link></li>
+                <li><Link href="/games" className="text-gray-400 hover:text-purple-300 transition text-sm">Games</Link></li>
+                <li><Link href="/membership" className="text-gray-400 hover:text-purple-300 transition text-sm">Membership</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-lg font-bold mb-4">Legal</h3>
+              <ul className="space-y-2">
+                <li><Link href="/terms" className="text-gray-400 hover:text-purple-300 transition text-sm">Terms of Service</Link></li>
+                <li><Link href="/privacy" className="text-gray-400 hover:text-purple-300 transition text-sm">Privacy Policy</Link></li>
+                <li><Link href="/refund" className="text-gray-400 hover:text-purple-300 transition text-sm">Refund Policy</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-lg font-bold mb-4">Contact</h3>
+              <ul className="space-y-2">
+                <li className="flex items-center gap-2 text-gray-400 text-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.03-.1.06-.22-.06-.32-.13-.1-.32-.02-.45.02-.2.06-3.39 2.14-4.84 3.06-.52.33-1 .5-1.43.5-.48 0-1.4-.27-2.08-.99-.75-.79-1.4-2.25-1.4-3.43 0-1.64 1.13-2.45 2.11-2.45.53 0 .98.18 1.38.4.25.15.47.33.68.55.23.23.46.46.75.68.32.25.7.38 1.12.38.42 0 .86-.13 1.23-.4 1.37-1.04 2.14-2.6 2.14-2.6.1-.2.25-.3.45-.3.1 0 .25.02.35.1.22.15.3.45.2.75z"/>
+                  </svg>
+                  @Fluxon
+                </li>
+                <li className="flex items-center gap-2 text-gray-400 text-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.03-.1.06-.22-.06-.32-.13-.1-.32-.02-.45.02-.2.06-3.39 2.14-4.84 3.06-.52.33-1 .5-1.43.5-.48 0-1.4-.27-2.08-.99-.75-.79-1.4-2.25-1.4-3.43 0-1.64 1.13-2.45 2.11-2.45.53 0 .98.18 1.38.4.25.15.47.33.68.55.23.23.46.46.75.68.32.25.7.38 1.12.38.42 0 .86-.13 1.23-.4 1.37-1.04 2.14-2.6 2.14-2.6.1-.2.25-.3.45-.3.1 0 .25.02.35.1.22.15.3.45.2.75z"/>
+                  </svg>
+                  @ShivaXD
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-500 text-sm">
+            <p>© {new Date().getFullYear()} SX Store. All rights reserved.</p>
+          </div>
         </div>
       </footer>
     </div>
