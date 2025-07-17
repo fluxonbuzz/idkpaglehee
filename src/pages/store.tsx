@@ -415,7 +415,7 @@ export default function StorePage() {
             <Link href="/store" className="flex items-center gap-3 p-3 rounded-lg bg-purple-900/30 hover:bg-purple-800/30 transition">
               <ShoppingCart size={18} /> Store
             </Link>
-            <Link href="/games" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700/50 transition">
+            <Link href="/downloads" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700/50 transition">
               <Zap size={18} /> Games
             </Link>
             <Link href="/community" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700/50 transition">
@@ -905,7 +905,7 @@ export default function StorePage() {
               <ul className="space-y-2">
                 <li><Link href="/" className="text-gray-400 hover:text-purple-300 transition text-sm">Home</Link></li>
                 <li><Link href="/store" className="text-gray-400 hover:text-purple-300 transition text-sm">Store</Link></li>
-                <li><Link href="/games" className="text-gray-400 hover:text-purple-300 transition text-sm">Games</Link></li>
+                <li><Link href="/downloads" className="text-gray-400 hover:text-purple-300 transition text-sm">Games</Link></li>
                 <li><Link href="/membership" className="text-gray-400 hover:text-purple-300 transition text-sm">Membership</Link></li>
               </ul>
             </div>
