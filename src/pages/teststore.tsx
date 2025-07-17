@@ -1,0 +1,767 @@
+// src/pages/store.tsx
+import { useState, useEffect } from 'react';
+import { ShoppingCart, Clock, Zap, Star, Tag, Gift, ShieldCheck, Download, Phone, Mail, X, Check, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
+
+interface Product {
+  id: string;
+  name: string;
+  category: 'bundle' | 'account' | 'tool' | 'service' | 'mod';
+  price: number;
+  originalPrice?: number;
+  description: string;
+  features?: string[];
+  tags?: string[];
+  sellerContact?: string;
+  modOptions?: {
+    name: string;
+    price: number;
+  }[];
+}
+
+const productsData: Product[] = [
+  {
+    id: 'premium-pack',
+    name: 'PREMIUM PACK (SPECIAL OFFER)',
+    category: 'bundle',
+    price: 350,
+    originalPrice: 1000,
+    description: 'Exclusive bundle with massive savings - limited time only',
+    features: [
+      '1 Netflix Premium Account',
+      '2 RC24 IDs (Level 20)',
+      '2 RC Swap IDs',
+      '1 PRO Membership',
+      '1 Free Item'
+    ],
+    tags: ['Bundle', 'Limited', 'Best Value']
+  },
+  {
+    id: 'rc24-level20',
+    name: 'RC24 ID (Level 20)',
+    category: 'account',
+    price: 30,
+    originalPrice: 70,
+    description: 'Real Cricket 24 account with level 20 progression',
+    tags: ['Digital', 'Limited', 'Discount'],
+    sellerContact: '@SXSupport'
+  },
+  {
+    id: 'netflix-premium',
+    name: 'Netflix Premium Account',
+    category: 'account',
+    price: 100,
+    description: '1-month premium account with 4K UHD streaming and multiple screens',
+    tags: ['Digital', 'Popular'],
+    sellerContact: '@SXSupport'
+  },
+  {
+    id: 'rc-swap-id',
+    name: 'Real Cricket Swap ID',
+    category: 'account',
+    price: 130,
+    originalPrice: 300,
+    description: 'Premium account with exclusive items and unlocked features',
+    tags: ['Digital', 'Limited'],
+    sellerContact: '@SXSupport'
+  },
+  {
+    id: 'pro-membership',
+    name: 'PRO Membership',
+    category: 'account',
+    price: 200,
+    description: 'Exclusive membership with special benefits',
+    tags: ['Membership', 'Exclusive'],
+    sellerContact: '@SXSupport'
+  },
+  {
+    id: 'rc24-level50',
+    name: 'RC24 ID (Level 50)',
+    category: 'account',
+    price: 70,
+    originalPrice: 150,
+    description: 'Real Cricket 24 account with level 50 progression',
+    tags: ['Digital', 'Limited', 'Discount'],
+    sellerContact: '@SXSupport'
+  },
+  {
+    id: 'rc24-level85',
+    name: 'RC24 ID (Level 85)',
+    category: 'account',
+    price: 110,
+    originalPrice: 270,
+    description: 'Real Cricket 24 account with level 85 progression',
+    tags: ['Digital', 'Limited', 'Discount'],
+    sellerContact: '@SXSupport'
+  },
+  {
+    id: 'all-in-one-checker',
+    name: 'All-in-One Checker',
+    category: 'tool',
+    price: 80,
+    description: 'Comprehensive tool for verifying jerseys, helmets, bats and more across all games',
+    tags: ['Tool', 'Instant Delivery'],
+    sellerContact: '@SXSupport'
+  },
+  {
+    id: 'boundary-hoarding-checker',
+    name: 'Boundary Hoarding Checker',
+    category: 'tool',
+    price: 70,
+    description: 'Professional tool for verifying boundary hoardings in Real Cricket games',
+    tags: ['Tool', 'Instant Delivery'],
+    sellerContact: '@SXSupport'
+  },
+  {
+    id: 'custom-webpage',
+    name: 'Custom Webpage',
+    category: 'service',
+    price: 100,
+    originalPrice: 2500,
+    description: 'Premium website with hosting starting from ₹100 per page',
+    tags: ['Digital', 'Custom'],
+    sellerContact: '@SXSupport'
+  },
+  {
+    id: 'personal-obb',
+    name: 'Personal OBB',
+    category: 'service',
+    price: 349,
+    originalPrice: 700,
+    description: 'Premium custom player OBB',
+    tags: ['Digital', 'Custom'],
+    sellerContact: '@SXSupport'
+  },
+  {
+    id: 'premium-mod-menus',
+    name: 'Premium Mod Menus',
+    category: 'mod',
+    price: 0,
+    description: 'Advanced modification menus for popular mobile games with regular updates',
+    tags: ['Digital', 'Instant Delivery', 'Exclusive'],
+    modOptions: [
+      { name: 'Among Us Mod Menu', price: 150 },
+      { name: 'Subway Surfers Mod Menu', price: 50 },
+      { name: 'Real Cricket GO Mod Menu', price: 180 }
+    ],
+    sellerContact: '@SXSupport'
+  }
+];
+
+interface CartItem extends Product {
+  quantity: number;
+  selectedMod?: {
+    name: string;
+    price: number;
+  };
+}
+
+interface DiscountCode {
+  code: string;
+  discount: number;
+  minPurchase: number;
+  type: 'percentage' | 'fixed';
+}
+
+const discountCodes: DiscountCode[] = [
+  { code: 'WELCOME10', discount: 10, minPurchase: 100, type: 'percentage' },
+  { code: 'SX20', discount: 20, minPurchase: 200, type: 'percentage' },
+  { code: 'SAVE50', discount: 50, minPurchase: 250, type: 'fixed' }
+];
+
+export default function StorePage() {
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [showCart, setShowCart] = useState(false);
+  const [discountCode, setDiscountCode] = useState('');
+  const [appliedDiscount, setAppliedDiscount] = useState<DiscountCode | null>(null);
+  const [discountError, setDiscountError] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [selectedMod, setSelectedMod] = useState<{ name: string; price: number } | null>(null);
+  const [timeLeft, setTimeLeft] = useState({
+    hours: 0,
+    minutes: 0,
+    seconds: 0
+  });
+
+  // Load cart from localStorage
+  useEffect(() => {
+    const savedCart = localStorage.getItem('sx-cart');
+    if (savedCart) {
+      setCart(JSON.parse(savedCart));
+    }
+  }, []);
+
+  // Save cart to localStorage
+  useEffect(() => {
+    localStorage.setItem('sx-cart', JSON.stringify(cart));
+  }, [cart]);
+
+  // Countdown timer for special offer
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      const now = new Date();
+      const offerEnd = new Date();
+      
+      // Set to today at 3:00 PM IST (9:30 AM UTC)
+      offerEnd.setUTCHours(9, 30, 0, 0);
+      
+      // If it's already past 3:00 PM today, set to 3:00 PM tomorrow
+      if (now > offerEnd) {
+        offerEnd.setUTCDate(offerEnd.getUTCDate() + 1);
+      }
+
+      const difference = offerEnd.getTime() - now.getTime();
+      if (difference > 0) {
+        const hours = Math.floor((difference / (1000 * 60 * 60)) % 24;
+        const minutes = Math.floor((difference / 1000 / 60) % 60);
+        const seconds = Math.floor((difference / 1000) % 60);
+        setTimeLeft({ hours, minutes, seconds });
+      }
+    };
+
+    calculateTimeLeft();
+    const timer = setInterval(calculateTimeLeft, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const addToCart = (product: Product) => {
+    if (product.category === 'mod' && !selectedMod) {
+      return;
+    }
+
+    const existingItemIndex = cart.findIndex(
+      item => item.id === product.id && 
+      (!product.modOptions || item.selectedMod?.name === selectedMod?.name)
+    );
+
+    if (existingItemIndex >= 0) {
+      const updatedCart = [...cart];
+      updatedCart[existingItemIndex].quantity += 1;
+      setCart(updatedCart);
+    } else {
+      setCart([
+        ...cart,
+        {
+          ...product,
+          quantity: 1,
+          selectedMod: selectedMod || undefined
+        }
+      ]);
+    }
+
+    setSelectedProduct(null);
+    setSelectedMod(null);
+  };
+
+  const removeFromCart = (index: number) => {
+    const newCart = [...cart];
+    newCart.splice(index, 1);
+    setCart(newCart);
+  };
+
+  const updateQuantity = (index: number, newQuantity: number) => {
+    if (newQuantity < 1) return;
+    const newCart = [...cart];
+    newCart[index].quantity = newQuantity;
+    setCart(newCart);
+  };
+
+  const applyDiscount = () => {
+    const code = discountCodes.find(dc => dc.code === discountCode.toUpperCase());
+    if (!code) {
+      setDiscountError('Invalid discount code');
+      return;
+    }
+
+    const subtotal = cart.reduce((sum, item) => sum + (item.selectedMod ? item.selectedMod.price : item.price) * item.quantity, 0);
+    if (subtotal < code.minPurchase) {
+      setDiscountError(`Minimum purchase of ₹${code.minPurchase} required`);
+      return;
+    }
+
+    setAppliedDiscount(code);
+    setDiscountError('');
+  };
+
+  const removeDiscount = () => {
+    setAppliedDiscount(null);
+    setDiscountCode('');
+  };
+
+  const calculateTotal = () => {
+    const subtotal = cart.reduce((sum, item) => sum + (item.selectedMod ? item.selectedMod.price : item.price) * item.quantity, 0);
+    
+    let discount = 0;
+    if (appliedDiscount) {
+      if (appliedDiscount.type === 'percentage') {
+        discount = subtotal * (appliedDiscount.discount / 100);
+      } else {
+        discount = appliedDiscount.discount;
+      }
+    }
+
+    const total = subtotal - discount;
+    return { subtotal, discount, total };
+  };
+
+  const generateReceipt = () => {
+    const { subtotal, discount, total } = calculateTotal();
+    const now = new Date();
+    
+    let receipt = `╔══════════════════════════════╗\n`;
+    receipt += `║        SX STORE RECEIPT       ║\n`;
+    receipt += `╠══════════════════════════════╣\n`;
+    receipt += `║ ${now.toLocaleDateString()} ${now.toLocaleTimeString()} ║\n`;
+    receipt += `╠══════════════════════════════╣\n`;
+    receipt += `║ ITEMS PURCHASED:             ║\n`;
+    
+    cart.forEach(item => {
+      const itemName = item.selectedMod ? `${item.name} - ${item.selectedMod.name}` : item.name;
+      const itemPrice = item.selectedMod ? item.selectedMod.price : item.price;
+      receipt += `║ • ${itemName} (x${item.quantity})   ║\n`;
+      receipt += `║   ₹${itemPrice * item.quantity}                  ║\n`;
+    });
+    
+    receipt += `╠══════════════════════════════╣\n`;
+    receipt += `║ Subtotal: ₹${subtotal.toFixed(2)}          ║\n`;
+    if (discount > 0) {
+      receipt += `║ Discount: -₹${discount.toFixed(2)}          ║\n`;
+      receipt += `║ (Code: ${appliedDiscount?.code})           ║\n`;
+    }
+    receipt += `║ Total: ₹${total.toFixed(2)}            ║\n`;
+    receipt += `╠══════════════════════════════╣\n`;
+    receipt += `║ THANK YOU FOR YOUR PURCHASE! ║\n`;
+    receipt += `║ Contact: @SXSupport          ║\n`;
+    receipt += `╚══════════════════════════════╝\n`;
+    
+    // Create and download TXT file
+    const blob = new Blob([receipt], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `SX_Receipt_${now.getTime()}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const categoryNames = {
+    bundle: 'Special Bundles',
+    account: 'Premium Accounts',
+    tool: 'Game Tools',
+    service: 'Custom Services',
+    mod: 'Mod Menus'
+  };
+
+  const filteredProducts = (category: string) => 
+    productsData.filter(product => product.category === category);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-purple-900 text-white">
+      {/* Header */}
+      <header className="bg-gray-800/50 backdrop-blur-md sticky top-0 z-50 border-b border-purple-800/30">
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
+            SX Store
+          </Link>
+          <nav className="flex gap-6 items-center">
+            <Link href="/" className="hover:text-purple-300 transition">Home</Link>
+            <Link href="/downloads" className="hover:text-purple-300 transition">Downloads</Link>
+            <button 
+              onClick={() => setShowCart(true)}
+              className="relative p-2 rounded-full bg-purple-700/50 hover:bg-purple-600/50 transition"
+            >
+              <ShoppingCart size={20} />
+              {cart.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-pink-500 text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                  {cart.length}
+                </span>
+              )}
+            </button>
+          </nav>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-8">
+        {/* Hero Section */}
+        <section className="mb-12 text-center">
+          <div className="inline-block bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-1 rounded-full text-sm font-medium mb-4 shadow-lg">
+            Premium Digital Products
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-purple-300 to-pink-400 bg-clip-text text-transparent leading-tight">
+            Exclusive Gaming Products & Services
+          </h1>
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+            Get premium accounts, tools, and custom services for your favorite games
+          </p>
+        </section>
+
+        {/* Special Offer Countdown */}
+        <div className="bg-gradient-to-r from-purple-900/50 to-pink-900/50 border border-purple-800/30 rounded-xl p-6 mb-12 backdrop-blur-sm">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+              <h3 className="text-xl font-bold flex items-center gap-2">
+                <Gift size={20} className="text-pink-400" /> 
+                SPECIAL OFFER ENDS IN:
+              </h3>
+              <p className="text-gray-300">Today at 3:00 PM IST</p>
+            </div>
+            <div className="flex gap-4">
+              <div className="bg-gray-800/50 rounded-lg p-3 text-center min-w-[70px]">
+                <div className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                  {timeLeft.hours.toString().padStart(2, '0')}
+                </div>
+                <div className="text-xs text-gray-400 mt-1">HOURS</div>
+              </div>
+              <div className="bg-gray-800/50 rounded-lg p-3 text-center min-w-[70px]">
+                <div className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                  {timeLeft.minutes.toString().padStart(2, '0')}
+                </div>
+                <div className="text-xs text-gray-400 mt-1">MINUTES</div>
+              </div>
+              <div className="bg-gray-800/50 rounded-lg p-3 text-center min-w-[70px]">
+                <div className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                  {timeLeft.seconds.toString().padStart(2, '0')}
+                </div>
+                <div className="text-xs text-gray-400 mt-1">SECONDS</div>
+              </div>
+            </div>
+            <Link 
+              href="#bundles" 
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-2 px-6 rounded-lg transition flex items-center gap-2 shadow-lg hover:shadow-purple-500/20"
+            >
+              View Offer <ArrowRight size={16} />
+            </Link>
+          </div>
+        </div>
+
+        {/* Product Categories */}
+        {Object.entries(categoryNames).map(([categoryKey, categoryName]) => (
+          <section key={categoryKey} id={categoryKey === 'bundle' ? 'bundles' : categoryKey} className="mb-16">
+            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+              {categoryKey === 'bundle' && <Gift size={20} className="text-pink-400" />}
+              {categoryKey === 'account' && <ShieldCheck size={20} className="text-purple-400" />}
+              {categoryKey === 'tool' && <Zap size={20} className="text-blue-400" />}
+              {categoryKey === 'service' && <Star size={20} className="text-yellow-400" />}
+              {categoryKey === 'mod' && <Download size={20} className="text-green-400" />}
+              {categoryName}
+            </h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredProducts(categoryKey).map(product => (
+                <div 
+                  key={product.id} 
+                  className="bg-gray-800/30 backdrop-blur-sm rounded-xl border border-gray-700/50 hover:border-purple-500/50 transition-all hover:shadow-lg hover:shadow-purple-500/10 overflow-hidden"
+                >
+                  <div className="p-6">
+                    <div className="flex justify-between items-start mb-3">
+                      <h3 className="text-xl font-bold">{product.name}</h3>
+                      {product.originalPrice && (
+                        <span className="text-xs line-through text-gray-400">₹{product.originalPrice}</span>
+                      )}
+                    </div>
+                    
+                    {product.tags && (
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {product.tags.map(tag => (
+                          <span 
+                            key={tag} 
+                            className="text-xs bg-gray-700/50 px-2 py-1 rounded-full"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    
+                    <p className="text-gray-300 text-sm mb-4">{product.description}</p>
+                    
+                    {product.features && (
+                      <ul className="space-y-2 mb-4">
+                        {product.features.map((feature, index) => (
+                          <li key={index} className="flex items-start">
+                            <Check size={14} className="text-green-400 mt-1 mr-2 flex-shrink-0" />
+                            <span className="text-gray-300 text-sm">{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    
+                    <div className="flex justify-between items-center mt-6">
+                      <div>
+                        <span className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                          ₹{product.price}
+                        </span>
+                        {product.modOptions && (
+                          <span className="text-xs text-gray-400 block">+ mod options</span>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => setSelectedProduct(product)}
+                        className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-2 px-4 rounded-lg transition text-sm"
+                      >
+                        Add to Cart
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        ))}
+      </main>
+
+      {/* Product Modal */}
+      {selectedProduct && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-gray-800/80 backdrop-blur-lg rounded-xl border border-purple-800/50 max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-start mb-4">
+                <h3 className="text-xl font-bold">{selectedProduct.name}</h3>
+                <button 
+                  onClick={() => {
+                    setSelectedProduct(null);
+                    setSelectedMod(null);
+                  }}
+                  className="text-gray-400 hover:text-white"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              
+              <p className="text-gray-300 text-sm mb-4">{selectedProduct.description}</p>
+              
+              {selectedProduct.modOptions && (
+                <div className="mb-6">
+                  <h4 className="text-sm font-bold mb-3 text-gray-300">SELECT MOD:</h4>
+                  <div className="space-y-2">
+                    {selectedProduct.modOptions.map((mod, index) => (
+                      <div 
+                        key={index}
+                        onClick={() => setSelectedMod(mod)}
+                        className={`p-3 rounded-lg border cursor-pointer transition ${selectedMod?.name === mod.name ? 'border-purple-500 bg-purple-900/30' : 'border-gray-700 hover:border-purple-500/50'}`}
+                      >
+                        <div className="flex justify-between items-center">
+                          <span className="font-medium">{mod.name}</span>
+                          <span className="text-purple-300">₹{mod.price}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              <div className="flex justify-between items-center">
+                <div>
+                  <span className="text-2xl font-bold">
+                    ₹{selectedMod ? selectedMod.price : selectedProduct.price}
+                  </span>
+                  {selectedProduct.originalPrice && (
+                    <span className="text-sm line-through text-gray-400 ml-2">₹{selectedProduct.originalPrice}</span>
+                  )}
+                </div>
+                <button
+                  onClick={() => addToCart(selectedProduct)}
+                  disabled={selectedProduct.modOptions && !selectedMod}
+                  className={`bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-2 px-6 rounded-lg transition ${selectedProduct.modOptions && !selectedMod ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  Add to Cart
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Cart Sidebar */}
+      {showCart && (
+        <div className="fixed inset-0 z-50 overflow-hidden">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowCart(false)}></div>
+          <div className="absolute right-0 top-0 h-full w-full max-w-md bg-gray-800/80 backdrop-blur-lg border-l border-purple-800/30 shadow-xl overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold flex items-center gap-2">
+                  <ShoppingCart size={24} /> Your Cart
+                </h2>
+                <button 
+                  onClick={() => setShowCart(false)}
+                  className="text-gray-400 hover:text-white"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+              
+              {cart.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-gray-400 mb-4">Your cart is empty</p>
+                  <button
+                    onClick={() => setShowCart(false)}
+                    className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-2 px-6 rounded-lg transition"
+                  >
+                    Continue Shopping
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="space-y-4 mb-6">
+                    {cart.map((item, index) => (
+                      <div key={index} className="bg-gray-700/30 rounded-lg p-4 border border-gray-600/30">
+                        <div className="flex justify-between items-start mb-2">
+                          <h3 className="font-bold">
+                            {item.selectedMod ? `${item.name} - ${item.selectedMod.name}` : item.name}
+                          </h3>
+                          <button 
+                            onClick={() => removeFromCart(index)}
+                            className="text-gray-400 hover:text-pink-500"
+                          >
+                            <X size={16} />
+                          </button>
+                        </div>
+                        
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center gap-2">
+                            <button 
+                              onClick={() => updateQuantity(index, item.quantity - 1)}
+                              className="w-6 h-6 flex items-center justify-center bg-gray-600/50 rounded hover:bg-gray-500/50"
+                            >
+                              -
+                            </button>
+                            <span>{item.quantity}</span>
+                            <button 
+                              onClick={() => updateQuantity(index, item.quantity + 1)}
+                              className="w-6 h-6 flex items-center justify-center bg-gray-600/50 rounded hover:bg-gray-500/50"
+                            >
+                              +
+                            </button>
+                          </div>
+                          <span className="font-bold">
+                            ₹{(item.selectedMod ? item.selectedMod.price : item.price) * item.quantity}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {/* Discount Code */}
+                  <div className="mb-6">
+                    <h3 className="text-sm font-bold mb-2 flex items-center gap-2">
+                      <Tag size={16} /> Discount Code
+                    </h3>
+                    {appliedDiscount ? (
+                      <div className="bg-green-900/20 border border-green-800/50 rounded-lg p-3 flex justify-between items-center">
+                        <div>
+                          <span className="font-bold">{appliedDiscount.code}</span>
+                          <span className="text-sm text-gray-300 ml-2">
+                            ({appliedDiscount.discount}{appliedDiscount.type === 'percentage' ? '% off' : '₹ off'})
+                          </span>
+                        </div>
+                        <button 
+                          onClick={removeDiscount}
+                          className="text-gray-300 hover:text-white"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={discountCode}
+                          onChange={(e) => setDiscountCode(e.target.value)}
+                          placeholder="Enter code"
+                          className="flex-1 bg-gray-700/50 border border-gray-600/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                        />
+                        <button
+                          onClick={applyDiscount}
+                          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-2 px-4 rounded-lg transition text-sm"
+                        >
+                          Apply
+                        </button>
+                      </div>
+                    )}
+                    {discountError && (
+                      <p className="text-red-400 text-sm mt-2">{discountError}</p>
+                    )}
+                  </div>
+                  
+                  {/* Order Summary */}
+                  <div className="bg-gray-700/30 rounded-lg p-4 border border-gray-600/30 mb-6">
+                    <h3 className="font-bold mb-3">Order Summary</h3>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-gray-300">Subtotal</span>
+                        <span>₹{calculateTotal().subtotal.toFixed(2)}</span>
+                      </div>
+                      {appliedDiscount && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-300">Discount</span>
+                          <span className="text-green-400">
+                            -₹{calculateTotal().discount.toFixed(2)}
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex justify-between pt-2 border-t border-gray-600/30 mt-2">
+                        <span className="font-bold">Total</span>
+                        <span className="font-bold text-lg">
+                          ₹{calculateTotal().total.toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Seller Contact */}
+                  <div className="bg-gray-700/30 rounded-lg p-4 border border-gray-600/30 mb-6">
+                    <h3 className="font-bold mb-3 flex items-center gap-2">
+                      <Phone size={16} /> Contact Seller
+                    </h3>
+                    <p className="text-sm text-gray-300 mb-3">
+                      After payment, contact us on Telegram with your receipt:
+                    </p>
+                    <div className="space-y-2">
+                      <a 
+                        href="https://t.me/SXSupport" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 bg-blue-600/30 hover:bg-blue-600/40 border border-blue-600/50 rounded-lg p-3 transition"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.03-.1.06-.22-.06-.32-.13-.1-.32-.02-.45.02-.2.06-3.39 2.14-4.84 3.06-.52.33-1 .5-1.43.5-.48 0-1.4-.27-2.08-.99-.75-.79-1.4-2.25-1.4-3.43 0-1.64 1.13-2.45 2.11-2.45.53 0 .98.18 1.38.4.25.15.47.33.68.55.23.23.46.46.75.68.32.25.7.38 1.12.38.42 0 .86-.13 1.23-.4 1.37-1.04 2.14-2.6 2.14-2.6.1-.2.25-.3.45-.3.1 0 .25.02.35.1.22.15.3.45.2.75z"/>
+                        </svg>
+                        <span>@SXSupport</span>
+                      </a>
+                      <a 
+                        href="mailto:sxstore@example.com" 
+                        className="flex items-center gap-2 bg-gray-600/30 hover:bg-gray-600/40 border border-gray-600/50 rounded-lg p-3 transition"
+                      >
+                        <Mail size={16} />
+                        <span>sxstore@example.com</span>
+                      </a>
+                    </div>
+                  </div>
+                  
+                  {/* Checkout Button */}
+                  <button
+                    onClick={generateReceipt}
+                    className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 px-4 rounded-lg transition shadow-lg hover:shadow-purple-500/20 flex items-center justify-center gap-2"
+                  >
+                    <Download size={18} /> Download Receipt
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Footer */}
+      <footer className="bg-gray-900/50 border-t border-gray-800 py-8">
+        <div className="container mx-auto px-4 text-center text-gray-400 text-sm">
+          <p>© {new Date().getFullYear()} SX Store. All rights reserved.</p>
+          <p className="mt-2">Premium digital products for gaming enthusiasts</p>
+        </div>
+      </footer>
+    </div>
+  );
+}
