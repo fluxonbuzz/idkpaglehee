@@ -169,6 +169,25 @@ const discountCodes: DiscountCode[] = [
   { code: 'SAVE50', discount: 50, minPurchase: 250, type: 'fixed' }
 ];
 
+interface Seller {
+  name: string;
+  telegram: string;
+  paymentMethods: string[];
+}
+
+const sellers: Seller[] = [
+  {
+    name: 'SX Support',
+    telegram: '@SXSupport',
+    paymentMethods: ['PayPal', 'UPI', 'Bank Transfer']
+  },
+  {
+    name: 'GameMods Pro',
+    telegram: '@GameModsPro',
+    paymentMethods: ['PayPal', 'Cryptocurrency']
+  }
+];
+
 export default function StorePage() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [showCart, setShowCart] = useState(false);
@@ -182,8 +201,8 @@ export default function StorePage() {
     minutes: 0,
     seconds: 0
   });
+  const [showSellers, setShowSellers] = useState(false);
 
-  // Load cart from localStorage
   useEffect(() => {
     const savedCart = localStorage.getItem('sx-cart');
     if (savedCart) {
@@ -191,28 +210,24 @@ export default function StorePage() {
     }
   }, []);
 
-  // Save cart to localStorage
   useEffect(() => {
     localStorage.setItem('sx-cart', JSON.stringify(cart));
   }, [cart]);
 
-  // Countdown timer for special offer
   useEffect(() => {
     const calculateTimeLeft = () => {
       const now = new Date();
       const offerEnd = new Date();
       
-      // Set to today at 3:00 PM IST (9:30 AM UTC)
       offerEnd.setUTCHours(9, 30, 0, 0);
       
-      // If it's already past 3:00 PM today, set to 3:00 PM tomorrow
       if (now > offerEnd) {
         offerEnd.setUTCDate(offerEnd.getUTCDate() + 1);
       }
 
       const difference = offerEnd.getTime() - now.getTime();
       if (difference > 0) {
-        const hours = Math.floor((difference / (1000 * 60 * 60)) % 24;
+        const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
         const minutes = Math.floor((difference / 1000 / 60) % 60);
         const seconds = Math.floor((difference / 1000) % 60);
         setTimeLeft({ hours, minutes, seconds });
@@ -334,7 +349,6 @@ export default function StorePage() {
     receipt += `║ Contact: @SXSupport          ║\n`;
     receipt += `╚══════════════════════════════╝\n`;
     
-    // Create and download TXT file
     const blob = new Blob([receipt], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -344,6 +358,8 @@ export default function StorePage() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+
+    setShowSellers(true);
   };
 
   const categoryNames = {
@@ -359,7 +375,6 @@ export default function StorePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-purple-900 text-white">
-      {/* Header */}
       <header className="bg-gray-800/50 backdrop-blur-md sticky top-0 z-50 border-b border-purple-800/30">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
@@ -383,9 +398,7 @@ export default function StorePage() {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        {/* Hero Section */}
         <section className="mb-12 text-center">
           <div className="inline-block bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-1 rounded-full text-sm font-medium mb-4 shadow-lg">
             Premium Digital Products
@@ -398,7 +411,6 @@ export default function StorePage() {
           </p>
         </section>
 
-        {/* Special Offer Countdown */}
         <div className="bg-gradient-to-r from-purple-900/50 to-pink-900/50 border border-purple-800/30 rounded-xl p-6 mb-12 backdrop-blur-sm">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
@@ -437,7 +449,6 @@ export default function StorePage() {
           </div>
         </div>
 
-        {/* Product Categories */}
         {Object.entries(categoryNames).map(([categoryKey, categoryName]) => (
           <section key={categoryKey} id={categoryKey === 'bundle' ? 'bundles' : categoryKey} className="mb-16">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
@@ -513,7 +524,6 @@ export default function StorePage() {
         ))}
       </main>
 
-      {/* Product Modal */}
       {selectedProduct && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-gray-800/80 backdrop-blur-lg rounded-xl border border-purple-800/50 max-w-md w-full max-h-[90vh] overflow-y-auto">
@@ -575,7 +585,6 @@ export default function StorePage() {
         </div>
       )}
 
-      {/* Cart Sidebar */}
       {showCart && (
         <div className="fixed inset-0 z-50 overflow-hidden">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowCart(false)}></div>
@@ -605,149 +614,158 @@ export default function StorePage() {
                 </div>
               ) : (
                 <>
-                  <div className="space-y-4 mb-6">
-                    {cart.map((item, index) => (
-                      <div key={index} className="bg-gray-700/30 rounded-lg p-4 border border-gray-600/30">
-                        <div className="flex justify-between items-start mb-2">
-                          <h3 className="font-bold">
-                            {item.selectedMod ? `${item.name} - ${item.selectedMod.name}` : item.name}
-                          </h3>
-                          <button 
-                            onClick={() => removeFromCart(index)}
-                            className="text-gray-400 hover:text-pink-500"
-                          >
-                            <X size={16} />
-                          </button>
-                        </div>
-                        
-                        <div className="flex justify-between items-center">
-                          <div className="flex items-center gap-2">
+                  {!showSellers ? (
+                    <>
+                      <div className="space-y-4 mb-6">
+                        {cart.map((item, index) => (
+                          <div key={index} className="bg-gray-700/30 rounded-lg p-4 border border-gray-600/30">
+                            <div className="flex justify-between items-start mb-2">
+                              <h3 className="font-bold">
+                                {item.selectedMod ? `${item.name} - ${item.selectedMod.name}` : item.name}
+                              </h3>
+                              <button 
+                                onClick={() => removeFromCart(index)}
+                                className="text-gray-400 hover:text-pink-500"
+                              >
+                                <X size={16} />
+                              </button>
+                            </div>
+                            
+                            <div className="flex justify-between items-center">
+                              <div className="flex items-center gap-2">
+                                <button 
+                                  onClick={() => updateQuantity(index, item.quantity - 1)}
+                                  className="w-6 h-6 flex items-center justify-center bg-gray-600/50 rounded hover:bg-gray-500/50"
+                                >
+                                  -
+                                </button>
+                                <span>{item.quantity}</span>
+                                <button 
+                                  onClick={() => updateQuantity(index, item.quantity + 1)}
+                                  className="w-6 h-6 flex items-center justify-center bg-gray-600/50 rounded hover:bg-gray-500/50"
+                                >
+                                  +
+                                </button>
+                              </div>
+                              <span className="font-bold">
+                                ₹{(item.selectedMod ? item.selectedMod.price : item.price) * item.quantity}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      <div className="mb-6">
+                        <h3 className="text-sm font-bold mb-2 flex items-center gap-2">
+                          <Tag size={16} /> Discount Code
+                        </h3>
+                        {appliedDiscount ? (
+                          <div className="bg-green-900/20 border border-green-800/50 rounded-lg p-3 flex justify-between items-center">
+                            <div>
+                              <span className="font-bold">{appliedDiscount.code}</span>
+                              <span className="text-sm text-gray-300 ml-2">
+                                ({appliedDiscount.discount}{appliedDiscount.type === 'percentage' ? '% off' : '₹ off'})
+                              </span>
+                            </div>
                             <button 
-                              onClick={() => updateQuantity(index, item.quantity - 1)}
-                              className="w-6 h-6 flex items-center justify-center bg-gray-600/50 rounded hover:bg-gray-500/50"
+                              onClick={removeDiscount}
+                              className="text-gray-300 hover:text-white"
                             >
-                              -
-                            </button>
-                            <span>{item.quantity}</span>
-                            <button 
-                              onClick={() => updateQuantity(index, item.quantity + 1)}
-                              className="w-6 h-6 flex items-center justify-center bg-gray-600/50 rounded hover:bg-gray-500/50"
-                            >
-                              +
+                              <X size={16} />
                             </button>
                           </div>
-                          <span className="font-bold">
-                            ₹{(item.selectedMod ? item.selectedMod.price : item.price) * item.quantity}
-                          </span>
+                        ) : (
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              value={discountCode}
+                              onChange={(e) => setDiscountCode(e.target.value)}
+                              placeholder="Enter code"
+                              className="flex-1 bg-gray-700/50 border border-gray-600/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                            />
+                            <button
+                              onClick={applyDiscount}
+                              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-2 px-4 rounded-lg transition text-sm"
+                            >
+                              Apply
+                            </button>
+                          </div>
+                        )}
+                        {discountError && (
+                          <p className="text-red-400 text-sm mt-2">{discountError}</p>
+                        )}
+                      </div>
+                      
+                      <div className="bg-gray-700/30 rounded-lg p-4 border border-gray-600/30 mb-6">
+                        <h3 className="font-bold mb-3">Order Summary</h3>
+                        <div className="space-y-2">
+                          <div className="flex justify-between">
+                            <span className="text-gray-300">Subtotal</span>
+                            <span>₹{calculateTotal().subtotal.toFixed(2)}</span>
+                          </div>
+                          {appliedDiscount && (
+                            <div className="flex justify-between">
+                              <span className="text-gray-300">Discount</span>
+                              <span className="text-green-400">
+                                -₹{calculateTotal().discount.toFixed(2)}
+                              </span>
+                            </div>
+                          )}
+                          <div className="flex justify-between pt-2 border-t border-gray-600/30 mt-2">
+                            <span className="font-bold">Total</span>
+                            <span className="font-bold text-lg">
+                              ₹{calculateTotal().total.toFixed(2)}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                  
-                  {/* Discount Code */}
-                  <div className="mb-6">
-                    <h3 className="text-sm font-bold mb-2 flex items-center gap-2">
-                      <Tag size={16} /> Discount Code
-                    </h3>
-                    {appliedDiscount ? (
-                      <div className="bg-green-900/20 border border-green-800/50 rounded-lg p-3 flex justify-between items-center">
-                        <div>
-                          <span className="font-bold">{appliedDiscount.code}</span>
-                          <span className="text-sm text-gray-300 ml-2">
-                            ({appliedDiscount.discount}{appliedDiscount.type === 'percentage' ? '% off' : '₹ off'})
-                          </span>
-                        </div>
-                        <button 
-                          onClick={removeDiscount}
-                          className="text-gray-300 hover:text-white"
-                        >
-                          <X size={16} />
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="flex gap-2">
-                        <input
-                          type="text"
-                          value={discountCode}
-                          onChange={(e) => setDiscountCode(e.target.value)}
-                          placeholder="Enter code"
-                          className="flex-1 bg-gray-700/50 border border-gray-600/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50"
-                        />
-                        <button
-                          onClick={applyDiscount}
-                          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-2 px-4 rounded-lg transition text-sm"
-                        >
-                          Apply
-                        </button>
-                      </div>
-                    )}
-                    {discountError && (
-                      <p className="text-red-400 text-sm mt-2">{discountError}</p>
-                    )}
-                  </div>
-                  
-                  {/* Order Summary */}
-                  <div className="bg-gray-700/30 rounded-lg p-4 border border-gray-600/30 mb-6">
-                    <h3 className="font-bold mb-3">Order Summary</h3>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-gray-300">Subtotal</span>
-                        <span>₹{calculateTotal().subtotal.toFixed(2)}</span>
-                      </div>
-                      {appliedDiscount && (
-                        <div className="flex justify-between">
-                          <span className="text-gray-300">Discount</span>
-                          <span className="text-green-400">
-                            -₹{calculateTotal().discount.toFixed(2)}
-                          </span>
-                        </div>
-                      )}
-                      <div className="flex justify-between pt-2 border-t border-gray-600/30 mt-2">
-                        <span className="font-bold">Total</span>
-                        <span className="font-bold text-lg">
-                          ₹{calculateTotal().total.toFixed(2)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Seller Contact */}
-                  <div className="bg-gray-700/30 rounded-lg p-4 border border-gray-600/30 mb-6">
-                    <h3 className="font-bold mb-3 flex items-center gap-2">
-                      <Phone size={16} /> Contact Seller
-                    </h3>
-                    <p className="text-sm text-gray-300 mb-3">
-                      After payment, contact us on Telegram with your receipt:
-                    </p>
-                    <div className="space-y-2">
-                      <a 
-                        href="https://t.me/SXSupport" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 bg-blue-600/30 hover:bg-blue-600/40 border border-blue-600/50 rounded-lg p-3 transition"
+                      
+                      <button
+                        onClick={generateReceipt}
+                        className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 px-4 rounded-lg transition shadow-lg hover:shadow-purple-500/20 flex items-center justify-center gap-2"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.03-.1.06-.22-.06-.32-.13-.1-.32-.02-.45.02-.2.06-3.39 2.14-4.84 3.06-.52.33-1 .5-1.43.5-.48 0-1.4-.27-2.08-.99-.75-.79-1.4-2.25-1.4-3.43 0-1.64 1.13-2.45 2.11-2.45.53 0 .98.18 1.38.4.25.15.47.33.68.55.23.23.46.46.75.68.32.25.7.38 1.12.38.42 0 .86-.13 1.23-.4 1.37-1.04 2.14-2.6 2.14-2.6.1-.2.25-.3.45-.3.1 0 .25.02.35.1.22.15.3.45.2.75z"/>
-                        </svg>
-                        <span>@SXSupport</span>
-                      </a>
-                      <a 
-                        href="mailto:sxstore@example.com" 
-                        className="flex items-center gap-2 bg-gray-600/30 hover:bg-gray-600/40 border border-gray-600/50 rounded-lg p-3 transition"
+                        <Download size={18} /> Proceed to Payment
+                      </button>
+                    </>
+                  ) : (
+                    <div className="space-y-6">
+                      <div className="text-center">
+                        <h3 className="text-xl font-bold mb-2">Payment Instructions</h3>
+                        <p className="text-gray-300 mb-4">
+                          Please contact one of our sellers to complete your payment.
+                          Share your receipt with them after payment.
+                        </p>
+                      </div>
+                      
+                      <div className="space-y-4">
+                        {sellers.map((seller, index) => (
+                          <div key={index} className="bg-gray-700/30 rounded-lg p-4 border border-gray-600/30">
+                            <h4 className="font-bold mb-2">{seller.name}</h4>
+                            <div className="flex items-center gap-2 mb-3">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.03-.1.06-.22-.06-.32-.13-.1-.32-.02-.45.02-.2.06-3.39 2.14-4.84 3.06-.52.33-1 .5-1.43.5-.48 0-1.4-.27-2.08-.99-.75-.79-1.4-2.25-1.4-3.43 0-1.64 1.13-2.45 2.11-2.45.53 0 .98.18 1.38.4.25.15.47.33.68.55.23.23.46.46.75.68.32.25.7.38 1.12.38.42 0 .86-.13 1.23-.4 1.37-1.04 2.14-2.6 2.14-2.6.1-.2.25-.3.45-.3.1 0 .25.02.35.1.22.15.3.45.2.75z"/>
+                              </svg>
+                              <span className="font-mono">{seller.telegram}</span>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              {seller.paymentMethods.map((method, i) => (
+                                <span key={i} className="text-xs bg-gray-600/50 px-2 py-1 rounded-full">
+                                  {method}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      <button
+                        onClick={() => setShowSellers(false)}
+                        className="w-full bg-gray-700/50 hover:bg-gray-700/70 text-white font-bold py-3 px-4 rounded-lg transition border border-gray-600/50"
                       >
-                        <Mail size={16} />
-                        <span>sxstore@example.com</span>
-                      </a>
+                        Back to Cart
+                      </button>
                     </div>
-                  </div>
-                  
-                  {/* Checkout Button */}
-                  <button
-                    onClick={generateReceipt}
-                    className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 px-4 rounded-lg transition shadow-lg hover:shadow-purple-500/20 flex items-center justify-center gap-2"
-                  >
-                    <Download size={18} /> Download Receipt
-                  </button>
+                  )}
                 </>
               )}
             </div>
@@ -755,7 +773,6 @@ export default function StorePage() {
         </div>
       )}
 
-      {/* Footer */}
       <footer className="bg-gray-900/50 border-t border-gray-800 py-8">
         <div className="container mx-auto px-4 text-center text-gray-400 text-sm">
           <p>© {new Date().getFullYear()} SX Store. All rights reserved.</p>
