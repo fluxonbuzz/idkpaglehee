@@ -365,7 +365,7 @@ export default function StorePage() {
     receipt += `║ • Digital products only     ║\n`;
     receipt += `╠══════════════════════════════╣\n`;
     receipt += `║ THANK YOU FOR YOUR PURCHASE! ║\n`;
-    receipt += `║ Contact: @Fluxon or @ShivaXD ║\n`;
+    receipt += `║ Contact: @lyastral or @ShivaXD ║\n`;
     receipt += `╚══════════════════════════════╝\n`;
     
     const blob = new Blob([receipt], { type: 'text/plain' });
@@ -408,6 +408,7 @@ export default function StorePage() {
               <X size={20} />
             </button>
           </div>
+          );
           
           <nav className="space-y-2">
             <Link href="/" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700/50 transition">
@@ -416,7 +417,7 @@ export default function StorePage() {
             <Link href="/store" className="flex items-center gap-3 p-3 rounded-lg bg-purple-900/30 hover:bg-purple-800/30 transition">
               <ShoppingCart size={18} /> Store
             </Link>
-            <Link href="/games" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700/50 transition">
+            <Link href="/downloads" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700/50 transition">
               <Zap size={18} /> Games
             </Link>
             <Link href="/community" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700/50 transition">
