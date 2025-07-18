@@ -1,6 +1,6 @@
 // src/pages/store.tsx
 import { useState, useEffect } from 'react';
-import { ShoppingCart, Clock, Zap, Star, Tag, Gift, ShieldCheck, Download, Phone, Mail, X, Check, ArrowRight, Home, Users, AlertCircle } from 'lucide-react';
+import { ShoppingCart, Zap, Star, Tag, Gift, ShieldCheck, Download, X, Check, ArrowRight, Home, Users, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -23,11 +23,11 @@ interface Product {
 const productsData: Product[] = [
   {
     id: 'premium-pack',
-    name: 'PREMIUM PACK (SPECIAL OFFER)',
+    name: 'PREMIUM PACK',
     category: 'bundle',
     price: 350,
     originalPrice: 1000,
-    description: 'Exclusive bundle with massive savings - limited time only',
+    description: 'Exclusive bundle with massive savings',
     features: [
       '1 Netflix Premium Account',
       '2 RC24 IDs (Level 20)',
@@ -35,7 +35,7 @@ const productsData: Product[] = [
       '1 PRO Membership',
       '1 Free Item'
     ],
-    tags: ['Bundle', 'Limited', 'Best Value']
+    tags: ['Bundle', 'Best Value']
   },
   {
     id: 'rc24-level20',
@@ -44,7 +44,7 @@ const productsData: Product[] = [
     price: 30,
     originalPrice: 70,
     description: 'Real Cricket 24 account with level 20 progression',
-    tags: ['Digital', 'Limited', 'Discount'],
+    tags: ['Digital', 'Discount'],
     sellerContact: '@Fluxon'
   },
   {
@@ -63,7 +63,7 @@ const productsData: Product[] = [
     price: 130,
     originalPrice: 300,
     description: 'Premium account with exclusive items and unlocked features',
-    tags: ['Digital', 'Limited'],
+    tags: ['Digital'],
     sellerContact: '@Fluxon'
   },
   {
@@ -82,7 +82,7 @@ const productsData: Product[] = [
     price: 70,
     originalPrice: 150,
     description: 'Real Cricket 24 account with level 50 progression',
-    tags: ['Digital', 'Limited', 'Discount'],
+    tags: ['Digital', 'Discount'],
     sellerContact: '@Fluxon'
   },
   {
@@ -92,7 +92,7 @@ const productsData: Product[] = [
     price: 110,
     originalPrice: 270,
     description: 'Real Cricket 24 account with level 85 progression',
-    tags: ['Digital', 'Limited', 'Discount'],
+    tags: ['Digital', 'Discount'],
     sellerContact: '@Fluxon'
   },
   {
@@ -203,11 +203,6 @@ export default function StorePage() {
   const [discountError, setDiscountError] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedMod, setSelectedMod] = useState<{ name: string; price: number } | null>(null);
-  const [timeLeft, setTimeLeft] = useState({
-    hours: 0,
-    minutes: 0,
-    seconds: 0
-  });
   const [showSellers, setShowSellers] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
@@ -222,31 +217,6 @@ export default function StorePage() {
   useEffect(() => {
     localStorage.setItem('sx-cart', JSON.stringify(cart));
   }, [cart]);
-
-  useEffect(() => {
-    const calculateTimeLeft = () => {
-      const now = new Date();
-      const offerEnd = new Date();
-      
-      offerEnd.setUTCHours(9, 30, 0, 0);
-      
-      if (now > offerEnd) {
-        offerEnd.setUTCDate(offerEnd.getUTCDate() + 1);
-      }
-
-      const difference = offerEnd.getTime() - now.getTime();
-      if (difference > 0) {
-        const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
-        const minutes = Math.floor((difference / 1000 / 60) % 60);
-        const seconds = Math.floor((difference / 1000) % 60);
-        setTimeLeft({ hours, minutes, seconds });
-      }
-    };
-
-    calculateTimeLeft();
-    const timer = setInterval(calculateTimeLeft, 1000);
-    return () => clearInterval(timer);
-  }, []);
 
   const addToCart = (product: Product) => {
     if (product.category === 'mod' && !selectedMod) {
@@ -493,44 +463,6 @@ export default function StorePage() {
             Get premium accounts, tools, and custom services for your favorite games
           </p>
         </section>
-
-        <div className="bg-gradient-to-r from-purple-900/50 to-pink-900/50 border border-purple-800/30 rounded-xl p-6 mb-12 backdrop-blur-sm">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div>
-              <h3 className="text-xl font-bold flex items-center gap-2">
-                <Gift size={20} className="text-pink-400" /> 
-                SPECIAL OFFER ENDS IN:
-              </h3>
-              <p className="text-gray-300">Today at 3:00 PM IST</p>
-            </div>
-            <div className="flex gap-4">
-              <div className="bg-gray-800/50 rounded-lg p-3 text-center min-w-[70px]">
-                <div className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                  {timeLeft.hours.toString().padStart(2, '0')}
-                </div>
-                <div className="text-xs text-gray-400 mt-1">HOURS</div>
-              </div>
-              <div className="bg-gray-800/50 rounded-lg p-3 text-center min-w-[70px]">
-                <div className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                  {timeLeft.minutes.toString().padStart(2, '0')}
-                </div>
-                <div className="text-xs text-gray-400 mt-1">MINUTES</div>
-              </div>
-              <div className="bg-gray-800/50 rounded-lg p-3 text-center min-w-[70px]">
-                <div className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                  {timeLeft.seconds.toString().padStart(2, '0')}
-                </div>
-                <div className="text-xs text-gray-400 mt-1">SECONDS</div>
-              </div>
-            </div>
-            <Link 
-              href="#bundles" 
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-2 px-6 rounded-lg transition flex items-center gap-2 shadow-lg hover:shadow-purple-500/20"
-            >
-              View Offer <ArrowRight size={16} />
-            </Link>
-          </div>
-        </div>
 
         {Object.entries(categoryNames).map(([categoryKey, categoryName]) => (
           <section key={categoryKey} id={categoryKey === 'bundle' ? 'bundles' : categoryKey} className="mb-16">
