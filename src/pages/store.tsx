@@ -22,22 +22,6 @@ interface Product {
 
 const productsData: Product[] = [
   {
-    id: 'premium-pack',
-    name: 'PREMIUM PACK',
-    category: 'bundle',
-    price: 350,
-    originalPrice: 1000,
-    description: 'Exclusive bundle with massive savings',
-    features: [
-      '1 Netflix Premium Account',
-      '2 RC24 IDs (Level 20)',
-      '2 RC Swap IDs',
-      '1 PRO Membership',
-      '1 Free Item'
-    ],
-    tags: ['Bundle', 'Best Value']
-  },
-  {
     id: 'rc24-level20',
     name: 'RC24 ID (Level 20)',
     category: 'account',
