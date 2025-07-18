@@ -131,7 +131,7 @@ export default function DownloadsPage() {
         <div className="p-4">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-              SX Store
+              SX Games
             </h2>
             <button onClick={() => setSidebarOpen(false)} className="text-gray-400 hover:text-white">
               <X size={20} />
@@ -287,7 +287,7 @@ export default function DownloadsPage() {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
-              <h3 className="text-lg font-bold mb-4">SX Store</h3>
+              <h3 className="text-lg font-bold mb-4">SX Games</h3>
               <p className="text-gray-400 text-sm">
                 Premium digital products for gaming enthusiasts. Get the best accounts, tools, and services.
               </p>
