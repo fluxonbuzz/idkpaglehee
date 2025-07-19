@@ -1,12 +1,13 @@
-// src/pages/rc24-tool.tsx
+// src/pages/aes-tool.tsx
 import { useState, useRef, ChangeEvent } from 'react';
-import { Upload, Download, Lock, Unlock, X, File, Key } from 'lucide-react';
+import { Upload, Download, Lock, Unlock, X, File, Key, User } from 'lucide-react';
 import Link from 'next/link';
 import Head from 'next/head';
+import toast from 'react-hot-toast';
 
-export default function RC24Tool() {
+export default function AESTool() {
   const [file, setFile] = useState<File | null>(null);
-  const [key, setKey] = useState<string>('');
+  const [key, setKey] = useState<string>('realnauticrick20');
   const [output, setOutput] = useState<Uint8Array | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [mode, setMode] = useState<'encrypt' | 'decrypt'>('encrypt');
@@ -35,59 +36,98 @@ export default function RC24Tool() {
   const processFile = async () => {
     if (!file) {
       setError('Please select a file');
+      toast.error('Please select a file');
       return;
     }
 
     if (!key) {
       setError('Please enter a key');
+      toast.error('Please enter a key');
       return;
     }
 
     setIsProcessing(true);
     setError(null);
+    toast.loading(`Processing ${mode}ion...`);
 
     try {
       const fileBuffer = await file.arrayBuffer();
-      const result = await rc24Process(new Uint8Array(fileBuffer), key, mode);
+      const result = mode === 'encrypt' 
+        ? await encryptAES(new Uint8Array(fileBuffer), key)
+        : await decryptAES(new Uint8Array(fileBuffer), key);
+      
       setOutput(result);
+      toast.success(`File ${mode}ed successfully!`);
     } catch (err) {
-      setError(`Failed to ${mode} file: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      const errorMsg = `Failed to ${mode} file: ${err instanceof Error ? err.message : 'Unknown error'}`;
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setIsProcessing(false);
+      toast.dismiss();
     }
   };
 
-  const rc24Process = async (data: Uint8Array, key: string, mode: 'encrypt' | 'decrypt'): Promise<Uint8Array> => {
-    // This is a simplified RC24-like algorithm for demonstration
-    // Note: Real RC24 would use a more complex algorithm
+  const encryptAES = async (data: Uint8Array, key: string): Promise<Uint8Array> => {
+    const keyBuffer = new TextEncoder().encode(key);
+    const iv = new Uint8Array(16); // Zero-filled IV
     
-    // Convert key to bytes (pad or truncate to 24 bytes)
-    const keyBytes = new TextEncoder().encode(key);
-    const effectiveKey = new Uint8Array(24);
-    for (let i = 0; i < 24; i++) {
-      effectiveKey[i] = keyBytes[i % keyBytes.length] ^ (i * 11);
-    }
+    const cryptoKey = await window.crypto.subtle.importKey(
+      'raw',
+      keyBuffer,
+      { name: 'AES-CBC' },
+      false,
+      ['encrypt']
+    );
 
-    // Process each byte
-    const result = new Uint8Array(data.length);
-    for (let i = 0; i < data.length; i++) {
-      const keyByte = effectiveKey[i % 24];
-      result[i] = mode === 'encrypt' 
-        ? data[i] ^ keyByte 
-        : data[i] ^ keyByte;
-    }
+    const encrypted = await window.crypto.subtle.encrypt(
+      {
+        name: 'AES-CBC',
+        iv: iv,
+      },
+      cryptoKey,
+      data
+    );
 
-    return result;
+    return new Uint8Array(encrypted);
+  };
+
+  const decryptAES = async (data: Uint8Array, key: string): Promise<Uint8Array> => {
+    const keyBuffer = new TextEncoder().encode(key);
+    const iv = new Uint8Array(16); // Zero-filled IV
+    
+    const cryptoKey = await window.crypto.subtle.importKey(
+      'raw',
+      keyBuffer,
+      { name: 'AES-CBC' },
+      false,
+      ['decrypt']
+    );
+
+    try {
+      const decrypted = await window.crypto.subtle.decrypt(
+        {
+          name: 'AES-CBC',
+          iv: iv,
+        },
+        cryptoKey,
+        data
+      );
+
+      return new Uint8Array(decrypted);
+    } catch (err) {
+      throw new Error('Decryption failed. Invalid key or corrupted data.');
+    }
   };
 
   const downloadResult = () => {
-    if (!output) return;
+    if (!output || !file) return;
     
     const blob = new Blob([output], { type: 'application/octet-stream' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${file?.name || 'file'}.${mode === 'encrypt' ? 'enc' : 'dec'}`;
+    a.download = `${file.name.replace(/\.[^/.]+$/, '')}_${mode}ed${mode === 'encrypt' ? '.enc' : '.dec'}`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -96,7 +136,6 @@ export default function RC24Tool() {
 
   const resetTool = () => {
     setFile(null);
-    setKey('');
     setOutput(null);
     setError(null);
     if (fileInputRef.current) {
@@ -107,7 +146,7 @@ export default function RC24Tool() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
       <Head>
-        <title>RC24 Tool | Shiva X Mods</title>
+        <title>AES Tool | Shiva X Mods</title>
       </Head>
 
       {/* Header */}
@@ -126,11 +165,15 @@ export default function RC24Tool() {
       <main className="container mx-auto px-4 py-12">
         <section className="mb-12 text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">
-            RC24 File Tool
+            AES File Tool
           </h1>
           <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-            {mode === 'encrypt' ? 'Encrypt' : 'Decrypt'} cricket game files with RC24 algorithm
+            {mode === 'encrypt' ? 'Encrypt' : 'Decrypt'} game files with AES-CBC algorithm
           </p>
+          <div className="mt-4 flex items-center justify-center gap-2 text-gray-400">
+            <User size={18} />
+            <span>Coded by: ParthYT</span>
+          </div>
         </section>
 
         <div className="max-w-3xl mx-auto bg-gray-800 rounded-xl overflow-hidden border border-gray-700">
@@ -195,7 +238,7 @@ export default function RC24Tool() {
                   </p>
                   <p className="text-gray-400">or click to browse</p>
                   <p className="text-xs text-gray-500 mt-3">
-                    Supports .dat, .pak, .bin files used in cricket games
+                    Supports any file type used in games
                   </p>
                 </>
               )}
@@ -204,7 +247,7 @@ export default function RC24Tool() {
             {/* Key Input */}
             <div className="mb-6">
               <label htmlFor="key" className="block text-sm font-medium text-gray-300 mb-2">
-                RC24 Key
+                AES Key (16, 24, or 32 bytes)
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -219,6 +262,9 @@ export default function RC24Tool() {
                   placeholder="Enter your encryption key"
                 />
               </div>
+              <p className="text-xs text-gray-500 mt-1">
+                Default key: "realnauticrick20" (16 bytes)
+              </p>
             </div>
 
             {/* Process Button */}
@@ -247,13 +293,6 @@ export default function RC24Tool() {
               )}
             </button>
 
-            {/* Error Message */}
-            {error && (
-              <div className="bg-red-900/50 border border-red-700 text-red-200 p-3 rounded-lg mb-4">
-                {error}
-              </div>
-            )}
-
             {/* Output Section */}
             {output && (
               <div className="mt-6 border-t border-gray-700 pt-6">
@@ -274,7 +313,7 @@ export default function RC24Tool() {
                     <File size={24} className="text-blue-400" />
                     <div>
                       <p className="font-medium">
-                        {file?.name || 'file'}.{mode === 'encrypt' ? 'enc' : 'dec'}
+                        {file?.name.replace(/\.[^/.]+$/, '') || 'file'}_{mode}ed{mode === 'encrypt' ? '.enc' : '.dec'}
                       </p>
                       <p className="text-sm text-gray-400">
                         {(output.byteLength / 1024).toFixed(2)} KB
@@ -291,25 +330,23 @@ export default function RC24Tool() {
               </div>
             )}
 
-            {/* Instructions */}
+            {/* Technical Details */}
             <div className="mt-8 bg-gray-800/50 p-5 rounded-lg border border-gray-700">
               <h3 className="font-bold mb-3 flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-yellow-400">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="12" y1="16" x2="12" y2="12"></line>
-                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-400">
+                  <path d="M3 3h18v18H3z"></path>
+                  <path d="M12 8v4l3 3"></path>
                 </svg>
-                How to use this tool
+                Technical Specifications
               </h3>
-              <ul className="text-sm text-gray-300 space-y-2 list-disc pl-5">
-                <li>Select your cricket game file (usually .dat, .pak, or .bin)</li>
-                <li>Enter the correct RC24 key (game-specific or provided with mods)</li>
-                <li>Choose whether to encrypt or decrypt the file</li>
-                <li>Click the process button and wait for completion</li>
-                <li>Download the processed file</li>
+              <ul className="text-sm text-gray-300 space-y-2">
+                <li><span className="font-medium">Algorithm:</span> AES-CBC</li>
+                <li><span className="font-medium">Key Size:</span> 128-bit (16 bytes)</li>
+                <li><span className="font-medium">IV:</span> Zero-filled (16 bytes)</li>
+                <li><span className="font-medium">Padding:</span> PKCS7</li>
               </ul>
               <p className="mt-3 text-xs text-gray-500">
-                Note: This is a simplified RC24 implementation. For some games, you may need additional processing.
+                Note: This tool works entirely in your browser. Files are not uploaded to any server.
               </p>
             </div>
           </div>
