@@ -32,7 +32,7 @@ const getDeviceId = async () => {
 
 export default function AESTool() {
   const [file, setFile] = useState(null);
-  const [key, setKey] = useState('realnauticrick20');
+  const [key, setKey] = useState('fluxon');
   const [output, setOutput] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [mode, setMode] = useState('decrypt');
@@ -42,35 +42,39 @@ export default function AESTool() {
   const [password, setPassword] = useState('');
   const [deviceVerified, setDeviceVerified] = useState(false);
   const [deviceWarning, setDeviceWarning] = useState(false);
+  const [hasMounted, setHasMounted] = useState(false);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
-    const checkDeviceAuth = async () => {
-      try {
-        const deviceId = await getDeviceId();
-        const storedAuth = localStorage.getItem('aesToolAuth');
-        if (storedAuth) {
-          const { passwordHash, deviceId: storedDeviceId } = JSON.parse(storedAuth);
-          if (deviceId !== storedDeviceId) {
-            setDeviceWarning(true);
-            setIsLocked(true);
-            return;
-          }
-          if (passwordHash) {
-            setIsLocked(true);
+    setHasMounted(true);
+    if (typeof window !== 'undefined') {
+      const checkDeviceAuth = async () => {
+        try {
+          const deviceId = await getDeviceId();
+          const storedAuth = localStorage.getItem('aesToolAuth');
+          if (storedAuth) {
+            const { passwordHash, deviceId: storedDeviceId } = JSON.parse(storedAuth);
+            if (deviceId !== storedDeviceId) {
+              setDeviceWarning(true);
+              setIsLocked(true);
+              return;
+            }
+            if (passwordHash) {
+              setIsLocked(true);
+            } else {
+              setIsLocked(false);
+              setDeviceVerified(true);
+            }
           } else {
-            setIsLocked(false);
-            setDeviceVerified(true);
+            setIsLocked(true);
           }
-        } else {
+        } catch (error) {
+          console.error('Device verification failed:', error);
           setIsLocked(true);
         }
-      } catch (error) {
-        console.error('Device verification failed:', error);
-        setIsLocked(true);
-      }
-    };
-    checkDeviceAuth();
+      };
+      checkDeviceAuth();
+    }
   }, []);
 
   const showMessage = (msg, type) => {
@@ -286,6 +290,10 @@ export default function AESTool() {
     }
   };
 
+  if (!hasMounted) {
+    return null; // or a loading spinner
+  }
+
   if (isLocked) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white flex items-center justify-center">
@@ -310,7 +318,7 @@ export default function AESTool() {
             <form onSubmit={handleUnlock} className="space-y-4">
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
-                  {localStorage.getItem('aesToolAuth') ? 'Enter Password' : 'Set Up Password'}
+                  {typeof window !== 'undefined' && localStorage.getItem('aesToolAuth') ? 'Enter Password' : 'Set Up Password'}
                 </label>
                 <input
                   id="password"
@@ -326,7 +334,7 @@ export default function AESTool() {
                 type="submit"
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors"
               >
-                {localStorage.getItem('aesToolAuth') ? 'Unlock Tool' : 'Set Password & Continue'}
+                {typeof window !== 'undefined' && localStorage.getItem('aesToolAuth') ? 'Unlock Tool' : 'Set Password & Continue'}
               </button>
             </form>
           )}
@@ -453,7 +461,7 @@ export default function AESTool() {
                 />
               </div>
               <p className="text-xs text-gray-500 mt-1">
-                Default key: "realnauticrick20" • Key will be padded to 256-bit internally
+                Default key: "fluxon" • Key will be padded to 256-bit internally
               </p>
             </div>
 
@@ -549,7 +557,7 @@ export default function AESTool() {
               </h3>
               <ul className="text-sm text-gray-300 space-y-2 list-disc pl-5">
                 <li>Select your file (any format: CSV, TXT, DAT, or encrypted .enc file)</li>
-                <li>Use the default key "realnauticrick20" or enter your own custom key</li>
+                <li>Use the default key "fluxon" or enter your own custom key</li>
                 <li>Choose encrypt mode to secure your files or decrypt mode to restore them</li>
                 <li>Click the process button and wait for completion</li>
                 <li>Download the result when ready</li>
