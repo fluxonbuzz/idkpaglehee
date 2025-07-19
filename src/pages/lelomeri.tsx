@@ -1,7 +1,6 @@
 // src/pages/aes-tool.tsx
 import { useState, useRef, ChangeEvent } from 'react';
-import { Upload, Download, Lock, Unlock, X, File, Key, User } from 'lucide-react';
-import Link from 'next/link';
+import { Upload, Download, Lock, Unlock, X, File, Key } from 'lucide-react';
 import Head from 'next/head';
 import toast from 'react-hot-toast';
 
@@ -11,13 +10,12 @@ export default function AESTool() {
   const [output, setOutput] = useState<Uint8Array | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [mode, setMode] = useState<'encrypt' | 'decrypt'>('encrypt');
-  const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       setFile(e.target.files[0]);
-      setError(null);
+      setOutput(null);
     }
   };
 
@@ -25,7 +23,7 @@ export default function AESTool() {
     e.preventDefault();
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       setFile(e.dataTransfer.files[0]);
-      setError(null);
+      setOutput(null);
     }
   };
 
@@ -35,20 +33,17 @@ export default function AESTool() {
 
   const processFile = async () => {
     if (!file) {
-      setError('Please select a file');
       toast.error('Please select a file');
       return;
     }
 
     if (!key) {
-      setError('Please enter a key');
       toast.error('Please enter a key');
       return;
     }
 
     setIsProcessing(true);
-    setError(null);
-    toast.loading(`Processing ${mode}ion...`);
+    toast.loading(`${mode === 'encrypt' ? 'Encrypting' : 'Decrypting'} file...`);
 
     try {
       const fileBuffer = await file.arrayBuffer();
@@ -59,9 +54,8 @@ export default function AESTool() {
       setOutput(result);
       toast.success(`File ${mode}ed successfully!`);
     } catch (err) {
-      const errorMsg = `Failed to ${mode} file: ${err instanceof Error ? err.message : 'Unknown error'}`;
-      setError(errorMsg);
-      toast.error(errorMsg);
+      console.error(err);
+      toast.error(`Failed to ${mode} file: ${err instanceof Error ? err.message : 'Invalid key or file format'}`);
     } finally {
       setIsProcessing(false);
       toast.dismiss();
@@ -69,12 +63,18 @@ export default function AESTool() {
   };
 
   const encryptAES = async (data: Uint8Array, key: string): Promise<Uint8Array> => {
+    // Convert key to proper length (16, 24, or 32 bytes)
     const keyBuffer = new TextEncoder().encode(key);
+    const properKey = new Uint8Array(16); // Using 128-bit key
+    for (let i = 0; i < Math.min(keyBuffer.length, 16); i++) {
+      properKey[i] = keyBuffer[i];
+    }
+    
     const iv = new Uint8Array(16); // Zero-filled IV
     
     const cryptoKey = await window.crypto.subtle.importKey(
       'raw',
-      keyBuffer,
+      properKey,
       { name: 'AES-CBC' },
       false,
       ['encrypt']
@@ -93,12 +93,18 @@ export default function AESTool() {
   };
 
   const decryptAES = async (data: Uint8Array, key: string): Promise<Uint8Array> => {
+    // Convert key to proper length (16, 24, or 32 bytes)
     const keyBuffer = new TextEncoder().encode(key);
+    const properKey = new Uint8Array(16); // Using 128-bit key
+    for (let i = 0; i < Math.min(keyBuffer.length, 16); i++) {
+      properKey[i] = keyBuffer[i];
+    }
+    
     const iv = new Uint8Array(16); // Zero-filled IV
     
     const cryptoKey = await window.crypto.subtle.importKey(
       'raw',
-      keyBuffer,
+      properKey,
       { name: 'AES-CBC' },
       false,
       ['decrypt']
@@ -116,18 +122,21 @@ export default function AESTool() {
 
       return new Uint8Array(decrypted);
     } catch (err) {
-      throw new Error('Decryption failed. Invalid key or corrupted data.');
+      throw new Error('Decryption failed. Please check your key and ensure the file is properly encrypted.');
     }
   };
 
   const downloadResult = () => {
     if (!output || !file) return;
     
+    const fileExtension = mode === 'encrypt' ? '.enc' : file.name.endsWith('.enc') ? file.name.replace('.enc', '') : '.dec';
+    const fileName = file.name.replace(/\.[^/.]+$/, '') + (mode === 'encrypt' ? '.enc' : fileExtension);
+    
     const blob = new Blob([output], { type: 'application/octet-stream' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${file.name.replace(/\.[^/.]+$/, '')}_${mode}ed${mode === 'encrypt' ? '.enc' : '.dec'}`;
+    a.download = fileName;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -137,7 +146,6 @@ export default function AESTool() {
   const resetTool = () => {
     setFile(null);
     setOutput(null);
-    setError(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -149,32 +157,11 @@ export default function AESTool() {
         <title>AES Tool | Shiva X Mods</title>
       </Head>
 
-      {/* Header */}
-      <header className="bg-gray-800/50 backdrop-blur-md sticky top-0 z-10 border-b border-gray-700">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">
-            Shiva X Mods
-          </Link>
-          <nav className="flex gap-6">
-            <Link href="/store" className="hover:text-blue-400 transition">Store</Link>
-            <Link href="/downloads" className="hover:text-blue-400 transition">Games</Link>
-          </nav>
-        </div>
-      </header>
-
       <main className="container mx-auto px-4 py-12">
-        <section className="mb-12 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">
-            AES File Tool
-          </h1>
-          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-            {mode === 'encrypt' ? 'Encrypt' : 'Decrypt'} game files with AES-CBC algorithm
-          </p>
-          <div className="mt-4 flex items-center justify-center gap-2 text-gray-400">
-            <User size={18} />
-            <span>Coded by: ParthYT</span>
-          </div>
-        </section>
+        {/* Big Heading */}
+        <h1 className="text-5xl md:text-6xl font-bold mb-8 text-center bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">
+          Shiva X Mods
+        </h1>
 
         <div className="max-w-3xl mx-auto bg-gray-800 rounded-xl overflow-hidden border border-gray-700">
           <div className="p-8">
@@ -238,7 +225,7 @@ export default function AESTool() {
                   </p>
                   <p className="text-gray-400">or click to browse</p>
                   <p className="text-xs text-gray-500 mt-3">
-                    Supports any file type used in games
+                    Supports any file type (txt, dat, etc.)
                   </p>
                 </>
               )}
@@ -247,7 +234,7 @@ export default function AESTool() {
             {/* Key Input */}
             <div className="mb-6">
               <label htmlFor="key" className="block text-sm font-medium text-gray-300 mb-2">
-                AES Key (16, 24, or 32 bytes)
+                AES Key (16 characters recommended)
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -263,7 +250,7 @@ export default function AESTool() {
                 />
               </div>
               <p className="text-xs text-gray-500 mt-1">
-                Default key: "realnauticrick20" (16 bytes)
+                Default key: "realnauticrick20"
               </p>
             </div>
 
@@ -313,7 +300,8 @@ export default function AESTool() {
                     <File size={24} className="text-blue-400" />
                     <div>
                       <p className="font-medium">
-                        {file?.name.replace(/\.[^/.]+$/, '') || 'file'}_{mode}ed{mode === 'encrypt' ? '.enc' : '.dec'}
+                        {file.name.replace(/\.[^/.]+$/, '') + 
+                         (mode === 'encrypt' ? '.enc' : file.name.endsWith('.enc') ? '' : '.dec')}
                       </p>
                       <p className="text-sm text-gray-400">
                         {(output.byteLength / 1024).toFixed(2)} KB
@@ -330,24 +318,10 @@ export default function AESTool() {
               </div>
             )}
 
-            {/* Technical Details */}
-            <div className="mt-8 bg-gray-800/50 p-5 rounded-lg border border-gray-700">
-              <h3 className="font-bold mb-3 flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-400">
-                  <path d="M3 3h18v18H3z"></path>
-                  <path d="M12 8v4l3 3"></path>
-                </svg>
-                Technical Specifications
-              </h3>
-              <ul className="text-sm text-gray-300 space-y-2">
-                <li><span className="font-medium">Algorithm:</span> AES-CBC</li>
-                <li><span className="font-medium">Key Size:</span> 128-bit (16 bytes)</li>
-                <li><span className="font-medium">IV:</span> Zero-filled (16 bytes)</li>
-                <li><span className="font-medium">Padding:</span> PKCS7</li>
-              </ul>
-              <p className="mt-3 text-xs text-gray-500">
-                Note: This tool works entirely in your browser. Files are not uploaded to any server.
-              </p>
+            {/* Credits */}
+            <div className="mt-8 text-center text-sm text-gray-500">
+              <p>Coded by Fluxon & Shiva XD</p>
+              <p className="mt-1">For Shiva X Mods Community</p>
             </div>
           </div>
         </div>
