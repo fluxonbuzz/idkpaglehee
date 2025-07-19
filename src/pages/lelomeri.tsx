@@ -37,6 +37,11 @@ export default function AESTool() {
       return;
     }
 
+    if (!key) {
+      toast.error('Please enter an encryption key');
+      return;
+    }
+
     setIsProcessing(true);
     toast.loading(`${mode === 'encrypt' ? 'Encrypting' : 'Decrypting'} file...`);
 
@@ -57,18 +62,24 @@ export default function AESTool() {
     }
   };
 
-  const encryptAES = async (data: Uint8Array, key: string): Promise<Uint8Array> => {
-    // Prepare key (must be 16, 24, or 32 bytes)
-    const keyBuffer = new TextEncoder().encode(key);
-    const keyData = new Uint8Array(16); // Using 128-bit key
-    for (let i = 0; i < Math.min(keyBuffer.length, 16); i++) {
-      keyData[i] = keyBuffer[i];
+  const prepareKey = (key: string): Uint8Array => {
+    const encoder = new TextEncoder();
+    const keyBuffer = encoder.encode(key);
+    const keyData = new Uint8Array(32); // Using 256-bit key for better security
+    
+    // Fill keyData with keyBuffer, padding with zeros if needed
+    for (let i = 0; i < keyData.length; i++) {
+      keyData[i] = keyBuffer[i % keyBuffer.length];
     }
     
-    // Zero-filled IV (16 bytes)
-    const iv = new Uint8Array(16);
+    return keyData;
+  };
+
+  const encryptAES = async (data: Uint8Array, key: string): Promise<Uint8Array> => {
+    const keyData = prepareKey(key);
+    const iv = crypto.getRandomValues(new Uint8Array(16)); // Random IV for better security
     
-    const cryptoKey = await window.crypto.subtle.importKey(
+    const cryptoKey = await crypto.subtle.importKey(
       'raw',
       keyData,
       { name: 'AES-CBC' },
@@ -76,7 +87,7 @@ export default function AESTool() {
       ['encrypt']
     );
 
-    const encrypted = await window.crypto.subtle.encrypt(
+    const encrypted = await crypto.subtle.encrypt(
       {
         name: 'AES-CBC',
         iv: iv,
@@ -85,21 +96,25 @@ export default function AESTool() {
       data
     );
 
-    return new Uint8Array(encrypted);
+    // Combine IV and encrypted data for output
+    const result = new Uint8Array(iv.length + (encrypted as ArrayBuffer).byteLength);
+    result.set(iv, 0);
+    result.set(new Uint8Array(encrypted), iv.length);
+    
+    return result;
   };
 
   const decryptAES = async (data: Uint8Array, key: string): Promise<Uint8Array> => {
-    // Prepare key (must be 16, 24, or 32 bytes)
-    const keyBuffer = new TextEncoder().encode(key);
-    const keyData = new Uint8Array(16); // Using 128-bit key
-    for (let i = 0; i < Math.min(keyBuffer.length, 16); i++) {
-      keyData[i] = keyBuffer[i];
+    // First 16 bytes are IV
+    if (data.length < 16) {
+      throw new Error('Invalid encrypted file format - missing IV');
     }
     
-    // Zero-filled IV (16 bytes)
-    const iv = new Uint8Array(16);
+    const iv = data.slice(0, 16);
+    const encryptedData = data.slice(16);
+    const keyData = prepareKey(key);
     
-    const cryptoKey = await window.crypto.subtle.importKey(
+    const cryptoKey = await crypto.subtle.importKey(
       'raw',
       keyData,
       { name: 'AES-CBC' },
@@ -108,28 +123,58 @@ export default function AESTool() {
     );
 
     try {
-      const decrypted = await window.crypto.subtle.decrypt(
+      const decrypted = await crypto.subtle.decrypt(
         {
           name: 'AES-CBC',
           iv: iv,
         },
         cryptoKey,
-        data
+        encryptedData
       );
 
-      return new Uint8Array(decrypted);
+      // Check if the decrypted data is text
+      const decryptedArray = new Uint8Array(decrypted);
+      if (isLikelyText(decryptedArray)) {
+        return decryptedArray;
+      } else {
+        // If not text, return as-is (binary data)
+        return decryptedArray;
+      }
     } catch (err) {
       throw new Error('Decryption failed. Please check your key and ensure the file is properly encrypted.');
+    }
+  };
+
+  // Helper function to check if data is likely text
+  const isLikelyText = (data: Uint8Array): boolean => {
+    const decoder = new TextDecoder('utf-8', { fatal: true });
+    try {
+      decoder.decode(data);
+      return true;
+    } catch (e) {
+      return false;
     }
   };
 
   const downloadResult = () => {
     if (!output || !file) return;
     
-    const fileExtension = mode === 'encrypt' ? '.enc' : 
-                         file.name.endsWith('.enc') ? file.name.replace('.enc', '') : '.dec';
-    const fileName = file.name.replace(/\.[^/.]+$/, '') + 
-                     (mode === 'encrypt' ? '.enc' : fileExtension);
+    let fileName = file.name.replace(/\.[^/.]+$/, '');
+    if (mode === 'encrypt') {
+      fileName += '.enc';
+    } else if (file.name.endsWith('.enc')) {
+      // Try to determine original extension for decrypted files
+      const decryptedText = new TextDecoder().decode(output);
+      if (decryptedText.startsWith('{') || decryptedText.startsWith('[')) {
+        fileName += '.json';
+      } else if (decryptedText.includes('<html') || decryptedText.includes('<!DOCTYPE')) {
+        fileName += '.html';
+      } else {
+        fileName += '.txt';
+      }
+    } else {
+      fileName += '.dec';
+    }
     
     const blob = new Blob([output], { type: 'application/octet-stream' });
     const url = URL.createObjectURL(blob);
@@ -157,7 +202,6 @@ export default function AESTool() {
       </Head>
 
       <main className="container mx-auto px-4 py-12">
-        {/* Big Heading */}
         <h1 className="text-5xl md:text-6xl font-bold mb-8 text-center bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">
           Shiva X Mods
         </h1>
@@ -233,7 +277,7 @@ export default function AESTool() {
             {/* Key Input */}
             <div className="mb-6">
               <label htmlFor="key" className="block text-sm font-medium text-gray-300 mb-2">
-                AES Key (16 characters recommended)
+                AES Key (16-32 characters recommended)
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
