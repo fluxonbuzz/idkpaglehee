@@ -9,7 +9,7 @@ export default function AESTool() {
   const [key, setKey] = useState<string>('realnauticrick20');
   const [output, setOutput] = useState<Uint8Array | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [mode, setMode] = useState<'encrypt' | 'decrypt'>('encrypt');
+  const [mode, setMode] = useState<'encrypt' | 'decrypt'>('decrypt');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -37,11 +37,6 @@ export default function AESTool() {
       return;
     }
 
-    if (!key) {
-      toast.error('Please enter a key');
-      return;
-    }
-
     setIsProcessing(true);
     toast.loading(`${mode === 'encrypt' ? 'Encrypting' : 'Decrypting'} file...`);
 
@@ -63,18 +58,19 @@ export default function AESTool() {
   };
 
   const encryptAES = async (data: Uint8Array, key: string): Promise<Uint8Array> => {
-    // Convert key to proper length (16, 24, or 32 bytes)
+    // Prepare key (must be 16, 24, or 32 bytes)
     const keyBuffer = new TextEncoder().encode(key);
-    const properKey = new Uint8Array(16); // Using 128-bit key
+    const keyData = new Uint8Array(16); // Using 128-bit key
     for (let i = 0; i < Math.min(keyBuffer.length, 16); i++) {
-      properKey[i] = keyBuffer[i];
+      keyData[i] = keyBuffer[i];
     }
     
-    const iv = new Uint8Array(16); // Zero-filled IV
+    // Zero-filled IV (16 bytes)
+    const iv = new Uint8Array(16);
     
     const cryptoKey = await window.crypto.subtle.importKey(
       'raw',
-      properKey,
+      keyData,
       { name: 'AES-CBC' },
       false,
       ['encrypt']
@@ -93,18 +89,19 @@ export default function AESTool() {
   };
 
   const decryptAES = async (data: Uint8Array, key: string): Promise<Uint8Array> => {
-    // Convert key to proper length (16, 24, or 32 bytes)
+    // Prepare key (must be 16, 24, or 32 bytes)
     const keyBuffer = new TextEncoder().encode(key);
-    const properKey = new Uint8Array(16); // Using 128-bit key
+    const keyData = new Uint8Array(16); // Using 128-bit key
     for (let i = 0; i < Math.min(keyBuffer.length, 16); i++) {
-      properKey[i] = keyBuffer[i];
+      keyData[i] = keyBuffer[i];
     }
     
-    const iv = new Uint8Array(16); // Zero-filled IV
+    // Zero-filled IV (16 bytes)
+    const iv = new Uint8Array(16);
     
     const cryptoKey = await window.crypto.subtle.importKey(
       'raw',
-      properKey,
+      keyData,
       { name: 'AES-CBC' },
       false,
       ['decrypt']
@@ -129,8 +126,10 @@ export default function AESTool() {
   const downloadResult = () => {
     if (!output || !file) return;
     
-    const fileExtension = mode === 'encrypt' ? '.enc' : file.name.endsWith('.enc') ? file.name.replace('.enc', '') : '.dec';
-    const fileName = file.name.replace(/\.[^/.]+$/, '') + (mode === 'encrypt' ? '.enc' : fileExtension);
+    const fileExtension = mode === 'encrypt' ? '.enc' : 
+                         file.name.endsWith('.enc') ? file.name.replace('.enc', '') : '.dec';
+    const fileName = file.name.replace(/\.[^/.]+$/, '') + 
+                     (mode === 'encrypt' ? '.enc' : fileExtension);
     
     const blob = new Blob([output], { type: 'application/octet-stream' });
     const url = URL.createObjectURL(blob);
@@ -257,9 +256,9 @@ export default function AESTool() {
             {/* Process Button */}
             <button
               onClick={processFile}
-              disabled={isProcessing || !file || !key}
+              disabled={isProcessing || !file}
               className={`w-full py-3 px-4 rounded transition flex items-center justify-center gap-2 mb-4 ${
-                isProcessing || !file || !key
+                isProcessing || !file
                   ? 'bg-gray-600 cursor-not-allowed'
                   : 'bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white font-bold'
               }`}
@@ -318,10 +317,28 @@ export default function AESTool() {
               </div>
             )}
 
-            {/* Credits */}
-            <div className="mt-8 text-center text-sm text-gray-500">
-              <p>Coded by Fluxon & Shiva XD</p>
-              <p className="mt-1">For Shiva X Mods Community</p>
+            {/* Instructions */}
+            <div className="mt-8 bg-gray-800/50 p-5 rounded-lg border border-gray-700">
+              <h3 className="font-bold mb-3 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-yellow-400">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="16" x2="12" y2="12"></line>
+                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                How to use this tool
+              </h3>
+              <ul className="text-sm text-gray-300 space-y-2 list-disc pl-5">
+                <li>Select your game file (CSV, TXT, or encrypted .enc file)</li>
+                <li>Use the default key "realnauticrick20" or enter your own</li>
+                <li>Choose encrypt or decrypt mode</li>
+                <li>Click the process button</li>
+                <li>Download the result when ready</li>
+              </ul>
+              <div className="mt-4 text-xs text-gray-400">
+                <p className="font-medium">Credits:</p>
+                <p>Coded by Fluxon & Shiva XD</p>
+                <p className="mt-1">For Shiva X Mods Community</p>
+              </div>
             </div>
           </div>
         </div>
