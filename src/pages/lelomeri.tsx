@@ -1,5 +1,34 @@
-import { useState, useRef } from 'react';
-import { Upload, Download, Lock, Unlock, X, File, Key } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Upload, Download, Lock, Unlock, X, File, Key, Shield, ShieldOff } from 'lucide-react';
+
+const getDeviceId = async () => {
+  try {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.textBaseline = 'top';
+    ctx.font = '14px Arial';
+    ctx.fillStyle = '#f60';
+    ctx.fillRect(125, 1, 62, 20);
+    ctx.fillStyle = '#069';
+    ctx.fillText('device-id', 2, 15);
+    ctx.fillStyle = 'rgba(102, 204, 0, 0.7)';
+    ctx.fillText('device-id', 4, 17);
+    const canvasFingerprint = canvas.toDataURL();
+    const userAgent = navigator.userAgent;
+    const platform = navigator.platform;
+    const hardwareConcurrency = navigator.hardwareConcurrency || 'unknown';
+    const deviceMemory = navigator.deviceMemory || 'unknown';
+    const data = `${canvasFingerprint}-${userAgent}-${platform}-${hardwareConcurrency}-${deviceMemory}`;
+    const encoder = new TextEncoder();
+    const dataBuffer = encoder.encode(data);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', dataBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    return hashHex.substring(0, 16);
+  } catch (e) {
+    return `${navigator.userAgent}-${navigator.platform}`.replace(/\s+/g, '');
+  }
+};
 
 export default function AESTool() {
   const [file, setFile] = useState(null);
@@ -9,7 +38,40 @@ export default function AESTool() {
   const [mode, setMode] = useState('decrypt');
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState('');
+  const [isLocked, setIsLocked] = useState(true);
+  const [password, setPassword] = useState('');
+  const [deviceVerified, setDeviceVerified] = useState(false);
+  const [deviceWarning, setDeviceWarning] = useState(false);
   const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    const checkDeviceAuth = async () => {
+      try {
+        const deviceId = await getDeviceId();
+        const storedAuth = localStorage.getItem('aesToolAuth');
+        if (storedAuth) {
+          const { passwordHash, deviceId: storedDeviceId } = JSON.parse(storedAuth);
+          if (deviceId !== storedDeviceId) {
+            setDeviceWarning(true);
+            setIsLocked(true);
+            return;
+          }
+          if (passwordHash) {
+            setIsLocked(true);
+          } else {
+            setIsLocked(false);
+            setDeviceVerified(true);
+          }
+        } else {
+          setIsLocked(true);
+        }
+      } catch (error) {
+        console.error('Device verification failed:', error);
+        setIsLocked(true);
+      }
+    };
+    checkDeviceAuth();
+  }, []);
 
   const showMessage = (msg, type) => {
     setMessage(msg);
@@ -20,7 +82,56 @@ export default function AESTool() {
     }, 3000);
   };
 
+  const handleUnlock = async (e) => {
+    e.preventDefault();
+    if (!password.trim()) {
+      showMessage('Please enter a password', 'error');
+      return;
+    }
+    try {
+      const deviceId = await getDeviceId();
+      const storedAuth = localStorage.getItem('aesToolAuth');
+      if (!storedAuth) {
+        const encoder = new TextEncoder();
+        const passwordBuffer = encoder.encode(password);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', passwordBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const passwordHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        localStorage.setItem('aesToolAuth', JSON.stringify({
+          passwordHash,
+          deviceId
+        }));
+        showMessage('Password set successfully!', 'success');
+        setIsLocked(false);
+        setDeviceVerified(true);
+      } else {
+        const { passwordHash, deviceId: storedDeviceId } = JSON.parse(storedAuth);
+        if (deviceId !== storedDeviceId) {
+          setDeviceWarning(true);
+          showMessage('Unauthorized device detected!', 'error');
+          return;
+        }
+        const encoder = new TextEncoder();
+        const passwordBuffer = encoder.encode(password);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', passwordBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const inputHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        if (inputHash === passwordHash) {
+          setIsLocked(false);
+          setDeviceVerified(true);
+          showMessage('Access granted!', 'success');
+        } else {
+          showMessage('Incorrect password', 'error');
+        }
+      }
+    } catch (error) {
+      console.error('Unlock failed:', error);
+      showMessage('Authentication failed', 'error');
+    }
+  };
+
   const handleFileChange = (e) => {
+    if (!deviceVerified) return;
     if (e.target.files && e.target.files.length > 0) {
       setFile(e.target.files[0]);
       setOutput(null);
@@ -29,6 +140,7 @@ export default function AESTool() {
 
   const handleDrop = (e) => {
     e.preventDefault();
+    if (!deviceVerified) return;
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       setFile(e.dataTransfer.files[0]);
       setOutput(null);
@@ -42,13 +154,10 @@ export default function AESTool() {
   const prepareKey = (keyString) => {
     const encoder = new TextEncoder();
     const keyBuffer = encoder.encode(keyString);
-    const keyData = new Uint8Array(32); // 256-bit key
-    
-    // Fill keyData with keyBuffer, repeating if necessary
+    const keyData = new Uint8Array(32);
     for (let i = 0; i < keyData.length; i++) {
       keyData[i] = keyBuffer[i % keyBuffer.length];
     }
-    
     return keyData;
   };
 
@@ -56,7 +165,6 @@ export default function AESTool() {
     try {
       const keyData = prepareKey(keyString);
       const iv = crypto.getRandomValues(new Uint8Array(16));
-      
       const cryptoKey = await crypto.subtle.importKey(
         'raw',
         keyData,
@@ -64,7 +172,6 @@ export default function AESTool() {
         false,
         ['encrypt']
       );
-
       const encrypted = await crypto.subtle.encrypt(
         {
           name: 'AES-CBC',
@@ -73,12 +180,9 @@ export default function AESTool() {
         cryptoKey,
         data
       );
-
-      // Combine IV and encrypted data
       const result = new Uint8Array(iv.length + encrypted.byteLength);
       result.set(iv, 0);
       result.set(new Uint8Array(encrypted), iv.length);
-      
       return result;
     } catch (error) {
       throw new Error('Encryption failed: ' + error.message);
@@ -87,15 +191,12 @@ export default function AESTool() {
 
   const decryptAES = async (data, keyString) => {
     try {
-      // First 16 bytes are IV
       if (data.length < 16) {
         throw new Error('Invalid encrypted file format - file too small');
       }
-      
       const iv = data.slice(0, 16);
       const encryptedData = data.slice(16);
       const keyData = prepareKey(keyString);
-      
       const cryptoKey = await crypto.subtle.importKey(
         'raw',
         keyData,
@@ -103,7 +204,6 @@ export default function AESTool() {
         false,
         ['decrypt']
       );
-
       const decrypted = await crypto.subtle.decrypt(
         {
           name: 'AES-CBC',
@@ -112,7 +212,6 @@ export default function AESTool() {
         cryptoKey,
         encryptedData
       );
-
       return new Uint8Array(decrypted);
     } catch (error) {
       throw new Error('Decryption failed - please check your key and ensure the file is properly encrypted');
@@ -124,21 +223,17 @@ export default function AESTool() {
       showMessage('Please select a file', 'error');
       return;
     }
-
     if (!key.trim()) {
       showMessage('Please enter an encryption key', 'error');
       return;
     }
-
     setIsProcessing(true);
     showMessage(`${mode === 'encrypt' ? 'Encrypting' : 'Decrypting'} file...`, 'loading');
-
     try {
       const fileBuffer = await file.arrayBuffer();
       const result = mode === 'encrypt' 
         ? await encryptAES(new Uint8Array(fileBuffer), key)
         : await decryptAES(new Uint8Array(fileBuffer), key);
-      
       setOutput(result);
       showMessage(`File ${mode}ed successfully!`, 'success');
     } catch (err) {
@@ -151,13 +246,10 @@ export default function AESTool() {
 
   const downloadResult = () => {
     if (!output || !file) return;
-    
     let fileName = file.name.replace(/\.[^/.]+$/, '');
-    
     if (mode === 'encrypt') {
       fileName += '.enc';
     } else if (file.name.endsWith('.enc')) {
-      // Try to determine original extension for decrypted files
       try {
         const decryptedText = new TextDecoder().decode(output);
         if (decryptedText.trim().startsWith('{') || decryptedText.trim().startsWith('[')) {
@@ -170,13 +262,11 @@ export default function AESTool() {
           fileName += '.txt';
         }
       } catch (e) {
-        // If it's not text, keep as binary
         fileName += '.dat';
       }
     } else {
       fileName += '.dec';
     }
-    
     const blob = new Blob([output], { type: 'application/octet-stream' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -196,9 +286,62 @@ export default function AESTool() {
     }
   };
 
+  if (isLocked) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white flex items-center justify-center">
+        <div className="max-w-md w-full bg-gray-800 rounded-xl p-8 border border-gray-700">
+          <div className="text-center mb-6">
+            <Shield size={48} className="mx-auto text-blue-500 mb-4" />
+            <h1 className="text-3xl font-bold mb-2">Shiva X Mods</h1>
+            <p className="text-gray-400">Secure AES Encryption Tool</p>
+          </div>
+          
+          {deviceWarning ? (
+            <div className="bg-red-900/30 border border-red-700 rounded-lg p-4 mb-6">
+              <div className="flex items-center gap-2 text-red-300">
+                <ShieldOff size={20} />
+                <h3 className="font-bold">Unauthorized Device</h3>
+              </div>
+              <p className="text-sm text-red-200 mt-2">
+                This tool is locked to the original device. Please use the device where you first set up this tool.
+              </p>
+            </div>
+          ) : (
+            <form onSubmit={handleUnlock} className="space-y-4">
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+                  {localStorage.getItem('aesToolAuth') ? 'Enter Password' : 'Set Up Password'}
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Enter your secure password"
+                  autoComplete="current-password"
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors"
+              >
+                {localStorage.getItem('aesToolAuth') ? 'Unlock Tool' : 'Set Password & Continue'}
+              </button>
+            </form>
+          )}
+          
+          <div className="mt-6 text-center text-xs text-gray-500">
+            <p>This tool is protected with device-specific security.</p>
+            <p className="mt-1">Password and device binding required for access.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
-      {/* Message Toast */}
       {message && (
         <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg ${
           messageType === 'success' ? 'bg-green-600' :
@@ -224,7 +367,6 @@ export default function AESTool() {
 
         <div className="max-w-3xl mx-auto bg-gray-800 rounded-xl overflow-hidden border border-gray-700">
           <div className="p-8">
-            {/* Mode Toggle */}
             <div className="flex justify-center mb-8">
               <div className="inline-flex bg-gray-700 rounded-lg p-1">
                 <button
@@ -250,7 +392,6 @@ export default function AESTool() {
               </div>
             </div>
 
-            {/* File Upload */}
             <div 
               className="border-2 border-dashed border-gray-600 rounded-xl p-8 text-center mb-6 cursor-pointer hover:border-blue-500 transition-colors"
               onDrop={handleDrop}
@@ -294,7 +435,6 @@ export default function AESTool() {
               )}
             </div>
 
-            {/* Key Input */}
             <div className="mb-6">
               <label htmlFor="key" className="block text-sm font-medium text-gray-300 mb-2">
                 AES Key (any length supported)
@@ -317,7 +457,6 @@ export default function AESTool() {
               </p>
             </div>
 
-            {/* Process Button */}
             <button
               onClick={processFile}
               disabled={isProcessing || !file || !key.trim()}
@@ -343,7 +482,6 @@ export default function AESTool() {
               )}
             </button>
 
-            {/* Output Section */}
             {output && (
               <div className="mt-6 border-t border-gray-700 pt-6">
                 <div className="flex justify-between items-center mb-4">
@@ -400,7 +538,6 @@ export default function AESTool() {
               </div>
             )}
 
-            {/* Instructions */}
             <div className="mt-8 bg-gray-800/50 p-5 rounded-lg border border-gray-700">
               <h3 className="font-bold mb-3 flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-yellow-400">
