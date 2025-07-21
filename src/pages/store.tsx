@@ -1,6 +1,6 @@
 // src/pages/store.tsx
 import { useState, useEffect } from 'react';
-import { ShoppingCart, Zap, Star, Tag, Gift, ShieldCheck, Download, X, Check, ArrowRight, Home, Users, AlertCircle } from 'lucide-react';
+import { ShoppingCart, Zap, Star, Tag, Gift, ShieldCheck, Download, X, Check, ArrowRight, Home, Users, AlertCircle, Clock } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -18,9 +18,31 @@ interface Product {
     name: string;
     price: number;
   }[];
+  isPreOrder?: boolean;
+  preOrderDiscount?: {
+    originalPrice: number;
+    discountPrice: number;
+    endDate: string;
+  };
 }
 
 const productsData: Product[] = [
+  {
+    id: 'rc24-preorder',
+    name: 'RC24 ID LEVEL 100 (Pre-Order)',
+    category: 'account',
+    price: 170,
+    originalPrice: 200,
+    description: 'Pre-order your Real Cricket 24 account now and save ₹30! Limited time offer.',
+    tags: ['Digital', 'Pre-Order', 'Limited Time'],
+    sellerContact: '@Fluxon',
+    isPreOrder: true,
+    preOrderDiscount: {
+      originalPrice: 200,
+      discountPrice: 170,
+      endDate: '2023-12-31'
+    }
+  },
   {
     id: 'rc24-level20',
     name: 'RC24 ID (Level 20)',
@@ -463,8 +485,18 @@ export default function StorePage() {
               {filteredProducts(categoryKey).map(product => (
                 <div 
                   key={product.id} 
-                  className="bg-gray-800/30 backdrop-blur-sm rounded-xl border border-gray-700/50 hover:border-purple-500/50 transition-all hover:shadow-lg hover:shadow-purple-500/10 overflow-hidden"
+                  className={`bg-gray-800/30 backdrop-blur-sm rounded-xl border transition-all hover:shadow-lg overflow-hidden ${
+                    product.isPreOrder 
+                      ? 'border-yellow-500/50 hover:border-yellow-500/70 hover:shadow-yellow-500/10' 
+                      : 'border-gray-700/50 hover:border-purple-500/50 hover:shadow-purple-500/10'
+                  }`}
                 >
+                  {product.isPreOrder && (
+                    <div className="bg-yellow-600/20 text-yellow-300 px-4 py-2 flex items-center gap-2">
+                      <Clock size={16} />
+                      <span className="text-sm font-medium">PRE-ORDER</span>
+                    </div>
+                  )}
                   <div className="p-6">
                     <div className="flex justify-between items-start mb-3">
                       <h3 className="text-xl font-bold">{product.name}</h3>
@@ -478,7 +510,11 @@ export default function StorePage() {
                         {product.tags.map(tag => (
                           <span 
                             key={tag} 
-                            className="text-xs bg-gray-700/50 px-2 py-1 rounded-full"
+                            className={`text-xs px-2 py-1 rounded-full ${
+                              tag === 'Pre-Order' 
+                                ? 'bg-yellow-500/20 text-yellow-300' 
+                                : 'bg-gray-700/50'
+                            }`}
                           >
                             {tag}
                           </span>
@@ -504,15 +540,24 @@ export default function StorePage() {
                         <span className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                           ₹{product.price}
                         </span>
+                        {product.isPreOrder && (
+                          <div className="text-xs text-yellow-300 mt-1">
+                            Save ₹{product.originalPrice! - product.price} until {new Date(product.preOrderDiscount!.endDate).toLocaleDateString()}
+                          </div>
+                        )}
                         {product.modOptions && (
                           <span className="text-xs text-gray-400 block">+ mod options</span>
                         )}
                       </div>
                       <button
                         onClick={() => setSelectedProduct(product)}
-                        className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-2 px-4 rounded-lg transition text-sm"
+                        className={`font-bold py-2 px-4 rounded-lg transition text-sm ${
+                          product.isPreOrder
+                            ? 'bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-700 hover:to-amber-700'
+                            : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700'
+                        }`}
                       >
-                        Add to Cart
+                        {product.isPreOrder ? 'Pre-Order Now' : 'Add to Cart'}
                       </button>
                     </div>
                   </div>
@@ -525,10 +570,19 @@ export default function StorePage() {
 
       {selectedProduct && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-gray-800/80 backdrop-blur-lg rounded-xl border border-purple-800/50 max-w-md w-full max-h-[90vh] overflow-y-auto">
+          <div className={`bg-gray-800/80 backdrop-blur-lg rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto ${
+            selectedProduct.isPreOrder ? 'border border-yellow-500/50' : 'border border-purple-800/50'
+          }`}>
             <div className="p-6">
               <div className="flex justify-between items-start mb-4">
-                <h3 className="text-xl font-bold">{selectedProduct.name}</h3>
+                <div>
+                  <h3 className="text-xl font-bold">{selectedProduct.name}</h3>
+                  {selectedProduct.isPreOrder && (
+                    <div className="text-sm text-yellow-300 mt-1 flex items-center gap-1">
+                      <Clock size={14} /> Pre-Order
+                    </div>
+                  )}
+                </div>
                 <button 
                   onClick={() => {
                     setSelectedProduct(null);
@@ -541,6 +595,18 @@ export default function StorePage() {
               </div>
               
               <p className="text-gray-300 text-sm mb-4">{selectedProduct.description}</p>
+              
+              {selectedProduct.isPreOrder && (
+                <div className="bg-yellow-900/20 border border-yellow-800/50 rounded-lg p-3 mb-4">
+                  <div className="flex items-center gap-2 text-yellow-300 mb-1">
+                    <Tag size={16} />
+                    <span className="font-medium">Pre-Order Discount</span>
+                  </div>
+                  <p className="text-sm text-yellow-200">
+                    Book before {new Date(selectedProduct.preOrderDiscount!.endDate).toLocaleDateString()} to get this product for ₹{selectedProduct.price} (original price ₹{selectedProduct.originalPrice}).
+                  </p>
+                </div>
+              )}
               
               {selectedProduct.modOptions && (
                 <div className="mb-6">
@@ -574,9 +640,15 @@ export default function StorePage() {
                 <button
                   onClick={() => addToCart(selectedProduct)}
                   disabled={selectedProduct.modOptions && !selectedMod}
-                  className={`bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-2 px-6 rounded-lg transition ${selectedProduct.modOptions && !selectedMod ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  className={`font-bold py-2 px-6 rounded-lg transition ${
+                    selectedProduct.modOptions && !selectedMod 
+                      ? 'opacity-50 cursor-not-allowed' 
+                      : selectedProduct.isPreOrder
+                        ? 'bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-700 hover:to-amber-700'
+                        : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700'
+                  }`}
                 >
-                  Add to Cart
+                  {selectedProduct.isPreOrder ? 'Pre-Order Now' : 'Add to Cart'}
                 </button>
               </div>
             </div>
@@ -617,11 +689,23 @@ export default function StorePage() {
                     <>
                       <div className="space-y-4 mb-6">
                         {cart.map((item, index) => (
-                          <div key={index} className="bg-gray-700/30 rounded-lg p-4 border border-gray-600/30">
+                          <div 
+                            key={index} 
+                            className={`rounded-lg p-4 border ${
+                              item.isPreOrder 
+                                ? 'bg-yellow-900/10 border-yellow-700/50' 
+                                : 'bg-gray-700/30 border-gray-600/30'
+                            }`}
+                          >
                             <div className="flex justify-between items-start mb-2">
-                              <h3 className="font-bold">
-                                {item.selectedMod ? `${item.name} - ${item.selectedMod.name}` : item.name}
-                              </h3>
+                              <div>
+                                <h3 className="font-bold">
+                                  {item.selectedMod ? `${item.name} - ${item.selectedMod.name}` : item.name}
+                                </h3>
+                                {item.isPreOrder && (
+                                  <span className="text-xs text-yellow-300">Pre-Order</span>
+                                )}
+                              </div>
                               <button 
                                 onClick={() => removeFromCart(index)}
                                 className="text-gray-400 hover:text-pink-500"
