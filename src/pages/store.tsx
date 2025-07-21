@@ -40,7 +40,7 @@ const productsData: Product[] = [
     preOrderDiscount: {
       originalPrice: 200,
       discountPrice: 170,
-      endDate: '2023-12-31'
+      endDate: '2025-8-31'
     }
   },
   {
