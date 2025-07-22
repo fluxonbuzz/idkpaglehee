@@ -62,12 +62,12 @@ export default function TermsPage() {
               {isHindi ? (
                 <>
                   हमारी सेवाओं का उपयोग करके, आप इन नियमों से बंधने के लिए सहमत होते हैं।
-                  <strong className="text-blue-300"> कृपया ध्यान से पढ़ें।</strong>
+                  <span className="text-blue-300 font-semibold"> कृपया ध्यान से पढ़ें।</span>
                 </>
               ) : (
                 <>
                   By accessing or using our services, you agree to be bound by these terms. 
-                  <strong className="text-blue-300"> Please read them carefully.</strong>
+                  <span className="text-blue-300 font-semibold"> Please read them carefully.</span>
                 </>
               )}
             </p>
@@ -94,30 +94,30 @@ export default function TermsPage() {
                 <ul className="space-y-3 text-gray-300 pl-5 list-disc">
                   <li>
                     {isHindi ? (
-                      'हमारी सेवाओं का उपयोग करने के लिए आपकी आयु <strong>कम से कम 13 वर्ष</strong> होनी चाहिए'
+                      'हमारी सेवाओं का उपयोग करने के लिए आपकी आयु कम से कम 13 वर्ष होनी चाहिए'
                     ) : (
-                      'You must be <strong>at least 13 years old</strong> to use our services'
+                      'You must be at least 13 years old to use our services'
                     )}
                   </li>
                   <li>
                     {isHindi ? (
-                      'आप अपने खाते के तहत <strong>सभी गतिविधियों</strong> के लिए जिम्मेदार हैं'
+                      'आप अपने खाते के तहत सभी गतिविधियों के लिए जिम्मेदार हैं'
                     ) : (
-                      'You are responsible for <strong>all activities</strong> under your account'
+                      'You are responsible for all activities under your account'
                     )}
                   </li>
                   <li>
                     {isHindi ? (
-                      'हम किसी भी समय सेवाओं को <strong>संशोधित या समाप्त</strong> करने का अधिकार सुरक्षित रखते हैं'
+                      'हम किसी भी समय सेवाओं को संशोधित या समाप्त करने का अधिकार सुरक्षित रखते हैं'
                     ) : (
-                      'We reserve the right to <strong>modify or terminate</strong> services at any time'
+                      'We reserve the right to modify or terminate services at any time'
                     )}
                   </li>
                   <li>
                     {isHindi ? (
-                      '<strong>निषिद्ध गतिविधियों</strong> में धोखाधड़ी, उत्पीड़न और अवैध सामग्री वितरण शामिल है'
+                      'निषिद्ध गतिविधियों में धोखाधड़ी, उत्पीड़न और अवैध सामग्री वितरण शामिल है'
                     ) : (
-                      '<strong>Prohibited activities</strong> include fraud, harassment, and illegal content distribution'
+                      'Prohibited activities include fraud, harassment, and illegal content distribution'
                     )}
                   </li>
                 </ul>
@@ -139,30 +139,30 @@ export default function TermsPage() {
                 <ul className="space-y-3 text-gray-300 pl-5 list-disc">
                   <li>
                     {isHindi ? (
-                      'आपको <strong>सटीक और पूर्ण</strong> जानकारी प्रदान करनी होगी'
+                      'आपको सटीक और पूर्ण जानकारी प्रदान करनी होगी'
                     ) : (
-                      'You must provide <strong>accurate and complete</strong> information'
+                      'You must provide accurate and complete information'
                     )}
                   </li>
                   <li>
                     {isHindi ? (
-                      'आप अपनी साख की <strong>गोपनीयता बनाए रखने</strong> के लिए जिम्मेदार हैं'
+                      'आप अपनी साख की गोपनीयता बनाए रखने के लिए जिम्मेदार हैं'
                     ) : (
-                      'You are responsible for <strong>maintaining confidentiality</strong> of your credentials'
+                      'You are responsible for maintaining confidentiality of your credentials'
                     )}
                   </li>
                   <li>
                     {isHindi ? (
-                      'आपको किसी भी अनधिकृत पहुंच के बारे में <strong>हमें तुरंत सूचित</strong> करना होगा'
+                      'आपको किसी भी अनधिकृत पहुंच के बारे में हमें तुरंत सूचित करना होगा'
                     ) : (
-                      'You must <strong>notify us immediately</strong> of any unauthorized access'
+                      'You must notify us immediately of any unauthorized access'
                     )}
                   </li>
                   <li>
                     {isHindi ? (
-                      'हम इन नियमों का उल्लंघन करने वाले खातों को <strong>निलंबित या समाप्त</strong> कर सकते हैं'
+                      'हम इन नियमों का उल्लंघन करने वाले खातों को निलंबित या समाप्त कर सकते हैं'
                     ) : (
-                      'We may <strong>suspend or terminate</strong> accounts violating these terms'
+                      'We may suspend or terminate accounts violating these terms'
                     )}
                   </li>
                 </ul>
@@ -184,30 +184,30 @@ export default function TermsPage() {
                 <ul className="space-y-3 text-gray-300 pl-5 list-disc">
                   <li>
                     {isHindi ? (
-                      'वितरण तिथियां <strong>निश्चित नहीं हैं</strong> और स्टॉक की उपलब्धता के आधार पर भिन्न हो सकती हैं'
+                      'वितरण तिथियां निश्चित नहीं हैं और स्टॉक की उपलब्धता के आधार पर भिन्न हो सकती हैं'
                     ) : (
-                      'Delivery dates <strong>are not fixed</strong> and may vary depending on stock availability'
+                      'Delivery dates are not fixed and may vary depending on stock availability'
                     )}
                   </li>
                   <li>
                     {isHindi ? (
-                      'हम वितरण अनुमान <strong>उत्पादों के स्टॉक में होने पर</strong> प्रदान करेंगे'
+                      'हम वितरण अनुमान उत्पादों के स्टॉक में होने पर प्रदान करेंगे'
                     ) : (
-                      'We will provide delivery estimates <strong>when items are in stock</strong>'
+                      'We will provide delivery estimates when items are in stock'
                     )}
                   </li>
                   <li>
                     {isHindi ? (
-                      '<strong>प्री-ऑर्डर आइटम</strong> उपलब्ध होने पर भेज दिए जाएंगे'
+                      'प्री-ऑर्डर आइटम उपलब्ध होने पर भेज दिए जाएंगे'
                     ) : (
-                      '<strong>Pre-order items</strong> will be shipped once they become available'
+                      'Pre-order items will be shipped once they become available'
                     )}
                   </li>
                   <li>
                     {isHindi ? (
-                      'हमारे पास आउट-ऑफ-स्टॉक आइटम के लिए <strong>आदेश रद्द</strong> करने का अधिकार है'
+                      'हमारे पास आउट-ऑफ-स्टॉक आइटम के लिए आदेश रद्द करने का अधिकार है'
                     ) : (
-                      'We reserve the right to <strong>cancel orders</strong> for out-of-stock items'
+                      'We reserve the right to cancel orders for out-of-stock items'
                     )}
                   </li>
                 </ul>
@@ -234,30 +234,30 @@ export default function TermsPage() {
                 <ul className="space-y-3 text-gray-300 pl-5 list-disc">
                   <li>
                     {isHindi ? (
-                      'कुछ व्यवहारों के लिए <strong>भुगतान में देरी</strong> लागू की जा सकती है'
+                      'कुछ व्यवहारों के लिए भुगतान में देरी लागू की जा सकती है'
                     ) : (
-                      '<strong>Payment delays</strong> may be applied for certain behaviors'
+                      'Payment delays may be applied for certain behaviors'
                     )}
                   </li>
                   <li>
                     {isHindi ? (
-                      'भुगतान स्थिति के बारे में हमारी टीम को सीधा संदेश (DM) भेजने से आपके भुगतान प्रसंस्करण में <strong>5 घंटे की देरी</strong> होगी'
+                      'भुगतान स्थिति के बारे में हमारी टीम को सीधा संदेश (DM) भेजने से आपके भुगतान प्रसंस्करण में 5 घंटे की देरी होगी'
                     ) : (
-                      'Sending a direct message (DM) to our team regarding payment status will result in a <strong>5-hour delay</strong> of your payment processing'
+                      'Sending a direct message (DM) to our team regarding payment status will result in a 5-hour delay of your payment processing'
                     )}
                   </li>
                   <li>
                     {isHindi ? (
-                      'ग्रुप चैट (GC) में भुगतान स्थिति के बारे में पिंग करने से आपके भुगतान प्रसंस्करण में <strong>24 घंटे की देरी</strong> होगी'
+                      'ग्रुप चैट (GC) में भुगतान स्थिति के बारे में पिंग करने से आपके भुगतान प्रसंस्करण में 24 घंटे की देरी होगी'
                     ) : (
-                      'Pinging in group chats (GC) about payment status will result in a <strong>24-hour delay</strong> of your payment processing'
+                      'Pinging in group chats (GC) about payment status will result in a 24-hour delay of your payment processing'
                     )}
                   </li>
                   <li>
                     {isHindi ? (
-                      'बार-बार पूछताछ करने से <strong>अतिरिक्त देरी</strong> या खाता समीक्षा हो सकती है'
+                      'बार-बार पूछताछ करने से अतिरिक्त देरी या खाता समीक्षा हो सकती है'
                     ) : (
-                      'Repeated inquiries may result in <strong>additional delays</strong> or account review'
+                      'Repeated inquiries may result in additional delays or account review'
                     )}
                   </li>
                   <li>
@@ -291,30 +291,30 @@ export default function TermsPage() {
                 <ul className="space-y-3 text-gray-300 pl-5 list-disc">
                   <li>
                     {isHindi ? (
-                      '<strong>कॉपीराइट</strong> और अन्य बौद्धिक संपदा कानूनों द्वारा संरक्षित हैं'
+                      'कॉपीराइट और अन्य बौद्धिक संपदा कानूनों द्वारा संरक्षित हैं'
                     ) : (
-                      'Are <strong>protected by copyright</strong> and other intellectual property laws'
+                      'Are protected by copyright and other intellectual property laws'
                     )}
                   </li>
                   <li>
                     {isHindi ? (
-                      'बिना अनुमति के <strong>कॉपी, वितरित या पुनर्विक्रय</strong> नहीं किया जा सकता'
+                      'बिना अनुमति के कॉपी, वितरित या पुनर्विक्रय नहीं किया जा सकता'
                     ) : (
-                      'May not be <strong>copied, distributed, or resold</strong> without permission'
+                      'May not be copied, distributed, or resold without permission'
                     )}
                   </li>
                   <li>
                     {isHindi ? (
-                      'जब तक अन्यथा निर्दिष्ट न हो, <strong>व्यक्तिगत, गैर-वाणिज्यिक</strong> उपयोग के लिए लाइसेंस प्राप्त हैं'
+                      'जब तक अन्यथा निर्दिष्ट न हो, व्यक्तिगत, गैर-वाणिज्यिक उपयोग के लिए लाइसेंस प्राप्त हैं'
                     ) : (
-                      'Are licensed for <strong>personal, non-commercial</strong> use unless specified otherwise'
+                      'Are licensed for personal, non-commercial use unless specified otherwise'
                     )}
                   </li>
                   <li>
                     {isHindi ? (
-                      'किसी भी उत्पाद का <strong>रिवर्स इंजीनियरिंग</strong> सख्त वर्जित है'
+                      'किसी भी उत्पाद का रिवर्स इंजीनियरिंग सख्त वर्जित है'
                     ) : (
-                      '<strong>Reverse engineering</strong> of any products is strictly prohibited'
+                      'Reverse engineering of any products is strictly prohibited'
                     )}
                   </li>
                 </ul>
@@ -341,30 +341,30 @@ export default function TermsPage() {
                 <ul className="space-y-3 text-gray-300 pl-5 list-disc">
                   <li>
                     {isHindi ? (
-                      'किसी भी <strong>प्रत्यक्ष, अप्रत्यक्ष, या परिणामी</strong> क्षति'
+                      'किसी भी प्रत्यक्ष, अप्रत्यक्ष, या परिणामी क्षति'
                     ) : (
-                      'Any <strong>direct, indirect, or consequential</strong> damages'
+                      'Any direct, indirect, or consequential damages'
                     )}
                   </li>
                   <li>
                     {isHindi ? (
-                      'सेवा उपयोग के परिणामस्वरूप <strong>डेटा या मुनाफे</strong> की हानि'
+                      'सेवा उपयोग के परिणामस्वरूप डेटा या मुनाफे की हानि'
                     ) : (
-                      '<strong>Loss of data</strong> or profits resulting from service use'
+                      'Loss of data or profits resulting from service use'
                     )}
                   </li>
                   <li>
                     {isHindi ? (
-                      'हमारे प्लेटफॉर्म से जुड़ी किसी भी <strong>तृतीय-पक्ष सामग्री</strong> या सेवाएं'
+                      'हमारे प्लेटफॉर्म से जुड़ी किसी भी तृतीय-पक्ष सामग्री या सेवाएं'
                     ) : (
-                      'Any <strong>third-party content</strong> or services linked from our platform'
+                      'Any third-party content or services linked from our platform'
                     )}
                   </li>
                   <li>
                     {isHindi ? (
-                      'साख की सुरक्षा करने में आपकी विफलता के कारण <strong>अनधिकृत पहुंच</strong>'
+                      'साख की सुरक्षा करने में आपकी विफलता के कारण अनधिकृत पहुंच'
                     ) : (
-                      '<strong>Unauthorized access</strong> due to your failure to protect credentials'
+                      'Unauthorized access due to your failure to protect credentials'
                     )}
                   </li>
                 </ul>
@@ -389,30 +389,30 @@ export default function TermsPage() {
                 <ul className="space-y-3 text-gray-300 pl-5 list-disc">
                   <li>
                     {isHindi ? (
-                      'हम <strong>उपयोगकर्ताओं को</strong> महत्वपूर्ण परिवर्तनों के बारे में सूचित करेंगे'
+                      'हम उपयोगकर्ताओं को महत्वपूर्ण परिवर्तनों के बारे में सूचित करेंगे'
                     ) : (
-                      'We will <strong>notify users</strong> of significant changes'
+                      'We will notify users of significant changes'
                     )}
                   </li>
                   <li>
                     {isHindi ? (
-                      'सेवा का <strong>निरंतर उपयोग</strong> नए नियमों की स्वीकृति को दर्शाता है'
+                      'सेवा का निरंतर उपयोग नए नियमों की स्वीकृति को दर्शाता है'
                     ) : (
-                      'Your <strong>continued use</strong> constitutes acceptance of new terms'
+                      'Your continued use constitutes acceptance of new terms'
                     )}
                   </li>
                   <li>
                     {isHindi ? (
-                      'शीर्ष पर <strong>"अंतिम अपडेट"</strong> तिथि परिवर्तनों को दर्शाएगी'
+                      'शीर्ष पर "अंतिम अपडेट" तिथि परिवर्तनों को दर्शाएगी'
                     ) : (
-                      'The <strong>"Last Updated"</strong> date at the top will reflect changes'
+                      'The "Last Updated" date at the top will reflect changes'
                     )}
                   </li>
                   <li>
                     {isHindi ? (
-                      'आपको अपडेट के लिए <strong>समय-समय पर समीक्षा</strong> करनी चाहिए'
+                      'आपको अपडेट के लिए समय-समय पर समीक्षा करनी चाहिए'
                     ) : (
-                      'You should <strong>review periodically</strong> for updates'
+                      'You should review periodically for updates'
                     )}
                   </li>
                 </ul>
