@@ -46,23 +46,13 @@ const featuredMods = [
     accent: "bg-gradient-to-r from-cyan-500 to-blue-600"
   },
   {
-    title: "Cricket Legends",
-    description: "Classic cricket experience with legendary players and retro stadiums",
-    version: "V1.2",
-    status: "available",
-    tags: ["Retro Style", "Legend Players", "Classic Stadiums"],
-    image: "/assets/legends.png",
-    href: "/downloads",
-    accent: "bg-gradient-to-r from-amber-500 to-orange-600"
-  },
-  {
-    title: "Future Cricket",
+    title: "Crick Fusion V1",
     description: "Sci-fi cricket experience with futuristic stadiums and gameplay",
     version: "Coming Soon",
     status: "soon",
-    tags: ["Sci-Fi", "Future Tech", "VR Ready"],
+    tags: ["Sci-Fi", "Future Tech"],
     image: "/assets/future.png",
-    href: "/coming-soon",
+    href: "/downloads",
     accent: "bg-gradient-to-r from-purple-500 to-pink-600"
   }
 ];
@@ -775,7 +765,7 @@ export default function Home() {
               © {new Date().getFullYear()} Shiva X Mods. All rights reserved.
             </p>
             <p className="text-gray-500 text-sm">
-              Made with ❤️ for cricket fans
+              Made with ❤️ by fluxon~
             </p>
           </div>
         </div>
