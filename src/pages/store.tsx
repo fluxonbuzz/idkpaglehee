@@ -187,7 +187,7 @@ interface Seller {
 const botSeller: Seller = {
   name: 'SX Support Bot',
   telegram: '@shivaxsupportbot',
-  paymentMethods: ['UPI', 'Credit/Debit Card', 'Net Banking'],
+  paymentMethods: ['UPI'],
   profilePic: '/assets/bot.png',
   telegramLink: 'https://t.me/shivaxsupportbot'
 };
