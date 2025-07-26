@@ -176,30 +176,13 @@ const discountCodes: DiscountCode[] = [
   { code: 'SAVE50', discount: 50, minPurchase: 250, type: 'fixed' }
 ];
 
-interface Seller {
-  name: string;
-  telegram: string;
-  paymentMethods: string[];
-  profilePic: string;
-  telegramLink: string;
-}
-
-const sellers: Seller[] = [
-  {
-    name: 'Fluxon',
-    telegram: '@Fluxon',
-    paymentMethods: ['UPI'],
-    profilePic: '/assets/d4vd-avatar.jpg',
-    telegramLink: 'https://t.me/lyastral'
-  },
-  {
-    name: 'Shiva XD',
-    telegram: '@ShivaXD',
-    paymentMethods: ['UPI'],
-    profilePic: '/assets/avatar.png',
-    telegramLink: 'https://t.me/shivaxmods42'
-  }
-];
+const categoryNames = {
+  bundle: 'Special Bundles',
+  account: 'Premium Accounts',
+  tool: 'Game Tools',
+  service: 'Custom Services',
+  mod: 'Mod Menus'
+};
 
 export default function StorePage() {
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -209,7 +192,6 @@ export default function StorePage() {
   const [discountError, setDiscountError] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedMod, setSelectedMod] = useState<{ name: string; price: number } | null>(null);
-  const [showSellers, setShowSellers] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
 
@@ -321,6 +303,7 @@ export default function StorePage() {
     
     let receipt = `📃 SX STORE RECEIPT\n`;
     receipt += `===================\n`;
+    receipt += `TRANSACTION ID: ${transactionId}\n`;
     receipt += `PURCHASED ITEMS:\n`;
     
     cart.forEach(item => {
@@ -335,33 +318,25 @@ export default function StorePage() {
       receipt += `DISCOUNT USED: ${appliedDiscount?.code} (-₹${discount.toFixed(2)})\n`;
     }
     receipt += `====================\n`;
-    receipt += `⚠ PLEASE READ TERMS, REFUND & PRIVACY POLICIES BEFORE THE PAYMENT.\n`;
-    receipt += `====================\n`;
     receipt += `SUBTOTAL: ₹${subtotal.toFixed(2)}\n`;
     receipt += `TOTAL: ₹${total.toFixed(2)}\n`;
     receipt += `====================\n`;
-    receipt += `THANKS FOR PURCHASING\n`;
-    receipt += `Contact: @Fluxon or @ShivaXD\n`;
+    receipt += `⚠ PLEASE READ TERMS, REFUND & PRIVACY POLICIES BEFORE PAYMENT\n`;
+    receipt += `====================\n`;
+    receipt += `PAYMENT INSTRUCTIONS:\n`;
+    receipt += `1. Click the "Pay Now" button below\n`;
+    receipt += `2. Send this receipt to @shivaxsupportbot\n`;
+    receipt += `3. Complete payment as instructed by the bot\n`;
+    receipt += `4. You'll receive your product after payment confirmation\n`;
+    receipt += `====================\n`;
+    receipt += `THANKS FOR SHOPPING WITH US!\n`;
     
-    const blob = new Blob([receipt], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `SX_Receipt_${transactionId}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-
-    setShowSellers(true);
-  };
-
-  const categoryNames = {
-    bundle: 'Special Bundles',
-    account: 'Premium Accounts',
-    tool: 'Game Tools',
-    service: 'Custom Services',
-    mod: 'Mod Menus'
+    // Encode the receipt for URL
+    const encodedReceipt = encodeURIComponent(receipt);
+    
+    // Open Telegram bot with pre-filled message
+    const telegramUrl = `https://t.me/shivaxsupportbot?start=SX_${transactionId}&text=${encodedReceipt}`;
+    window.open(telegramUrl, '_blank');
   };
 
   const filteredProducts = (category: string) => 
@@ -685,205 +660,146 @@ export default function StorePage() {
                 </div>
               ) : (
                 <>
-                  {!showSellers ? (
-                    <>
-                      <div className="space-y-4 mb-6">
-                        {cart.map((item, index) => (
-                          <div 
-                            key={index} 
-                            className={`rounded-lg p-4 border ${
-                              item.isPreOrder 
-                                ? 'bg-yellow-900/10 border-yellow-700/50' 
-                                : 'bg-gray-700/30 border-gray-600/30'
-                            }`}
+                  <div className="space-y-4 mb-6">
+                    {cart.map((item, index) => (
+                      <div 
+                        key={index} 
+                        className={`rounded-lg p-4 border ${
+                          item.isPreOrder 
+                            ? 'bg-yellow-900/10 border-yellow-700/50' 
+                            : 'bg-gray-700/30 border-gray-600/30'
+                        }`}
+                      >
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <h3 className="font-bold">
+                              {item.selectedMod ? `${item.name} - ${item.selectedMod.name}` : item.name}
+                            </h3>
+                            {item.isPreOrder && (
+                              <span className="text-xs text-yellow-300">Pre-Order</span>
+                            )}
+                          </div>
+                          <button 
+                            onClick={() => removeFromCart(index)}
+                            className="text-gray-400 hover:text-pink-500"
                           >
-                            <div className="flex justify-between items-start mb-2">
-                              <div>
-                                <h3 className="font-bold">
-                                  {item.selectedMod ? `${item.name} - ${item.selectedMod.name}` : item.name}
-                                </h3>
-                                {item.isPreOrder && (
-                                  <span className="text-xs text-yellow-300">Pre-Order</span>
-                                )}
-                              </div>
-                              <button 
-                                onClick={() => removeFromCart(index)}
-                                className="text-gray-400 hover:text-pink-500"
-                              >
-                                <X size={16} />
-                              </button>
-                            </div>
-                            
-                            <div className="flex justify-between items-center">
-                              <div className="flex items-center gap-2">
-                                <button 
-                                  onClick={() => updateQuantity(index, item.quantity - 1)}
-                                  className="w-6 h-6 flex items-center justify-center bg-gray-600/50 rounded hover:bg-gray-500/50"
-                                >
-                                  -
-                                </button>
-                                <span>{item.quantity}</span>
-                                <button 
-                                  onClick={() => updateQuantity(index, item.quantity + 1)}
-                                  className="w-6 h-6 flex items-center justify-center bg-gray-600/50 rounded hover:bg-gray-500/50"
-                                >
-                                  +
-                                </button>
-                              </div>
-                              <span className="font-bold">
-                                ₹{(item.selectedMod ? item.selectedMod.price : item.price) * item.quantity}
-                              </span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                      
-                      <div className="mb-6">
-                        <h3 className="text-sm font-bold mb-2 flex items-center gap-2">
-                          <Tag size={16} /> Discount Code
-                        </h3>
-                        {appliedDiscount ? (
-                          <div className="bg-green-900/20 border border-green-800/50 rounded-lg p-3 flex justify-between items-center">
-                            <div>
-                              <span className="font-bold">{appliedDiscount.code}</span>
-                              <span className="text-sm text-gray-300 ml-2">
-                                ({appliedDiscount.discount}{appliedDiscount.type === 'percentage' ? '% off' : '₹ off'})
-                              </span>
-                            </div>
+                            <X size={16} />
+                          </button>
+                        </div>
+                        
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center gap-2">
                             <button 
-                              onClick={removeDiscount}
-                              className="text-gray-300 hover:text-white"
+                              onClick={() => updateQuantity(index, item.quantity - 1)}
+                              className="w-6 h-6 flex items-center justify-center bg-gray-600/50 rounded hover:bg-gray-500/50"
                             >
-                              <X size={16} />
+                              -
+                            </button>
+                            <span>{item.quantity}</span>
+                            <button 
+                              onClick={() => updateQuantity(index, item.quantity + 1)}
+                              className="w-6 h-6 flex items-center justify-center bg-gray-600/50 rounded hover:bg-gray-500/50"
+                            >
+                              +
                             </button>
                           </div>
-                        ) : (
-                          <div className="flex gap-2">
-                            <input
-                              type="text"
-                              value={discountCode}
-                              onChange={(e) => setDiscountCode(e.target.value)}
-                              placeholder="Enter code"
-                              className="flex-1 bg-gray-700/50 border border-gray-600/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50"
-                            />
-                            <button
-                              onClick={applyDiscount}
-                              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-2 px-4 rounded-lg transition text-sm"
-                            >
-                              Apply
-                            </button>
-                          </div>
-                        )}
-                        {discountError && (
-                          <p className="text-red-400 text-sm mt-2">{discountError}</p>
-                        )}
-                      </div>
-                      
-                      <div className="bg-gray-700/30 rounded-lg p-4 border border-gray-600/30 mb-6">
-                        <h3 className="font-bold mb-3">Order Summary</h3>
-                        <div className="space-y-2">
-                          <div className="flex justify-between">
-                            <span className="text-gray-300">Subtotal</span>
-                            <span>₹{calculateTotal().subtotal.toFixed(2)}</span>
-                          </div>
-                          {appliedDiscount && (
-                            <div className="flex justify-between">
-                              <span className="text-gray-300">Discount</span>
-                              <span className="text-green-400">
-                                -₹{calculateTotal().discount.toFixed(2)}
-                              </span>
-                            </div>
-                          )}
-                          <div className="flex justify-between pt-2 border-t border-gray-600/30 mt-2">
-                            <span className="font-bold">Total</span>
-                            <span className="font-bold text-lg">
-                              ₹{calculateTotal().total.toFixed(2)}
-                            </span>
-                          </div>
+                          <span className="font-bold">
+                            ₹{(item.selectedMod ? item.selectedMod.price : item.price) * item.quantity}
+                          </span>
                         </div>
                       </div>
-
-                      <div className="mb-6">
-                        <label className="flex items-start gap-3 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={agreeToTerms}
-                            onChange={() => setAgreeToTerms(!agreeToTerms)}
-                            className="mt-1"
-                          />
-                          <span className="text-sm text-gray-300">
-                            I agree to the <Link href="/terms" className="text-purple-400 hover:underline">Terms of Service</Link>, 
-                            <Link href="/privacy" className="text-purple-400 hover:underline"> Privacy Policy</Link>, and 
-                            <Link href="/refund" className="text-purple-400 hover:underline"> Refund Policy</Link>. 
-                            I understand that digital products are non-refundable after delivery.
+                    ))}
+                  </div>
+                  
+                  <div className="mb-6">
+                    <h3 className="text-sm font-bold mb-2 flex items-center gap-2">
+                      <Tag size={16} /> Discount Code
+                    </h3>
+                    {appliedDiscount ? (
+                      <div className="bg-green-900/20 border border-green-800/50 rounded-lg p-3 flex justify-between items-center">
+                        <div>
+                          <span className="font-bold">{appliedDiscount.code}</span>
+                          <span className="text-sm text-gray-300 ml-2">
+                            ({appliedDiscount.discount}{appliedDiscount.type === 'percentage' ? '% off' : '₹ off'})
                           </span>
-                        </label>
+                        </div>
+                        <button 
+                          onClick={removeDiscount}
+                          className="text-gray-300 hover:text-white"
+                        >
+                          <X size={16} />
+                        </button>
                       </div>
-                      
-                      <button
-                        onClick={generateReceipt}
-                        disabled={!agreeToTerms}
-                        className={`w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 px-4 rounded-lg transition ${!agreeToTerms ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      >
-                        Proceed to Payment
-                      </button>
-                    </>
-                  ) : (
-                    <div className="space-y-6">
-                      <div className="text-center">
-                        <h3 className="text-xl font-bold mb-2">Payment Instructions</h3>
-                        <p className="text-gray-300 mb-4">
-                          Please contact one of our sellers to complete your payment.
-                          Share your receipt with them after payment.
-                        </p>
+                    ) : (
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={discountCode}
+                          onChange={(e) => setDiscountCode(e.target.value)}
+                          placeholder="Enter code"
+                          className="flex-1 bg-gray-700/50 border border-gray-600/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                        />
+                        <button
+                          onClick={applyDiscount}
+                          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-2 px-4 rounded-lg transition text-sm"
+                        >
+                          Apply
+                        </button>
                       </div>
-                      
-                      <div className="space-y-4">
-                        {sellers.map((seller, index) => (
-                          <div key={index} className="bg-gray-700/30 rounded-lg p-4 border border-gray-600/30">
-                            <div className="flex items-center gap-3 mb-3">
-                              <div className="relative w-10 h-10 rounded-full overflow-hidden">
-                                <Image 
-                                  src={seller.profilePic} 
-                                  alt={seller.name}
-                                  layout="fill"
-                                  objectFit="cover"
-                                />
-                              </div>
-                              <div>
-                                <h4 className="font-bold">{seller.name}</h4>
-                                <a 
-                                  href={seller.telegramLink} 
-                                  target="_blank" 
-                                  rel="noopener noreferrer"
-                                  className="text-sm text-purple-300 hover:underline flex items-center gap-1"
-                                >
-                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.03-.1.06-.22-.06-.32-.13-.1-.32-.02-.45.02-.2.06-3.39 2.14-4.84 3.06-.52.33-1 .5-1.43.5-.48 0-1.4-.27-2.08-.99-.75-.79-1.4-2.25-1.4-3.43 0-1.64 1.13-2.45 2.11-2.45.53 0 .98.18 1.38.4.25.15.47.33.68.55.23.23.46.46.75.68.32.25.7.38 1.12.38.42 0 .86-.13 1.23-.4 1.37-1.04 2.14-2.6 2.14-2.6.1-.2.25-.3.45-.3.1 0 .25.02.35.1.22.15.3.45.2.75z"/>
-                                  </svg>
-                                  {seller.telegram}
-                                </a>
-                              </div>
-                            </div>
-                            <div className="flex flex-wrap gap-2">
-                              {seller.paymentMethods.map((method, i) => (
-                                <span key={i} className="text-xs bg-gray-600/50 px-2 py-1 rounded-full">
-                                  {method}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
+                    )}
+                    {discountError && (
+                      <p className="text-red-400 text-sm mt-2">{discountError}</p>
+                    )}
+                  </div>
+                  
+                  <div className="bg-gray-700/30 rounded-lg p-4 border border-gray-600/30 mb-6">
+                    <h3 className="font-bold mb-3">Order Summary</h3>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-gray-300">Subtotal</span>
+                        <span>₹{calculateTotal().subtotal.toFixed(2)}</span>
                       </div>
-                      
-                      <button
-                        onClick={() => setShowSellers(false)}
-                        className="w-full bg-gray-700/50 hover:bg-gray-700/70 text-white font-bold py-3 px-4 rounded-lg transition border border-gray-600/50"
-                      >
-                        Back to Cart
-                      </button>
+                      {appliedDiscount && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-300">Discount</span>
+                          <span className="text-green-400">
+                            -₹{calculateTotal().discount.toFixed(2)}
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex justify-between pt-2 border-t border-gray-600/30 mt-2">
+                        <span className="font-bold">Total</span>
+                        <span className="font-bold text-lg">
+                          ₹{calculateTotal().total.toFixed(2)}
+                        </span>
+                      </div>
                     </div>
-                  )}
+                  </div>
+
+                  <div className="mb-6">
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={agreeToTerms}
+                        onChange={() => setAgreeToTerms(!agreeToTerms)}
+                        className="mt-1"
+                      />
+                      <span className="text-sm text-gray-300">
+                        I agree to the <Link href="/terms" className="text-purple-400 hover:underline">Terms of Service</Link>, 
+                        <Link href="/privacy" className="text-purple-400 hover:underline"> Privacy Policy</Link>, and 
+                        <Link href="/refund" className="text-purple-400 hover:underline"> Refund Policy</Link>. 
+                        I understand that digital products are non-refundable after delivery.
+                      </span>
+                    </label>
+                  </div>
+                  
+                  <button
+                    onClick={generateReceipt}
+                    disabled={!agreeToTerms}
+                    className={`w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 px-4 rounded-lg transition ${!agreeToTerms ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  >
+                    Pay Now via SX Support Bot
+                  </button>
                 </>
               )}
             </div>
@@ -918,22 +834,14 @@ export default function StorePage() {
               </ul>
             </div>
             <div>
-              <h3 className="text-lg font-bold mb-4">Contact</h3>
+              <h3 className="text-lg font-bold mb-4">Support</h3>
               <ul className="space-y-2">
                 <li className="flex items-center gap-2 text-gray-400 text-sm">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.03-.1.06-.22-.06-.32-.13-.1-.32-.02-.45.02-.2.06-3.39 2.14-4.84 3.06-.52.33-1 .5-1.43.5-.48 0-1.4-.27-2.08-.99-.75-.79-1.4-2.25-1.4-3.43 0-1.64 1.13-2.45 2.11-2.45.53 0 .98.18 1.38.4.25.15.47.33.68.55.23.23.46.46.75.68.32.25.7.38 1.12.38.42 0 .86-.13 1.23-.4 1.37-1.04 2.14-2.6 2.14-2.6.1-.2.25-.3.45-.3.1 0 .25.02.35.1.22.15.3.45.2.75z"/>
                   </svg>
-                  <a href="https://t.me/lyastral" target="_blank" rel="noopener noreferrer" className="hover:text-purple-300">
-                    @fluxon
-                  </a>
-                </li>
-                <li className="flex items-center gap-2 text-gray-400 text-sm">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.03-.1.06-.22-.06-.32-.13-.1-.32-.02-.45.02-.2.06-3.39 2.14-4.84 3.06-.52.33-1 .5-1.43.5-.48 0-1.4-.27-2.08-.99-.75-.79-1.4-2.25-1.4-3.43 0-1.64 1.13-2.45 2.11-2.45.53 0 .98.18 1.38.4.25.15.47.33.68.55.23.23.46.46.75.68.32.25.7.38 1.12.38.42 0 .86-.13 1.23-.4 1.37-1.04 2.14-2.6 2.14-2.6.1-.2.25-.3.45-.3.1 0 .25.02.35.1.22.15.3.45.2.75z"/>
-                  </svg>
-                  <a href="https://t.me/shivaxmods42" target="_blank" rel="noopener noreferrer" className="hover:text-purple-300">
-                    @ShivaXD
+                  <a href="https://t.me/shivaxsupportbot" target="_blank" rel="noopener noreferrer" className="hover:text-purple-300">
+                    @shivaxsupportbot
                   </a>
                 </li>
               </ul>
