@@ -111,6 +111,15 @@ const productsData: Product[] = [
     sellerContact: '@ShivaXD'
   },
   {
+    id: 'squad',
+    name: 'Squad Editor',
+    category: 'tool',
+    price: 200,
+    description: 'Comprehensive tool for squad editor',
+    tags: ['Tool', 'Instant Delivery'],
+    sellerContact: '@ShivaXD'
+  },
+  {
     id: 'boundary-hoarding-checker',
     name: 'Boundary Hoarding Checker',
     category: 'tool',
