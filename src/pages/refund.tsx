@@ -195,47 +195,6 @@ export default function RefundPage() {
             </div>
           </section>
 
-          {/* Legal Information Section - NEW */}
-          <section className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
-            <div className="flex items-start gap-4 mb-4">
-              <MapPin className="text-green-400 mt-1 flex-shrink-0" size={24} />
-              <div>
-                <h2 className="text-2xl font-bold mb-3 text-green-300">Legal Information & Contact</h2>
-                <div className="space-y-4 text-gray-300">
-                  <div>
-                    <h3 className="font-bold text-green-200 mb-2">Governing Law & Jurisdiction</h3>
-                    <p className="text-sm">
-                      This refund policy and all disputes arising from it shall be governed by the laws of India. 
-                      Any legal proceedings shall be subject to the exclusive jurisdiction of courts in [Your City/State].
-                    </p>
-                  </div>
-                  
-                  <div>
-                    <h3 className="font-bold text-green-200 mb-2">Consumer Complaint Process</h3>
-                    <p className="text-sm mb-2">
-                      If you believe your consumer rights have been violated, you may:
-                    </p>
-                    <ul className="text-sm space-y-1 pl-5 list-disc">
-                      <li>Contact our support team first for resolution</li>
-                      <li>File a complaint with the District Consumer Disputes Redressal Commission</li>
-                      <li>Use the National Consumer Helpline: 1800-11-4000</li>
-                      <li>Visit the official consumer portal at consumerhelpline.gov.in</li>
-                    </ul>
-                  </div>
-
-                  <div>
-                    <h3 className="font-bold text-green-200 mb-2">Contact Information</h3>
-                    <p className="text-sm">
-                      Email: support@sxstore.com<br/>
-                      Response Time: 24-48 hours<br/>
-                      Business Hours: 9:00 AM - 6:00 PM IST (Monday-Friday)
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
           {/* Final Confirmation */}
           <div className="bg-gradient-to-r from-red-900/40 to-orange-900/40 border border-red-800 rounded-xl p-6 text-center">
             <h3 className="text-xl font-bold mb-3 text-red-300">Purchase Confirmation</h3>
