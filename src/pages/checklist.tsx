@@ -3,7 +3,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { 
   Check, X, BookOpen, ClipboardCheck, FileText, Bookmark, 
   Award, FileCheck, RotateCw, BarChart2, Filter, Download, Upload, 
-  Settings, Moon, Sun, Heart
+  Settings, Moon, Sun, Heart, ChevronDown, ChevronUp
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
