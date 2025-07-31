@@ -3,13 +3,12 @@ import { useEffect, useState, useCallback } from 'react';
 import { 
   Check, X, BookOpen, ClipboardCheck, FileText, Bookmark, 
   Award, FileCheck, RotateCw, BarChart2, Filter, Download, Upload, 
-  Plus, Minus, ChevronDown, ChevronUp, Settings, Moon, Sun
+  Settings, Moon, Sun, Heart
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 type Chapter = {
   name: string;
-  priority: number;
   notes: string;
 };
 
@@ -25,15 +24,15 @@ const Checklist = () => {
   // Dark mode state
   const [darkMode, setDarkMode] = useState(true);
   
-  // Chapters data with priority and notes
+  // Chapters data with notes
   const [chapters, setChapters] = useState<Chapter[]>([
-    { name: 'Optical Isomerism', priority: 1, notes: '' },
-    { name: 'Haloalkanes and Haloarenes', priority: 2, notes: '' },
-    { name: 'Alcohols, Phenols and Ethers', priority: 3, notes: '' },
-    { name: 'Aldehydes, Ketones and Carboxylic Acids', priority: 4, notes: '' },
-    { name: 'Amines', priority: 5, notes: '' },
-    { name: 'Biomolecules', priority: 6, notes: '' },
-    { name: 'Practical Organic Chemistry', priority: 7, notes: '' },
+    { name: 'Optical Isomerism', notes: '' },
+    { name: 'Haloalkanes and Haloarenes', notes: '' },
+    { name: 'Alcohols, Phenols and Ethers', notes: '' },
+    { name: 'Aldehydes, Ketones and Carboxylic Acids', notes: '' },
+    { name: 'Amines', notes: '' },
+    { name: 'Biomolecules', notes: '' },
+    { name: 'Practical Organic Chemistry', notes: '' },
   ]);
 
   // Columns configuration with weights
@@ -55,9 +54,8 @@ const Checklist = () => {
   const [showResetModal, setShowResetModal] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showNotes, setShowNotes] = useState<Record<number, boolean>>({});
-  const [filter, setFilter] = useState<'all' | 'incomplete' | 'highPriority'>('all');
-  const [sortOrder, setSortOrder] = useState<'priority' | 'completion'>('priority');
-  const [expandedChapter, setExpandedChapter] = useState<number | null>(null);
+  const [filter, setFilter] = useState<'all' | 'incomplete'>('all');
+  const [sortOrder, setSortOrder] = useState<'default' | 'completion'>('default');
 
   // Load saved data
   useEffect(() => {
@@ -159,25 +157,17 @@ const Checklist = () => {
     setChapters(newChapters);
   };
 
-  // Update chapter priority
-  const updatePriority = (index: number, change: number) => {
-    const newChapters = [...chapters];
-    newChapters[index].priority = Math.max(1, newChapters[index].priority + change);
-    setChapters(newChapters);
-  };
-
   // Filtered and sorted chapters
   const filteredChapters = chapters
     .filter(chapter => {
       if (filter === 'all') return true;
-      if (filter === 'highPriority') return chapter.priority <= 3;
       
       // For incomplete filter
       const chapterIndex = chapters.findIndex(c => c.name === chapter.name);
       return columns.some((_, colIndex) => !state[`${chapterIndex}-${colIndex}`]);
     })
     .sort((a, b) => {
-      if (sortOrder === 'priority') return a.priority - b.priority;
+      if (sortOrder === 'default') return 0;
       
       // Sort by completion percentage
       const aIndex = chapters.findIndex(c => c.name === a.name);
@@ -271,7 +261,7 @@ const Checklist = () => {
                       <Filter size={16} /> Filter Chapters
                     </h4>
                     <div className="flex flex-wrap gap-2">
-                      {['all', 'incomplete', 'highPriority'].map((f) => (
+                      {['all', 'incomplete'].map((f) => (
                         <button
                           key={f}
                           onClick={() => setFilter(f as any)}
@@ -281,7 +271,6 @@ const Checklist = () => {
                         >
                           {f === 'all' && 'All Chapters'}
                           {f === 'incomplete' && 'Incomplete Only'}
-                          {f === 'highPriority' && 'High Priority'}
                         </button>
                       ))}
                     </div>
@@ -292,7 +281,7 @@ const Checklist = () => {
                       <BarChart2 size={16} /> Sort Order
                     </h4>
                     <div className="flex flex-wrap gap-2">
-                      {['priority', 'completion'].map((s) => (
+                      {['default', 'completion'].map((s) => (
                         <button
                           key={s}
                           onClick={() => setSortOrder(s as any)}
@@ -300,7 +289,7 @@ const Checklist = () => {
                             (darkMode ? 'bg-purple-600 text-white' : 'bg-purple-100 text-purple-800') : 
                             (darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200')}`}
                         >
-                          {s === 'priority' && 'By Priority'}
+                          {s === 'default' && 'Default Order'}
                           {s === 'completion' && 'By Completion'}
                         </button>
                       ))}
@@ -388,7 +377,6 @@ const Checklist = () => {
                   <th className="px-4 py-3 text-left font-semibold min-w-[200px] sticky left-0 z-10">
                     <div className="flex items-center gap-2">
                       <span className="text-blue-500">Chapter Name</span>
-                      <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>(Priority)</span>
                     </div>
                   </th>
                   {columns.map((col, i) => (
@@ -432,24 +420,6 @@ const Checklist = () => {
                             <span className={`${darkMode ? 'text-blue-300' : 'text-blue-600'}`}>
                               {chapter.name}
                             </span>
-                            <div className="flex items-center gap-2">
-                              <button 
-                                onClick={() => updatePriority(originalRowIndex, -1)}
-                                className={`p-1 rounded ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'}`}
-                                disabled={chapter.priority <= 1}
-                              >
-                                <Minus size={14} />
-                              </button>
-                              <span className={`text-xs font-mono ${darkMode ? 'text-purple-300' : 'text-purple-600'}`}>
-                                {chapter.priority}
-                              </span>
-                              <button 
-                                onClick={() => updatePriority(originalRowIndex, 1)}
-                                className={`p-1 rounded ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'}`}
-                              >
-                                <Plus size={14} />
-                              </button>
-                            </div>
                           </div>
                           
                           <button
@@ -535,9 +505,7 @@ const Checklist = () => {
             <div className="text-5xl mb-4">🎉</div>
             <h3 className="text-xl font-semibold mb-2">Nothing to show here!</h3>
             <p className={`mb-4 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-              {filter === 'incomplete' 
-                ? "You've completed all chapters!" 
-                : "No high priority chapters match your filter."}
+              You've completed all chapters!
             </p>
             <button
               onClick={() => setFilter('all')}
@@ -598,6 +566,16 @@ const Checklist = () => {
           )}
         </AnimatePresence>
       </div>
+
+      {/* Footer */}
+      <footer className={`py-6 text-center ${darkMode ? 'bg-gray-900 text-gray-400' : 'bg-gray-100 text-gray-600'}`}>
+        <div className="max-w-7xl mx-auto px-4">
+          <p className="text-lg mb-2">Organic Chemistry Checklist</p>
+          <p className="text-sm flex items-center justify-center gap-1">
+            Made with <Heart size={14} className="text-red-500 fill-red-500" /> by fluxon
+          </p>
+        </div>
+      </footer>
     </div>
   );
 };
