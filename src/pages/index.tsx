@@ -774,7 +774,7 @@ export default function Home() {
                   <Users className="h-5 w-5" />
                 </Link>
                 <Link
-                  href="https://t.me/shivaxmods"
+                  href="https://t.me/shivanation1"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-gray-400 hover:text-emerald-400 transition-colors"
