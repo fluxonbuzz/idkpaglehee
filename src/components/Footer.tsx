@@ -44,7 +44,7 @@ export default function Footer() {
     },
     {
       name: "Telegram",
-      href: "https://t.me/shivaxmods",
+      href: "https://t.me/shivanation1",
       color: "bg-blue-500 hover:bg-blue-600",
       icon: MessageSquare,
     },
