@@ -16,7 +16,7 @@ export default function Community() {
       title: "Telegram Group",
       description: "Instant messaging community for quick discussions",
       icon: MessageCircle,
-      href: "https://t.me/ShivaNation",
+      href: "https://t.me/shivanation1",
       stats: "500+ Members"
     },
     {
@@ -30,7 +30,7 @@ export default function Community() {
       title: "YouTube Channel",
       description: "Tutorials, showcases and community updates",
       icon: Youtube,
-      href: "https://www.youtube.com/@adore-py",
+      href: "https://www.youtube.com/@shivaxmods",
       stats: "1k+ Subscribers"
     },
   ];
