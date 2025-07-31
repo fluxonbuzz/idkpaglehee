@@ -2,8 +2,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import { 
   Check, X, BookOpen, ClipboardCheck, FileText, Bookmark, 
-  Award, FileCheck, RotateCw, BarChart2, Filter, Download, Upload, 
-  Settings, Moon, Sun, Heart, ChevronDown, ChevronUp
+  Award, FileCheck, RotateCw, BarChart2, Filter, ChevronDown, ChevronUp,
+  Settings, Moon, Sun, Heart
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -108,43 +108,6 @@ const Checklist = () => {
 
   const progress = calculateProgress();
 
-  // Export data
-  const exportData = () => {
-    const data = {
-      state,
-      chapters,
-      columns,
-      darkMode
-    };
-    const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `organic-checklist-${new Date().toISOString().split('T')[0]}.json`;
-    a.click();
-  };
-
-  // Import data
-  const importData = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const data = JSON.parse(event.target?.result as string);
-        if (data.state) setState(data.state);
-        if (data.chapters) setChapters(data.chapters);
-        if (data.columns) setColumns(data.columns);
-        if (data.darkMode !== undefined) setDarkMode(data.darkMode);
-      } catch (error) {
-        alert('Error importing file');
-      }
-    };
-    reader.readAsText(file);
-    e.target.value = ''; // Reset input
-  };
-
   // Toggle chapter notes
   const toggleNotes = (index: number) => {
     setShowNotes(prev => ({ ...prev, [index]: !prev[index] }));
@@ -211,18 +174,6 @@ const Checklist = () => {
             </div>
             
             <div className="flex flex-wrap gap-2">
-              <button
-                onClick={exportData}
-                className={`px-4 py-2 rounded-lg flex items-center gap-2 transition ${darkMode ? 'bg-blue-900/50 hover:bg-blue-900/70 border-blue-800/50' : 'bg-blue-100 hover:bg-blue-200 border-blue-200'} border`}
-              >
-                <Download size={16} /> Export
-              </button>
-              
-              <label className={`px-4 py-2 rounded-lg flex items-center gap-2 transition cursor-pointer ${darkMode ? 'bg-purple-900/50 hover:bg-purple-900/70 border-purple-800/50' : 'bg-purple-100 hover:bg-purple-200 border-purple-200'} border`}>
-                <Upload size={16} /> Import
-                <input type="file" accept=".json" onChange={importData} className="hidden" />
-              </label>
-              
               <button
                 onClick={toggleDarkMode}
                 className={`p-2 rounded-lg flex items-center gap-2 transition ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'}`}
