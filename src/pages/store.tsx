@@ -195,7 +195,7 @@ interface Seller {
 
 const botSeller: Seller = {
   name: 'SX Support Bot',
-  telegram: '@shivaxsupportbot',
+  telegram: '@sxmsupportbot',
   paymentMethods: ['UPI'],
   profilePic: '/assets/bot.png',
   telegramLink: 'https://t.me/shivaxsupportbot'
@@ -342,7 +342,7 @@ export default function StorePage() {
     receipt += `TOTAL: ₹${total.toFixed(2)}\n`;
     receipt += `====================\n`;
     receipt += `PAYMENT INSTRUCTIONS:\n`;
-    receipt += `1. Contact our payment bot: @shivaxsupportbot\n`;
+    receipt += `1. Contact our payment bot: @sxmsupportbot\n`;
     receipt += `2. Send this receipt to the bot\n`;
     receipt += `3. Follow the bot's instructions to complete payment\n`;
     receipt += `====================\n`;
