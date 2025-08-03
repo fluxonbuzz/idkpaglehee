@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Play, Pause, RotateCw, Settings, X, Check, Bell, Trash2, CirclePause, CirclePlay } from "lucide-react";
+import { Play, Pause, RotateCw, Settings, X, Check, Bell, Trash2, PauseCircle, PlayCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function PomodoroTimer() {
@@ -88,14 +88,18 @@ export default function PomodoroTimer() {
 
   // Save data to localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem('pomodoroCycles', JSON.stringify(cycles));
-    localStorage.setItem('pomodoroLogs', JSON.stringify(logs));
-    localStorage.setItem('pomodoroTheme', JSON.stringify(theme));
-    localStorage.setItem('backgroundAnimations', JSON.stringify(backgroundAnimations));
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('pomodoroCycles', JSON.stringify(cycles));
+      localStorage.setItem('pomodoroLogs', JSON.stringify(logs));
+      localStorage.setItem('pomodoroTheme', JSON.stringify(theme));
+      localStorage.setItem('backgroundAnimations', JSON.stringify(backgroundAnimations));
+    }
   }, [cycles, logs, theme, backgroundAnimations]);
 
   useEffect(() => {
-    localStorage.setItem('pomodoroSettings', JSON.stringify(settings));
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('pomodoroSettings', JSON.stringify(settings));
+    }
   }, [settings]);
 
   useEffect(() => {
@@ -105,16 +109,16 @@ export default function PomodoroTimer() {
   // Add a new log entry when pausing
   const addPauseLogEntry = () => {
     const timeSpent = modes[mode].time - timeLeft;
-    if (timeSpent > 0) { // Only log if some time was spent
+    if (timeSpent > 0) {
       const newLog = {
         id: Date.now(),
         date: new Date().toISOString(),
         mode: mode,
-        duration: Math.round(timeSpent / 60 * 10) / 10, // Convert to minutes with 1 decimal
+        duration: Math.round(timeSpent / 60 * 10) / 10,
         completed: false,
         pausedAt: formatTime(timeLeft)
       };
-      setLogs(prevLogs => [newLog, ...prevLogs].slice(0, 200)); // Keep last 200 entries
+      setLogs(prevLogs => [newLog, ...prevLogs].slice(0, 200));
     }
   };
 
@@ -146,11 +150,6 @@ export default function PomodoroTimer() {
     try {
       if ('wakeLock' in navigator) {
         wakeLockRef.current = await navigator.wakeLock.request('screen');
-        console.log('Screen Wake Lock is active');
-        
-        wakeLockRef.current.addEventListener('release', () => {
-          console.log('Screen Wake Lock was released');
-        });
       }
     } catch (err) {
       console.error(`${err.name}, ${err.message}`);
@@ -198,15 +197,13 @@ export default function PomodoroTimer() {
         setTimeLeft((prevTime) => prevTime - 1);
       }, 1000);
     } else if (isActive && timeLeft === 0) {
-      // Timer completed
       clearInterval(interval);
-      audioRef.current.play();
+      if (audioRef.current) {
+        audioRef.current.play();
+      }
       setIsActive(false);
-      
-      // Add to logs
       addCompleteLogEntry();
       
-      // Determine next mode
       if (mode === "pomodoro") {
         const nextCycle = cycles + 1;
         setCycles(nextCycle);
@@ -226,11 +223,9 @@ export default function PomodoroTimer() {
 
   const toggleTimer = () => {
     if (isActive) {
-      // Pausing - save the current session
       addPauseLogEntry();
       setPausedTime(timeLeft);
     } else {
-      // Resuming - clear paused time
       setPausedTime(null);
     }
     setIsActive(!isActive);
@@ -241,7 +236,6 @@ export default function PomodoroTimer() {
     setIsActive(false);
     setTimeLeft(modes[mode].time);
     
-    // If timer was active when reset, log the partial session
     if (wasActive) {
       addPauseLogEntry();
     }
@@ -343,9 +337,9 @@ export default function PomodoroTimer() {
                 aria-label={backgroundAnimations ? "Pause animations" : "Play animations"}
               >
                 {backgroundAnimations ? (
-                  <CirclePause className="h-5 w-5" />
+                  <PauseCircle className="h-5 w-5" />
                 ) : (
-                  <CirclePlay className="h-5 w-5" />
+                  <PlayCircle className="h-5 w-5" />
                 )}
               </button>
             </div>
@@ -543,7 +537,7 @@ export default function PomodoroTimer() {
                     {logs.map((log) => (
                       <div 
                         key={log.id} 
-                        className={`p-4 rounded-lg ${themes[theme].border} border relative`}
+                        className={`p-4 rounded-lg ${themes[theme].border} border relative group`}
                       >
                         <div className="flex justify-between items-center">
                           <div>
@@ -698,9 +692,9 @@ export default function PomodoroTimer() {
                         className={`p-2 rounded-full ${backgroundAnimations ? 'bg-emerald-500' : themes[theme].button} ${themes[theme].border} border`}
                       >
                         {backgroundAnimations ? (
-                          <CirclePlay className="h-5 w-5" />
+                          <PlayCircle className="h-5 w-5" />
                         ) : (
-                          <CirclePause className="h-5 w-5" />
+                          <PauseCircle className="h-5 w-5" />
                         )}
                       </button>
                     </div>
