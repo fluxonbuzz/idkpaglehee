@@ -530,7 +530,7 @@ export default function PomodoroTimer() {
               <div className="p-6">
                 {logs.length === 0 ? (
                   <div className="text-center py-8">
-                    <p className={`${themes[theme].secondaryText}`}>No logs yet. Complete some pomodoros to see your progress!</p>
+                    <p className={`${themes[theme].secondaryText}`}>PADHLE BHAI PADHLE PADHLE PADHLE PADHLE!</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -720,7 +720,7 @@ export default function PomodoroTimer() {
       <footer className={`relative border-t ${themes[theme].border} ${themes[theme].card} backdrop-blur-sm`}>
         <div className="container mx-auto px-6 py-8 text-center">
           <p className={`${themes[theme].secondaryText} text-sm`}>
-            © {new Date().getFullYear()} Pomodoro Timer. Stay focused!
+            PADHLE BHAI PLEASEEEEEEEEEEE
           </p>
         </div>
       </footer>
