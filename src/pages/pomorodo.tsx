@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Play, Pause, RotateCw, Settings, X, Check, Bell, Trash2 } from "lucide-react";
+import { Play, Pause, RotateCw, Settings, X, Check, Bell, Trash2, CirclePause, CirclePlay } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function PomodoroTimer() {
@@ -13,14 +13,16 @@ export default function PomodoroTimer() {
     return defaultValue;
   };
 
-  const [timeLeft, setTimeLeft] = useState(25 * 60); // 25 minutes in seconds
+  const [timeLeft, setTimeLeft] = useState(25 * 60);
   const [isActive, setIsActive] = useState(false);
-  const [mode, setMode] = useState("pomodoro"); // pomodoro, shortBreak, longBreak
+  const [mode, setMode] = useState("pomodoro");
   const [cycles, setCycles] = useState(loadFromLocalStorage('pomodoroCycles', 0));
   const [showSettings, setShowSettings] = useState(false);
   const [showLog, setShowLog] = useState(false);
   const [theme, setTheme] = useState(loadFromLocalStorage('pomodoroTheme', 'dark'));
   const [logs, setLogs] = useState(loadFromLocalStorage('pomodoroLogs', []));
+  const [pausedTime, setPausedTime] = useState(null);
+  const [backgroundAnimations, setBackgroundAnimations] = useState(loadFromLocalStorage('backgroundAnimations', true));
   const [settings, setSettings] = useState(
     loadFromLocalStorage('pomodoroSettings', {
       pomodoro: 25,
@@ -29,6 +31,7 @@ export default function PomodoroTimer() {
       longBreakInterval: 4,
     })
   );
+
   const audioRef = useRef(null);
   const wakeLockRef = useRef(null);
 
@@ -88,7 +91,8 @@ export default function PomodoroTimer() {
     localStorage.setItem('pomodoroCycles', JSON.stringify(cycles));
     localStorage.setItem('pomodoroLogs', JSON.stringify(logs));
     localStorage.setItem('pomodoroTheme', JSON.stringify(theme));
-  }, [cycles, logs, theme]);
+    localStorage.setItem('backgroundAnimations', JSON.stringify(backgroundAnimations));
+  }, [cycles, logs, theme, backgroundAnimations]);
 
   useEffect(() => {
     localStorage.setItem('pomodoroSettings', JSON.stringify(settings));
@@ -98,20 +102,42 @@ export default function PomodoroTimer() {
     setTimeLeft(modes[mode].time);
   }, [mode, settings]);
 
+  // Add a new log entry when pausing
+  const addPauseLogEntry = () => {
+    const timeSpent = modes[mode].time - timeLeft;
+    if (timeSpent > 0) { // Only log if some time was spent
+      const newLog = {
+        id: Date.now(),
+        date: new Date().toISOString(),
+        mode: mode,
+        duration: Math.round(timeSpent / 60 * 10) / 10, // Convert to minutes with 1 decimal
+        completed: false,
+        pausedAt: formatTime(timeLeft)
+      };
+      setLogs(prevLogs => [newLog, ...prevLogs].slice(0, 200)); // Keep last 200 entries
+    }
+  };
+
   // Add a new log entry when a pomodoro is completed
-  const addLogEntry = (completedMode) => {
+  const addCompleteLogEntry = () => {
     const newLog = {
       id: Date.now(),
       date: new Date().toISOString(),
-      mode: completedMode,
-      duration: settings[completedMode === 'pomodoro' ? 'pomodoro' : 
-                completedMode === 'shortBreak' ? 'shortBreak' : 'longBreak'],
+      mode: mode,
+      duration: settings[mode === 'pomodoro' ? 'pomodoro' : 
+                mode === 'shortBreak' ? 'shortBreak' : 'longBreak'],
+      completed: true
     };
-    setLogs(prevLogs => [newLog, ...prevLogs].slice(0, 100)); // Keep last 100 entries
+    setLogs(prevLogs => [newLog, ...prevLogs].slice(0, 200));
+  };
+
+  // Clear specific log
+  const clearLog = (id) => {
+    setLogs(logs.filter(log => log.id !== id));
   };
 
   // Clear all logs
-  const clearLogs = () => {
+  const clearAllLogs = () => {
     setLogs([]);
   };
 
@@ -178,7 +204,7 @@ export default function PomodoroTimer() {
       setIsActive(false);
       
       // Add to logs
-      addLogEntry(mode);
+      addCompleteLogEntry();
       
       // Determine next mode
       if (mode === "pomodoro") {
@@ -199,12 +225,26 @@ export default function PomodoroTimer() {
   }, [isActive, timeLeft, mode, cycles, settings]);
 
   const toggleTimer = () => {
+    if (isActive) {
+      // Pausing - save the current session
+      addPauseLogEntry();
+      setPausedTime(timeLeft);
+    } else {
+      // Resuming - clear paused time
+      setPausedTime(null);
+    }
     setIsActive(!isActive);
   };
 
   const resetTimer = () => {
+    const wasActive = isActive;
     setIsActive(false);
     setTimeLeft(modes[mode].time);
+    
+    // If timer was active when reset, log the partial session
+    if (wasActive) {
+      addPauseLogEntry();
+    }
   };
 
   const formatTime = (seconds) => {
@@ -220,6 +260,9 @@ export default function PomodoroTimer() {
 
   const handleModeChange = (newMode) => {
     if (mode !== newMode) {
+      if (isActive) {
+        addPauseLogEntry();
+      }
       setIsActive(false);
       setMode(newMode);
     }
@@ -245,47 +288,68 @@ export default function PomodoroTimer() {
     setTheme(newTheme);
   };
 
+  const toggleBackgroundAnimations = () => {
+    setBackgroundAnimations(!backgroundAnimations);
+  };
+
   const progress = ((modes[mode].time - timeLeft) / modes[mode].time) * 100;
 
   return (
     <div className={`min-h-screen ${themes[theme].bg} ${themes[theme].text} overflow-x-hidden`}>
       {/* Animated background elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        {[...Array(8)].map((_, i) => (
-          <motion.div
-            key={i}
-            className={`absolute rounded-full blur-3xl opacity-20 ${
-              i % 4 === 0
-                ? "bg-emerald-500/20"
-                : i % 4 === 1
-                ? "bg-blue-500/20"
-                : i % 4 === 2
-                ? "bg-purple-500/20"
-                : "bg-pink-500/20"
-            }`}
-            style={{
-              width: Math.random() * 300 + 100,
-              height: Math.random() * 300 + 100,
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              x: [0, (Math.random() - 0.5) * 100],
-              y: [0, (Math.random() - 0.5) * 100],
-            }}
-            transition={{
-              duration: Math.random() * 10 + 10,
-              repeat: Infinity,
-              repeatType: "reverse",
-            }}
-          />
-        ))}
-      </div>
+      {backgroundAnimations && (
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          {[...Array(8)].map((_, i) => (
+            <motion.div
+              key={i}
+              className={`absolute rounded-full blur-3xl opacity-20 ${
+                i % 4 === 0
+                  ? "bg-emerald-500/20"
+                  : i % 4 === 1
+                  ? "bg-blue-500/20"
+                  : i % 4 === 2
+                  ? "bg-purple-500/20"
+                  : "bg-pink-500/20"
+              }`}
+              style={{
+                width: Math.random() * 300 + 100,
+                height: Math.random() * 300 + 100,
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+              }}
+              animate={{
+                x: [0, (Math.random() - 0.5) * 100],
+                y: [0, (Math.random() - 0.5) * 100],
+              }}
+              transition={{
+                duration: Math.random() * 10 + 10,
+                repeat: Infinity,
+                repeatType: "reverse",
+              }}
+            />
+          ))}
+        </div>
+      )}
 
       <main className="relative z-10">
         {/* Timer Section */}
         <section className="min-h-screen flex flex-col items-center justify-center pt-24 pb-16 px-6">
           <div className="max-w-md w-full mx-auto text-center">
+            {/* Background Animation Toggle */}
+            <div className="flex justify-end mb-2">
+              <button 
+                onClick={toggleBackgroundAnimations}
+                className={`p-2 rounded-full ${themes[theme].button} ${themes[theme].border} border`}
+                aria-label={backgroundAnimations ? "Pause animations" : "Play animations"}
+              >
+                {backgroundAnimations ? (
+                  <CirclePause className="h-5 w-5" />
+                ) : (
+                  <CirclePlay className="h-5 w-5" />
+                )}
+              </button>
+            </div>
+
             {/* Mode Selector */}
             <div className="flex justify-center gap-4 mb-8">
               {Object.keys(modes).map((key) => (
@@ -349,6 +413,11 @@ export default function PomodoroTimer() {
                   <p className={`${themes[theme].secondaryText} uppercase text-sm tracking-wider`}>
                     {modes[mode].name}
                   </p>
+                  {pausedTime && (
+                    <p className={`text-xs ${themes[theme].secondaryText} mt-1`}>
+                      Paused at {formatTime(pausedTime)}
+                    </p>
+                  )}
                 </div>
               </div>
             </motion.div>
@@ -449,12 +518,12 @@ export default function PomodoroTimer() {
                 <h2 className="text-xl font-bold">Timer Logs</h2>
                 <div className="flex gap-2">
                   <Button
-                    onClick={clearLogs}
+                    onClick={clearAllLogs}
                     size="sm"
                     variant="outline"
                     className={`${themes[theme].border}`}
                   >
-                    <Trash2 className="h-4 w-4 mr-2" /> Clear
+                    <Trash2 className="h-4 w-4 mr-2" /> Clear All
                   </Button>
                   <button
                     onClick={() => setShowLog(false)}
@@ -467,23 +536,25 @@ export default function PomodoroTimer() {
               <div className="p-6">
                 {logs.length === 0 ? (
                   <div className="text-center py-8">
-                    <p className={`${themes[theme].secondaryText}`}>PADHLE PADHLE PADHLE PADHLE PADHLE</p>
+                    <p className={`${themes[theme].secondaryText}`}>No logs yet. Complete some pomodoros to see your progress!</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
                     {logs.map((log) => (
                       <div 
                         key={log.id} 
-                        className={`p-4 rounded-lg ${themes[theme].border} border`}
+                        className={`p-4 rounded-lg ${themes[theme].border} border relative`}
                       >
                         <div className="flex justify-between items-center">
                           <div>
                             <h3 className="font-medium">
                               {log.mode === 'pomodoro' ? 'Pomodoro' : 
                                log.mode === 'shortBreak' ? 'Short Break' : 'Long Break'}
+                              {!log.completed && " (Partial)"}
                             </h3>
                             <p className={`text-sm ${themes[theme].secondaryText}`}>
                               {formatDate(log.date)}
+                              {log.pausedAt && ` · Paused at ${log.pausedAt}`}
                             </p>
                           </div>
                           <div className={`px-3 py-1 rounded-full text-sm ${
@@ -494,6 +565,13 @@ export default function PomodoroTimer() {
                             {log.duration} min
                           </div>
                         </div>
+                        <button
+                          onClick={() => clearLog(log.id)}
+                          className={`absolute top-2 right-2 p-1 rounded-full ${themes[theme].button} opacity-0 group-hover:opacity-100 transition-opacity`}
+                          aria-label="Delete log"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
                       </div>
                     ))}
                   </div>
@@ -610,6 +688,23 @@ export default function PomodoroTimer() {
                       </button>
                     </div>
                   </div>
+
+                  <div>
+                    <h3 className="text-lg font-medium mb-4">Animations</h3>
+                    <div className="flex items-center justify-between">
+                      <label className={themes[theme].secondaryText}>Background Animations</label>
+                      <button
+                        onClick={toggleBackgroundAnimations}
+                        className={`p-2 rounded-full ${backgroundAnimations ? 'bg-emerald-500' : themes[theme].button} ${themes[theme].border} border`}
+                      >
+                        {backgroundAnimations ? (
+                          <CirclePlay className="h-5 w-5" />
+                        ) : (
+                          <CirclePause className="h-5 w-5" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
                 </div>
                 <div className="p-6 border-t border-gray-800 flex justify-end">
                   <Button
@@ -631,7 +726,7 @@ export default function PomodoroTimer() {
       <footer className={`relative border-t ${themes[theme].border} ${themes[theme].card} backdrop-blur-sm`}>
         <div className="container mx-auto px-6 py-8 text-center">
           <p className={`${themes[theme].secondaryText} text-sm`}>
-            PADHLE BHAI PLEASEEEEEEEEEEEEEEEEEEEE
+            © {new Date().getFullYear()} Pomodoro Timer. Stay focused!
           </p>
         </div>
       </footer>
