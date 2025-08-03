@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Play, Pause, RotateCw, Settings, X, Check, Bell } from "lucide-react";
+import { Play, Pause, RotateCw, Settings, X, Check, Bell, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function PomodoroTimer() {
@@ -18,6 +18,9 @@ export default function PomodoroTimer() {
   const [mode, setMode] = useState("pomodoro"); // pomodoro, shortBreak, longBreak
   const [cycles, setCycles] = useState(loadFromLocalStorage('pomodoroCycles', 0));
   const [showSettings, setShowSettings] = useState(false);
+  const [showLog, setShowLog] = useState(false);
+  const [theme, setTheme] = useState(loadFromLocalStorage('pomodoroTheme', 'dark'));
+  const [logs, setLogs] = useState(loadFromLocalStorage('pomodoroLogs', []));
   const [settings, setSettings] = useState(
     loadFromLocalStorage('pomodoroSettings', {
       pomodoro: 25,
@@ -29,28 +32,63 @@ export default function PomodoroTimer() {
   const audioRef = useRef(null);
   const wakeLockRef = useRef(null);
 
+  const themes = {
+    light: {
+      bg: "bg-gray-50",
+      text: "text-gray-900",
+      secondaryText: "text-gray-600",
+      button: "bg-white hover:bg-gray-100 text-gray-900",
+      border: "border-gray-200",
+      card: "bg-white",
+      progressBg: "bg-gray-200",
+    },
+    dark: {
+      bg: "bg-gray-950",
+      text: "text-gray-100",
+      secondaryText: "text-gray-400",
+      button: "bg-gray-900 hover:bg-gray-800 text-gray-100",
+      border: "border-gray-800",
+      card: "bg-gray-900",
+      progressBg: "bg-gray-800",
+    },
+    ocean: {
+      bg: "bg-slate-900",
+      text: "text-blue-50",
+      secondaryText: "text-blue-200",
+      button: "bg-blue-900 hover:bg-blue-800 text-blue-50",
+      border: "border-blue-800",
+      card: "bg-slate-800",
+      progressBg: "bg-slate-700",
+    },
+  };
+
   const modes = {
     pomodoro: {
       name: "Pomodoro",
       time: settings.pomodoro * 60,
       color: "bg-gradient-to-r from-emerald-500 to-cyan-600",
+      themeColor: theme === 'ocean' ? "bg-emerald-600" : "bg-emerald-500",
     },
     shortBreak: {
       name: "Short Break",
       time: settings.shortBreak * 60,
       color: "bg-gradient-to-r from-blue-500 to-indigo-600",
+      themeColor: theme === 'ocean' ? "bg-blue-600" : "bg-blue-500",
     },
     longBreak: {
       name: "Long Break",
       time: settings.longBreak * 60,
       color: "bg-gradient-to-r from-purple-500 to-pink-600",
+      themeColor: theme === 'ocean' ? "bg-purple-600" : "bg-purple-500",
     },
   };
 
   // Save data to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem('pomodoroCycles', JSON.stringify(cycles));
-  }, [cycles]);
+    localStorage.setItem('pomodoroLogs', JSON.stringify(logs));
+    localStorage.setItem('pomodoroTheme', JSON.stringify(theme));
+  }, [cycles, logs, theme]);
 
   useEffect(() => {
     localStorage.setItem('pomodoroSettings', JSON.stringify(settings));
@@ -59,6 +97,23 @@ export default function PomodoroTimer() {
   useEffect(() => {
     setTimeLeft(modes[mode].time);
   }, [mode, settings]);
+
+  // Add a new log entry when a pomodoro is completed
+  const addLogEntry = (completedMode) => {
+    const newLog = {
+      id: Date.now(),
+      date: new Date().toISOString(),
+      mode: completedMode,
+      duration: settings[completedMode === 'pomodoro' ? 'pomodoro' : 
+                completedMode === 'shortBreak' ? 'shortBreak' : 'longBreak'],
+    };
+    setLogs(prevLogs => [newLog, ...prevLogs].slice(0, 100)); // Keep last 100 entries
+  };
+
+  // Clear all logs
+  const clearLogs = () => {
+    setLogs([]);
+  };
 
   // Screen wake lock implementation
   const requestWakeLock = async () => {
@@ -122,6 +177,9 @@ export default function PomodoroTimer() {
       audioRef.current.play();
       setIsActive(false);
       
+      // Add to logs
+      addLogEntry(mode);
+      
       // Determine next mode
       if (mode === "pomodoro") {
         const nextCycle = cycles + 1;
@@ -155,6 +213,11 @@ export default function PomodoroTimer() {
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+  };
+
   const handleModeChange = (newMode) => {
     if (mode !== newMode) {
       setIsActive(false);
@@ -178,10 +241,14 @@ export default function PomodoroTimer() {
     }
   };
 
+  const changeTheme = (newTheme) => {
+    setTheme(newTheme);
+  };
+
   const progress = ((modes[mode].time - timeLeft) / modes[mode].time) * 100;
 
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-100 overflow-x-hidden">
+    <div className={`min-h-screen ${themes[theme].bg} ${themes[theme].text} overflow-x-hidden`}>
       {/* Animated background elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         {[...Array(8)].map((_, i) => (
@@ -228,7 +295,7 @@ export default function PomodoroTimer() {
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                     mode === key
                       ? `${modes[key].color} text-white`
-                      : "text-gray-400 hover:text-white bg-gray-800/50"
+                      : `${themes[theme].button}`
                   }`}
                 >
                   {modes[key].name}
@@ -251,7 +318,7 @@ export default function PomodoroTimer() {
                     cy="50"
                     r="45"
                     fill="none"
-                    stroke="#1e293b"
+                    stroke={themes[theme].progressBg}
                     strokeWidth="6"
                   />
                   <motion.circle
@@ -279,7 +346,7 @@ export default function PomodoroTimer() {
                 {/* Time Display */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                   <h1 className="text-6xl font-bold mb-2">{formatTime(timeLeft)}</h1>
-                  <p className="text-gray-400 uppercase text-sm tracking-wider">
+                  <p className={`${themes[theme].secondaryText} uppercase text-sm tracking-wider`}>
                     {modes[mode].name}
                   </p>
                 </div>
@@ -311,7 +378,7 @@ export default function PomodoroTimer() {
                 onClick={resetTimer}
                 size="lg"
                 variant="outline"
-                className="border-gray-700 hover:bg-gray-800/50"
+                className={`${themes[theme].border} hover:${themes[theme].button.replace('bg-', 'bg-')}`}
               >
                 <RotateCw className="h-5 w-5 mr-2" /> Reset
               </Button>
@@ -319,9 +386,9 @@ export default function PomodoroTimer() {
 
             {/* Cycles */}
             <div className="mb-8">
-              <p className="text-gray-400 mb-2">
+              <p className={`${themes[theme].secondaryText} mb-2`}>
                 Completed Pomodoros:{" "}
-                <span className="text-white font-medium">{cycles}</span>
+                <span className={`${themes[theme].text} font-medium`}>{cycles}</span>
               </p>
               <div className="flex justify-center gap-2">
                 {[...Array(Math.min(cycles, settings.longBreakInterval))].map(
@@ -339,17 +406,103 @@ export default function PomodoroTimer() {
               </div>
             </div>
 
-            {/* Settings Button */}
-            <Button
-              onClick={() => setShowSettings(true)}
-              variant="ghost"
-              className="text-gray-400 hover:text-white"
-            >
-              <Settings className="h-5 w-5 mr-2" /> Settings
-            </Button>
+            {/* Bottom Buttons */}
+            <div className="flex justify-center gap-4">
+              <Button
+                onClick={() => setShowSettings(true)}
+                variant="ghost"
+                className={`${themes[theme].secondaryText} hover:${themes[theme].text}`}
+              >
+                <Settings className="h-5 w-5 mr-2" /> Settings
+              </Button>
+              <Button
+                onClick={() => setShowLog(!showLog)}
+                variant="ghost"
+                className={`${themes[theme].secondaryText} hover:${themes[theme].text}`}
+              >
+                <Bell className="h-5 w-5 mr-2" /> Logs ({logs.length})
+              </Button>
+            </div>
           </div>
         </section>
       </main>
+
+      {/* Logs Panel */}
+      <AnimatePresence>
+        {showLog && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+              onClick={() => setShowLog(false)}
+            />
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: "spring", damping: 30 }}
+              className={`fixed inset-y-0 right-0 z-50 w-full max-w-md ${themes[theme].card} ${themes[theme].border} border-l shadow-2xl overflow-y-auto`}
+            >
+              <div className="flex justify-between items-center p-6 border-b border-gray-800">
+                <h2 className="text-xl font-bold">Timer Logs</h2>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={clearLogs}
+                    size="sm"
+                    variant="outline"
+                    className={`${themes[theme].border}`}
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" /> Clear
+                  </Button>
+                  <button
+                    onClick={() => setShowLog(false)}
+                    className="p-2 rounded-md hover:bg-gray-800 transition-colors"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+              </div>
+              <div className="p-6">
+                {logs.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className={`${themes[theme].secondaryText}`}>No logs yet. Complete some pomodoros to see your progress!</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {logs.map((log) => (
+                      <div 
+                        key={log.id} 
+                        className={`p-4 rounded-lg ${themes[theme].border} border`}
+                      >
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <h3 className="font-medium">
+                              {log.mode === 'pomodoro' ? 'Pomodoro' : 
+                               log.mode === 'shortBreak' ? 'Short Break' : 'Long Break'}
+                            </h3>
+                            <p className={`text-sm ${themes[theme].secondaryText}`}>
+                              {formatDate(log.date)}
+                            </p>
+                          </div>
+                          <div className={`px-3 py-1 rounded-full text-sm ${
+                            log.mode === 'pomodoro' ? 'bg-emerald-500/10 text-emerald-500' :
+                            log.mode === 'shortBreak' ? 'bg-blue-500/10 text-blue-500' :
+                            'bg-purple-500/10 text-purple-500'
+                          }`}>
+                            {log.duration} min
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* Settings Modal */}
       <AnimatePresence>
@@ -369,7 +522,7 @@ export default function PomodoroTimer() {
               transition={{ type: "spring", damping: 30 }}
               className="fixed inset-0 z-50 flex items-center justify-center p-4"
             >
-              <div className="bg-gray-900 border border-gray-800 rounded-xl w-full max-w-md overflow-hidden shadow-2xl">
+              <div className={`${themes[theme].card} border ${themes[theme].border} rounded-xl w-full max-w-md overflow-hidden shadow-2xl`}>
                 <div className="flex justify-between items-center p-6 border-b border-gray-800">
                   <h2 className="text-xl font-bold">Timer Settings</h2>
                   <button
@@ -384,7 +537,7 @@ export default function PomodoroTimer() {
                     <h3 className="text-lg font-medium mb-4">Durations (minutes)</h3>
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <label className="text-gray-400">Pomodoro</label>
+                        <label className={themes[theme].secondaryText}>Pomodoro</label>
                         <input
                           type="number"
                           name="pomodoro"
@@ -392,11 +545,11 @@ export default function PomodoroTimer() {
                           onChange={handleSettingsChange}
                           min="1"
                           max="60"
-                          className="bg-gray-800 border border-gray-700 rounded-md px-3 py-2 w-20 text-right"
+                          className={`${themes[theme].button} border ${themes[theme].border} rounded-md px-3 py-2 w-20 text-right`}
                         />
                       </div>
                       <div className="flex items-center justify-between">
-                        <label className="text-gray-400">Short Break</label>
+                        <label className={themes[theme].secondaryText}>Short Break</label>
                         <input
                           type="number"
                           name="shortBreak"
@@ -404,11 +557,11 @@ export default function PomodoroTimer() {
                           onChange={handleSettingsChange}
                           min="1"
                           max="30"
-                          className="bg-gray-800 border border-gray-700 rounded-md px-3 py-2 w-20 text-right"
+                          className={`${themes[theme].button} border ${themes[theme].border} rounded-md px-3 py-2 w-20 text-right`}
                         />
                       </div>
                       <div className="flex items-center justify-between">
-                        <label className="text-gray-400">Long Break</label>
+                        <label className={themes[theme].secondaryText}>Long Break</label>
                         <input
                           type="number"
                           name="longBreak"
@@ -416,11 +569,11 @@ export default function PomodoroTimer() {
                           onChange={handleSettingsChange}
                           min="1"
                           max="60"
-                          className="bg-gray-800 border border-gray-700 rounded-md px-3 py-2 w-20 text-right"
+                          className={`${themes[theme].button} border ${themes[theme].border} rounded-md px-3 py-2 w-20 text-right`}
                         />
                       </div>
                       <div className="flex items-center justify-between">
-                        <label className="text-gray-400">Long Break Interval</label>
+                        <label className={themes[theme].secondaryText}>Long Break Interval</label>
                         <input
                           type="number"
                           name="longBreakInterval"
@@ -428,9 +581,33 @@ export default function PomodoroTimer() {
                           onChange={handleSettingsChange}
                           min="1"
                           max="10"
-                          className="bg-gray-800 border border-gray-700 rounded-md px-3 py-2 w-20 text-right"
+                          className={`${themes[theme].button} border ${themes[theme].border} rounded-md px-3 py-2 w-20 text-right`}
                         />
                       </div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-lg font-medium mb-4">Theme</h3>
+                    <div className="flex gap-4">
+                      <button
+                        onClick={() => changeTheme('light')}
+                        className={`p-4 rounded-lg border ${theme === 'light' ? 'border-emerald-500' : themes[theme].border} ${themes.light.bg} flex-1`}
+                      >
+                        <span className="block font-medium">Light</span>
+                      </button>
+                      <button
+                        onClick={() => changeTheme('dark')}
+                        className={`p-4 rounded-lg border ${theme === 'dark' ? 'border-emerald-500' : themes[theme].border} ${themes.dark.bg} flex-1`}
+                      >
+                        <span className="block font-medium">Dark</span>
+                      </button>
+                      <button
+                        onClick={() => changeTheme('ocean')}
+                        className={`p-4 rounded-lg border ${theme === 'ocean' ? 'border-emerald-500' : themes[theme].border} ${themes.ocean.bg} flex-1`}
+                      >
+                        <span className="block font-medium">Ocean</span>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -451,9 +628,9 @@ export default function PomodoroTimer() {
       {/* Audio element for alarm */}
       <audio ref={audioRef} src="/assets/alarm.mp3" preload="auto" />
 
-      <footer className="relative border-t border-gray-800 bg-gray-900/50 backdrop-blur-sm">
+      <footer className={`relative border-t ${themes[theme].border} ${themes[theme].card} backdrop-blur-sm`}>
         <div className="container mx-auto px-6 py-8 text-center">
-          <p className="text-gray-500 text-sm">
+          <p className={`${themes[theme].secondaryText} text-sm`}>
             © {new Date().getFullYear()} Pomodoro Timer. Stay focused!
           </p>
         </div>
