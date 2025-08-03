@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Play, Pause, RotateCw, Settings, X, Check, Bell, Trash2, PauseCircle, PlayCircle } from "lucide-react";
+import { Play, Pause, RotateCw, Settings, X, Check, Bell, Trash2, PauseCircle, PlayCircle, Save } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function PomodoroTimer() {
@@ -23,6 +23,7 @@ export default function PomodoroTimer() {
   const [logs, setLogs] = useState(loadFromLocalStorage('pomodoroLogs', []));
   const [pausedTime, setPausedTime] = useState(null);
   const [backgroundAnimations, setBackgroundAnimations] = useState(loadFromLocalStorage('backgroundAnimations', true));
+  const [showSaveButton, setShowSaveButton] = useState(false);
   const [settings, setSettings] = useState(
     loadFromLocalStorage('pomodoroSettings', {
       pomodoro: 25,
@@ -106,8 +107,8 @@ export default function PomodoroTimer() {
     setTimeLeft(modes[mode].time);
   }, [mode, settings]);
 
-  // Add a new log entry when pausing
-  const addPauseLogEntry = () => {
+  // Add a new log entry when saving progress
+  const saveProgress = () => {
     const timeSpent = modes[mode].time - timeLeft;
     if (timeSpent > 0) {
       const newLog = {
@@ -119,6 +120,7 @@ export default function PomodoroTimer() {
         pausedAt: formatTime(timeLeft)
       };
       setLogs(prevLogs => [newLog, ...prevLogs].slice(0, 200));
+      setShowSaveButton(false);
     }
   };
 
@@ -223,10 +225,13 @@ export default function PomodoroTimer() {
 
   const toggleTimer = () => {
     if (isActive) {
-      addPauseLogEntry();
+      // When pausing, show the save button
       setPausedTime(timeLeft);
+      setShowSaveButton(true);
     } else {
+      // When resuming, hide the save button
       setPausedTime(null);
+      setShowSaveButton(false);
     }
     setIsActive(!isActive);
   };
@@ -235,10 +240,7 @@ export default function PomodoroTimer() {
     const wasActive = isActive;
     setIsActive(false);
     setTimeLeft(modes[mode].time);
-    
-    if (wasActive) {
-      addPauseLogEntry();
-    }
+    setShowSaveButton(false);
   };
 
   const formatTime = (seconds) => {
@@ -255,7 +257,7 @@ export default function PomodoroTimer() {
   const handleModeChange = (newMode) => {
     if (mode !== newMode) {
       if (isActive) {
-        addPauseLogEntry();
+        setShowSaveButton(true);
       }
       setIsActive(false);
       setMode(newMode);
@@ -417,34 +419,56 @@ export default function PomodoroTimer() {
             </motion.div>
 
             {/* Controls */}
-            <div className="flex justify-center gap-4 mb-12">
-              <Button
-                onClick={toggleTimer}
-                size="lg"
-                className={`${
-                  isActive
-                    ? "bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700"
-                    : modes[mode].color + " hover:from-emerald-600 hover:to-cyan-700"
-                } font-bold`}
-              >
-                {isActive ? (
-                  <>
-                    <Pause className="h-5 w-5 mr-2" /> Pause
-                  </>
-                ) : (
-                  <>
-                    <Play className="h-5 w-5 mr-2" /> Start
-                  </>
+            <div className="flex flex-col items-center gap-4 mb-12">
+              <div className="flex gap-4">
+                <Button
+                  onClick={toggleTimer}
+                  size="lg"
+                  className={`${
+                    isActive
+                      ? "bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700"
+                      : modes[mode].color + " hover:from-emerald-600 hover:to-cyan-700"
+                  } font-bold`}
+                >
+                  {isActive ? (
+                    <>
+                      <Pause className="h-5 w-5 mr-2" /> Pause
+                    </>
+                  ) : (
+                    <>
+                      <Play className="h-5 w-5 mr-2" /> Start
+                    </>
+                  )}
+                </Button>
+                <Button
+                  onClick={resetTimer}
+                  size="lg"
+                  variant="outline"
+                  className={`${themes[theme].border} hover:${themes[theme].button.replace('bg-', 'bg-')}`}
+                >
+                  <RotateCw className="h-5 w-5 mr-2" /> Reset
+                </Button>
+              </div>
+              
+              {/* Save Progress Button - Only shown when paused */}
+              <AnimatePresence>
+                {showSaveButton && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 20 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <Button
+                      onClick={saveProgress}
+                      size="lg"
+                      className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 font-bold"
+                    >
+                      <Save className="h-5 w-5 mr-2" /> Save Progress
+                    </Button>
+                  </motion.div>
                 )}
-              </Button>
-              <Button
-                onClick={resetTimer}
-                size="lg"
-                variant="outline"
-                className={`${themes[theme].border} hover:${themes[theme].button.replace('bg-', 'bg-')}`}
-              >
-                <RotateCw className="h-5 w-5 mr-2" /> Reset
-              </Button>
+              </AnimatePresence>
             </div>
 
             {/* Cycles */}
@@ -530,7 +554,7 @@ export default function PomodoroTimer() {
               <div className="p-6">
                 {logs.length === 0 ? (
                   <div className="text-center py-8">
-                    <p className={`${themes[theme].secondaryText}`}>PADHLE BHAI PADHLE PADHLE PADHLE PADHLE!</p>
+                    <p className={`${themes[theme].secondaryText}`}>No logs yet. Start a timer to see your progress!</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -720,7 +744,7 @@ export default function PomodoroTimer() {
       <footer className={`relative border-t ${themes[theme].border} ${themes[theme].card} backdrop-blur-sm`}>
         <div className="container mx-auto px-6 py-8 text-center">
           <p className={`${themes[theme].secondaryText} text-sm`}>
-            PADHLE BHAI PLEASEEEEEEEEEEE
+            Pomodoro Timer - Stay Focused, Stay Productive
           </p>
         </div>
       </footer>
