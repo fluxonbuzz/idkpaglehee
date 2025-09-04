@@ -23,65 +23,52 @@ import {
   Zap,
   Activity,
   Instagram,
+  Heart,
+  Star,
+  Trophy,
+  Clock,
+  Calendar,
+  Mail,
+  Frown,
 } from "lucide-react";
 import Link from "next/link";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 
-const modStats = [
-  { label: "Active Members", value: "15K+", icon: Users },
-  { label: "Mod Downloads", value: "500K+", icon: Download },
-  { label: "Supported Games", value: "1", icon: Gamepad2 },
-  { label: "Premium Mods", value: "5+", icon: Gem },
-];
+const farewellMessage = {
+  title: "Thank You For The Memories",
+  subtitle: "A heartfelt farewell to our amazing community",
+  message: `After an incredible journey filled with passion, creativity, and unforgettable moments, we've made the difficult decision to close Shiva X Mods. What started as a passion project grew into a community we could have never imagined - with over 15,000 members and half a million mod downloads.
 
-const featuredMods = [
-  {
-    title: "Cricket Fusion X",
-    description: "Next-gen cricket experience with enhanced physics, 4K textures, and new gameplay modes",
-    version: "V2.5",
-    status: "available",
-    tags: ["HD Graphics", "Multiplayer", "New Teams"],
-    image: "/assets/fusionx.png",
-    href: "/downloads",
-  },
-];
+We're forever grateful for every player who trusted us with their gaming experience, every supporter who believed in our vision, and every community member who made this journey so special.
 
-const modFeatures = [
+Though Shiva X Mods is closing, the memories we've created together will remain in our hearts forever. Thank you for being part of our story.`,
+  date: "2019-2023",
+};
+
+const memories = [
   {
-    feature: "Cutting-Edge Tech",
-    description: "Mods built with latest game engine modifications",
-    icon: Code2,
-    color: "text-cyan-400",
-  },
-  {
-    feature: "Visual Mastery",
-    description: "Stunning 4K textures and custom shaders",
-    icon: Palette,
-    color: "text-purple-400",
-  },
-  {
-    feature: "Network Optimized",
-    description: "Low-latency multiplayer enhancements",
-    icon: Network,
-    color: "text-green-400",
-  },
-  {
-    feature: "Secure Mods",
-    description: "Built-in protection for fair gameplay",
-    icon: ShieldCheck,
+    title: "The Beginning",
+    description: "Our first mod release that started it all",
+    icon: Star,
     color: "text-yellow-400",
   },
   {
-    feature: "One-Click Install",
-    description: "Automated mod management system",
-    icon: Rocket,
-    color: "text-pink-400",
+    title: "Community Growth",
+    description: "Watching our family grow to 15K+ members",
+    icon: Users,
+    color: "text-blue-400",
   },
   {
-    feature: "Regular Updates",
-    description: "Continuous improvements and new content",
-    icon: Zap,
-    color: "text-blue-400",
+    title: "Cricket Fusion X",
+    description: "Our flagship mod that changed everything",
+    icon: Trophy,
+    color: "text-emerald-400",
+  },
+  {
+    title: "The Final Chapter",
+    description: "With heavy hearts, we say goodbye",
+    icon: Heart,
+    color: "text-pink-400",
   },
 ];
 
@@ -133,7 +120,6 @@ const TypeWriter = ({ texts }: { texts: string[] }) => {
 
 export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("featured");
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -191,20 +177,20 @@ export default function Home() {
             <Link href="/" className="text-sm font-medium hover:text-emerald-400 transition-colors">
               Home
             </Link>
-            <Link href="/downloads" className="text-sm font-medium hover:text-emerald-400 transition-colors">
-              Mods
+            <Link href="/memories" className="text-sm font-medium hover:text-emerald-400 transition-colors">
+              Memories
             </Link>
-            <Link href="/store" className="text-sm font-medium hover:text-emerald-400 transition-colors">
-              Store
+            <Link href="/legacy" className="text-sm font-medium hover:text-emerald-400 transition-colors">
+              Legacy
             </Link>
-            <Link href="/community" className="text-sm font-medium hover:text-emerald-400 transition-colors">
-              Community
+            <Link href="/thank-you" className="text-sm font-medium hover:text-emerald-400 transition-colors">
+              Thank You
             </Link>
           </nav>
 
           <div className="flex items-center gap-4">
             <Button className="hidden md:flex bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-600 hover:to-cyan-700 text-sm">
-              Join Discord
+              Final Message
             </Button>
             <button
               onClick={() => setSidebarOpen(true)}
@@ -259,36 +245,29 @@ export default function Home() {
                   Home
                 </Link>
                 <Link
-                  href="/downloads"
+                  href="/memories"
                   className="px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium"
                   onClick={() => setSidebarOpen(false)}
                 >
-                  Mods
+                  Memories
                 </Link>
                 <Link
-                  href="/store"
+                  href="/legacy"
                   className="px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium"
                   onClick={() => setSidebarOpen(false)}
                 >
-                  Store
+                  Legacy
                 </Link>
                 <Link
-                  href="/community"
+                  href="/thank-you"
                   className="px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium"
                   onClick={() => setSidebarOpen(false)}
                 >
-                  Community
-                </Link>
-                <Link
-                  href="/status"
-                  className="px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium"
-                  onClick={() => setSidebarOpen(false)}
-                >
-                  Status
+                  Thank You
                 </Link>
                 <div className="pt-4 mt-4 border-t border-gray-800">
                   <Button className="w-full bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-600 hover:to-cyan-700">
-                    Join Discord
+                    Final Message
                   </Button>
                 </div>
               </nav>
@@ -303,7 +282,7 @@ export default function Home() {
           <div className="absolute inset-0 z-0">
             <motion.div
               style={{ y }}
-              className="absolute inset-0 bg-[url('/assets/grid.svg')] bg-center [mask-image:radial-gradient(ellipse_at_center,black_20%,transparent_70%)]"
+              className="absolute inset-0 bg-[url('/assets/grid.svg')] bg-center [mask-image:radial-gradient(ellipse_at_center,black_20%,transparent_70%)] opacity-30"
             />
           </div>
 
@@ -315,8 +294,8 @@ export default function Home() {
                 transition={{ duration: 0.8 }}
                 className="inline-flex items-center px-4 py-2 rounded-full bg-gray-800 border border-gray-700 mb-6"
               >
-                <span className="h-2 w-2 rounded-full bg-emerald-400 mr-2 animate-pulse"></span>
-                <span className="text-sm font-medium">MODDING EVOLVED</span>
+                <Frown className="h-4 w-4 mr-2 text-pink-400" />
+                <span className="text-sm font-medium">FAREWELL MESSAGE</span>
               </motion.div>
 
               <motion.h1
@@ -326,10 +305,10 @@ export default function Home() {
                 className="text-5xl md:text-7xl font-bold tracking-tight mb-6"
               >
                 <span className="bg-gradient-to-r from-emerald-400 to-cyan-500 bg-clip-text text-transparent">
-                  Next-Level
+                  Thank You
                 </span>{" "}
                 <br />
-                Cricket Mods
+                For Everything
               </motion.h1>
 
               <motion.p
@@ -339,10 +318,10 @@ export default function Home() {
                 className="text-xl text-gray-400 max-w-2xl mx-auto mb-10"
               >
                 <TypeWriter texts={[
-                  "Enhance your cricket experience",
-                  "Ultra HD textures & effects",
-                  "Advanced gameplay mechanics",
-                  "Exclusive premium content"
+                  "Our journey together has been incredible",
+                  "We'll cherish these memories forever",
+                  "Thank you for being part of our story",
+                  "With love, The Shiva X Mods Team"
                 ]} />
               </motion.p>
 
@@ -352,20 +331,20 @@ export default function Home() {
                 transition={{ duration: 0.8, delay: 0.6 }}
                 className="flex flex-col sm:flex-row justify-center gap-4"
               >
-                <Link href="/downloads">
+                <Link href="#message">
                   <Button
                     size="lg"
                     className="bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-600 hover:to-cyan-700 font-bold"
                   >
-                    Our Games <ChevronRight className="ml-2 h-4 w-4" />
+                    Read Our Message <ChevronRight className="ml-2 h-4 w-4" />
                   </Button>
                 </Link>
-                <Link href="/store">
+                <Link href="#memories">
                   <Button
                     size="lg"
                     className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 font-bold"
                   >
-                    Our Store
+                    Our Memories
                   </Button>
                 </Link>
               </motion.div>
@@ -393,45 +372,66 @@ export default function Home() {
           </motion.div>
         </section>
 
-        {/* Stats Section */}
-        <section className="py-20 relative">
+        {/* Farewell Message Section */}
+        <section id="message" className="py-20 relative">
           <div className="container mx-auto px-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {modStats.map((stat, index) => (
-                <motion.div
-                  key={stat.label}
-                  initial={{ opacity: 0, y: 50 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                  className="bg-gray-900/50 border border-gray-800 rounded-xl p-6 backdrop-blur-sm"
-                >
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 rounded-lg bg-gray-800">
-                      <stat.icon className={`h-5 w-5 ${index === 0 ? 'text-emerald-400' : index === 1 ? 'text-cyan-400' : index === 2 ? 'text-purple-400' : 'text-pink-400'}`} />
+            <div className="max-w-4xl mx-auto">
+              <motion.div
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7 }}
+                viewport={{ once: true }}
+                className="bg-gray-900/50 border border-gray-800 rounded-2xl p-8 md:p-12 relative overflow-hidden"
+              >
+                <div className="absolute -top-10 -left-10 w-32 h-32 bg-pink-500/10 rounded-full filter blur-3xl"></div>
+                <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-emerald-500/10 rounded-full filter blur-3xl"></div>
+                
+                <div className="relative z-10">
+                  <div className="flex items-center justify-between mb-8">
+                    <div>
+                      <h2 className="text-3xl md:text-4xl font-bold mb-2">
+                        {farewellMessage.title}
+                      </h2>
+                      <p className="text-gray-400">{farewellMessage.subtitle}</p>
                     </div>
-                    <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">
-                      {stat.label}
-                    </span>
+                    <div className="text-right">
+                      <div className="inline-flex items-center px-3 py-1 rounded-full bg-gray-800 text-sm">
+                        <Calendar className="h-4 w-4 mr-1" />
+                        {farewellMessage.date}
+                      </div>
+                    </div>
                   </div>
-                  <h3 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                    {stat.value}
-                  </h3>
-                </motion.div>
-              ))}
+                  
+                  <div className="space-y-6 text-gray-300 leading-relaxed">
+                    {farewellMessage.message.split('\n\n').map((paragraph, index) => (
+                      <p key={index}>{paragraph}</p>
+                    ))}
+                  </div>
+                  
+                  <div className="mt-10 pt-8 border-t border-gray-800 flex items-center">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center mr-4">
+                      <Zap className="h-6 w-6 text-gray-950" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold">The Shiva X Mods Team</h4>
+                      <p className="text-gray-400 text-sm">With gratitude and love</p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
             </div>
           </div>
         </section>
 
-        {/* Featured Mods Section */}
-        <section className="py-20 relative">
+        {/* Memories Timeline */}
+        <section id="memories" className="py-20 relative">
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className="absolute left-1/4 top-0 w-96 h-96 bg-purple-500/10 rounded-full filter blur-3xl"></div>
             <div className="absolute right-1/4 bottom-0 w-96 h-96 bg-cyan-500/10 rounded-full filter blur-3xl"></div>
           </div>
 
           <div className="container mx-auto px-6">
-            <div className="max-w-3xl mx-auto text-center mb-16">
+            <div className="max-w-4xl mx-auto text-center mb-16">
               <motion.h2
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -439,9 +439,11 @@ export default function Home() {
                 viewport={{ once: true }}
                 className="text-4xl md:text-5xl font-bold mb-4"
               >
+                Our{" "}
                 <span className="bg-gradient-to-r from-emerald-400 to-cyan-500 bg-clip-text text-transparent">
-                  Cricket Fusion X
-                </span>
+                  Journey
+                </span>{" "}
+                Together
               </motion.h2>
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
@@ -450,70 +452,42 @@ export default function Home() {
                 viewport={{ once: true }}
                 className="text-lg text-gray-400"
               >
-                The ultimate cricket modification experience
+                A timeline of cherished moments we shared
               </motion.p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-center">
-              {featuredMods.map((mod, index) => (
-                <motion.div
-                  key={mod.title}
-                  initial={{ opacity: 0, y: 50 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                  className="bg-gray-900/50 border border-gray-800 rounded-xl overflow-hidden hover:border-emerald-500/50 transition-all group mx-auto max-w-md"
-                >
-                  <div className="relative h-48 bg-gradient-to-br from-gray-800 to-gray-900 overflow-hidden">
-                    <div className="absolute inset-0 bg-[url('/assets/mod-pattern.svg')] opacity-10"></div>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-24 h-24 rounded-full bg-emerald-500/10 flex items-center justify-center">
-                        <Gamepad2 className="h-10 w-10 text-emerald-400" />
+            <div className="max-w-4xl mx-auto">
+              <div className="relative">
+                {/* Timeline line */}
+                <div className="absolute left-5 h-full w-0.5 bg-gradient-to-b from-emerald-500 to-cyan-500 transform translate-x-1"></div>
+                
+                <div className="space-y-12">
+                  {memories.map((memory, index) => (
+                    <motion.div
+                      key={memory.title}
+                      initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.7, delay: index * 0.2 }}
+                      viewport={{ once: true }}
+                      className="relative pl-16"
+                    >
+                      <div className="absolute left-0 w-10 h-10 rounded-full bg-gray-900 border-2 border-emerald-500 flex items-center justify-center">
+                        <memory.icon className={`h-5 w-5 ${memory.color}`} />
                       </div>
-                    </div>
-                    <div className="absolute top-4 right-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-bold flex items-center ${mod.status === 'available' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-yellow-500/20 text-yellow-400'}`}>
-                        {mod.status === 'available' ? (
-                          <>
-                            <CheckCircle className="h-3 w-3 mr-1" /> Available
-                          </>
-                        ) : (
-                          'Coming Soon'
-                        )}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="p-6">
-                    <div className="flex justify-between items-start mb-4">
-                      <h3 className="text-xl font-bold">{mod.title}</h3>
-                      <span className="text-xs bg-gray-800 px-2 py-1 rounded text-gray-300">
-                        {mod.version}
-                      </span>
-                    </div>
-                    <p className="text-gray-400 mb-5">{mod.description}</p>
-                    <div className="flex flex-wrap gap-2 mb-6">
-                      {mod.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="text-xs bg-gray-800/50 px-2 py-1 rounded text-gray-300"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                    <Link href={mod.href}>
-                      <Button className="w-full bg-gradient-to-r from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 border border-gray-700 group-hover:border-emerald-500/50 transition-all">
-                        Download Now
-                      </Button>
-                    </Link>
-                  </div>
-                </motion.div>
-              ))}
+                      
+                      <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-6 hover:border-emerald-500/30 transition-all">
+                        <h3 className="text-xl font-bold mb-2">{memory.title}</h3>
+                        <p className="text-gray-400">{memory.description}</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* Features Section */}
+        {/* Stats Section */}
         <section className="py-20 relative">
           <div className="container mx-auto px-6">
             <div className="max-w-4xl mx-auto text-center mb-16">
@@ -524,9 +498,9 @@ export default function Home() {
                 viewport={{ once: true }}
                 className="text-4xl md:text-5xl font-bold mb-4"
               >
-                Why Choose{" "}
+                By The{" "}
                 <span className="bg-gradient-to-r from-emerald-400 to-cyan-500 bg-clip-text text-transparent">
-                  Our Mods?
+                  Numbers
                 </span>
               </motion.h2>
               <motion.p
@@ -536,32 +510,71 @@ export default function Home() {
                 viewport={{ once: true }}
                 className="text-lg text-gray-400"
               >
-                Experience cricket like never before with our cutting-edge modifications
+                The incredible impact we made together
               </motion.p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {modFeatures.map((feature, index) => (
-                <motion.div
-                  key={feature.feature}
-                  initial={{ opacity: 0, y: 50 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                  className="bg-gray-900/50 border border-gray-800 rounded-xl p-8 hover:border-emerald-500/30 transition-all group"
-                >
-                  <div className="w-12 h-12 rounded-lg bg-gray-800 flex items-center justify-center mb-6 group-hover:bg-emerald-500/10 group-hover:text-emerald-400 transition-all">
-                    <feature.icon className={`h-6 w-6 ${feature.color}`} />
-                  </div>
-                  <h3 className="text-xl font-bold mb-3">{feature.feature}</h3>
-                  <p className="text-gray-400">{feature.description}</p>
-                </motion.div>
-              ))}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+              <motion.div
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+                viewport={{ once: true }}
+                className="bg-gray-900/50 border border-gray-800 rounded-xl p-6 text-center backdrop-blur-sm"
+              >
+                <Users className="h-10 w-10 text-blue-400 mx-auto mb-4" />
+                <h3 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent mb-2">
+                  15K+
+                </h3>
+                <p className="text-gray-400 text-sm">Community Members</p>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                viewport={{ once: true }}
+                className="bg-gray-900/50 border border-gray-800 rounded-xl p-6 text-center backdrop-blur-sm"
+              >
+                <Download className="h-10 w-10 text-emerald-400 mx-auto mb-4" />
+                <h3 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent mb-2">
+                  500K+
+                </h3>
+                <p className="text-gray-400 text-sm">Mod Downloads</p>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+                viewport={{ once: true }}
+                className="bg-gray-900/50 border border-gray-800 rounded-xl p-6 text-center backdrop-blur-sm"
+              >
+                <Gamepad2 className="h-10 w-10 text-purple-400 mx-auto mb-4" />
+                <h3 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent mb-2">
+                  4
+                </h3>
+                <p className="text-gray-400 text-sm">Games Supported</p>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                viewport={{ once: true }}
+                className="bg-gray-900/50 border border-gray-800 rounded-xl p-6 text-center backdrop-blur-sm"
+              >
+                <Clock className="h-10 w-10 text-yellow-400 mx-auto mb-4" />
+                <h3 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent mb-2">
+                  4
+                </h3>
+                <p className="text-gray-400 text-sm">Years of Memories</p>
+              </motion.div>
             </div>
           </div>
         </section>
 
-        {/* CTA Section */}
+        {/* Final CTA Section */}
         <section className="py-20 relative">
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className="absolute inset-0 bg-[url('/assets/grid.svg')] bg-center opacity-10 [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_70%)]"></div>
@@ -576,11 +589,9 @@ export default function Home() {
                 viewport={{ once: true }}
                 className="text-3xl md:text-4xl font-bold mb-6"
               >
-                Ready to{" "}
                 <span className="bg-gradient-to-r from-emerald-400 to-cyan-500 bg-clip-text text-transparent">
-                  Transform
-                </span>{" "}
-                Your Cricket Game?
+                  Forever Grateful
+                </span>
               </motion.h2>
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
@@ -589,7 +600,7 @@ export default function Home() {
                 viewport={{ once: true }}
                 className="text-lg text-gray-400 max-w-2xl mx-auto mb-8"
               >
-                Join thousands of players who have already enhanced their cricket experience
+                From the bottom of our hearts, thank you for being part of our journey
               </motion.p>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -598,20 +609,20 @@ export default function Home() {
                 viewport={{ once: true }}
                 className="flex flex-col sm:flex-row justify-center gap-4"
               >
-                <Link href="/downloads">
+                <Link href="#message">
                   <Button
                     size="lg"
                     className="bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-600 hover:to-cyan-700 font-bold"
                   >
-                    Our Games
+                    Our Farewell Message
                   </Button>
                 </Link>
-                <Link href="/store">
+                <Link href="#memories">
                   <Button
                     size="lg"
                     className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 font-bold"
                   >
-                    Visit Our Store
+                    View Memories
                   </Button>
                 </Link>
               </motion.div>
@@ -630,9 +641,9 @@ export default function Home() {
                 viewport={{ once: true }}
                 className="text-4xl md:text-5xl font-bold mb-4"
               >
-                Join Our{" "}
+                One Last{" "}
                 <span className="bg-gradient-to-r from-emerald-400 to-cyan-500 bg-clip-text text-transparent">
-                  Community
+                  Connection
                 </span>
               </motion.h2>
               <motion.p
@@ -642,7 +653,7 @@ export default function Home() {
                 viewport={{ once: true }}
                 className="text-lg text-gray-400"
               >
-                Connect with other players, get support, and stay updated
+                Stay in touch with us through our social channels
               </motion.p>
             </div>
 
@@ -666,7 +677,7 @@ export default function Home() {
                     </div>
                     <h3 className="text-xl font-bold mb-2">{social.name}</h3>
                     <p className="text-white/80">
-                      Join our {social.name.toLowerCase()} community
+                      Connect with us on {social.name.toLowerCase()}
                     </p>
                   </Link>
                 </motion.div>
@@ -690,7 +701,7 @@ export default function Home() {
                 </span>
               </Link>
               <p className="text-gray-400 text-sm">
-                The ultimate cricket modification experience
+                2019-2023 • Thank you for the memories
               </p>
             </div>
 
@@ -707,34 +718,26 @@ export default function Home() {
                 </li>
                 <li>
                   <Link
-                    href="/downloads"
+                    href="/memories"
                     className="text-gray-400 hover:text-emerald-400 transition-colors text-sm"
                   >
-                    Mods
+                    Memories
                   </Link>
                 </li>
                 <li>
                   <Link
-                    href="/store"
+                    href="/legacy"
                     className="text-gray-400 hover:text-emerald-400 transition-colors text-sm"
                   >
-                    Store
+                    Legacy
                   </Link>
                 </li>
                 <li>
                   <Link
-                    href="/community"
+                    href="/thank-you"
                     className="text-gray-400 hover:text-emerald-400 transition-colors text-sm"
                   >
-                    Community
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/status"
-                    className="text-gray-400 hover:text-emerald-400 transition-colors text-sm"
-                  >
-                    Status
+                    Thank You
                   </Link>
                 </li>
               </ul>
@@ -803,7 +806,10 @@ export default function Home() {
 
           <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-500 text-sm mb-4 md:mb-0">
-              © {new Date().getFullYear()} Shiva X Mods. All rights reserved.
+              © {new Date().getFullYear()} Shiva X Mods. Forever in our hearts.
+            </p>
+            <p className="text-gray-500 text-sm flex items-center">
+              Made with <Heart className="h-4 w-4 text-pink-400 mx-1" /> for our community
             </p>
           </div>
         </div>
