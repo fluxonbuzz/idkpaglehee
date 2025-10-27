@@ -635,7 +635,7 @@ export default function Home() {
                   </Link>
                 </li>
                 <li>
-                  <Link href="#mods" className="text-gray-400 hover:text-cyan-400 transition-colors text-sm">
+                  <Link href="/downloads" className="text-gray-400 hover:text-cyan-400 transition-colors text-sm">
                     Download Mods
                   </Link>
                 </li>
