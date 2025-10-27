@@ -26,16 +26,16 @@ const comebackData = {
   date: "October 20, 2025",
   title: "The Comeback You Waited For",
   subtitle: "After everything, we're back and better than ever",
-  story: `Two years ago we said goodbye, but the community never let us go. Your messages, your memories, and your passion kept the spirit of Shiva X alive.
+  story: `Some months ago we said goodbye, but the community never let us go. Your messages, your memories, and your passion kept the spirit of Shiva XD alive.
   
   Now, with renewed energy and a clear vision, we're returning to deliver the modding experience you deserve. Better performance, more features, and a community that's stronger than ever.
   
-  This isn't just a return - it's a rebirth. Welcome back to Shiva X.`,
+  This isn't just a return - it's a rebirth. Welcome back to Shiva X Mods.`,
 };
 
 const newFeatures = [
   {
-    title: "Next-Gen Performance",
+    title: "Crick Fusion",
     description: "Completely rebuilt from the ground up for smoother gameplay",
     icon: Zap,
     color: "text-cyan-400"
@@ -70,7 +70,7 @@ const socialLinks = [
   },
   {
     name: "Telegram",
-    href: "https://t.me/shivaxmods",
+    href: "https://t.me/shivaxmods1",
     icon: Users,
     color: "bg-blue-500 hover:bg-blue-600",
     description: "Instant updates and support"
@@ -421,7 +421,7 @@ export default function Home() {
                         <Heart className="h-5 w-5 text-gray-950" />
                       </div>
                       <div>
-                        <h4 className="font-semibold">The Shiva X Team</h4>
+                        <h4 className="font-semibold">The Shiva XD Team</h4>
                         <p className="text-cyan-400 text-sm">Back and better than ever</p>
                       </div>
                     </div>
@@ -689,7 +689,7 @@ export default function Home() {
               © 2025 Shiva X Mods. We're back and here to stay.
             </p>
             <p className="text-gray-500 text-sm flex items-center">
-              Made with <Heart className="h-4 w-4 text-cyan-400 mx-1" /> for our amazing community
+              Made with <Heart className="h-4 w-4 text-cyan-400 mx-1" /> by fluxon.
             </p>
           </div>
         </div>
