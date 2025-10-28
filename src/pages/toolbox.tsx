@@ -12,12 +12,13 @@ import {
   User,
   Flag,
   Award,
-  Arm,
   Target,
   Activity,
   Clock,
   Shirt,
-  Cricket
+  Code,
+  Settings,
+  Key
 } from "lucide-react";
 
 interface InputFields {
@@ -39,12 +40,11 @@ interface InputFields {
 }
 
 class AesEncryptor {
+  private static key: Uint8Array | null = null;
   private static readonly keyString = "realnauticrick20";
-  private static readonly key: Uint8Array;
   private static readonly encoder = new TextEncoder();
   private static readonly decoder = new TextDecoder();
 
-  // Initialize key only on client side
   static initialize() {
     if (typeof window !== 'undefined') {
       const keyBytes = this.encoder.encode(this.keyString);
@@ -53,8 +53,8 @@ class AesEncryptor {
   }
 
   static async decryptBuffer(encryptedBuffer: ArrayBuffer): Promise<ArrayBuffer> {
-    if (typeof window === 'undefined') {
-      throw new Error('This method can only be called on the client side');
+    if (typeof window === 'undefined' || !this.key) {
+      throw new Error('Client side only');
     }
 
     try {
@@ -86,8 +86,8 @@ class AesEncryptor {
   }
 
   static async encryptBuffer(buffer: ArrayBuffer): Promise<ArrayBuffer> {
-    if (typeof window === 'undefined') {
-      throw new Error('This method can only be called on the client side');
+    if (typeof window === 'undefined' || !this.key) {
+      throw new Error('Client side only');
     }
 
     try {
@@ -121,8 +121,8 @@ class AesEncryptor {
   }
 
   static async decryptString(encryptedBase64: string): Promise<string> {
-    if (typeof window === 'undefined') {
-      throw new Error('This method can only be called on the client side');
+    if (typeof window === 'undefined' || !this.key) {
+      throw new Error('Client side only');
     }
 
     try {
@@ -140,8 +140,8 @@ class AesEncryptor {
   }
 
   static async encryptString(text: string): Promise<string> {
-    if (typeof window === 'undefined') {
-      throw new Error('This method can only be called on the client side');
+    if (typeof window === 'undefined' || !this.key) {
+      throw new Error('Client side only');
     }
 
     try {
@@ -212,12 +212,10 @@ export default function RC20Crypter() {
     jerseyNumber: ""
   });
 
-  // Initialize encryption on client side only
   if (typeof window !== 'undefined') {
     AesEncryptor.initialize();
   }
 
-  // Crypter Functions
   const handleCrypterFileUpload = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -261,7 +259,6 @@ export default function RC20Crypter() {
     });
   };
 
-  // Editor Functions
   const handleEditorFileUpload = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -452,7 +449,6 @@ export default function RC20Crypter() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 text-white">
       <div className="container mx-auto px-4 py-8">
-        {/* Header */}
         <header className="text-center mb-12">
           <div className="flex items-center justify-center mb-4">
             <Shield className="w-12 h-12 text-cyan-400 mr-4" />
@@ -464,13 +460,11 @@ export default function RC20Crypter() {
             AES-Powered Secure File Encryption & Squad Editor
           </p>
           <div className="flex justify-center gap-6 text-cyan-300 text-sm">
-            <span>🔧 Developed by Nishad</span>
-            <span>•</span>
-            <span>🎮 Enhanced by Siva Fluxon</span>
+            <span className="flex items-center gap-1"><Code className="w-4 h-4" /> Shiva Fluxon</span>
+            <span className="flex items-center gap-1"><Settings className="w-4 h-4" /> Nishad</span>
           </div>
         </header>
 
-        {/* Tabs */}
         <div className="flex justify-center mb-8">
           <div className="bg-gray-800/50 rounded-xl p-2 flex gap-2 border border-cyan-500/20">
             <button
@@ -492,13 +486,12 @@ export default function RC20Crypter() {
                   : 'text-gray-400 hover:text-white'
               }`}
             >
-              <Cricket className="w-5 h-5" />
+              <Users className="w-5 h-5" />
               Squad Editor
             </button>
           </div>
         </div>
 
-        {/* Crypter Tab */}
         {activeTab === 'crypter' && (
           <div className="max-w-2xl mx-auto">
             <div className="bg-gray-800/50 border border-cyan-500/20 rounded-2xl p-8 backdrop-blur-sm">
@@ -574,10 +567,8 @@ export default function RC20Crypter() {
           </div>
         )}
 
-        {/* Editor Tab */}
         {activeTab === 'editor' && (
           <div className="space-y-8">
-            {/* File Controls */}
             <div className="bg-gray-800/50 border border-cyan-500/20 rounded-2xl p-6 backdrop-blur-sm">
               <div className="flex flex-col sm:flex-row gap-4">
                 <input
@@ -634,7 +625,6 @@ export default function RC20Crypter() {
 
             {data.length > 0 && (
               <>
-                {/* Player Selection */}
                 <div className="bg-gray-800/50 border border-cyan-500/20 rounded-2xl p-6 backdrop-blur-sm">
                   <label className="block text-cyan-400 font-semibold mb-3 text-lg">SELECT PLAYER</label>
                   <select
@@ -650,9 +640,7 @@ export default function RC20Crypter() {
                   </select>
                 </div>
 
-                {/* Player Editor */}
                 <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                  {/* Player Info */}
                   <div className="bg-gray-800/50 border border-cyan-500/20 rounded-2xl p-6 backdrop-blur-sm">
                     <h3 className="text-cyan-400 font-bold text-xl mb-6 flex items-center gap-2">
                       <User className="w-6 h-6" />
@@ -675,7 +663,7 @@ export default function RC20Crypter() {
 
                       <div>
                         <label className="block text-gray-300 text-sm font-medium mb-2 flex items-center gap-2">
-                          <Shield className="w-4 h-4" />
+                          <Key className="w-4 h-4" />
                           UID
                         </label>
                         <input
@@ -734,7 +722,6 @@ export default function RC20Crypter() {
                     </div>
                   </div>
 
-                  {/* Batting Stats */}
                   <div className="bg-gray-800/50 border border-cyan-500/20 rounded-2xl p-6 backdrop-blur-sm">
                     <h3 className="text-cyan-400 font-bold text-xl mb-6 flex items-center gap-2">
                       <Gamepad2 className="w-6 h-6" />
@@ -744,7 +731,7 @@ export default function RC20Crypter() {
                     <div className="space-y-4">
                       <div>
                         <label className="block text-gray-300 text-sm font-medium mb-2 flex items-center gap-2">
-                          <Arm className="w-4 h-4" />
+                          <User className="w-4 h-4" />
                           BATTING HAND
                         </label>
                         <select
@@ -815,7 +802,6 @@ export default function RC20Crypter() {
                     </div>
                   </div>
 
-                  {/* Bowling Stats */}
                   <div className="bg-gray-800/50 border border-cyan-500/20 rounded-2xl p-6 backdrop-blur-sm">
                     <h3 className="text-cyan-400 font-bold text-xl mb-6 flex items-center gap-2">
                       <Target className="w-6 h-6" />
@@ -825,7 +811,7 @@ export default function RC20Crypter() {
                     <div className="space-y-4">
                       <div>
                         <label className="block text-gray-300 text-sm font-medium mb-2 flex items-center gap-2">
-                          <Arm className="w-4 h-4" />
+                          <User className="w-4 h-4" />
                           BOWLING HAND
                         </label>
                         <select
@@ -905,21 +891,20 @@ export default function RC20Crypter() {
           </div>
         )}
 
-        {/* Footer */}
         <footer className="mt-16 text-center">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
             <div className="bg-gray-800/30 rounded-2xl p-6 border border-cyan-500/10">
-              <div className="text-4xl mb-3">🔐</div>
+              <Shield className="w-12 h-12 text-cyan-400 mx-auto mb-3" />
               <h3 className="text-cyan-400 font-bold text-lg mb-2">Secure Encryption</h3>
               <p className="text-gray-400">AES-128-CBC military-grade encryption</p>
             </div>
             <div className="bg-gray-800/30 rounded-2xl p-6 border border-cyan-500/10">
-              <div className="text-4xl mb-3">🏏</div>
+              <Users className="w-12 h-12 text-cyan-400 mx-auto mb-3" />
               <h3 className="text-cyan-400 font-bold text-lg mb-2">Squad Management</h3>
               <p className="text-gray-400">Advanced cricket player editing</p>
             </div>
             <div className="bg-gray-800/30 rounded-2xl p-6 border border-cyan-500/10">
-              <div className="text-4xl mb-3">⚡</div>
+              <Zap className="w-12 h-12 text-cyan-400 mx-auto mb-3" />
               <h3 className="text-cyan-400 font-bold text-lg mb-2">Fast Processing</h3>
               <p className="text-gray-400">Quick file operations</p>
             </div>
@@ -927,9 +912,9 @@ export default function RC20Crypter() {
           
           <div className="text-gray-500 text-sm">
             <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-2">
-              <span>🔧 Developed by Nishad</span>
+              <span className="flex items-center gap-1"><Code className="w-4 h-4" /> Shiva Fluxon</span>
               <span>•</span>
-              <span>🎮 Enhanced by Siva Fluxon</span>
+              <span className="flex items-center gap-1"><Settings className="w-4 h-4" /> Nishad</span>
             </div>
             <p>RC 20 CRYPTER • Secure Edition</p>
           </div>
