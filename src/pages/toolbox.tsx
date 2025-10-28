@@ -912,9 +912,9 @@ export default function RC20Crypter() {
           
           <div className="text-gray-500 text-sm">
             <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-2">
-              <span className="flex items-center gap-1"><Code className="w-4 h-4" /> Shiva Fluxon</span>
+              <span className="flex items-center gap-1"><Code className="w-4 h-4" /> Shiva</span>
               <span>•</span>
-              <span className="flex items-center gap-1"><Settings className="w-4 h-4" /> Nishad</span>
+              <span className="flex items-center gap-1"><Settings className="w-4 h-4" /> Nishad & Fluxon </span>
             </div>
             <p>RC 20 CRYPTER • Secure Edition</p>
           </div>
