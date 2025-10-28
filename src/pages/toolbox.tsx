@@ -44,12 +44,19 @@ class AesEncryptor {
   private static readonly encoder = new TextEncoder();
   private static readonly decoder = new TextDecoder();
 
-  static {
-    const keyBytes = this.encoder.encode(this.keyString);
-    this.key = keyBytes.slice(0, 16);
+  // Initialize key only on client side
+  static initialize() {
+    if (typeof window !== 'undefined') {
+      const keyBytes = this.encoder.encode(this.keyString);
+      this.key = keyBytes.slice(0, 16);
+    }
   }
 
   static async decryptBuffer(encryptedBuffer: ArrayBuffer): Promise<ArrayBuffer> {
+    if (typeof window === 'undefined') {
+      throw new Error('This method can only be called on the client side');
+    }
+
     try {
       const encrypted = new Uint8Array(encryptedBuffer);
       const iv = encrypted.slice(0, 16);
@@ -79,6 +86,10 @@ class AesEncryptor {
   }
 
   static async encryptBuffer(buffer: ArrayBuffer): Promise<ArrayBuffer> {
+    if (typeof window === 'undefined') {
+      throw new Error('This method can only be called on the client side');
+    }
+
     try {
       const iv = crypto.getRandomValues(new Uint8Array(16));
       
@@ -110,6 +121,10 @@ class AesEncryptor {
   }
 
   static async decryptString(encryptedBase64: string): Promise<string> {
+    if (typeof window === 'undefined') {
+      throw new Error('This method can only be called on the client side');
+    }
+
     try {
       const binaryString = atob(encryptedBase64);
       const bytes = new Uint8Array(binaryString.length);
@@ -125,6 +140,10 @@ class AesEncryptor {
   }
 
   static async encryptString(text: string): Promise<string> {
+    if (typeof window === 'undefined') {
+      throw new Error('This method can only be called on the client side');
+    }
+
     try {
       const buffer = this.encoder.encode(text);
       const encrypted = await this.encryptBuffer(buffer);
@@ -141,6 +160,10 @@ class AesEncryptor {
   }
 
   static isLikelyEncrypted(base64String: string): boolean {
+    if (typeof window === 'undefined') {
+      return false;
+    }
+
     try {
       const binary = atob(base64String);
       const bytes = new Uint8Array(binary.length);
@@ -188,6 +211,11 @@ export default function RC20Crypter() {
     bowlingAI: "",
     jerseyNumber: ""
   });
+
+  // Initialize encryption on client side only
+  if (typeof window !== 'undefined') {
+    AesEncryptor.initialize();
+  }
 
   // Crypter Functions
   const handleCrypterFileUpload = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -437,6 +465,7 @@ export default function RC20Crypter() {
           </p>
           <div className="flex justify-center gap-6 text-cyan-300 text-sm">
             <span>🔧 Developed by Nishad</span>
+            <span>•</span>
             <span>🎮 Enhanced by Siva Fluxon</span>
           </div>
         </header>
@@ -900,7 +929,7 @@ export default function RC20Crypter() {
             <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-2">
               <span>🔧 Developed by Nishad</span>
               <span>•</span>
-              <span>🎮 Enhanced by Shiva and Fluxon</span>
+              <span>🎮 Enhanced by Siva Fluxon</span>
             </div>
             <p>RC 20 CRYPTER • Secure Edition</p>
           </div>
