@@ -20,7 +20,7 @@ import {
   Settings,
   Key,
   Sparkles,
-  X
+  AlertTriangle
 } from "lucide-react";
 
 interface InputFields {
@@ -181,16 +181,31 @@ class AesEncryptor {
 }
 
 class LicenseManager {
-  private static readonly LICENSE_KEY = 'rc20crypter_license';
+  private static readonly LICENSE_KEY = 'rc20crypter_license_v2';
   private static readonly VALID_KEY = 'fluxon98';
-  private static readonly TRIAL_TIME = 60000;
+  private static readonly PASSWORD_TIME_LIMIT = 60000;
+  private static readonly INSTALL_TIME_KEY = 'rc20crypter_install_time';
+
+  static initialize() {
+    if (!localStorage.getItem(this.INSTALL_TIME_KEY)) {
+      localStorage.setItem(this.INSTALL_TIME_KEY, Date.now().toString());
+    }
+  }
+
+  static canShowPasswordInput(): boolean {
+    const installTime = localStorage.getItem(this.INSTALL_TIME_KEY);
+    if (!installTime) return false;
+
+    const timeSinceInstall = Date.now() - parseInt(installTime);
+    return timeSinceInstall <= this.PASSWORD_TIME_LIMIT;
+  }
 
   static validateLicense(key: string): boolean {
     if (key === this.VALID_KEY) {
       const licenseInfo = {
         key: key,
         activatedAt: Date.now(),
-        expiry: Date.now() + this.TRIAL_TIME
+        validated: true
       };
       localStorage.setItem(this.LICENSE_KEY, JSON.stringify(licenseInfo));
       return true;
@@ -203,15 +218,19 @@ class LicenseManager {
     if (!stored) return false;
 
     const licenseInfo = JSON.parse(stored);
-    return Date.now() < licenseInfo.expiry;
+    return licenseInfo.validated === true;
   }
 
   static getTimeLeft(): number {
-    const stored = localStorage.getItem(this.LICENSE_KEY);
-    if (!stored) return 0;
+    const installTime = localStorage.getItem(this.INSTALL_TIME_KEY);
+    if (!installTime) return 0;
 
-    const licenseInfo = JSON.parse(stored);
-    return Math.max(0, licenseInfo.expiry - Date.now());
+    const timeSinceInstall = Date.now() - parseInt(installTime);
+    return Math.max(0, this.PASSWORD_TIME_LIMIT - timeSinceInstall);
+  }
+
+  static isPermanentlyLocked(): boolean {
+    return !this.canShowPasswordInput() && !this.isLicenseValid();
   }
 }
 
@@ -231,6 +250,7 @@ export default function RC20Crypter() {
   const [isLicenseValid, setIsLicenseValid] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
   const [animatedBg, setAnimatedBg] = useState(true);
+  const [permanentlyLocked, setPermanentlyLocked] = useState(false);
 
   const crypterFileInputRef = useRef<HTMLInputElement>(null);
   const editorFileInputRef = useRef<HTMLInputElement>(null);
@@ -257,36 +277,40 @@ export default function RC20Crypter() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       AesEncryptor.initialize();
+      LicenseManager.initialize();
+      
       const valid = LicenseManager.isLicenseValid();
       setIsLicenseValid(valid);
-      if (!valid) {
+      
+      const locked = LicenseManager.isPermanentlyLocked();
+      setPermanentlyLocked(locked);
+      
+      if (!valid && !locked) {
         setShowLicenseModal(true);
+      }
+
+      if (!valid) {
+        const interval = setInterval(() => {
+          const time = LicenseManager.getTimeLeft();
+          setTimeLeft(time);
+
+          if (time <= 0 && !LicenseManager.isLicenseValid()) {
+            setPermanentlyLocked(true);
+            setShowLicenseModal(false);
+            clearInterval(interval);
+          }
+        }, 1000);
+
+        return () => clearInterval(interval);
       }
     }
   }, []);
-
-  useEffect(() => {
-    if (!isLicenseValid) return;
-
-    const interval = setInterval(() => {
-      const time = LicenseManager.getTimeLeft();
-      setTimeLeft(time);
-
-      if (time <= 0) {
-        setIsLicenseValid(false);
-        setShowLicenseModal(true);
-        clearInterval(interval);
-      }
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [isLicenseValid]);
 
   const handleLicenseSubmit = () => {
     if (LicenseManager.validateLicense(licenseKey)) {
       setIsLicenseValid(true);
       setShowLicenseModal(false);
-      setTimeLeft(LicenseManager.getTimeLeft());
+      setPermanentlyLocked(false);
     } else {
       alert('❌ Invalid license key!');
     }
@@ -522,17 +546,77 @@ export default function RC20Crypter() {
     }
   };
 
+  if (permanentlyLocked) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-red-900 via-gray-900 to-red-900 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-black/50"></div>
+        <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-screen relative z-10">
+          <div className="bg-gray-800/90 border border-red-500/50 rounded-2xl p-8 max-w-md w-full backdrop-blur-sm">
+            <div className="text-center mb-6">
+              <AlertTriangle className="w-16 h-16 text-red-400 mx-auto mb-4" />
+              <h2 className="text-2xl font-bold text-white mb-2">Access Permanently Revoked</h2>
+              <p className="text-gray-400 mb-4">
+                You failed to enter the valid license key within the time limit.
+              </p>
+              <div className="bg-red-500/20 border border-red-500/40 rounded-lg p-4 text-left">
+                <h3 className="text-red-400 font-semibold mb-2">Security Rules:</h3>
+                <ul className="text-sm text-gray-300 space-y-1">
+                  <li>• Password must be entered within 1 minute of first use</li>
+                  <li>• Clearing browser cache will not reset the timer</li>
+                  <li>• Uninstalling/reinstalling will not bypass security</li>
+                  <li>• License key validation is permanent</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (!isLicenseValid) {
     return (
       <div className={`min-h-screen text-white relative overflow-hidden ${animatedBg ? 'animated-bg' : 'bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900'}`}>
+        <div className="absolute top-4 right-4 z-10">
+          <button
+            onClick={() => setAnimatedBg(!animatedBg)}
+            className="bg-gray-800/80 backdrop-blur-sm border border-cyan-500/30 rounded-xl px-4 py-2 flex items-center gap-2 hover:bg-gray-700/80 transition-all"
+          >
+            <Sparkles className="w-4 h-4" />
+            {animatedBg ? 'Disable Effects' : 'Enable Effects'}
+          </button>
+        </div>
+
         <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-screen">
           <div className="bg-gray-800/80 border border-cyan-500/30 rounded-2xl p-8 max-w-md w-full backdrop-blur-sm">
             <div className="text-center mb-6">
-              <Shield className="w-16 h-16 text-red-400 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-white mb-2">Access Denied</h2>
-              <p className="text-gray-400">
-                Your license has expired or is invalid
+              <Shield className="w-16 h-16 text-cyan-400 mx-auto mb-4" />
+              <h2 className="text-2xl font-bold text-white mb-2">License Required</h2>
+              <p className="text-gray-400 mb-4">
+                Enter license key within {Math.floor(timeLeft / 1000)} seconds
               </p>
+              
+              <div className="bg-cyan-500/20 border border-cyan-500/40 rounded-lg p-4 mb-4">
+                <div className="w-full bg-gray-700 rounded-full h-2">
+                  <div 
+                    className="bg-cyan-400 h-2 rounded-full transition-all duration-1000"
+                    style={{ width: `${(timeLeft / 60000) * 100}%` }}
+                  ></div>
+                </div>
+                <p className="text-cyan-400 text-sm mt-2">
+                  Time remaining: {Math.floor(timeLeft / 1000)} seconds
+                </p>
+              </div>
+
+              <div className="bg-yellow-500/20 border border-yellow-500/40 rounded-lg p-3 text-left">
+                <h3 className="text-yellow-400 font-semibold mb-2 text-sm">Important Rules:</h3>
+                <ul className="text-xs text-gray-300 space-y-1">
+                  <li>• You have 1 minute to enter the correct password</li>
+                  <li>• Clearing cache/uninstalling will NOT reset the timer</li>
+                  <li>• After time expires, access is permanently blocked</li>
+                  <li>• Contact developers for license key</li>
+                </ul>
+              </div>
             </div>
             
             <div className="space-y-4">
@@ -553,6 +637,49 @@ export default function RC20Crypter() {
             </div>
           </div>
         </div>
+
+        <style jsx>{`
+          .animated-bg {
+            background: linear-gradient(-45deg, #1a202c, #2d3748, #1a202c, #2d3748);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+          }
+
+          @keyframes gradient {
+            0% {
+              background-position: 0% 50%;
+            }
+            50% {
+              background-position: 100% 50%;
+            }
+            100% {
+              background-position: 0% 50%;
+            }
+          }
+
+          .animated-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+              radial-gradient(circle at 20% 80%, rgba(56, 189, 248, 0.1) 0%, transparent 50%),
+              radial-gradient(circle at 80% 20%, rgba(192, 132, 252, 0.1) 0%, transparent 50%),
+              radial-gradient(circle at 40% 40%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
+            animation: pulse 8s ease-in-out infinite;
+          }
+
+          @keyframes pulse {
+            0%, 100% {
+              opacity: 1;
+            }
+            50% {
+              opacity: 0.8;
+            }
+          }
+        `}</style>
       </div>
     );
   }
@@ -568,45 +695,6 @@ export default function RC20Crypter() {
           {animatedBg ? 'Disable Effects' : 'Enable Effects'}
         </button>
       </div>
-
-      <div className="absolute top-4 left-4 z-10">
-        <div className="bg-gray-800/80 backdrop-blur-sm border border-green-500/30 rounded-xl px-4 py-2">
-          <div className="text-green-400 font-semibold text-sm">
-            Time Left: {Math.floor(timeLeft / 1000)}s
-          </div>
-        </div>
-      </div>
-
-      {showLicenseModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-800 border border-cyan-500/30 rounded-2xl p-8 max-w-md w-full">
-            <div className="text-center mb-6">
-              <Shield className="w-16 h-16 text-cyan-400 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-white mb-2">License Required</h2>
-              <p className="text-gray-400">
-                Enter your license key to use RC 20 Crypter
-              </p>
-            </div>
-            
-            <div className="space-y-4">
-              <input
-                type="text"
-                value={licenseKey}
-                onChange={(e) => setLicenseKey(e.target.value)}
-                placeholder="Enter license key"
-                className="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 outline-none transition-all"
-              />
-              
-              <button
-                onClick={handleLicenseSubmit}
-                className="w-full bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white py-3 rounded-xl font-semibold transition-all"
-              >
-                Activate License
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       <div className="container mx-auto px-4 py-8 relative z-10">
         <header className="text-center mb-12">
