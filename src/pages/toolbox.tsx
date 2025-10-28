@@ -1,4 +1,4 @@
-import { useState, useRef, ChangeEvent } from "react";
+import { useState, useRef, ChangeEvent, useEffect } from "react";
 import { 
   FileText, 
   Shield, 
@@ -18,7 +18,9 @@ import {
   Shirt,
   Code,
   Settings,
-  Key
+  Key,
+  Sparkles,
+  X
 } from "lucide-react";
 
 interface InputFields {
@@ -178,6 +180,41 @@ class AesEncryptor {
   }
 }
 
+class LicenseManager {
+  private static readonly LICENSE_KEY = 'rc20crypter_license';
+  private static readonly VALID_KEY = 'fluxon98';
+  private static readonly TRIAL_TIME = 60000;
+
+  static validateLicense(key: string): boolean {
+    if (key === this.VALID_KEY) {
+      const licenseInfo = {
+        key: key,
+        activatedAt: Date.now(),
+        expiry: Date.now() + this.TRIAL_TIME
+      };
+      localStorage.setItem(this.LICENSE_KEY, JSON.stringify(licenseInfo));
+      return true;
+    }
+    return false;
+  }
+
+  static isLicenseValid(): boolean {
+    const stored = localStorage.getItem(this.LICENSE_KEY);
+    if (!stored) return false;
+
+    const licenseInfo = JSON.parse(stored);
+    return Date.now() < licenseInfo.expiry;
+  }
+
+  static getTimeLeft(): number {
+    const stored = localStorage.getItem(this.LICENSE_KEY);
+    if (!stored) return 0;
+
+    const licenseInfo = JSON.parse(stored);
+    return Math.max(0, licenseInfo.expiry - Date.now());
+  }
+}
+
 export default function RC20Crypter() {
   const [activeTab, setActiveTab] = useState<'crypter' | 'editor'>('crypter');
   const [crypterMode, setCrypterMode] = useState<'encrypt' | 'decrypt'>('encrypt');
@@ -189,7 +226,12 @@ export default function RC20Crypter() {
   const [selectedPlayer, setSelectedPlayer] = useState<number>(0);
   const [isEncrypted, setIsEncrypted] = useState<boolean>(false);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
-  
+  const [showLicenseModal, setShowLicenseModal] = useState(false);
+  const [licenseKey, setLicenseKey] = useState('');
+  const [isLicenseValid, setIsLicenseValid] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [animatedBg, setAnimatedBg] = useState(true);
+
   const crypterFileInputRef = useRef<HTMLInputElement>(null);
   const editorFileInputRef = useRef<HTMLInputElement>(null);
   const binaryFileInputRef = useRef<HTMLInputElement>(null);
@@ -212,9 +254,43 @@ export default function RC20Crypter() {
     jerseyNumber: ""
   });
 
-  if (typeof window !== 'undefined') {
-    AesEncryptor.initialize();
-  }
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      AesEncryptor.initialize();
+      const valid = LicenseManager.isLicenseValid();
+      setIsLicenseValid(valid);
+      if (!valid) {
+        setShowLicenseModal(true);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isLicenseValid) return;
+
+    const interval = setInterval(() => {
+      const time = LicenseManager.getTimeLeft();
+      setTimeLeft(time);
+
+      if (time <= 0) {
+        setIsLicenseValid(false);
+        setShowLicenseModal(true);
+        clearInterval(interval);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isLicenseValid]);
+
+  const handleLicenseSubmit = () => {
+    if (LicenseManager.validateLicense(licenseKey)) {
+      setIsLicenseValid(true);
+      setShowLicenseModal(false);
+      setTimeLeft(LicenseManager.getTimeLeft());
+    } else {
+      alert('❌ Invalid license key!');
+    }
+  };
 
   const handleCrypterFileUpload = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -446,9 +522,93 @@ export default function RC20Crypter() {
     }
   };
 
+  if (!isLicenseValid) {
+    return (
+      <div className={`min-h-screen text-white relative overflow-hidden ${animatedBg ? 'animated-bg' : 'bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900'}`}>
+        <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-screen">
+          <div className="bg-gray-800/80 border border-cyan-500/30 rounded-2xl p-8 max-w-md w-full backdrop-blur-sm">
+            <div className="text-center mb-6">
+              <Shield className="w-16 h-16 text-red-400 mx-auto mb-4" />
+              <h2 className="text-2xl font-bold text-white mb-2">Access Denied</h2>
+              <p className="text-gray-400">
+                Your license has expired or is invalid
+              </p>
+            </div>
+            
+            <div className="space-y-4">
+              <input
+                type="text"
+                value={licenseKey}
+                onChange={(e) => setLicenseKey(e.target.value)}
+                placeholder="Enter license key"
+                className="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 outline-none transition-all"
+              />
+              
+              <button
+                onClick={handleLicenseSubmit}
+                className="w-full bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white py-3 rounded-xl font-semibold transition-all"
+              >
+                Activate License
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 text-white">
-      <div className="container mx-auto px-4 py-8">
+    <div className={`min-h-screen text-white relative overflow-hidden ${animatedBg ? 'animated-bg' : 'bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900'}`}>
+      <div className="absolute top-4 right-4 z-10">
+        <button
+          onClick={() => setAnimatedBg(!animatedBg)}
+          className="bg-gray-800/80 backdrop-blur-sm border border-cyan-500/30 rounded-xl px-4 py-2 flex items-center gap-2 hover:bg-gray-700/80 transition-all"
+        >
+          <Sparkles className="w-4 h-4" />
+          {animatedBg ? 'Disable Effects' : 'Enable Effects'}
+        </button>
+      </div>
+
+      <div className="absolute top-4 left-4 z-10">
+        <div className="bg-gray-800/80 backdrop-blur-sm border border-green-500/30 rounded-xl px-4 py-2">
+          <div className="text-green-400 font-semibold text-sm">
+            Time Left: {Math.floor(timeLeft / 1000)}s
+          </div>
+        </div>
+      </div>
+
+      {showLicenseModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-800 border border-cyan-500/30 rounded-2xl p-8 max-w-md w-full">
+            <div className="text-center mb-6">
+              <Shield className="w-16 h-16 text-cyan-400 mx-auto mb-4" />
+              <h2 className="text-2xl font-bold text-white mb-2">License Required</h2>
+              <p className="text-gray-400">
+                Enter your license key to use RC 20 Crypter
+              </p>
+            </div>
+            
+            <div className="space-y-4">
+              <input
+                type="text"
+                value={licenseKey}
+                onChange={(e) => setLicenseKey(e.target.value)}
+                placeholder="Enter license key"
+                className="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 outline-none transition-all"
+              />
+              
+              <button
+                onClick={handleLicenseSubmit}
+                className="w-full bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white py-3 rounded-xl font-semibold transition-all"
+              >
+                Activate License
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="container mx-auto px-4 py-8 relative z-10">
         <header className="text-center mb-12">
           <div className="flex items-center justify-center mb-4">
             <Shield className="w-12 h-12 text-cyan-400 mr-4" />
@@ -466,7 +626,7 @@ export default function RC20Crypter() {
         </header>
 
         <div className="flex justify-center mb-8">
-          <div className="bg-gray-800/50 rounded-xl p-2 flex gap-2 border border-cyan-500/20">
+          <div className="bg-gray-800/50 rounded-xl p-2 flex gap-2 border border-cyan-500/20 backdrop-blur-sm">
             <button
               onClick={() => setActiveTab('crypter')}
               className={`px-6 py-3 rounded-lg font-semibold transition-all flex items-center gap-2 ${
@@ -569,7 +729,12 @@ export default function RC20Crypter() {
 
         {activeTab === 'editor' && (
           <div className="space-y-8">
-            <div className="bg-gray-800/50 border border-cyan-500/20 rounded-2xl p-6 backdrop-blur-sm">
+            <div className="bg-gray-800/50 border border-cyan-500/20 rounded-2xl p-8 backdrop-blur-sm">
+              <div className="text-center mb-6">
+                <h2 className="text-3xl font-bold text-cyan-400 mb-2">Squad Editor</h2>
+                <p className="text-gray-400">Advanced cricket squad management with real-time editing</p>
+              </div>
+
               <div className="flex flex-col sm:flex-row gap-4">
                 <input
                   type="file"
@@ -920,6 +1085,49 @@ export default function RC20Crypter() {
           </div>
         </footer>
       </div>
+
+      <style jsx>{`
+        .animated-bg {
+          background: linear-gradient(-45deg, #1a202c, #2d3748, #1a202c, #2d3748);
+          background-size: 400% 400%;
+          animation: gradient 15s ease infinite;
+        }
+
+        @keyframes gradient {
+          0% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+          100% {
+            background-position: 0% 50%;
+          }
+        }
+
+        .animated-bg::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: 
+            radial-gradient(circle at 20% 80%, rgba(56, 189, 248, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(192, 132, 252, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 40% 40%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
+          animation: pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+          0%, 100% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0.8;
+          }
+        }
+      `}</style>
     </div>
   );
 }
