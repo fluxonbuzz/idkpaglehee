@@ -460,8 +460,8 @@ export default function RC20Crypter() {
             AES-Powered Secure File Encryption & Squad Editor
           </p>
           <div className="flex justify-center gap-6 text-cyan-300 text-sm">
-            <span className="flex items-center gap-1"><Code className="w-4 h-4" /> Shiva Fluxon</span>
-            <span className="flex items-center gap-1"><Settings className="w-4 h-4" /> Nishad</span>
+            <span className="flex items-center gap-1"><Code className="w-4 h-4" /> Shiva</span>
+            <span className="flex items-center gap-1"><Settings className="w-4 h-4" /> Nishad & Fluxon</span>
           </div>
         </header>
 
