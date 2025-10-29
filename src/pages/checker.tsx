@@ -6,24 +6,23 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 const JerseyChecker: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const textureInputRef = useRef<HTMLInputElement>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [jerseyTexture, setJerseyTexture] = useState<string | null>(null);
 
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const controlsRef = useRef<OrbitControls | null>(null);
-  const modelRef = useRef<THREE.Group | null>(null);
+  const modelRef = useRef<THREE.Mesh | null>(null);
 
   useEffect(() => {
     if (!canvasRef.current) return;
 
-    // Initialize Three.js scene
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x1a1a1a);
     sceneRef.current = scene;
 
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const camera = new THREE.PerspectiveCamera(75, canvasRef.current.clientWidth / canvasRef.current.clientHeight, 0.1, 1000);
     camera.position.set(2, 2, 2);
     cameraRef.current = camera;
 
@@ -31,11 +30,10 @@ const JerseyChecker: React.FC = () => {
       canvas: canvasRef.current, 
       antialias: true 
     });
-    renderer.setSize(window.innerWidth * 0.8, window.innerHeight * 0.6);
-    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(canvasRef.current.clientWidth, canvasRef.current.clientHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     rendererRef.current = renderer;
 
-    // Lighting
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
     scene.add(ambientLight);
 
@@ -43,13 +41,11 @@ const JerseyChecker: React.FC = () => {
     directionalLight.position.set(5, 5, 5);
     scene.add(directionalLight);
 
-    // Controls
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
     controlsRef.current = controls;
 
-    // Create a simple jersey model (cube for demonstration)
     const geometry = new THREE.BoxGeometry(1, 1.5, 0.3);
     const material = new THREE.MeshStandardMaterial({ 
       color: 0xffffff,
@@ -61,7 +57,6 @@ const JerseyChecker: React.FC = () => {
     scene.add(jersey);
     modelRef.current = jersey;
 
-    // Animation loop
     const animate = () => {
       requestAnimationFrame(animate);
       controls.update();
@@ -69,9 +64,17 @@ const JerseyChecker: React.FC = () => {
     };
     animate();
 
-    setIsLoading(false);
+    const handleResize = () => {
+      if (!cameraRef.current || !rendererRef.current || !canvasRef.current) return;
+      cameraRef.current.aspect = canvasRef.current.clientWidth / canvasRef.current.clientHeight;
+      cameraRef.current.updateProjectionMatrix();
+      rendererRef.current.setSize(canvasRef.current.clientWidth, canvasRef.current.clientHeight);
+    };
+
+    window.addEventListener('resize', handleResize);
 
     return () => {
+      window.removeEventListener('resize', handleResize);
       controls.dispose();
       renderer.dispose();
     };
@@ -85,15 +88,11 @@ const JerseyChecker: React.FC = () => {
         const textureUrl = event.target?.result as string;
         setJerseyTexture(textureUrl);
         
-        // Apply texture to model
         const textureLoader = new THREE.TextureLoader();
         textureLoader.load(textureUrl, (texture) => {
           if (modelRef.current) {
-            (modelRef.current as THREE.Mesh).material = new THREE.MeshStandardMaterial({
-              map: texture,
-              roughness: 0.7,
-              metalness: 0.1
-            });
+            (modelRef.current.material as THREE.MeshStandardMaterial).map = texture;
+            (modelRef.current.material as THREE.MeshStandardMaterial).needsUpdate = true;
           }
         });
       };
@@ -107,7 +106,6 @@ const JerseyChecker: React.FC = () => {
       return;
     }
     
-    // Simulate jersey analysis
     const issues = [
       'Color contrast: Good',
       'Logo placement: Needs adjustment',
@@ -124,19 +122,17 @@ const JerseyChecker: React.FC = () => {
         <h1 className="text-4xl font-bold text-center mb-8">Jersey Checker 3D</h1>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* 3D Viewer */}
           <div className="bg-gray-800 rounded-lg p-6">
             <h2 className="text-2xl font-semibold mb-4">3D Jersey Preview</h2>
             <div className="bg-black rounded-lg flex items-center justify-center min-h-[400px]">
-              {isLoading ? (
-                <div className="text-white">Loading 3D Viewer...</div>
-              ) : (
-                <canvas ref={canvasRef} className="w-full h-full" />
-              )}
+              <canvas 
+                ref={canvasRef} 
+                className="w-full h-full rounded-lg"
+                style={{ width: '100%', height: '400px' }}
+              />
             </div>
           </div>
 
-          {/* Controls */}
           <div className="bg-gray-800 rounded-lg p-6">
             <h2 className="text-2xl font-semibold mb-4">Jersey Controls</h2>
             
@@ -167,14 +163,10 @@ const JerseyChecker: React.FC = () => {
                   type="color"
                   onChange={(e) => {
                     if (modelRef.current) {
-                      (modelRef.current as THREE.Mesh).material = new THREE.MeshStandardMaterial({
-                        color: e.target.value,
-                        roughness: 0.7,
-                        metalness: 0.3
-                      });
+                      (modelRef.current.material as THREE.MeshStandardMaterial).color = new THREE.Color(e.target.value);
                     }
                   }}
-                  className="w-full h-12 rounded-lg"
+                  className="w-full h-12 rounded-lg cursor-pointer"
                 />
               </div>
 
@@ -196,7 +188,6 @@ const JerseyChecker: React.FC = () => {
               </button>
             </div>
 
-            {/* Analysis Results */}
             <div className="mt-8 p-4 bg-gray-700 rounded-lg">
               <h3 className="text-lg font-semibold mb-3">Quick Analysis</h3>
               <div className="space-y-2 text-sm">
@@ -219,7 +210,6 @@ const JerseyChecker: React.FC = () => {
           </div>
         </div>
 
-        {/* Features Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
           <div className="bg-gray-800 p-6 rounded-lg text-center">
             <div className="text-blue-400 text-2xl mb-2">🎨</div>
