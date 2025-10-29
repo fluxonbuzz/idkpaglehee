@@ -1,24 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { 
-  Home, 
-  FolderOpen, 
-  Save,
-  Shirt,
-  Upload,
-  Download,
-  Users,
-  Zap,
-  Target,
-  Award,
-  User,
-  Flag,
-  Gamepad2,
-  Settings,
-  Sparkles
-} from 'lucide-react';
 
 const CricketModelViewer: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -26,107 +6,15 @@ const CricketModelViewer: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('main');
 
-  const sceneRef = useRef<THREE.Scene | null>(null);
-  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
-  const controlsRef = useRef<OrbitControls | null>(null);
-  const currentModelRef = useRef<THREE.Group | null>(null);
-  const currentTextureRef = useRef<THREE.Texture | null>(null);
-
   useEffect(() => {
-    if (!canvasRef.current) return;
-
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x2a0a0a);
-    sceneRef.current = scene;
-
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(5, 5, 5);
-    cameraRef.current = camera;
-
-    const renderer = new THREE.WebGLRenderer({ 
-      canvas: canvasRef.current, 
-      antialias: true 
-    });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
-    rendererRef.current = renderer;
-
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-    scene.add(ambientLight);
-
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    directionalLight.position.set(10, 10, 5);
-    scene.add(directionalLight);
-
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
-    controlsRef.current = controls;
-
-    const handleResize = () => {
-      if (!cameraRef.current || !rendererRef.current) return;
-      cameraRef.current.aspect = window.innerWidth / window.innerHeight;
-      cameraRef.current.updateProjectionMatrix();
-      rendererRef.current.setSize(window.innerWidth, window.innerHeight);
-    };
-
-    window.addEventListener('resize', handleResize);
-
-    const animate = () => {
-      requestAnimationFrame(animate);
-      controlsRef.current?.update();
-      rendererRef.current?.render(scene, camera);
-    };
-    animate();
-
     setIsLoading(false);
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
   }, []);
-
-  const loadModel = (modelData: string) => {
-    if (!sceneRef.current || !currentModelRef.current) return;
-    
-    sceneRef.current.remove(currentModelRef.current);
-    
-    const loader = new GLTFLoader();
-    try {
-      const gltf = loader.parse(JSON.parse(modelData), '');
-      const model = gltf.scene;
-      sceneRef.current.add(model);
-      currentModelRef.current = model;
-    } catch (error) {
-      console.error('Error loading model:', error);
-    }
-  };
-
-  const applyTexture = (file: File) => {
-    if (!currentModelRef.current) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const texture = new THREE.TextureLoader().load(e.target?.result as string);
-      if (currentTextureRef.current) {
-        currentTextureRef.current.dispose();
-      }
-      currentTextureRef.current = texture;
-
-      currentModelRef.current?.traverse((child) => {
-        if (child instanceof THREE.Mesh) {
-          child.material.map = texture;
-          child.material.needsUpdate = true;
-        }
-      });
-    };
-    reader.readAsDataURL(file);
-  };
 
   const handleTextureUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) applyTexture(file);
+    if (file) {
+      console.log('Texture file selected:', file.name);
+    }
   };
 
   return (
@@ -154,7 +42,9 @@ const CricketModelViewer: React.FC = () => {
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500"></div>
                 </div>
               ) : (
-                <canvas ref={canvasRef} className="w-full h-64 rounded-lg" />
+                <div className="w-full h-64 rounded-lg bg-gray-800 flex items-center justify-center">
+                  <span className="text-gray-400">3D Model Viewer Area</span>
+                </div>
               )}
             </div>
           </div>
@@ -299,7 +189,10 @@ const CricketModelViewer: React.FC = () => {
         </div>
 
         <div className="action-buttons flex justify-center gap-4 mt-6">
-          <button className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl font-semibold transition-all flex items-center gap-2">
+          <button 
+            className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl font-semibold transition-all flex items-center gap-2"
+            onClick={() => textureInputRef.current?.click()}
+          >
             <Upload size={20} />
             Import Texture
           </button>
@@ -333,85 +226,120 @@ const CricketModelViewer: React.FC = () => {
           <p className="text-xl font-bold text-white">YOUR SUPPORT MEANS A LOT :)</p>
         </div>
       </div>
-
-      <style jsx>{`
-        .top-buttons i {
-          font-size: 30px;
-          cursor: pointer;
-          color: white;
-          transition: color 0.3s ease, transform 0.2s ease;
-        }
-
-        .top-buttons i:hover {
-          color: #ff4444;
-          transform: scale(1.1);
-        }
-
-        .editor-container {
-          display: flex;
-          flex-direction: row;
-          justify-content: center;
-          align-items: flex-start;
-          gap: 30px;
-          background-color: #2a2a2a;
-          padding: 30px 40px;
-          border-radius: 14px;
-          box-shadow: 0 0 18px #000;
-          width: 95%;
-          max-width: 1700px;
-          margin: 0 auto;
-        }
-
-        .column {
-          display: flex;
-          flex-direction: column;
-          gap: 14px;
-          min-width: 280px;
-        }
-
-        .row {
-          display: flex;
-          flex-direction: column;
-        }
-
-        label {
-          font-size: 13px;
-          color: #ff6b6b;
-          margin-bottom: 4px;
-        }
-
-        select, input {
-          width: 100%;
-          padding: 8px 12px;
-          font-size: 13px;
-          background: linear-gradient(to bottom, #c0c0c0, #8f8f8f);
-          border: none;
-          border-radius: 6px;
-          color: #000;
-        }
-
-        .footer {
-          margin-top: 25px;
-          font-weight: bold;
-          font-size: 18px;
-          color: white;
-          text-align: center;
-          width: 100%;
-        }
-
-        @media (max-width: 1024px) {
-          .editor-container {
-            flex-direction: column;
-            align-items: center;
-          }
-          
-          .action-buttons {
-            flex-wrap: wrap;
-          }
-        }
-      `}</style>
     </div>
   );
 };
+
+const Home = ({ size }: { size: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+    <polyline points="9 22 9 12 15 12 15 22"/>
+  </svg>
+);
+
+const FolderOpen = ({ size }: { size: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="m6 14 1.5-2.9A2 2 0 0 1 9.2 10H19a2 2 0 0 1 1.8 2.9L18 20H6Z"/>
+    <path d="M4 20h16"/>
+    <path d="M2 10h4a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1Z"/>
+  </svg>
+);
+
+const Save = ({ size }: { size: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+    <polyline points="17 21 17 13 7 13 7 21"/>
+    <polyline points="7 3 7 8 15 8"/>
+  </svg>
+);
+
+const Shirt = ({ size }: { size: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/>
+  </svg>
+);
+
+const Upload = ({ size }: { size: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+    <polyline points="17 8 12 3 7 8"/>
+    <line x1="12" y1="3" x2="12" y2="15"/>
+  </svg>
+);
+
+const Download = ({ size }: { size: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+    <polyline points="7 10 12 15 17 10"/>
+    <line x1="12" y1="15" x2="12" y2="3"/>
+  </svg>
+);
+
+const Users = ({ size }: { size: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+    <circle cx="9" cy="7" r="4"/>
+    <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+  </svg>
+);
+
+const Zap = ({ size }: { size: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+  </svg>
+);
+
+const Target = ({ size }: { size: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"/>
+    <circle cx="12" cy="12" r="6"/>
+    <circle cx="12" cy="12" r="2"/>
+  </svg>
+);
+
+const Award = ({ size }: { size: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="8" r="6"/>
+    <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>
+  </svg>
+);
+
+const User = ({ size }: { size: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+    <circle cx="12" cy="7" r="4"/>
+  </svg>
+);
+
+const Flag = ({ size }: { size: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+    <line x1="4" y1="22" x2="4" y2="15"/>
+  </svg>
+);
+
+const Gamepad2 = ({ size }: { size: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="6" y1="12" x2="10" y2="12"/>
+    <line x1="8" y1="10" x2="8" y2="14"/>
+    <line x1="15" y1="13" x2="15" y2="13"/>
+    <line x1="18" y1="11" x2="18" y2="11"/>
+    <rect x="2" y="6" width="20" height="12" rx="2"/>
+  </svg>
+);
+
+const Settings = ({ size }: { size: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+    <circle cx="12" cy="12" r="3"/>
+  </svg>
+);
+
+const Sparkles = ({ size }: { size: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="m12 3-1.9 5.8a2 2 0 0 1-1.287 1.288L3 12l5.8 1.9a2 2 0 0 1 1.288 1.287L12 21l1.9-5.8a2 2 0 0 1 1.287-1.288L21 12l-5.8-1.9a2 2 0 0 1-1.288-1.287Z"/>
+  </svg>
+);
 
 export default CricketModelViewer;
