@@ -40,10 +40,7 @@ const nextConfig = {
   // Security Headers
   async headers() {
     const securityHeaders = [
-      {
-        key: 'X-Frame-Options',
-        value: 'DENY',
-      },
+      // X-Frame-Options removed for Replit iframe compatibility
       {
         key: 'X-Content-Type-Options',
         value: 'nosniff',

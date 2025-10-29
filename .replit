@@ -2,7 +2,7 @@ modules = ["nodejs-20", "web"]
 run = "npm run dev"
 
 [nix]
-channel = "stable-24_05"
+channel = "stable-25_05"
 packages = ["imagemagick_light", "try"]
 
 [deployment]
@@ -11,3 +11,6 @@ run = ["sh", "-c", "npm run dev"]
 [[ports]]
 localPort = 3000
 externalPort = 80
+
+[agent]
+expertMode = true
