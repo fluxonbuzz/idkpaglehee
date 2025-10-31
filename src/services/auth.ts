@@ -144,6 +144,19 @@ export const AuthService = {
     );
   },
 
+  async resendEmailConfirmation(email: string): Promise<{ success: boolean }> {
+    return handleRequest<{ success: boolean }>(
+      `${INTERNAL_API_URL}/auth/resend-confirmation`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      }
+    );
+  },
+
   async verifyEmail(token: string): Promise<{ success: boolean }> {
     return handleRequest<{ success: boolean }>(
       `${INTERNAL_API_URL}/auth/verify-email`,

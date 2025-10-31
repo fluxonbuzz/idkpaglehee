@@ -12,7 +12,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
     const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error || !data.session) return res.status(400).json({ message: error?.message || 'Invalid credentials' })
+
+    if (error || !data.session) {
+      const message = error?.message || 'Invalid credentials'
+      if (message.toLowerCase().includes('confirm') || message.toLowerCase().includes('not confirmed')) {
+        return res.status(403).json({ message: 'Email not confirmed. Please verify your email.', code: 'EMAIL_NOT_CONFIRMED' })
+      }
+      return res.status(400).json({ message })
+    }
 
     const accessToken = data.session.access_token
     const { data: userData } = await supabase.auth.getUser(accessToken)

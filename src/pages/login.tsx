@@ -9,11 +9,13 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [errorCode, setErrorCode] = useState<string | undefined>(undefined)
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError('')
     setLoading(true)
+    setErrorCode(undefined)
     try {
       const resp = await AuthService.login({ email, password })
       setAuthToken(resp.token)
@@ -24,6 +26,20 @@ export default function LoginPage() {
       }
     } catch (err: any) {
       setError(err?.message || 'Login failed')
+      if (err?.code) setErrorCode(err.code)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const onResend = async () => {
+    setLoading(true)
+    setError('')
+    try {
+      await AuthService.resendEmailConfirmation(email)
+      setError('Verification email sent. Please check your inbox.')
+    } catch (e: any) {
+      setError(e?.message || 'Failed to resend email')
     } finally {
       setLoading(false)
     }
@@ -33,7 +49,16 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center p-6">
       <form onSubmit={onSubmit} className="w-full max-w-sm space-y-4">
         <h1 className="text-2xl font-semibold">Login</h1>
-        {error && <p className="text-red-500 text-sm">{error}</p>}
+        {error && (
+          <div className="text-sm">
+            <p className="text-red-500">{error}</p>
+            {errorCode === 'EMAIL_NOT_CONFIRMED' && (
+              <button type="button" onClick={onResend} className="underline mt-1">
+                Resend verification email
+              </button>
+            )}
+          </div>
+        )}
         <input
           type="email"
           placeholder="Email"
