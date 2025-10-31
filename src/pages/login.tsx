@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { AuthService } from '../services/auth'
-import { setAuthToken } from '../lib/auth'
+import { setAuthToken, getAuthToken } from '../lib/auth'
 import { Mail, Lock, Eye, EyeOff, Store, User, Shield } from 'lucide-react'
 
 export default function LoginPage() {
@@ -13,6 +13,14 @@ export default function LoginPage() {
   const [errorCode, setErrorCode] = useState<string | undefined>(undefined)
   const [showPassword, setShowPassword] = useState(false)
 
+  // Check if user is already logged in
+  useEffect(() => {
+    const token = getAuthToken()
+    if (token) {
+      router.push('/store')
+    }
+  }, [router])
+
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError('')
@@ -21,11 +29,7 @@ export default function LoginPage() {
     try {
       const resp = await AuthService.login({ email, password })
       setAuthToken(resp.token)
-      if ((resp.user as any).role === 'admin') {
-        router.push('/admin')
-      } else {
-        router.push('/')
-      }
+      router.push('/store')
     } catch (err: any) {
       setError(err?.message || 'Login failed')
       if (err?.code) setErrorCode(err.code)
@@ -48,29 +52,29 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 flex items-center justify-center p-6">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="p-2 bg-black rounded-xl">
+            <div className="p-3 bg-white/20 backdrop-blur-sm rounded-2xl">
               <Store className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900">SX Store</h1>
+            <h1 className="text-4xl font-bold text-white">SX Store</h1>
           </div>
-          <p className="text-gray-600">Sign in to your account</p>
+          <p className="text-white/80 text-lg">Sign in to your account</p>
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+        <div className="bg-white/10 backdrop-blur-lg rounded-3xl shadow-2xl p-8 border border-white/20">
           <form onSubmit={onSubmit} className="space-y-6">
             {/* Error Message */}
             {error && (
               <div className={`p-4 rounded-xl border ${
                 errorCode === 'EMAIL_NOT_CONFIRMED' 
-                  ? 'border-amber-200 bg-amber-50' 
-                  : 'border-red-200 bg-red-50'
-              }`}>
+                  ? 'border-amber-200 bg-amber-50/90' 
+                  : 'border-red-200 bg-red-50/90'
+              } backdrop-blur-sm`}>
                 <p className={`text-sm ${
                   errorCode === 'EMAIL_NOT_CONFIRMED' ? 'text-amber-800' : 'text-red-800'
                 }`}>
@@ -91,18 +95,18 @@ export default function LoginPage() {
 
             {/* Email Input */}
             <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium text-gray-700">
+              <label htmlFor="email" className="text-sm font-medium text-white">
                 Email Address
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-gray-400" />
+                  <Mail className="h-5 w-5 text-white/70" />
                 </div>
                 <input
                   id="email"
                   type="email"
                   placeholder="Enter your email"
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200"
+                  className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/60 focus:ring-2 focus:ring-white focus:border-transparent transition-all duration-200 backdrop-blur-sm"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -112,18 +116,18 @@ export default function LoginPage() {
 
             {/* Password Input */}
             <div className="space-y-2">
-              <label htmlFor="password" className="text-sm font-medium text-gray-700">
+              <label htmlFor="password" className="text-sm font-medium text-white">
                 Password
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-400" />
+                  <Lock className="h-5 w-5 text-white/70" />
                 </div>
                 <input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Enter your password"
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200"
+                  className="w-full pl-10 pr-12 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/60 focus:ring-2 focus:ring-white focus:border-transparent transition-all duration-200 backdrop-blur-sm"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -134,9 +138,9 @@ export default function LoginPage() {
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors" />
+                    <EyeOff className="h-5 w-5 text-white/70 hover:text-white transition-colors" />
                   ) : (
-                    <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors" />
+                    <Eye className="h-5 w-5 text-white/70 hover:text-white transition-colors" />
                   )}
                 </button>
               </div>
@@ -146,11 +150,11 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-black text-white py-3 px-4 rounded-xl font-medium hover:bg-gray-800 focus:ring-2 focus:ring-offset-2 focus:ring-black disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2"
+              className="w-full bg-white text-purple-600 py-3 px-4 rounded-xl font-semibold hover:bg-gray-100 focus:ring-2 focus:ring-offset-2 focus:ring-white disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
             >
               {loading ? (
                 <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <div className="w-5 h-5 border-2 border-purple-600 border-t-transparent rounded-full animate-spin" />
                   Signing in...
                 </>
               ) : (
@@ -164,29 +168,29 @@ export default function LoginPage() {
             {/* Divider */}
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
+                <div className="w-full border-t border-white/30" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">or</span>
+                <span className="px-2 bg-transparent text-white/70">or</span>
               </div>
             </div>
 
             {/* Links */}
             <div className="space-y-3 text-center">
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-white/80">
                 No account?{' '}
                 <a 
                   href="/register" 
-                  className="font-medium text-black hover:text-gray-700 underline transition-colors"
+                  className="font-semibold text-white hover:text-gray-200 underline transition-colors"
                 >
                   Create one
                 </a>
               </p>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-white/80">
                 Admin?{' '}
                 <a 
                   href="/admin/login" 
-                  className="font-medium text-black hover:text-gray-700 transition-colors flex items-center justify-center gap-1"
+                  className="font-semibold text-white hover:text-gray-200 transition-colors flex items-center justify-center gap-1"
                 >
                   <Shield className="w-4 h-4" />
                   Admin login
@@ -198,8 +202,8 @@ export default function LoginPage() {
 
         {/* Footer */}
         <div className="text-center mt-6">
-          <p className="text-xs text-gray-500">
-            Made by <span className="font-medium">fluxon</span>
+          <p className="text-sm text-white/60">
+            Made by <span className="font-semibold text-white">fluxon</span>
           </p>
         </div>
       </div>
