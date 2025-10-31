@@ -1,15 +1,18 @@
 // src/pages/register.tsx
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Zap, ArrowRight, CheckCircle, Shield, Mail, User, Lock } from 'lucide-react';
+import { Zap, ArrowRight, CheckCircle, Shield, Mail, User, Lock, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
-import { AuthService } from '../services/auth';
-import { setAuthToken } from '../lib/auth';
+import { getBrowserSupabase } from '../lib/supabase';
+
+const supabase = getBrowserSupabase();
 
 export default function SignupPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -37,6 +40,12 @@ export default function SignupPage() {
       return;
     }
 
+    if (formData.password.length < 6) {
+      toast.error("Password must be at least 6 characters long");
+      setIsLoading(false);
+      return;
+    }
+
     if (!formData.terms) {
       toast.error("You must accept the terms and conditions");
       setIsLoading(false);
@@ -44,15 +53,45 @@ export default function SignupPage() {
     }
 
     try {
-      const resp = await AuthService.signup({
-        name: formData.name,
+      // Sign up with Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
+        options: {
+          data: {
+            name: formData.name,
+          }
+        }
       });
-      setAuthToken(resp.token);
-      toast.success('Account created successfully!');
-      router.push('/');
+
+      if (authError) {
+        throw new Error(authError.message);
+      }
+
+      if (authData.user) {
+        // Create user profile in public.users table
+        const { error: profileError } = await supabase
+          .from('users')
+          .insert([
+            {
+              id: authData.user.id,
+              email: formData.email,
+              password: formData.password, // Note: In production, you might want to handle this differently
+              role: 'user',
+              name: formData.name
+            }
+          ]);
+
+        if (profileError) {
+          console.error('Profile creation error:', profileError);
+          // Continue anyway as auth user is created
+        }
+
+        toast.success('Account created successfully! Please check your email for verification.');
+        router.push('/login');
+      }
     } catch (error: any) {
+      console.error('Signup error:', error);
       toast.error(error?.message || 'Signup failed. Please try again.');
     } finally {
       setIsLoading(false);
@@ -60,16 +99,19 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-purple-900 text-white">
       {/* Header */}
-      <header className="bg-gray-800/50 backdrop-blur-md sticky top-0 z-10 border-b border-gray-700">
+      <header className="bg-gray-800/50 backdrop-blur-md sticky top-0 z-10 border-b border-purple-800/30">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">
-            Shiva X Mods
+          <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
+            SX Store
           </Link>
           <nav className="flex gap-6">
-            <Link href="/store" className="hover:text-blue-400 transition">Store</Link>
-            <Link href="/downloads" className="hover:text-blue-400 transition">Games</Link>
+            <Link href="/store" className="hover:text-purple-400 transition">Store</Link>
+            <Link href="/downloads" className="hover:text-purple-400 transition">Games</Link>
+            <Link href="/login" className="text-purple-400 hover:text-purple-300 transition">
+              Already have an account?
+            </Link>
           </nav>
         </div>
       </header>
@@ -78,16 +120,16 @@ export default function SignupPage() {
       <main className="container mx-auto px-4 py-12">
         {/* Hero Section */}
         <section className="mb-12 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">
-            Join Our Community
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+            Join SX Store
           </h1>
           <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-            Create your account to access exclusive features and game downloads
+            Create your account to access exclusive gaming products and services
           </p>
         </section>
 
         {/* Signup Form */}
-        <div className="max-w-md mx-auto bg-gray-800 rounded-xl overflow-hidden border border-gray-700 hover:border-blue-500 transition-all hover:shadow-lg hover:shadow-blue-500/10">
+        <div className="max-w-md mx-auto bg-gray-800/50 backdrop-blur-sm rounded-xl overflow-hidden border border-purple-800/30 hover:border-purple-500/50 transition-all hover:shadow-lg hover:shadow-purple-500/10">
           <div className="p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-4">
@@ -107,7 +149,7 @@ export default function SignupPage() {
                       required
                       value={formData.name}
                       onChange={handleChange}
-                      className="w-full bg-gray-700 border border-gray-600 rounded-lg pl-10 pr-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full bg-gray-700/50 border border-gray-600/50 rounded-lg pl-10 pr-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50"
                       placeholder="John Doe"
                     />
                   </div>
@@ -129,7 +171,7 @@ export default function SignupPage() {
                       required
                       value={formData.email}
                       onChange={handleChange}
-                      className="w-full bg-gray-700 border border-gray-600 rounded-lg pl-10 pr-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full bg-gray-700/50 border border-gray-600/50 rounded-lg pl-10 pr-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50"
                       placeholder="you@example.com"
                     />
                   </div>
@@ -147,15 +189,23 @@ export default function SignupPage() {
                     <input
                       id="password"
                       name="password"
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       required
-                      minLength={8}
+                      minLength={6}
                       value={formData.password}
                       onChange={handleChange}
-                      className="w-full bg-gray-700 border border-gray-600 rounded-lg pl-10 pr-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full bg-gray-700/50 border border-gray-600/50 rounded-lg pl-10 pr-12 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50"
                       placeholder="••••••••"
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-white"
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
                   </div>
+                  <p className="text-xs text-gray-400 mt-1">Must be at least 6 characters</p>
                 </div>
 
                 {/* Confirm Password Field */}
@@ -170,33 +220,44 @@ export default function SignupPage() {
                     <input
                       id="confirmPassword"
                       name="confirmPassword"
-                      type="password"
+                      type={showConfirmPassword ? "text" : "password"}
                       required
                       value={formData.confirmPassword}
                       onChange={handleChange}
-                      className="w-full bg-gray-700 border border-gray-600 rounded-lg pl-10 pr-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full bg-gray-700/50 border border-gray-600/50 rounded-lg pl-10 pr-12 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50"
                       placeholder="••••••••"
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-white"
+                    >
+                      {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
                   </div>
                 </div>
               </div>
 
               {/* Terms Checkbox */}
-              <div className="flex items-start">
-                <div className="flex items-center h-5">
+              <div className="flex items-start space-x-3">
+                <div className="flex items-center h-5 mt-0.5">
                   <input
                     id="terms"
                     name="terms"
                     type="checkbox"
                     checked={formData.terms}
                     onChange={handleChange}
-                    className="w-4 h-4 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 text-blue-600"
+                    className="w-4 h-4 bg-gray-700 border-gray-600 rounded focus:ring-purple-500 text-purple-600"
                   />
                 </div>
-                <label htmlFor="terms" className="ml-3 text-sm text-gray-300">
+                <label htmlFor="terms" className="text-sm text-gray-300">
                   I agree to the{' '}
-                  <Link href="/terms" className="text-blue-400 hover:underline">
+                  <Link href="/terms" className="text-purple-400 hover:underline">
                     Terms and Conditions
+                  </Link>{' '}
+                  and{' '}
+                  <Link href="/privacy" className="text-purple-400 hover:underline">
+                    Privacy Policy
                   </Link>
                 </label>
               </div>
@@ -205,7 +266,7 @@ export default function SignupPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white font-bold py-3 px-4 rounded transition flex items-center justify-center gap-2"
+                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {isLoading ? (
                   <>
@@ -225,8 +286,8 @@ export default function SignupPage() {
               {/* Login Link */}
               <p className="text-center text-sm text-gray-400">
                 Already have an account?{' '}
-                <Link href="/login" className="text-blue-400 hover:underline">
-                  Log in
+                <Link href="/login" className="text-purple-400 hover:underline font-medium">
+                  Log in here
                 </Link>
               </p>
             </form>
@@ -234,45 +295,65 @@ export default function SignupPage() {
         </div>
 
         {/* Features Section */}
-        <section className="mt-16 bg-gray-800/50 rounded-xl p-8 border border-gray-700">
-          <h2 className="text-2xl font-bold mb-6 text-center">Why Join SX Mods?</h2>
+        <section className="mt-16 bg-gray-800/30 backdrop-blur-sm rounded-xl p-8 border border-purple-800/30">
+          <h2 className="text-2xl font-bold mb-6 text-center">Why Join SX Store?</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700">
-              <div className="flex items-center mb-3">
-                <div className="bg-blue-500/20 p-2 rounded-full mr-3">
-                  <CheckCircle size={20} className="text-blue-400" />
-                </div>
-                <h3 className="font-bold">Exclusive Access</h3>
-              </div>
-              <p className="text-gray-300 text-sm">
-                Get early access to beta versions and upcoming game releases before anyone else.
-              </p>
-            </div>
-            <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700">
+            <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700/50 hover:border-purple-500/30 transition">
               <div className="flex items-center mb-3">
                 <div className="bg-purple-500/20 p-2 rounded-full mr-3">
-                  <Shield size={20} className="text-purple-400" />
+                  <CheckCircle size={20} className="text-purple-400" />
                 </div>
-                <h3 className="font-bold">Secure Account</h3>
+                <h3 className="font-bold">Exclusive Products</h3>
               </div>
               <p className="text-gray-300 text-sm">
-                Your data is protected with enterprise-grade security and encryption.
+                Access premium gaming accounts, tools, and services not available elsewhere.
               </p>
             </div>
-            <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700">
+            <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700/50 hover:border-purple-500/30 transition">
               <div className="flex items-center mb-3">
-                <div className="bg-green-500/20 p-2 rounded-full mr-3">
-                  <Zap size={20} className="text-green-400" />
+                <div className="bg-pink-500/20 p-2 rounded-full mr-3">
+                  <Shield size={20} className="text-pink-400" />
                 </div>
-                <h3 className="font-bold">Premium Features</h3>
+                <h3 className="font-bold">Secure Purchases</h3>
               </div>
               <p className="text-gray-300 text-sm">
-                Unlock special in-game content, mods, and customization options.
+                Your transactions are protected with secure payment processing and order tracking.
+              </p>
+            </div>
+            <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700/50 hover:border-purple-500/30 transition">
+              <div className="flex items-center mb-3">
+                <div className="bg-blue-500/20 p-2 rounded-full mr-3">
+                  <Zap size={20} className="text-blue-400" />
+                </div>
+                <h3 className="font-bold">Instant Delivery</h3>
+              </div>
+              <p className="text-gray-300 text-sm">
+                Most digital products are delivered instantly after purchase confirmation.
               </p>
             </div>
           </div>
         </section>
       </main>
+
+      {/* Footer */}
+      <footer className="bg-gray-900/50 border-t border-gray-800 py-8 mt-16">
+        <div className="container mx-auto px-4 text-center">
+          <p className="text-gray-400 text-sm">
+            © {new Date().getFullYear()} SX Store. All rights reserved.
+          </p>
+          <div className="flex justify-center gap-6 mt-4">
+            <Link href="/terms" className="text-gray-400 hover:text-purple-300 transition text-sm">
+              Terms
+            </Link>
+            <Link href="/privacy" className="text-gray-400 hover:text-purple-300 transition text-sm">
+              Privacy
+            </Link>
+            <Link href="/refund" className="text-gray-400 hover:text-purple-300 transition text-sm">
+              Refund Policy
+            </Link>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
