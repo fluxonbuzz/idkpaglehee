@@ -19,10 +19,12 @@ interface Order {
   id: string
   user_id: string
   status: string
-  data: any
-  created_at?: string
-  total?: number
-  admin_notes?: string
+  items: any[]
+  subtotal: number
+  total: number
+  discount: any
+  created_at: string
+  updated_at: string
 }
 
 export default function AdminDashboard() {
@@ -102,6 +104,8 @@ export default function AdminDashboard() {
         return
       }
 
+      console.log('Updating order:', id, 'with data:', body)
+
       const res = await fetch(`/api/orders/${id}`, {
         method: 'PATCH',
         headers: { 
@@ -112,7 +116,9 @@ export default function AdminDashboard() {
       })
       
       const data = await res.json()
-      if (!res.ok) throw new Error(data?.message || 'Action failed')
+      if (!res.ok) {
+        throw new Error(data?.message || 'Action failed')
+      }
       
       await loadOrders(token)
     } catch (e: any) {
@@ -270,12 +276,6 @@ export default function AdminDashboard() {
                       <span className="text-sm font-medium capitalize">{order.status}</span>
                     </div>
                     <div className="text-sm text-gray-500 font-mono">#{order.id.slice(0, 8)}</div>
-                    {order.admin_notes && (
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <Edit3 className="w-4 h-4" />
-                        <span>Has notes</span>
-                      </div>
-                    )}
                   </div>
                   <div className="text-sm text-gray-500">
                     {order.created_at && new Date(order.created_at).toLocaleDateString()}
@@ -289,17 +289,35 @@ export default function AdminDashboard() {
                     <span className="text-sm text-gray-600">User ID:</span>
                     <span className="text-sm font-medium">{order.user_id}</span>
                   </div>
-                  {order.total && (
-                    <div className="flex items-center gap-2">
-                      <DollarSign className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm text-gray-600">Total:</span>
-                      <span className="text-sm font-medium">${order.total}</span>
-                    </div>
-                  )}
+                  <div className="flex items-center gap-2">
+                    <DollarSign className="w-4 h-4 text-gray-400" />
+                    <span className="text-sm text-gray-600">Total:</span>
+                    <span className="text-sm font-medium">₹{order.total}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Package className="w-4 h-4 text-gray-400" />
+                    <span className="text-sm text-gray-600">Items:</span>
+                    <span className="text-sm font-medium">{order.items?.length || 0}</span>
+                  </div>
                 </div>
 
+                {/* Order Items */}
+                {order.items && order.items.length > 0 && (
+                  <div className="mb-4">
+                    <h4 className="text-sm font-bold mb-2 text-gray-700">Items:</h4>
+                    <div className="space-y-1">
+                      {order.items.map((item: any, index: number) => (
+                        <div key={index} className="flex justify-between text-sm text-gray-600">
+                          <span>{item.name} (x{item.qty})</span>
+                          <span>₹{item.unitPrice * item.qty}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Action Buttons */}
-                <div className="flex flex-wrap gap-2 mb-4">
+                <div className="flex flex-wrap gap-2">
                   <button
                     disabled={loadingId === order.id}
                     onClick={() => act(order.id, { status: 'confirmed' })}
@@ -349,28 +367,7 @@ export default function AdminDashboard() {
                     <Tag className="w-4 h-4" />
                     Discount
                   </button>
-                  <button
-                    disabled={loadingId === order.id}
-                    onClick={() => {
-                      const notes = window.prompt('Admin notes:', order.admin_notes || '') || ''
-                      act(order.id, { admin_notes: notes })
-                    }}
-                    className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-50 text-gray-700 rounded-lg hover:bg-gray-100 disabled:opacity-50 transition-colors"
-                  >
-                    <Edit3 className="w-4 h-4" />
-                    Notes
-                  </button>
                 </div>
-
-                {/* Order Data */}
-                <details className="mt-4">
-                  <summary className="cursor-pointer text-sm font-medium text-gray-700 hover:text-gray-900">
-                    Order Details
-                  </summary>
-                  <pre className="text-xs bg-gray-50 p-3 rounded-lg overflow-auto mt-2 border">
-                    {JSON.stringify(order.data, null, 2)}
-                  </pre>
-                </details>
               </div>
             )
           })}
