@@ -1,85 +1,54 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
-import { createClient } from '@supabase/supabase-js'
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!, 
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+);
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // Set CORS headers
-  res.setHeader('Access-Control-Allow-Credentials', 'true')
-  res.setHeader('Access-Control-Allow-Origin', '*')
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-  res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type')
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
 
   if (req.method === 'OPTIONS') {
-    return res.status(200).end()
+    return res.status(200).end();
   }
 
-  if (req.method === 'GET') {
-    try {
-      console.log('Fetching products...')
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .order('created_at', { ascending: false })
-
-      if (error) {
-        console.error('Database error:', error)
-        return res.status(400).json({ message: error.message })
-      }
-
-      console.log('Products fetched:', data?.length)
-      return res.status(200).json({ products: data || [] })
-    } catch (error: any) {
-      console.error('Server error:', error)
-      return res.status(500).json({ message: 'Internal server error' })
-    }
-  }
+  // In a real app, you'd get the user from the token
+  // const { user, error: userError } = await supabase.auth.api.getUserByCookie(req);
+  // if (userError || !user) return res.status(401).json({ message: 'Unauthorized' });
 
   if (req.method === 'POST') {
     try {
-      const product = req.body
-      console.log('Creating product:', product)
-      
-      // Validate required fields
-      if (!product.name || !product.price || !product.description) {
-        return res.status(400).json({ message: 'Name, price, and description are required' })
+      const { order } = req.body;
+      console.log('Creating order:', order);
+
+      if (!order || !order.items || order.items.length === 0) {
+        return res.status(400).json({ message: 'Order data is missing or invalid' });
       }
 
       const { data, error } = await supabase
-        .from('products')
+        .from('orders')
         .insert([{
-          name: product.name,
-          category: product.category || 'account',
-          price: parseFloat(product.price),
-          original_price: product.original_price ? parseFloat(product.original_price) : null,
-          description: product.description,
-          features: product.features || [],
-          tags: product.tags || [],
-          seller_contact: product.seller_contact,
-          mod_options: product.mod_options || [],
-          is_pre_order: product.is_pre_order || false,
-          pre_order_discount: product.pre_order_discount,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          // user_id: user.id,
+          items: order.items,
+          total: order.total,
+          status: order.status,
+          discount: order.discount,
         }])
         .select()
-        .single()
+        .single();
 
-      if (error) {
-        console.error('Database error:', error)
-        return res.status(400).json({ message: error.message })
-      }
-
-      console.log('Product created:', data)
-      return res.status(201).json({ product: data })
+      if (error) throw error;
+      return res.status(201).json({ order: data });
     } catch (error: any) {
-      console.error('Server error:', error)
-      return res.status(500).json({ message: 'Internal server error' })
+      console.error('Order creation error:', error);
+      return res.status(500).json({ message: 'Internal server error', error: error.message });
     }
   }
 
-  return res.status(405).json({ message: 'Method Not Allowed' })
+  return res.status(405).json({ message: 'Method Not Allowed' });
 }
