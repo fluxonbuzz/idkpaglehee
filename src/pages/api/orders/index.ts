@@ -43,13 +43,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const product = req.body
       console.log('Creating product:', product)
       
+      // Validate required fields
+      if (!product.name || !product.price || !product.description) {
+        return res.status(400).json({ message: 'Name, price, and description are required' })
+      }
+
       const { data, error } = await supabase
         .from('products')
         .insert([{
           name: product.name,
-          category: product.category,
-          price: product.price,
-          original_price: product.original_price,
+          category: product.category || 'account',
+          price: parseFloat(product.price),
+          original_price: product.original_price ? parseFloat(product.original_price) : null,
           description: product.description,
           features: product.features || [],
           tags: product.tags || [],
