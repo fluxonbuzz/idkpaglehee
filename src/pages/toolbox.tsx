@@ -1,4 +1,5 @@
 import { useState, useRef, ChangeEvent, useEffect } from "react";
+import type { GetServerSideProps } from 'next';
 import { 
   FileText, 
   Shield, 
@@ -180,61 +181,9 @@ class AesEncryptor {
   }
 }
 
-class LicenseManager {
-  private static readonly LICENSE_KEY = 'rc20crypter_license_v2';
-  private static readonly VALID_KEY = 'fluxon98';
-  private static readonly PASSWORD_TIME_LIMIT = 60000;
-  private static readonly INSTALL_TIME_KEY = 'rc20crypter_install_time';
+type ToolboxProps = { isLicensed: boolean };
 
-  static initialize() {
-    if (!localStorage.getItem(this.INSTALL_TIME_KEY)) {
-      localStorage.setItem(this.INSTALL_TIME_KEY, Date.now().toString());
-    }
-  }
-
-  static canShowPasswordInput(): boolean {
-    const installTime = localStorage.getItem(this.INSTALL_TIME_KEY);
-    if (!installTime) return false;
-
-    const timeSinceInstall = Date.now() - parseInt(installTime);
-    return timeSinceInstall <= this.PASSWORD_TIME_LIMIT;
-  }
-
-  static validateLicense(key: string): boolean {
-    if (key === this.VALID_KEY) {
-      const licenseInfo = {
-        key: key,
-        activatedAt: Date.now(),
-        validated: true
-      };
-      localStorage.setItem(this.LICENSE_KEY, JSON.stringify(licenseInfo));
-      return true;
-    }
-    return false;
-  }
-
-  static isLicenseValid(): boolean {
-    const stored = localStorage.getItem(this.LICENSE_KEY);
-    if (!stored) return false;
-
-    const licenseInfo = JSON.parse(stored);
-    return licenseInfo.validated === true;
-  }
-
-  static getTimeLeft(): number {
-    const installTime = localStorage.getItem(this.INSTALL_TIME_KEY);
-    if (!installTime) return 0;
-
-    const timeSinceInstall = Date.now() - parseInt(installTime);
-    return Math.max(0, this.PASSWORD_TIME_LIMIT - timeSinceInstall);
-  }
-
-  static isPermanentlyLocked(): boolean {
-    return !this.canShowPasswordInput() && !this.isLicenseValid();
-  }
-}
-
-export default function RC20Crypter() {
+export default function RC20Crypter({ isLicensed }: ToolboxProps) {
   const [activeTab, setActiveTab] = useState<'crypter' | 'editor'>('crypter');
   const [crypterMode, setCrypterMode] = useState<'encrypt' | 'decrypt'>('encrypt');
   const [crypterStatus, setCrypterStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
@@ -245,12 +194,12 @@ export default function RC20Crypter() {
   const [selectedPlayer, setSelectedPlayer] = useState<number>(0);
   const [isEncrypted, setIsEncrypted] = useState<boolean>(false);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
-  const [showLicenseModal, setShowLicenseModal] = useState(false);
+  const [showLicenseModal, setShowLicenseModal] = useState(!isLicensed);
   const [licenseKey, setLicenseKey] = useState('');
-  const [isLicenseValid, setIsLicenseValid] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(0);
+  const [isLicenseValid, setIsLicenseValid] = useState(isLicensed);
   const [animatedBg, setAnimatedBg] = useState(true);
   const [permanentlyLocked, setPermanentlyLocked] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(0);
 
   const crypterFileInputRef = useRef<HTMLInputElement>(null);
   const editorFileInputRef = useRef<HTMLInputElement>(null);
@@ -277,42 +226,22 @@ export default function RC20Crypter() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       AesEncryptor.initialize();
-      LicenseManager.initialize();
-      
-      const valid = LicenseManager.isLicenseValid();
-      setIsLicenseValid(valid);
-      
-      const locked = LicenseManager.isPermanentlyLocked();
-      setPermanentlyLocked(locked);
-      
-      if (!valid && !locked) {
-        setShowLicenseModal(true);
-      }
-
-      if (!valid) {
-        const interval = setInterval(() => {
-          const time = LicenseManager.getTimeLeft();
-          setTimeLeft(time);
-
-          if (time <= 0 && !LicenseManager.isLicenseValid()) {
-            setPermanentlyLocked(true);
-            setShowLicenseModal(false);
-            clearInterval(interval);
-          }
-        }, 1000);
-
-        return () => clearInterval(interval);
-      }
     }
   }, []);
 
-  const handleLicenseSubmit = () => {
-    if (LicenseManager.validateLicense(licenseKey)) {
+  const handleLicenseSubmit = async () => {
+    try {
+      const deviceId = undefined; // Optional: pipe a fingerprint if you bind licenses to devices
+      const res = await fetch('/api/license/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: licenseKey, deviceId })
+      });
+      if (!res.ok) throw new Error('Invalid license');
       setIsLicenseValid(true);
       setShowLicenseModal(false);
-      setPermanentlyLocked(false);
-    } else {
-      alert('❌ Invalid license key!');
+    } catch {
+      alert('❌ Invalid or expired license key');
     }
   };
 
@@ -1219,3 +1148,15 @@ export default function RC20Crypter() {
     </div>
   );
 }
+
+export const getServerSideProps: GetServerSideProps<ToolboxProps> = async (ctx) => {
+  const token = ctx.req.cookies?.['license_session'];
+  const sessionKey = process.env.LICENSE_SESSION_KEY;
+  let isLicensed = false;
+  if (token && sessionKey) {
+    const { verifySessionCookie } = await import('@/lib/license');
+    const result = verifySessionCookie(token, sessionKey);
+    isLicensed = result.valid === true;
+  }
+  return { props: { isLicensed } };
+};

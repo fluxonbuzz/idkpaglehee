@@ -1,3 +1,71 @@
+import { useState } from 'react'
+import { useRouter } from 'next/router'
+import { AuthService } from '../services/auth'
+import { setAuthToken } from '../lib/auth'
+
+export default function RegisterPage() {
+  const router = useRouter()
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+    try {
+      const resp = await AuthService.signup({ email, password, name })
+      setAuthToken(resp.token)
+      router.push('/')
+    } catch (err: any) {
+      setError(err?.message || 'Signup failed')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-6">
+      <form onSubmit={onSubmit} className="w-full max-w-sm space-y-4">
+        <h1 className="text-2xl font-semibold">Create account</h1>
+        {error && <p className="text-red-500 text-sm">{error}</p>}
+        <input
+          type="text"
+          placeholder="Name"
+          className="w-full border rounded px-3 py-2"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
+        <input
+          type="email"
+          placeholder="Email"
+          className="w-full border rounded px-3 py-2"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          className="w-full border rounded px-3 py-2"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <button disabled={loading} className="w-full bg-black text-white rounded py-2 disabled:opacity-60">
+          {loading ? 'Creating…' : 'Create account'}
+        </button>
+        <p className="text-sm text-center">
+          Already have an account? <a href="/login" className="underline">Sign in</a>
+        </p>
+      </form>
+    </div>
+  )
+}
+
 // src/pages/register.tsx
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';

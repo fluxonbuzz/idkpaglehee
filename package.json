@@ -24,6 +24,8 @@
     "@vercel/analytics": "^1.5.0",
     "@vercel/edge-config": "^1.4.0",
     "@vercel/speed-insights": "^1.2.0",
+    "@supabase/ssr": "^0.5.1",
+    "@supabase/supabase-js": "^2.49.8",
     "bcryptjs": "^3.0.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",

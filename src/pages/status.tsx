@@ -75,7 +75,7 @@ export default function PaymentsPage() {
     { id: 'PROD-010', name: 'Custom Webpage', price: 100, stock: 'Full', category: 'Services', icon: <Box className="text-amber-500" /> }
   ]);
 
-  const paymentData = [
+	const [paymentData, setPaymentData] = useState([
     { id: 'PAY-001', customer: 'TH Cricket', product: 'Squad Editor', price: 100, status: 'cancelled', date: '2025-05-15', method: 'UPI' },
     { id: 'PAY-002', customer: 'Driven X', product: 'Squad Editor', price: 100, status: 'cancelled', date: '2025-05-18', method: 'UPI' },
     { id: 'PAY-003', customer: 'Simply Dev', product: 'Game Making Kit', price: 500, status: 'pending', date: '', method: 'UPI' },
@@ -137,7 +137,12 @@ export default function PaymentsPage() {
     { id: 'PAY-057', customer: 'Javed Jaffrey', product: 'Personal OBB', price: 100, status: 'completed', date: '2025-05-30', method: 'UPI' },
     { id: 'PAY-058', customer: 'Asrani', product: 'RC24 ID', price: 130, status: 'pending', date: '', method: 'UPI' },
     { id: 'PAY-059', customer: 'Paresh Rawal', product: '2 IDs (1 paid)', price: 130, status: 'completed', date: '2025-05-29', method: 'UPI' },
-  ];
+	]);
+
+	const completeAllPending = () => {
+		const today = new Date().toISOString().slice(0, 10);
+		setPaymentData(prev => prev.map(item => item.status === 'pending' ? { ...item, status: 'completed', date: today } : item));
+	};
 
   const filteredData = paymentData.filter(item =>
     (item.customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -419,10 +424,16 @@ export default function PaymentsPage() {
         {/* Payment Table */}
         <section>
           <div className="rounded-xl overflow-hidden bg-gradient-to-br from-gray-800 to-gray-800/50 border border-purple-800/30 shadow-lg">
-            <div className="p-6 border-b border-gray-700 flex justify-between items-center">
+				<div className="p-6 border-b border-gray-700 flex justify-between items-center">
               <h2 className="text-xl font-bold">
                 Payment Details
               </h2>
+					<button
+						onClick={completeAllPending}
+						className="px-4 py-2 rounded-lg bg-green-600/80 hover:bg-green-600 transition text-white text-sm font-medium border border-green-400/30"
+					>
+						Mark all pending as completed
+					</button>
             </div>
             
             <div className="overflow-x-auto">
