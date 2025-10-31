@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { createClient } from '@supabase/supabase-js'
-import { getAdminSupabase } from '../../../lib/supabase'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -12,31 +11,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
-    let { data, error } = await supabase.auth.signInWithPassword({ email, password })
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
     if (error || !data.session) {
       const message = error?.message || 'Invalid credentials'
-      const looksUnconfirmed = message.toLowerCase().includes('confirm') || message.toLowerCase().includes('not confirmed')
-
-      if (looksUnconfirmed) {
-        try {
-          const admin = getAdminSupabase()
-          // Find user by email
-          const { data: usersList } = await admin.auth.admin.listUsers({ page: 1, perPage: 1, email }) as any
-          const user = usersList?.users?.[0]
-          if (user?.id) {
-            await admin.auth.admin.updateUserById(user.id, { email_confirm: true })
-            // Retry sign in after auto-confirm
-            const retry = await supabase.auth.signInWithPassword({ email, password })
-            data = retry.data
-            error = retry.error as any
-          }
-        } catch {}
+      if (message.toLowerCase().includes('confirm') || message.toLowerCase().includes('not confirmed')) {
+        return res.status(403).json({ message: 'Email not confirmed. Please verify your email.', code: 'EMAIL_NOT_CONFIRMED' })
       }
-
-      if (error || !data?.session) {
-        return res.status(400).json({ message: 'Invalid credentials' })
-      }
+      return res.status(400).json({ message: 'Invalid credentials' })
     }
 
     const accessToken = data.session.access_token

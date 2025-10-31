@@ -57,14 +57,18 @@ export default function SignupPage() {
         password: formData.password,
         name: formData.name,
       });
-      if (resp?.token) {
-        setAuthToken(resp.token);
-      }
-      toast.success('Account created successfully!');
-      router.push('/');
+      // Do not set token; require email verification
+      toast.success('Account created! Please verify your email to continue.');
+      router.push('/login');
     } catch (error: any) {
       console.error('Signup error:', error);
-      toast.error(error?.message || 'Signup failed. Please try again.');
+      if (error?.code === 'EMAIL_IN_USE') {
+        toast.error('Email already in use. Try logging in instead.');
+      } else if (error?.code === 'SERVER_MISCONFIGURED') {
+        toast.error('Signup temporarily unavailable. Please try again later.');
+      } else {
+        toast.error(error?.message || 'Signup failed. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
