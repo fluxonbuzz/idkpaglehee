@@ -24,7 +24,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const auth = await getUserFromAuth(token)
   if ('error' in auth) return res.status(401).json({ message: 'Unauthorized' })
 
-  const supabaseAdmin = createClient(
+  // Use service role key for all operations to bypass RLS
+  const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!, 
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
@@ -38,7 +39,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const updates = req.body
 
     try {
-      const { data, error } = await supabaseAdmin
+      const { data, error } = await supabase
         .from('orders')
         .update({
           ...updates,
@@ -62,15 +63,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   if (req.method === 'GET') {
-    const supabaseUser = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!, 
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    )
-
     try {
       if (auth.role === 'admin') {
         // Admin can get any order
-        const { data, error } = await supabaseAdmin
+        const { data, error } = await supabase
           .from('orders')
           .select('*')
           .eq('id', id)
@@ -83,7 +79,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(200).json({ order: data })
       } else {
         // Users can only get their own orders
-        const { data, error } = await supabaseUser
+        const { data, error } = await supabase
           .from('orders')
           .select('*')
           .eq('id', id)
