@@ -81,7 +81,12 @@ export default function StorePage() {
   useEffect(() => {
     const savedCart = localStorage.getItem('sx-cart');
     if (savedCart) {
-      setCart(JSON.parse(savedCart));
+      try {
+        setCart(JSON.parse(savedCart));
+      } catch (error) {
+        console.error('Error parsing cart from localStorage:', error);
+        setCart([]);
+      }
     }
     loadProducts();
     loadUserProfile();
@@ -172,6 +177,8 @@ export default function StorePage() {
       const method = editingProduct ? 'PUT' : 'POST';
       const url = editingProduct ? `/api/products/${editingProduct.id}` : '/api/products';
       
+      console.log('Saving product:', product);
+      
       const res = await fetch(url, {
         method,
         headers: {
@@ -181,12 +188,16 @@ export default function StorePage() {
         body: JSON.stringify(product),
       });
 
-      const data = await res.json();
-      
+      // Check if response is OK before trying to parse JSON
       if (!res.ok) {
-        throw new Error(data?.message || 'Failed to save product');
+        const errorText = await res.text();
+        console.error('Server response error:', errorText);
+        throw new Error(`HTTP error! status: ${res.status}`);
       }
 
+      const data = await res.json();
+      console.log('Product saved successfully:', data);
+      
       await loadProducts();
       setEditingProduct(null);
       setNewProduct({
@@ -199,6 +210,7 @@ export default function StorePage() {
       });
       alert('Product saved successfully!');
     } catch (error: any) {
+      console.error('Save product error:', error);
       alert('Failed to save product: ' + error.message);
     }
   };
@@ -221,13 +233,15 @@ export default function StorePage() {
       });
 
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data?.message || 'Failed to delete product');
+        const errorText = await res.text();
+        console.error('Delete error:', errorText);
+        throw new Error(`Failed to delete product: ${res.status}`);
       }
 
       await loadProducts();
       alert('Product deleted successfully!');
     } catch (error: any) {
+      console.error('Delete product error:', error);
       alert('Failed to delete product: ' + error.message);
     }
   };
@@ -248,18 +262,20 @@ export default function StorePage() {
       updatedCart[existingItemIndex].quantity += 1;
       setCart(updatedCart);
     } else {
-      setCart([
-        ...cart,
-        {
-          ...product,
-          quantity: 1,
-          selectedMod: selectedMod || undefined
-        }
-      ]);
+      const cartItem: CartItem = {
+        ...product,
+        quantity: 1,
+        selectedMod: selectedMod || undefined
+      };
+      setCart([...cart, cartItem]);
     }
 
     setSelectedProduct(null);
     setSelectedMod(null);
+    
+    // Show success message
+    const itemName = selectedMod ? `${product.name} - ${selectedMod.name}` : product.name;
+    alert(`${itemName} added to cart!`);
   };
 
   const removeFromCart = (index: number) => {
@@ -339,7 +355,7 @@ export default function StorePage() {
       const orderPayload = {
         items: cart.map((item) => ({
           id: item.id,
-          name: item.name,
+          name: item.selectedMod ? `${item.name} - ${item.selectedMod.name}` : item.name,
           qty: item.quantity,
           unitPrice: item.selectedMod ? item.selectedMod.price : item.price,
           selectedMod: item.selectedMod || null,
@@ -365,12 +381,15 @@ export default function StorePage() {
         body: JSON.stringify({ order: orderPayload }),
       });
 
+      // Check if response is OK before parsing JSON
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error('Order creation error response:', errorText);
+        throw new Error(`Failed to create order: ${res.status} ${res.statusText}`);
+      }
+
       const data = await res.json();
       console.log('Order API response:', data);
-
-      if (!res.ok) {
-        throw new Error(data?.message || `Failed to create order: ${res.status}`);
-      }
 
       // Clear cart and show success
       setCart([]);
@@ -386,9 +405,17 @@ export default function StorePage() {
       console.error('Checkout error:', error);
       const errorMessage = error.message || 'Failed to place order. Please try again.';
       setDiscountError(errorMessage);
+      alert('Checkout failed: ' + errorMessage);
     } finally {
       setCheckoutLoading(false);
     }
+  };
+
+  // Debug function
+  const debugCart = () => {
+    console.log('Current cart:', cart);
+    console.log('Cart in localStorage:', localStorage.getItem('sx-cart'));
+    console.log('Products:', products);
   };
 
   const categoryNames = {
@@ -412,6 +439,14 @@ export default function StorePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-purple-900 text-white">
+      {/* Debug button - remove after testing */}
+      <button 
+        onClick={debugCart}
+        className="fixed top-4 right-4 z-50 bg-red-500 text-white px-3 py-1 rounded text-xs"
+      >
+        Debug
+      </button>
+
       {/* Mobile Sidebar */}
       <div className={`fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity ${sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} 
            onClick={() => setSidebarOpen(false)}></div>
@@ -991,8 +1026,191 @@ export default function StorePage() {
         </div>
       )}
 
-      {/* Cart Modal - This part remains the same as before */}
-      {/* ... (cart modal code remains unchanged) ... */}
+      {/* Cart Modal */}
+      {showCart && (
+        <div className="fixed inset-0 z-50 overflow-hidden">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowCart(false)}></div>
+          <div className="absolute right-0 top-0 h-full w-full max-w-md bg-gray-800/80 backdrop-blur-lg border-l border-purple-800/30 shadow-xl overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold flex items-center gap-2">
+                  <ShoppingCart size={24} /> Your Cart
+                </h2>
+                <button 
+                  onClick={() => setShowCart(false)}
+                  className="text-gray-400 hover:text-white"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+              
+              {cart.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-gray-400 mb-4">Your cart is empty</p>
+                  <button
+                    onClick={() => setShowCart(false)}
+                    className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-2 px-6 rounded-lg transition"
+                  >
+                    Continue Shopping
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="space-y-4 mb-6">
+                    {cart.map((item, index) => (
+                      <div 
+                        key={index} 
+                        className={`rounded-lg p-4 border ${
+                          item.is_pre_order 
+                            ? 'bg-yellow-900/10 border-yellow-700/50' 
+                            : 'bg-gray-700/30 border-gray-600/30'
+                        }`}
+                      >
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <h3 className="font-bold">
+                              {item.selectedMod ? `${item.name} - ${item.selectedMod.name}` : item.name}
+                            </h3>
+                            {item.is_pre_order && (
+                              <span className="text-xs text-yellow-300">Pre-Order</span>
+                            )}
+                          </div>
+                          <button 
+                            onClick={() => removeFromCart(index)}
+                            className="text-gray-400 hover:text-pink-500"
+                          >
+                            <X size={16} />
+                          </button>
+                        </div>
+                        
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center gap-2">
+                            <button 
+                              onClick={() => updateQuantity(index, item.quantity - 1)}
+                              className="w-6 h-6 flex items-center justify-center bg-gray-600/50 rounded hover:bg-gray-500/50"
+                            >
+                              -
+                            </button>
+                            <span>{item.quantity}</span>
+                            <button 
+                              onClick={() => updateQuantity(index, item.quantity + 1)}
+                              className="w-6 h-6 flex items-center justify-center bg-gray-600/50 rounded hover:bg-gray-500/50"
+                            >
+                              +
+                            </button>
+                          </div>
+                          <span className="font-bold">
+                            ₹{(item.selectedMod ? item.selectedMod.price : item.price) * item.quantity}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="mb-6">
+                    <h3 className="text-sm font-bold mb-2 flex items-center gap-2">
+                      <Tag size={16} /> Discount Code
+                    </h3>
+                    {appliedDiscount ? (
+                      <div className="bg-green-900/20 border border-green-800/50 rounded-lg p-3 flex justify-between items-center">
+                        <div>
+                          <span className="font-bold">{appliedDiscount.code}</span>
+                          <span className="text-sm text-gray-300 ml-2">
+                            ({appliedDiscount.discount}{appliedDiscount.type === 'percentage' ? '% off' : '₹ off'})
+                          </span>
+                        </div>
+                        <button 
+                          onClick={removeDiscount}
+                          className="text-gray-300 hover:text-white"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={discountCode}
+                          onChange={(e) => setDiscountCode(e.target.value)}
+                          placeholder="Enter code"
+                          className="flex-1 bg-gray-700/50 border border-gray-600/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                        />
+                        <button
+                          onClick={applyDiscount}
+                          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-2 px-4 rounded-lg transition text-sm"
+                        >
+                          Apply
+                        </button>
+                      </div>
+                    )}
+                    {discountError && (
+                      <p className="text-red-400 text-sm mt-2">{discountError}</p>
+                    )}
+                  </div>
+                  
+                  <div className="bg-gray-700/30 rounded-lg p-4 border border-gray-600/30 mb-6">
+                    <h3 className="font-bold mb-3">Order Summary</h3>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-gray-300">Subtotal</span>
+                        <span>₹{calculateTotal().subtotal.toFixed(2)}</span>
+                      </div>
+                      {appliedDiscount && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-300">Discount</span>
+                          <span className="text-green-400">
+                            -₹{calculateTotal().discount.toFixed(2)}
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex justify-between pt-2 border-t border-gray-600/30 mt-2">
+                        <span className="font-bold">Total</span>
+                        <span className="font-bold text-lg">
+                          ₹{calculateTotal().total.toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mb-6">
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={agreeToTerms}
+                        onChange={() => setAgreeToTerms(!agreeToTerms)}
+                        className="mt-1"
+                      />
+                      <span className="text-sm text-gray-300">
+                        I agree to the <Link href="/terms" className="text-purple-400 hover:underline">Terms of Service</Link>, 
+                        <Link href="/privacy" className="text-purple-400 hover:underline"> Privacy Policy</Link>, and 
+                        <Link href="/refund" className="text-purple-400 hover:underline"> Refund Policy</Link>. 
+                        I understand that digital products are non-refundable after delivery.
+                      </span>
+                    </label>
+                  </div>
+                  
+                  <button
+                    onClick={handleCheckout}
+                    disabled={!agreeToTerms || checkoutLoading}
+                    className={`w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 px-4 rounded-lg transition ${
+                      !agreeToTerms || checkoutLoading ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                  >
+                    {checkoutLoading ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        Processing...
+                      </div>
+                    ) : (
+                      'Proceed to Checkout'
+                    )}
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       <footer className="bg-gray-900/50 border-t border-gray-800 py-8">
         <div className="container mx-auto px-4">
