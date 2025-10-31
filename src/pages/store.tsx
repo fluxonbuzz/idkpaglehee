@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { ShoppingCart, Zap, Star, Tag, Gift, ShieldCheck, Download, X, Check, ArrowRight, Home, Users, AlertCircle, Clock } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/router';
 
 interface Product {
   id: string;
@@ -185,23 +186,8 @@ const discountCodes: DiscountCode[] = [
   { code: 'SAVE50', discount: 50, minPurchase: 250, type: 'fixed' }
 ];
 
-interface Seller {
-  name: string;
-  telegram: string;
-  paymentMethods: string[];
-  profilePic: string;
-  telegramLink: string;
-}
-
-const botSeller: Seller = {
-  name: 'SX Support Bot',
-  telegram: '@sxmsupportbot',
-  paymentMethods: ['UPI'],
-  profilePic: '/assets/bot.png',
-  telegramLink: 'https://t.me/shivaxsupportbot'
-};
-
 export default function StorePage() {
+  const router = useRouter();
   const [cart, setCart] = useState<CartItem[]>([]);
   const [showCart, setShowCart] = useState(false);
   const [discountCode, setDiscountCode] = useState('');
@@ -209,42 +195,53 @@ export default function StorePage() {
   const [discountError, setDiscountError] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedMod, setSelectedMod] = useState<{ name: string; price: number } | null>(null);
-  const [showPayment, setShowPayment] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [me, setMe] = useState<{ id: string; email: string; name?: string } | null>(null);
   const [myOrders, setMyOrders] = useState<any[] | null>(null);
   const [ordersLoading, setOrdersLoading] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   useEffect(() => {
     const savedCart = localStorage.getItem('sx-cart');
     if (savedCart) {
       setCart(JSON.parse(savedCart));
     }
-    // Load user profile and orders if logged in
-    const token = localStorage.getItem('authToken');
-    if (!token) return;
-    const run = async () => {
-      try {
-        const meRes = await fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } });
-        const meData = await meRes.json();
-        if (meRes.ok) setMe({ id: meData.id, email: meData.email, name: meData.name });
-        setOrdersLoading(true);
-        const ordRes = await fetch('/api/orders', { headers: { Authorization: `Bearer ${token}` } });
-        const ordData = await ordRes.json();
-        if (ordRes.ok) setMyOrders(ordData.orders);
-      } catch (e) {
-        // ignore
-      } finally {
-        setOrdersLoading(false);
-      }
-    };
-    run();
+    loadUserProfile();
   }, []);
 
   useEffect(() => {
     localStorage.setItem('sx-cart', JSON.stringify(cart));
   }, [cart]);
+
+  const loadUserProfile = async () => {
+    const token = localStorage.getItem('authToken');
+    if (!token) return;
+    
+    try {
+      const meRes = await fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } });
+      const meData = await meRes.json();
+      if (meRes.ok) {
+        setMe({ id: meData.id, email: meData.email, name: meData.name });
+        loadOrders(token);
+      }
+    } catch (e) {
+      console.error('Failed to load user profile');
+    }
+  };
+
+  const loadOrders = async (token: string) => {
+    setOrdersLoading(true);
+    try {
+      const ordRes = await fetch('/api/orders', { headers: { Authorization: `Bearer ${token}` } });
+      const ordData = await ordRes.json();
+      if (ordRes.ok) setMyOrders(ordData.orders);
+    } catch (e) {
+      console.error('Failed to load orders');
+    } finally {
+      setOrdersLoading(false);
+    }
+  };
 
   const addToCart = (product: Product) => {
     if (product.category === 'mod' && !selectedMod) {
@@ -326,73 +323,24 @@ export default function StorePage() {
     return { subtotal, discount, total };
   };
 
-  const generateTransactionId = () => {
-    return 'SX-' + Math.random().toString(36).substring(2, 10).toUpperCase() + '-' + 
-           Math.random().toString(36).substring(2, 6).toUpperCase();
-  };
+  const handleCheckout = async () => {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      router.push('/login?redirect=/store');
+      return;
+    }
 
-  const generateReceipt = () => {
-    // Also create a backend order tied to the logged-in user
-    void placeOrder();
     if (!agreeToTerms) {
       setDiscountError('You must agree to the terms and conditions');
       return;
     }
 
-    const { subtotal, discount, total } = calculateTotal();
-    const now = new Date();
-    const transactionId = generateTransactionId();
-    
-    let receipt = `📃 SX STORE RECEIPT\n`;
-    receipt += `===================\n`;
-    receipt += `TRANSACTION ID: ${transactionId}\n`;
-    receipt += `PURCHASED ITEMS:\n`;
-    
-    cart.forEach(item => {
-      const itemName = item.selectedMod ? `${item.name} - ${item.selectedMod.name}` : item.name;
-      const itemPrice = item.selectedMod ? item.selectedMod.price : item.price;
-      receipt += `• ${itemName} (x${item.quantity}) - ₹${itemPrice * item.quantity}\n`;
-    });
-    
-    receipt += `====================\n`;
-    receipt += `PURCHASE TIME: ${now.toLocaleDateString()} ${now.toLocaleTimeString()}\n`;
-    if (discount > 0) {
-      receipt += `DISCOUNT USED: ${appliedDiscount?.code} (-₹${discount.toFixed(2)})\n`;
-    }
-    receipt += `====================\n`;
-    receipt += `⚠ PLEASE READ TERMS, REFUND & PRIVACY POLICIES BEFORE THE PAYMENT.\n`;
-    receipt += `====================\n`;
-    receipt += `SUBTOTAL: ₹${subtotal.toFixed(2)}\n`;
-    receipt += `TOTAL: ₹${total.toFixed(2)}\n`;
-    receipt += `====================\n`;
-    receipt += `PAYMENT INSTRUCTIONS:\n`;
-    receipt += `1. Contact our payment bot: @sxmsupportbot\n`;
-    receipt += `2. Send this receipt to the bot\n`;
-    receipt += `3. Follow the bot's instructions to complete payment\n`;
-    receipt += `====================\n`;
-    receipt += `THANKS FOR PURCHASING\n`;
-    
-    const blob = new Blob([receipt], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `SX_Receipt_${transactionId}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    setCheckoutLoading(true);
+    setDiscountError('');
 
-    setShowPayment(true);
-  };
-
-  const placeOrder = async () => {
     try {
-      const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
-      if (!token) {
-        window.location.href = '/login';
-        return;
-      }
       const { subtotal, discount, total } = calculateTotal();
+      
       const orderPayload = {
         items: cart.map((item) => ({
           id: item.id,
@@ -402,12 +350,15 @@ export default function StorePage() {
           selectedMod: item.selectedMod || null,
           category: item.category,
         })),
-        discount: appliedDiscount ? { code: appliedDiscount.code, amount: discount } : null,
+        discount: appliedDiscount ? { 
+          code: appliedDiscount.code, 
+          amount: discount 
+        } : null,
         subtotal,
         total,
         status: 'pending',
-        createdAt: new Date().toISOString(),
       };
+
       const res = await fetch('/api/orders', {
         method: 'POST',
         headers: {
@@ -416,40 +367,28 @@ export default function StorePage() {
         },
         body: JSON.stringify({ order: orderPayload }),
       });
+
+      const data = await res.json();
+
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        console.error('Order creation failed', data);
-        return;
+        throw new Error(data?.message || 'Failed to create order');
       }
-      // Clear cart on successful order creation
+
+      // Clear cart and show success
       setCart([]);
       localStorage.removeItem('sx-cart');
-    } catch (e) {
-      console.error('Order creation error', e);
+      setShowCart(false);
+      
+      // Reload orders to show the new one
+      await loadOrders(token);
+      
+      alert('Order placed successfully! You can view your order in "My Orders" section.');
+      
+    } catch (error: any) {
+      setDiscountError(error.message || 'Failed to place order. Please try again.');
+    } finally {
+      setCheckoutLoading(false);
     }
-  };
-
-  const copyReceiptToClipboard = () => {
-    const { subtotal, discount, total } = calculateTotal();
-    const now = new Date();
-    
-    let receipt = `📃 SX STORE RECEIPT\n`;
-    receipt += `===================\n`;
-    receipt += `PURCHASED ITEMS:\n`;
-    
-    cart.forEach(item => {
-      const itemName = item.selectedMod ? `${item.name} - ${item.selectedMod.name}` : item.name;
-      const itemPrice = item.selectedMod ? item.selectedMod.price : item.price;
-      receipt += `• ${itemName} (x${item.quantity}) - ₹${itemPrice * item.quantity}\n`;
-    });
-    
-    receipt += `====================\n`;
-    receipt += `SUBTOTAL: ₹${subtotal.toFixed(2)}\n`;
-    receipt += `TOTAL: ₹${total.toFixed(2)}\n`;
-    receipt += `====================\n`;
-    
-    navigator.clipboard.writeText(receipt);
-    alert('Receipt copied to clipboard! You can now paste it to the bot.');
   };
 
   const categoryNames = {
@@ -566,7 +505,7 @@ export default function StorePage() {
           </p>
         </section>
 
-        {me && (
+        {me ? (
           <section className="mb-12 grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-1 bg-gray-800/40 border border-purple-800/30 rounded-xl p-5">
               <h3 className="text-lg font-bold mb-2">Your Profile</h3>
@@ -586,9 +525,17 @@ export default function StorePage() {
                   {myOrders.slice(0, 5).map((o) => (
                     <div key={o.id} className="rounded-lg border border-gray-700/50 p-3 bg-gray-900/40">
                       <div className="flex flex-wrap items-center gap-3">
-                        <div className="text-xs text-gray-500">ID: {o.id}</div>
+                        <div className="text-xs text-gray-500">ID: {o.id.slice(0, 8)}...</div>
                         <div className="text-xs text-gray-400">{new Date(o.created_at).toLocaleString()}</div>
-                        <div className="text-xs"><span className="px-2 py-0.5 rounded-full bg-gray-700/60">{o.status}</span></div>
+                        <div className={`text-xs px-2 py-0.5 rounded-full ${
+                          o.status === 'confirmed' ? 'bg-green-500/20 text-green-300' :
+                          o.status === 'paid' ? 'bg-blue-500/20 text-blue-300' :
+                          o.status === 'delivered' ? 'bg-purple-500/20 text-purple-300' :
+                          o.status === 'cancelled' ? 'bg-red-500/20 text-red-300' :
+                          'bg-yellow-500/20 text-yellow-300'
+                        }`}>
+                          {o.status}
+                        </div>
                         <div className="text-sm font-semibold ml-auto">₹{o.total ?? (o.data?.total ?? '-')}</div>
                       </div>
                       {o.data?.items && (
@@ -604,6 +551,17 @@ export default function StorePage() {
                 </div>
               )}
             </div>
+          </section>
+        ) : (
+          <section className="mb-12 bg-gray-800/40 border border-purple-800/30 rounded-xl p-6 text-center">
+            <h3 className="text-lg font-bold mb-2">Welcome to SX Store</h3>
+            <p className="text-gray-300 mb-4">Please log in to view your orders and make purchases.</p>
+            <button
+              onClick={() => router.push('/login?redirect=/store')}
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-2 px-6 rounded-lg transition"
+            >
+              Login to Continue
+            </button>
           </section>
         )}
 
@@ -822,209 +780,155 @@ export default function StorePage() {
                 </div>
               ) : (
                 <>
-                  {!showPayment ? (
-                    <>
-                      <div className="space-y-4 mb-6">
-                        {cart.map((item, index) => (
-                          <div 
-                            key={index} 
-                            className={`rounded-lg p-4 border ${
-                              item.isPreOrder 
-                                ? 'bg-yellow-900/10 border-yellow-700/50' 
-                                : 'bg-gray-700/30 border-gray-600/30'
-                            }`}
-                          >
-                            <div className="flex justify-between items-start mb-2">
-                              <div>
-                                <h3 className="font-bold">
-                                  {item.selectedMod ? `${item.name} - ${item.selectedMod.name}` : item.name}
-                                </h3>
-                                {item.isPreOrder && (
-                                  <span className="text-xs text-yellow-300">Pre-Order</span>
-                                )}
-                              </div>
-                              <button 
-                                onClick={() => removeFromCart(index)}
-                                className="text-gray-400 hover:text-pink-500"
-                              >
-                                <X size={16} />
-                              </button>
-                            </div>
-                            
-                            <div className="flex justify-between items-center">
-                              <div className="flex items-center gap-2">
-                                <button 
-                                  onClick={() => updateQuantity(index, item.quantity - 1)}
-                                  className="w-6 h-6 flex items-center justify-center bg-gray-600/50 rounded hover:bg-gray-500/50"
-                                >
-                                  -
-                                </button>
-                                <span>{item.quantity}</span>
-                                <button 
-                                  onClick={() => updateQuantity(index, item.quantity + 1)}
-                                  className="w-6 h-6 flex items-center justify-center bg-gray-600/50 rounded hover:bg-gray-500/50"
-                                >
-                                  +
-                                </button>
-                              </div>
-                              <span className="font-bold">
-                                ₹{(item.selectedMod ? item.selectedMod.price : item.price) * item.quantity}
-                              </span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                      
-                      <div className="mb-6">
-                        <h3 className="text-sm font-bold mb-2 flex items-center gap-2">
-                          <Tag size={16} /> Discount Code
-                        </h3>
-                        {appliedDiscount ? (
-                          <div className="bg-green-900/20 border border-green-800/50 rounded-lg p-3 flex justify-between items-center">
-                            <div>
-                              <span className="font-bold">{appliedDiscount.code}</span>
-                              <span className="text-sm text-gray-300 ml-2">
-                                ({appliedDiscount.discount}{appliedDiscount.type === 'percentage' ? '% off' : '₹ off'})
-                              </span>
-                            </div>
-                            <button 
-                              onClick={removeDiscount}
-                              className="text-gray-300 hover:text-white"
-                            >
-                              <X size={16} />
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="flex gap-2">
-                            <input
-                              type="text"
-                              value={discountCode}
-                              onChange={(e) => setDiscountCode(e.target.value)}
-                              placeholder="Enter code"
-                              className="flex-1 bg-gray-700/50 border border-gray-600/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50"
-                            />
-                            <button
-                              onClick={applyDiscount}
-                              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-2 px-4 rounded-lg transition text-sm"
-                            >
-                              Apply
-                            </button>
-                          </div>
-                        )}
-                        {discountError && (
-                          <p className="text-red-400 text-sm mt-2">{discountError}</p>
-                        )}
-                      </div>
-                      
-                      <div className="bg-gray-700/30 rounded-lg p-4 border border-gray-600/30 mb-6">
-                        <h3 className="font-bold mb-3">Order Summary</h3>
-                        <div className="space-y-2">
-                          <div className="flex justify-between">
-                            <span className="text-gray-300">Subtotal</span>
-                            <span>₹{calculateTotal().subtotal.toFixed(2)}</span>
-                          </div>
-                          {appliedDiscount && (
-                            <div className="flex justify-between">
-                              <span className="text-gray-300">Discount</span>
-                              <span className="text-green-400">
-                                -₹{calculateTotal().discount.toFixed(2)}
-                              </span>
-                            </div>
-                          )}
-                          <div className="flex justify-between pt-2 border-t border-gray-600/30 mt-2">
-                            <span className="font-bold">Total</span>
-                            <span className="font-bold text-lg">
-                              ₹{calculateTotal().total.toFixed(2)}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="mb-6">
-                        <label className="flex items-start gap-3 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={agreeToTerms}
-                            onChange={() => setAgreeToTerms(!agreeToTerms)}
-                            className="mt-1"
-                          />
-                          <span className="text-sm text-gray-300">
-                            I agree to the <Link href="/terms" className="text-purple-400 hover:underline">Terms of Service</Link>, 
-                            <Link href="/privacy" className="text-purple-400 hover:underline"> Privacy Policy</Link>, and 
-                            <Link href="/refund" className="text-purple-400 hover:underline"> Refund Policy</Link>. 
-                            I understand that digital products are non-refundable after delivery.
-                          </span>
-                        </label>
-                      </div>
-                      
-                      <button
-                        onClick={generateReceipt}
-                        disabled={!agreeToTerms}
-                        className={`w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 px-4 rounded-lg transition ${!agreeToTerms ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  <div className="space-y-4 mb-6">
+                    {cart.map((item, index) => (
+                      <div 
+                        key={index} 
+                        className={`rounded-lg p-4 border ${
+                          item.isPreOrder 
+                            ? 'bg-yellow-900/10 border-yellow-700/50' 
+                            : 'bg-gray-700/30 border-gray-600/30'
+                        }`}
                       >
-                        Proceed to Payment
-                      </button>
-                    </>
-                  ) : (
-                    <div className="space-y-6">
-                      <div className="text-center">
-                        <h3 className="text-xl font-bold mb-2">Payment Instructions</h3>
-                        <p className="text-gray-300 mb-4">
-                          Please contact our payment bot to complete your transaction.
-                          Your receipt has been downloaded automatically.
-                        </p>
-                      </div>
-                      
-                      <div className="bg-gray-700/30 rounded-lg p-4 border border-gray-600/30">
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className="relative w-10 h-10 rounded-full overflow-hidden">
-                            <Image 
-                              src={botSeller.profilePic} 
-                              alt={botSeller.name}
-                              layout="fill"
-                              objectFit="cover"
-                            />
-                          </div>
+                        <div className="flex justify-between items-start mb-2">
                           <div>
-                            <h4 className="font-bold">{botSeller.name}</h4>
-                            <a 
-                              href={botSeller.telegramLink} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="text-sm text-purple-300 hover:underline flex items-center gap-1"
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.03-.1.06-.22-.06-.32-.13-.1-.32-.02-.45.02-.2.06-3.39 2.14-4.84 3.06-.52.33-1 .5-1.43.5-.48 0-1.4-.27-2.08-.99-.75-.79-1.4-2.25-1.4-3.43 0-1.64 1.13-2.45 2.11-2.45.53 0 .98.18 1.38.4.25.15.47.33.68.55.23.23.46.46.75.68.32.25.7.38 1.12.38.42 0 .86-.13 1.23-.4 1.37-1.04 2.14-2.6 2.14-2.6.1-.2.25-.3.45-.3.1 0 .25.02.35.1.22.15.3.45.2.75z"/>
-                              </svg>
-                              {botSeller.telegram}
-                            </a>
+                            <h3 className="font-bold">
+                              {item.selectedMod ? `${item.name} - ${item.selectedMod.name}` : item.name}
+                            </h3>
+                            {item.isPreOrder && (
+                              <span className="text-xs text-yellow-300">Pre-Order</span>
+                            )}
                           </div>
+                          <button 
+                            onClick={() => removeFromCart(index)}
+                            className="text-gray-400 hover:text-pink-500"
+                          >
+                            <X size={16} />
+                          </button>
                         </div>
-                        <div className="flex flex-wrap gap-2">
-                          {botSeller.paymentMethods.map((method, i) => (
-                            <span key={i} className="text-xs bg-gray-600/50 px-2 py-1 rounded-full">
-                              {method}
-                            </span>
-                          ))}
+                        
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center gap-2">
+                            <button 
+                              onClick={() => updateQuantity(index, item.quantity - 1)}
+                              className="w-6 h-6 flex items-center justify-center bg-gray-600/50 rounded hover:bg-gray-500/50"
+                            >
+                              -
+                            </button>
+                            <span>{item.quantity}</span>
+                            <button 
+                              onClick={() => updateQuantity(index, item.quantity + 1)}
+                              className="w-6 h-6 flex items-center justify-center bg-gray-600/50 rounded hover:bg-gray-500/50"
+                            >
+                              +
+                            </button>
+                          </div>
+                          <span className="font-bold">
+                            ₹{(item.selectedMod ? item.selectedMod.price : item.price) * item.quantity}
+                          </span>
                         </div>
                       </div>
-                      
-                      <div className="space-y-3">
-                        <button
-                          onClick={copyReceiptToClipboard}
-                          className="w-full bg-purple-600/50 hover:bg-purple-600/70 text-white font-bold py-3 px-4 rounded-lg transition border border-purple-500/50"
+                    ))}
+                  </div>
+                  
+                  <div className="mb-6">
+                    <h3 className="text-sm font-bold mb-2 flex items-center gap-2">
+                      <Tag size={16} /> Discount Code
+                    </h3>
+                    {appliedDiscount ? (
+                      <div className="bg-green-900/20 border border-green-800/50 rounded-lg p-3 flex justify-between items-center">
+                        <div>
+                          <span className="font-bold">{appliedDiscount.code}</span>
+                          <span className="text-sm text-gray-300 ml-2">
+                            ({appliedDiscount.discount}{appliedDiscount.type === 'percentage' ? '% off' : '₹ off'})
+                          </span>
+                        </div>
+                        <button 
+                          onClick={removeDiscount}
+                          className="text-gray-300 hover:text-white"
                         >
-                          Copy Receipt to Clipboard
+                          <X size={16} />
                         </button>
+                      </div>
+                    ) : (
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={discountCode}
+                          onChange={(e) => setDiscountCode(e.target.value)}
+                          placeholder="Enter code"
+                          className="flex-1 bg-gray-700/50 border border-gray-600/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                        />
                         <button
-                          onClick={() => setShowPayment(false)}
-                          className="w-full bg-gray-700/50 hover:bg-gray-700/70 text-white font-bold py-3 px-4 rounded-lg transition border border-gray-600/50"
+                          onClick={applyDiscount}
+                          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-2 px-4 rounded-lg transition text-sm"
                         >
-                          Back to Cart
+                          Apply
                         </button>
+                      </div>
+                    )}
+                    {discountError && (
+                      <p className="text-red-400 text-sm mt-2">{discountError}</p>
+                    )}
+                  </div>
+                  
+                  <div className="bg-gray-700/30 rounded-lg p-4 border border-gray-600/30 mb-6">
+                    <h3 className="font-bold mb-3">Order Summary</h3>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-gray-300">Subtotal</span>
+                        <span>₹{calculateTotal().subtotal.toFixed(2)}</span>
+                      </div>
+                      {appliedDiscount && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-300">Discount</span>
+                          <span className="text-green-400">
+                            -₹{calculateTotal().discount.toFixed(2)}
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex justify-between pt-2 border-t border-gray-600/30 mt-2">
+                        <span className="font-bold">Total</span>
+                        <span className="font-bold text-lg">
+                          ₹{calculateTotal().total.toFixed(2)}
+                        </span>
                       </div>
                     </div>
-                  )}
+                  </div>
+
+                  <div className="mb-6">
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={agreeToTerms}
+                        onChange={() => setAgreeToTerms(!agreeToTerms)}
+                        className="mt-1"
+                      />
+                      <span className="text-sm text-gray-300">
+                        I agree to the <Link href="/terms" className="text-purple-400 hover:underline">Terms of Service</Link>, 
+                        <Link href="/privacy" className="text-purple-400 hover:underline"> Privacy Policy</Link>, and 
+                        <Link href="/refund" className="text-purple-400 hover:underline"> Refund Policy</Link>. 
+                        I understand that digital products are non-refundable after delivery.
+                      </span>
+                    </label>
+                  </div>
+                  
+                  <button
+                    onClick={handleCheckout}
+                    disabled={!agreeToTerms || checkoutLoading}
+                    className={`w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 px-4 rounded-lg transition ${
+                      !agreeToTerms || checkoutLoading ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                  >
+                    {checkoutLoading ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        Processing...
+                      </div>
+                    ) : (
+                      'Proceed to Checkout'
+                    )}
+                  </button>
                 </>
               )}
             </div>
