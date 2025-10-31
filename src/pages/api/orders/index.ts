@@ -7,8 +7,19 @@ const supabase = createClient(
 )
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // Set CORS headers
+  res.setHeader('Access-Control-Allow-Credentials', 'true')
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+  res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type')
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end()
+  }
+
   if (req.method === 'GET') {
     try {
+      console.log('Fetching products...')
       const { data, error } = await supabase
         .from('products')
         .select('*')
@@ -19,6 +30,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(400).json({ message: error.message })
       }
 
+      console.log('Products fetched:', data?.length)
       return res.status(200).json({ products: data || [] })
     } catch (error: any) {
       console.error('Server error:', error)
@@ -29,6 +41,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (req.method === 'POST') {
     try {
       const product = req.body
+      console.log('Creating product:', product)
       
       const { data, error } = await supabase
         .from('products')
@@ -55,6 +68,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(400).json({ message: error.message })
       }
 
+      console.log('Product created:', data)
       return res.status(201).json({ product: data })
     } catch (error: any) {
       console.error('Server error:', error)
