@@ -525,8 +525,10 @@ export default function StorePage() {
                   {myOrders.slice(0, 5).map((o) => (
                     <div key={o.id} className="rounded-lg border border-gray-700/50 p-3 bg-gray-900/40">
                       <div className="flex flex-wrap items-center gap-3">
-                        <div className="text-xs text-gray-500">ID: {o.id.slice(0, 8)}...</div>
-                        <div className="text-xs text-gray-400">{new Date(o.created_at).toLocaleString()}</div>
+                        <div className="text-xs text-gray-500">ID: {o.id?.slice(0, 8)}...</div>
+                        <div className="text-xs text-gray-400">
+                          {o.created_at ? new Date(o.created_at).toLocaleString() : 'Unknown date'}
+                        </div>
                         <div className={`text-xs px-2 py-0.5 rounded-full ${
                           o.status === 'confirmed' ? 'bg-green-500/20 text-green-300' :
                           o.status === 'paid' ? 'bg-blue-500/20 text-blue-300' :
@@ -534,13 +536,13 @@ export default function StorePage() {
                           o.status === 'cancelled' ? 'bg-red-500/20 text-red-300' :
                           'bg-yellow-500/20 text-yellow-300'
                         }`}>
-                          {o.status}
+                          {o.status || 'pending'}
                         </div>
-                        <div className="text-sm font-semibold ml-auto">₹{o.total ?? (o.data?.total ?? '-')}</div>
+                        <div className="text-sm font-semibold ml-auto">₹{o.total || 0}</div>
                       </div>
-                      {o.data?.items && (
+                      {o.items && Array.isArray(o.items) && (
                         <div className="mt-2 text-xs text-gray-400 line-clamp-2">
-                          {o.data.items.map((it: any) => it.name).join(', ')}
+                          {o.items.map((it: any) => it.name).join(', ')}
                         </div>
                       )}
                     </div>
