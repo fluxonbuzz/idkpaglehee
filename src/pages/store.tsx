@@ -10,20 +10,20 @@ interface Product {
   name: string;
   category: 'bundle' | 'account' | 'tool' | 'service' | 'mod';
   price: number;
-  originalPrice?: number;
+  original_price?: number;
   description: string;
   features?: string[];
   tags?: string[];
-  sellerContact?: string;
-  modOptions?: {
+  seller_contact?: string;
+  mod_options?: {
     name: string;
     price: number;
   }[];
-  isPreOrder?: boolean;
-  preOrderDiscount?: {
-    originalPrice: number;
-    discountPrice: number;
-    endDate: string;
+  is_pre_order?: boolean;
+  pre_order_discount?: {
+    original_price: number;
+    discount_price: number;
+    end_date: string;
   };
 }
 
@@ -64,6 +64,7 @@ export default function StorePage() {
   const [myOrders, setMyOrders] = useState<any[] | null>(null);
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
   
   // Admin states
   const [showAdminPanel, setShowAdminPanel] = useState(false);
@@ -96,6 +97,8 @@ export default function StorePage() {
       const data = await res.json();
       if (res.ok) {
         setProducts(data.products || []);
+      } else {
+        console.error('Failed to load products:', data.message);
       }
     } catch (error) {
       console.error('Failed to load products:', error);
@@ -104,28 +107,52 @@ export default function StorePage() {
 
   const loadUserProfile = async () => {
     const token = localStorage.getItem('authToken');
-    if (!token) return;
+    if (!token) {
+      setAuthLoading(false);
+      return;
+    }
     
     try {
-      const meRes = await fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } });
-      const meData = await meRes.json();
+      const meRes = await fetch('/api/auth/me', { 
+        headers: { Authorization: `Bearer ${token}` } 
+      });
+      
       if (meRes.ok) {
-        setMe({ id: meData.id, email: meData.email, name: meData.name, role: meData.role });
+        const meData = await meRes.json();
+        setMe({ 
+          id: meData.user?.id || meData.id, 
+          email: meData.user?.email || meData.email, 
+          name: meData.user?.name || meData.name, 
+          role: meData.user?.role || meData.role 
+        });
         loadOrders(token);
+      } else {
+        // Token might be invalid, clear it
+        localStorage.removeItem('authToken');
+        setMe(null);
       }
     } catch (e) {
-      console.error('Failed to load user profile');
+      console.error('Failed to load user profile:', e);
+      localStorage.removeItem('authToken');
+      setMe(null);
+    } finally {
+      setAuthLoading(false);
     }
   };
 
   const loadOrders = async (token: string) => {
     setOrdersLoading(true);
     try {
-      const ordRes = await fetch('/api/orders', { headers: { Authorization: `Bearer ${token}` } });
-      const ordData = await ordRes.json();
-      if (ordRes.ok) setMyOrders(ordData.orders);
+      const ordRes = await fetch('/api/orders', { 
+        headers: { Authorization: `Bearer ${token}` } 
+      });
+      if (ordRes.ok) {
+        const ordData = await ordRes.json();
+        setMyOrders(ordData.orders || []);
+      }
     } catch (e) {
-      console.error('Failed to load orders');
+      console.error('Failed to load orders:', e);
+      setMyOrders([]);
     } finally {
       setOrdersLoading(false);
     }
@@ -134,7 +161,10 @@ export default function StorePage() {
   // Admin functions
   const saveProduct = async (product: Partial<Product>) => {
     const token = localStorage.getItem('authToken');
-    if (!token) return;
+    if (!token) {
+      alert('Please login to manage products');
+      return;
+    }
 
     try {
       const method = editingProduct ? 'PUT' : 'POST';
@@ -175,7 +205,10 @@ export default function StorePage() {
     if (!confirm('Are you sure you want to delete this product?')) return;
 
     const token = localStorage.getItem('authToken');
-    if (!token) return;
+    if (!token) {
+      alert('Please login to manage products');
+      return;
+    }
 
     try {
       const res = await fetch(`/api/products/${productId}`, {
@@ -198,13 +231,14 @@ export default function StorePage() {
   };
 
   const addToCart = (product: Product) => {
-    if (product.category === 'mod' && !selectedMod) {
+    if (product.category === 'mod' && product.mod_options && product.mod_options.length > 0 && !selectedMod) {
+      alert('Please select a mod option first');
       return;
     }
 
     const existingItemIndex = cart.findIndex(
       item => item.id === product.id && 
-      (!product.modOptions || item.selectedMod?.name === selectedMod?.name)
+      (!product.mod_options || item.selectedMod?.name === selectedMod?.name)
     );
 
     if (existingItemIndex >= 0) {
@@ -273,7 +307,7 @@ export default function StorePage() {
       }
     }
 
-    const total = subtotal - discount;
+    const total = Math.max(0, subtotal - discount);
     return { subtotal, discount, total };
   };
 
@@ -286,6 +320,11 @@ export default function StorePage() {
 
     if (!agreeToTerms) {
       setDiscountError('You must agree to the terms and conditions');
+      return;
+    }
+
+    if (cart.length === 0) {
+      setDiscountError('Your cart is empty');
       return;
     }
 
@@ -331,10 +370,6 @@ export default function StorePage() {
         throw new Error(data?.message || `Failed to create order: ${res.status}`);
       }
 
-      if (!data.success) {
-        throw new Error(data?.message || 'Order creation failed');
-      }
-
       // Clear cart and show success
       setCart([]);
       localStorage.removeItem('sx-cart');
@@ -349,7 +384,6 @@ export default function StorePage() {
       console.error('Checkout error:', error);
       const errorMessage = error.message || 'Failed to place order. Please try again.';
       setDiscountError(errorMessage);
-      alert('Checkout failed: ' + errorMessage);
     } finally {
       setCheckoutLoading(false);
     }
@@ -365,6 +399,14 @@ export default function StorePage() {
 
   const filteredProducts = (category: string) => 
     products.filter(product => product.category === category);
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-purple-900 flex items-center justify-center">
+        <div className="text-white text-xl">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-purple-900 text-white">
@@ -458,17 +500,27 @@ export default function StorePage() {
               )}
             </button>
           </nav>
-          <button 
-            onClick={() => setShowCart(true)}
-            className="md:hidden relative p-2 rounded-full bg-purple-700/50 hover:bg-purple-600/50 transition"
-          >
-            <ShoppingCart size={20} />
-            {cart.length > 0 && (
-              <span className="absolute -top-1 -right-1 bg-pink-500 text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                {cart.length}
-              </span>
+          <div className="flex items-center gap-4 md:hidden">
+            {me?.role === 'admin' && (
+              <button 
+                onClick={() => setShowAdminPanel(true)}
+                className="p-2 rounded-full bg-purple-700/50 hover:bg-purple-600/50 transition"
+              >
+                <ShieldCheck size={20} />
+              </button>
             )}
-          </button>
+            <button 
+              onClick={() => setShowCart(true)}
+              className="relative p-2 rounded-full bg-purple-700/50 hover:bg-purple-600/50 transition"
+            >
+              <ShoppingCart size={20} />
+              {cart.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-pink-500 text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                  {cart.length}
+                </span>
+              )}
+            </button>
+          </div>
         </div>
       </header>
 
@@ -493,6 +545,17 @@ export default function StorePage() {
               <div className="text-sm text-gray-400">{me.email}</div>
               <div className="text-sm text-purple-300 capitalize">{me.role}</div>
               <div className="mt-3 text-xs text-gray-500">You are logged in.</div>
+              <button
+                onClick={() => {
+                  localStorage.removeItem('authToken');
+                  setMe(null);
+                  setMyOrders(null);
+                  router.reload();
+                }}
+                className="mt-4 text-sm text-red-400 hover:text-red-300"
+              >
+                Logout
+              </button>
             </div>
             <div className="lg:col-span-2 bg-gray-800/40 border border-purple-800/30 rounded-xl p-5">
               <div className="flex items-center justify-between mb-3">
@@ -548,102 +611,123 @@ export default function StorePage() {
           </section>
         )}
 
-        {Object.entries(categoryNames).map(([categoryKey, categoryName]) => (
-          <section key={categoryKey} id={categoryKey === 'bundle' ? 'bundles' : categoryKey} className="mb-16">
-            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-              {categoryKey === 'bundle' && <Gift size={20} className="text-pink-400" />}
-              {categoryKey === 'account' && <ShieldCheck size={20} className="text-purple-400" />}
-              {categoryKey === 'tool' && <Zap size={20} className="text-blue-400" />}
-              {categoryKey === 'service' && <Star size={20} className="text-yellow-400" />}
-              {categoryKey === 'mod' && <Download size={20} className="text-green-400" />}
-              {categoryName}
-            </h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProducts(categoryKey).map(product => (
-                <div 
-                  key={product.id} 
-                  className={`bg-gray-800/30 backdrop-blur-sm rounded-xl border transition-all hover:shadow-lg overflow-hidden ${
-                    product.isPreOrder 
-                      ? 'border-yellow-500/50 hover:border-yellow-500/70 hover:shadow-yellow-500/10' 
-                      : 'border-gray-700/50 hover:border-purple-500/50 hover:shadow-purple-500/10'
-                  }`}
-                >
-                  {product.isPreOrder && (
-                    <div className="bg-yellow-600/20 text-yellow-300 px-4 py-2 flex items-center gap-2">
-                      <Clock size={16} />
-                      <span className="text-sm font-medium">PRE-ORDER</span>
-                    </div>
-                  )}
-                  <div className="p-6">
-                    <div className="flex justify-between items-start mb-3">
-                      <h3 className="text-xl font-bold">{product.name}</h3>
-                      {product.originalPrice && (
-                        <span className="text-xs line-through text-gray-400">₹{product.originalPrice}</span>
+        {Object.entries(categoryNames).map(([categoryKey, categoryName]) => {
+          const categoryProducts = filteredProducts(categoryKey);
+          if (categoryProducts.length === 0) return null;
+          
+          return (
+            <section key={categoryKey} id={categoryKey === 'bundle' ? 'bundles' : categoryKey} className="mb-16">
+              <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                {categoryKey === 'bundle' && <Gift size={20} className="text-pink-400" />}
+                {categoryKey === 'account' && <ShieldCheck size={20} className="text-purple-400" />}
+                {categoryKey === 'tool' && <Zap size={20} className="text-blue-400" />}
+                {categoryKey === 'service' && <Star size={20} className="text-yellow-400" />}
+                {categoryKey === 'mod' && <Download size={20} className="text-green-400" />}
+                {categoryName}
+              </h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {categoryProducts.map(product => (
+                  <div 
+                    key={product.id} 
+                    className={`bg-gray-800/30 backdrop-blur-sm rounded-xl border transition-all hover:shadow-lg overflow-hidden ${
+                      product.is_pre_order 
+                        ? 'border-yellow-500/50 hover:border-yellow-500/70 hover:shadow-yellow-500/10' 
+                        : 'border-gray-700/50 hover:border-purple-500/50 hover:shadow-purple-500/10'
+                    }`}
+                  >
+                    {product.is_pre_order && (
+                      <div className="bg-yellow-600/20 text-yellow-300 px-4 py-2 flex items-center gap-2">
+                        <Clock size={16} />
+                        <span className="text-sm font-medium">PRE-ORDER</span>
+                      </div>
+                    )}
+                    <div className="p-6">
+                      <div className="flex justify-between items-start mb-3">
+                        <h3 className="text-xl font-bold">{product.name}</h3>
+                        {product.original_price && (
+                          <span className="text-xs line-through text-gray-400">₹{product.original_price}</span>
+                        )}
+                      </div>
+                      
+                      {product.tags && product.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          {product.tags.map((tag, index) => (
+                            <span 
+                              key={index} 
+                              className={`text-xs px-2 py-1 rounded-full ${
+                                tag === 'Pre-Order' 
+                                  ? 'bg-yellow-500/20 text-yellow-300' 
+                                  : 'bg-gray-700/50'
+                              }`}
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
                       )}
-                    </div>
-                    
-                    {product.tags && (
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {product.tags.map(tag => (
-                          <span 
-                            key={tag} 
-                            className={`text-xs px-2 py-1 rounded-full ${
-                              tag === 'Pre-Order' 
-                                ? 'bg-yellow-500/20 text-yellow-300' 
-                                : 'bg-gray-700/50'
-                            }`}
-                          >
-                            {tag}
+                      
+                      <p className="text-gray-300 text-sm mb-4">{product.description}</p>
+                      
+                      {product.features && product.features.length > 0 && (
+                        <ul className="space-y-2 mb-4">
+                          {product.features.map((feature, index) => (
+                            <li key={index} className="flex items-start">
+                              <Check size={14} className="text-green-400 mt-1 mr-2 flex-shrink-0" />
+                              <span className="text-gray-300 text-sm">{feature}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                      
+                      <div className="flex justify-between items-center mt-6">
+                        <div>
+                          <span className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                            ₹{product.price}
                           </span>
-                        ))}
+                          {product.is_pre_order && product.pre_order_discount && (
+                            <div className="text-xs text-yellow-300 mt-1">
+                              Save ₹{product.pre_order_discount.original_price - product.price} until {new Date(product.pre_order_discount.end_date).toLocaleDateString()}
+                            </div>
+                          )}
+                          {product.mod_options && product.mod_options.length > 0 && (
+                            <span className="text-xs text-gray-400 block">+ mod options</span>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => setSelectedProduct(product)}
+                          className={`font-bold py-2 px-4 rounded-lg transition text-sm ${
+                            product.is_pre_order
+                              ? 'bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-700 hover:to-amber-700'
+                              : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700'
+                          }`}
+                        >
+                          {product.is_pre_order ? 'Pre-Order Now' : 'Add to Cart'}
+                        </button>
                       </div>
-                    )}
-                    
-                    <p className="text-gray-300 text-sm mb-4">{product.description}</p>
-                    
-                    {product.features && (
-                      <ul className="space-y-2 mb-4">
-                        {product.features.map((feature, index) => (
-                          <li key={index} className="flex items-start">
-                            <Check size={14} className="text-green-400 mt-1 mr-2 flex-shrink-0" />
-                            <span className="text-gray-300 text-sm">{feature}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                    
-                    <div className="flex justify-between items-center mt-6">
-                      <div>
-                        <span className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                          ₹{product.price}
-                        </span>
-                        {product.isPreOrder && (
-                          <div className="text-xs text-yellow-300 mt-1">
-                            Save ₹{product.originalPrice! - product.price} until {new Date(product.preOrderDiscount!.endDate).toLocaleDateString()}
-                          </div>
-                        )}
-                        {product.modOptions && (
-                          <span className="text-xs text-gray-400 block">+ mod options</span>
-                        )}
-                      </div>
-                      <button
-                        onClick={() => setSelectedProduct(product)}
-                        className={`font-bold py-2 px-4 rounded-lg transition text-sm ${
-                          product.isPreOrder
-                            ? 'bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-700 hover:to-amber-700'
-                            : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700'
-                        }`}
-                      >
-                        {product.isPreOrder ? 'Pre-Order Now' : 'Add to Cart'}
-                      </button>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            </section>
+          );
+        })}
+
+        {products.length === 0 && (
+          <section className="text-center py-12">
+            <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-gray-300 mb-2">No Products Available</h3>
+            <p className="text-gray-400">Products will appear here once they are added to the store.</p>
+            {me?.role === 'admin' && (
+              <button
+                onClick={() => setShowAdminPanel(true)}
+                className="mt-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-2 px-6 rounded-lg transition"
+              >
+                Add Products
+              </button>
+            )}
           </section>
-        ))}
+        )}
       </main>
 
       {/* Admin Panel Modal */}
@@ -681,7 +765,7 @@ export default function StorePage() {
                   <input
                     type="text"
                     placeholder="Product Name"
-                    value={editingProduct ? editingProduct.name : newProduct.name}
+                    value={editingProduct ? editingProduct.name : newProduct.name || ''}
                     onChange={(e) => editingProduct 
                       ? setEditingProduct({...editingProduct, name: e.target.value})
                       : setNewProduct({...newProduct, name: e.target.value})
@@ -705,7 +789,7 @@ export default function StorePage() {
                   <input
                     type="number"
                     placeholder="Price"
-                    value={editingProduct ? editingProduct.price : newProduct.price}
+                    value={editingProduct ? editingProduct.price : newProduct.price || ''}
                     onChange={(e) => editingProduct 
                       ? setEditingProduct({...editingProduct, price: Number(e.target.value)})
                       : setNewProduct({...newProduct, price: Number(e.target.value)})
@@ -715,21 +799,33 @@ export default function StorePage() {
                   <input
                     type="number"
                     placeholder="Original Price (optional)"
-                    value={editingProduct ? editingProduct.originalPrice || '' : newProduct.originalPrice || ''}
+                    value={editingProduct ? editingProduct.original_price || '' : newProduct.original_price || ''}
                     onChange={(e) => editingProduct 
-                      ? setEditingProduct({...editingProduct, originalPrice: e.target.value ? Number(e.target.value) : undefined})
-                      : setNewProduct({...newProduct, originalPrice: e.target.value ? Number(e.target.value) : undefined})
+                      ? setEditingProduct({...editingProduct, original_price: e.target.value ? Number(e.target.value) : undefined})
+                      : setNewProduct({...newProduct, original_price: e.target.value ? Number(e.target.value) : undefined})
                     }
                     className="bg-gray-600/50 border border-gray-500/50 rounded-lg px-3 py-2 text-white"
                   />
                   <textarea
                     placeholder="Description"
-                    value={editingProduct ? editingProduct.description : newProduct.description}
+                    value={editingProduct ? editingProduct.description : newProduct.description || ''}
                     onChange={(e) => editingProduct 
                       ? setEditingProduct({...editingProduct, description: e.target.value})
                       : setNewProduct({...newProduct, description: e.target.value})
                     }
                     rows={3}
+                    className="bg-gray-600/50 border border-gray-500/50 rounded-lg px-3 py-2 text-white md:col-span-2"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Tags (comma separated)"
+                    value={((editingProduct ? editingProduct.tags : newProduct.tags) || []).join(', ')}
+                    onChange={(e) => {
+                      const tags = e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag);
+                      editingProduct 
+                        ? setEditingProduct({...editingProduct, tags})
+                        : setNewProduct({...newProduct, tags})
+                    }}
                     className="bg-gray-600/50 border border-gray-500/50 rounded-lg px-3 py-2 text-white md:col-span-2"
                   />
                 </div>
@@ -768,6 +864,11 @@ export default function StorePage() {
                             <span className="text-xs bg-green-500/20 text-green-300 px-2 py-1 rounded-full">
                               ₹{product.price}
                             </span>
+                            {product.original_price && (
+                              <span className="text-xs bg-yellow-500/20 text-yellow-300 px-2 py-1 rounded-full">
+                                Was ₹{product.original_price}
+                              </span>
+                            )}
                           </div>
                         </div>
                         <div className="flex gap-2">
@@ -799,17 +900,17 @@ export default function StorePage() {
         </div>
       )}
 
-      {/* Rest of the modals (selected product, cart) remain the same */}
+      {/* Product Detail Modal */}
       {selectedProduct && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className={`bg-gray-800/80 backdrop-blur-lg rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto ${
-            selectedProduct.isPreOrder ? 'border border-yellow-500/50' : 'border border-purple-800/50'
+            selectedProduct.is_pre_order ? 'border border-yellow-500/50' : 'border border-purple-800/50'
           }`}>
             <div className="p-6">
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <h3 className="text-xl font-bold">{selectedProduct.name}</h3>
-                  {selectedProduct.isPreOrder && (
+                  {selectedProduct.is_pre_order && (
                     <div className="text-sm text-yellow-300 mt-1 flex items-center gap-1">
                       <Clock size={14} /> Pre-Order
                     </div>
@@ -828,23 +929,23 @@ export default function StorePage() {
               
               <p className="text-gray-300 text-sm mb-4">{selectedProduct.description}</p>
               
-              {selectedProduct.isPreOrder && (
+              {selectedProduct.is_pre_order && selectedProduct.pre_order_discount && (
                 <div className="bg-yellow-900/20 border border-yellow-800/50 rounded-lg p-3 mb-4">
                   <div className="flex items-center gap-2 text-yellow-300 mb-1">
                     <Tag size={16} />
                     <span className="font-medium">Pre-Order Discount</span>
                   </div>
                   <p className="text-sm text-yellow-200">
-                    Book before {new Date(selectedProduct.preOrderDiscount!.endDate).toLocaleDateString()} to get this product for ₹{selectedProduct.price} (original price ₹{selectedProduct.originalPrice}).
+                    Book before {new Date(selectedProduct.pre_order_discount.end_date).toLocaleDateString()} to get this product for ₹{selectedProduct.price} (original price ₹{selectedProduct.pre_order_discount.original_price}).
                   </p>
                 </div>
               )}
               
-              {selectedProduct.modOptions && (
+              {selectedProduct.mod_options && selectedProduct.mod_options.length > 0 && (
                 <div className="mb-6">
                   <h4 className="text-sm font-bold mb-3 text-gray-300">SELECT MOD:</h4>
                   <div className="space-y-2">
-                    {selectedProduct.modOptions.map((mod, index) => (
+                    {selectedProduct.mod_options.map((mod, index) => (
                       <div 
                         key={index}
                         onClick={() => setSelectedMod(mod)}
@@ -865,22 +966,22 @@ export default function StorePage() {
                   <span className="text-2xl font-bold">
                     ₹{selectedMod ? selectedMod.price : selectedProduct.price}
                   </span>
-                  {selectedProduct.originalPrice && (
-                    <span className="text-sm line-through text-gray-400 ml-2">₹{selectedProduct.originalPrice}</span>
+                  {selectedProduct.original_price && (
+                    <span className="text-sm line-through text-gray-400 ml-2">₹{selectedProduct.original_price}</span>
                   )}
                 </div>
                 <button
                   onClick={() => addToCart(selectedProduct)}
-                  disabled={selectedProduct.modOptions && !selectedMod}
+                  disabled={selectedProduct.mod_options && selectedProduct.mod_options.length > 0 && !selectedMod}
                   className={`font-bold py-2 px-6 rounded-lg transition ${
-                    selectedProduct.modOptions && !selectedMod 
+                    (selectedProduct.mod_options && selectedProduct.mod_options.length > 0 && !selectedMod) 
                       ? 'opacity-50 cursor-not-allowed' 
-                      : selectedProduct.isPreOrder
+                      : selectedProduct.is_pre_order
                         ? 'bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-700 hover:to-amber-700'
                         : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700'
                   }`}
                 >
-                  {selectedProduct.isPreOrder ? 'Pre-Order Now' : 'Add to Cart'}
+                  {selectedProduct.is_pre_order ? 'Pre-Order Now' : 'Add to Cart'}
                 </button>
               </div>
             </div>
@@ -888,6 +989,7 @@ export default function StorePage() {
         </div>
       )}
 
+      {/* Cart Modal */}
       {showCart && (
         <div className="fixed inset-0 z-50 overflow-hidden">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowCart(false)}></div>
@@ -922,7 +1024,7 @@ export default function StorePage() {
                       <div 
                         key={index} 
                         className={`rounded-lg p-4 border ${
-                          item.isPreOrder 
+                          item.is_pre_order 
                             ? 'bg-yellow-900/10 border-yellow-700/50' 
                             : 'bg-gray-700/30 border-gray-600/30'
                         }`}
@@ -932,7 +1034,7 @@ export default function StorePage() {
                             <h3 className="font-bold">
                               {item.selectedMod ? `${item.name} - ${item.selectedMod.name}` : item.name}
                             </h3>
-                            {item.isPreOrder && (
+                            {item.is_pre_order && (
                               <span className="text-xs text-yellow-300">Pre-Order</span>
                             )}
                           </div>
