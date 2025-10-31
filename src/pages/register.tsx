@@ -4,9 +4,8 @@ import { useRouter } from 'next/navigation';
 import { Zap, ArrowRight, CheckCircle, Shield, Mail, User, Lock, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
-import { getBrowserSupabase } from '../lib/supabase';
-
-const supabase = getBrowserSupabase();
+import { AuthService } from '../services/auth';
+import { setAuthToken } from '../lib/auth';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -53,43 +52,16 @@ export default function SignupPage() {
     }
 
     try {
-      // Sign up with Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      const resp = await AuthService.signup({
         email: formData.email,
         password: formData.password,
-        options: {
-          data: {
-            name: formData.name,
-          }
-        }
+        name: formData.name,
       });
-
-      if (authError) {
-        throw new Error(authError.message);
+      if (resp?.token) {
+        setAuthToken(resp.token);
       }
-
-      if (authData.user) {
-        // Create user profile in public.users table
-        const { error: profileError } = await supabase
-          .from('users')
-          .insert([
-            {
-              id: authData.user.id,
-              email: formData.email,
-              password: formData.password, // Note: In production, you might want to handle this differently
-              role: 'user',
-              name: formData.name
-            }
-          ]);
-
-        if (profileError) {
-          console.error('Profile creation error:', profileError);
-          // Continue anyway as auth user is created
-        }
-
-        toast.success('Account created successfully! Please check your email for verification.');
-        router.push('/login');
-      }
+      toast.success('Account created successfully!');
+      router.push('/');
     } catch (error: any) {
       console.error('Signup error:', error);
       toast.error(error?.message || 'Signup failed. Please try again.');
