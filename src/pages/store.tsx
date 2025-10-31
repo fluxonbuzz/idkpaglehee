@@ -212,12 +212,34 @@ export default function StorePage() {
   const [showPayment, setShowPayment] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const [me, setMe] = useState<{ id: string; email: string; name?: string } | null>(null);
+  const [myOrders, setMyOrders] = useState<any[] | null>(null);
+  const [ordersLoading, setOrdersLoading] = useState(false);
 
   useEffect(() => {
     const savedCart = localStorage.getItem('sx-cart');
     if (savedCart) {
       setCart(JSON.parse(savedCart));
     }
+    // Load user profile and orders if logged in
+    const token = localStorage.getItem('authToken');
+    if (!token) return;
+    const run = async () => {
+      try {
+        const meRes = await fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } });
+        const meData = await meRes.json();
+        if (meRes.ok) setMe({ id: meData.id, email: meData.email, name: meData.name });
+        setOrdersLoading(true);
+        const ordRes = await fetch('/api/orders', { headers: { Authorization: `Bearer ${token}` } });
+        const ordData = await ordRes.json();
+        if (ordRes.ok) setMyOrders(ordData.orders);
+      } catch (e) {
+        // ignore
+      } finally {
+        setOrdersLoading(false);
+      }
+    };
+    run();
   }, []);
 
   useEffect(() => {
@@ -543,6 +565,47 @@ export default function StorePage() {
             Get premium accounts, tools, and custom services for your favorite games
           </p>
         </section>
+
+        {me && (
+          <section className="mb-12 grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-1 bg-gray-800/40 border border-purple-800/30 rounded-xl p-5">
+              <h3 className="text-lg font-bold mb-2">Your Profile</h3>
+              <div className="text-sm text-gray-300">{me.name || 'User'}</div>
+              <div className="text-sm text-gray-400">{me.email}</div>
+              <div className="mt-3 text-xs text-gray-500">You are logged in.</div>
+            </div>
+            <div className="lg:col-span-2 bg-gray-800/40 border border-purple-800/30 rounded-xl p-5">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-lg font-bold">My Orders</h3>
+                {ordersLoading && <span className="text-xs text-gray-400">Loading…</span>}
+              </div>
+              {(!myOrders || myOrders.length === 0) ? (
+                <div className="text-sm text-gray-400">No orders yet.</div>
+              ) : (
+                <div className="space-y-3">
+                  {myOrders.slice(0, 5).map((o) => (
+                    <div key={o.id} className="rounded-lg border border-gray-700/50 p-3 bg-gray-900/40">
+                      <div className="flex flex-wrap items-center gap-3">
+                        <div className="text-xs text-gray-500">ID: {o.id}</div>
+                        <div className="text-xs text-gray-400">{new Date(o.created_at).toLocaleString()}</div>
+                        <div className="text-xs"><span className="px-2 py-0.5 rounded-full bg-gray-700/60">{o.status}</span></div>
+                        <div className="text-sm font-semibold ml-auto">₹{o.total ?? (o.data?.total ?? '-')}</div>
+                      </div>
+                      {o.data?.items && (
+                        <div className="mt-2 text-xs text-gray-400 line-clamp-2">
+                          {o.data.items.map((it: any) => it.name).join(', ')}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                  {myOrders.length > 5 && (
+                    <div className="text-xs text-gray-400">Showing latest 5 orders</div>
+                  )}
+                </div>
+              )}
+            </div>
+          </section>
+        )}
 
         {Object.entries(categoryNames).map(([categoryKey, categoryName]) => (
           <section key={categoryKey} id={categoryKey === 'bundle' ? 'bundles' : categoryKey} className="mb-16">
