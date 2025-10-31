@@ -28,13 +28,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const updates = req.body
       console.log('Updating product:', id, updates)
       
+      // Validate required fields
+      if (!updates.name || !updates.price || !updates.description) {
+        return res.status(400).json({ message: 'Name, price, and description are required' })
+      }
+
       const { data, error } = await supabase
         .from('products')
         .update({
           name: updates.name,
-          category: updates.category,
-          price: updates.price,
-          original_price: updates.original_price,
+          category: updates.category || 'account',
+          price: parseFloat(updates.price),
+          original_price: updates.original_price ? parseFloat(updates.original_price) : null,
           description: updates.description,
           features: updates.features || [],
           tags: updates.tags || [],
