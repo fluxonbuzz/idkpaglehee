@@ -1,6 +1,6 @@
 // src/pages/store.tsx
 import { useState, useEffect } from 'react';
-import { ShoppingCart, Zap, Star, Tag, Gift, ShieldCheck, Download, X, Check, ArrowRight, Home, Users, AlertCircle, Clock } from 'lucide-react';
+import { ShoppingCart, Zap, Star, Tag, Gift, ShieldCheck, Download, X, Check, ArrowRight, Home, Users, AlertCircle, Clock, Plus, Edit, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
@@ -27,144 +27,6 @@ interface Product {
   };
 }
 
-const productsData: Product[] = [
-  {
-    id: 'rc24-preorder',
-    name: 'RC24 ID LEVEL 100 (Pre-Order)',
-    category: 'account',
-    price: 170,
-    originalPrice: 200,
-    description: 'Pre-order your Real Cricket 24 account now and save ₹30! Limited time offer.',
-    tags: ['Digital', 'Pre-Order', 'Limited Time'],
-    sellerContact: '@Fluxon',
-    isPreOrder: true,
-    preOrderDiscount: {
-      originalPrice: 200,
-      discountPrice: 170,
-      endDate: '2025-8-31'
-    }
-  },
-  {
-    id: 'rc24-level20',
-    name: 'RC24 ID (Level 20)',
-    category: 'account',
-    price: 30,
-    originalPrice: 70,
-    description: 'Real Cricket 24 account with level 20 progression',
-    tags: ['Digital', 'Discount'],
-    sellerContact: '@Fluxon'
-  },
-  {
-    id: 'netflix-premium',
-    name: 'Netflix Premium Account',
-    category: 'account',
-    price: 100,
-    description: '1-month premium account with 4K UHD streaming and multiple screens',
-    tags: ['Digital', 'Popular'],
-    sellerContact: '@Fluxon'
-  },
-  {
-    id: 'rc-swap-id',
-    name: 'Real Cricket Swap ID',
-    category: 'account',
-    price: 130,
-    originalPrice: 300,
-    description: 'Premium account with exclusive items and unlocked features',
-    tags: ['Digital'],
-    sellerContact: '@Fluxon'
-  },
-  {
-    id: 'pro-membership',
-    name: 'PRO Membership',
-    category: 'account',
-    price: 200,
-    description: 'Exclusive membership with special benefits',
-    tags: ['Membership', 'Exclusive'],
-    sellerContact: '@Fluxon'
-  },
-  {
-    id: 'rc24-level50',
-    name: 'RC24 ID (Level 50)',
-    category: 'account',
-    price: 70,
-    originalPrice: 150,
-    description: 'Real Cricket 24 account with level 50 progression',
-    tags: ['Digital', 'Discount'],
-    sellerContact: '@Fluxon'
-  },
-  {
-    id: 'rc24-level85',
-    name: 'RC24 ID (Level 85)',
-    category: 'account',
-    price: 110,
-    originalPrice: 270,
-    description: 'Real Cricket 24 account with level 85 progression',
-    tags: ['Digital', 'Discount'],
-    sellerContact: '@Fluxon'
-  },
-  {
-    id: 'all-in-one-checker',
-    name: 'All-in-One Checker',
-    category: 'tool',
-    price: 80,
-    description: 'Comprehensive tool for verifying jerseys, helmets, bats and more across all games',
-    tags: ['Tool', 'Instant Delivery'],
-    sellerContact: '@ShivaXD'
-  },
-  {
-    id: 'squad',
-    name: 'Squad Editor',
-    category: 'tool',
-    price: 200,
-    description: 'Comprehensive tool for squad editor',
-    tags: ['Tool', 'Instant Delivery'],
-    sellerContact: '@ShivaXD'
-  },
-  {
-    id: 'boundary-hoarding-checker',
-    name: 'Boundary Hoarding Checker',
-    category: 'tool',
-    price: 70,
-    description: 'Professional tool for verifying boundary hoardings in Real Cricket games',
-    tags: ['Tool', 'Instant Delivery'],
-    sellerContact: '@ShivaXD'
-  },
-  {
-    id: 'custom-webpage',
-    name: 'Custom Webpage',
-    category: 'service',
-    price: 100,
-    originalPrice: 2500,
-    description: 'Premium website with hosting starting from ₹100 per page',
-    tags: ['Digital', 'Custom'],
-    sellerContact: '@ShivaXD'
-  },
-  {
-    id: 'personal-obb',
-    name: 'Personal OBB',
-    category: 'service',
-    price: 349,
-    originalPrice: 700,
-    description: 'Premium custom player OBB',
-    tags: ['Digital', 'Custom'],
-    sellerContact: '@ShivaXD'
-  },
-  {
-    id: 'premium-mod-menus',
-    name: 'Premium Mod Menus',
-    category: 'mod',
-    price: 0,
-    description: 'Advanced modification menus for popular mobile games with regular updates',
-    tags: ['Digital', 'Instant Delivery', 'Exclusive'],
-    modOptions: [
-      { name: 'Among Us Mod Menu', price: 150 },
-      { name: 'Subway Surfers Mod Menu', price: 50 },
-      { name: 'Real Cricket GO Mod Menu', price: 180 }
-    ],
-    sellerContact: '@ShivaXD'
-  }
-];
-
 interface CartItem extends Product {
   quantity: number;
   selectedMod?: {
@@ -188,6 +50,7 @@ const discountCodes: DiscountCode[] = [
 
 export default function StorePage() {
   const router = useRouter();
+  const [products, setProducts] = useState<Product[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [showCart, setShowCart] = useState(false);
   const [discountCode, setDiscountCode] = useState('');
@@ -197,22 +60,47 @@ export default function StorePage() {
   const [selectedMod, setSelectedMod] = useState<{ name: string; price: number } | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
-  const [me, setMe] = useState<{ id: string; email: string; name?: string } | null>(null);
+  const [me, setMe] = useState<{ id: string; email: string; name?: string; role?: string } | null>(null);
   const [myOrders, setMyOrders] = useState<any[] | null>(null);
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  
+  // Admin states
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [newProduct, setNewProduct] = useState<Partial<Product>>({
+    name: '',
+    category: 'account',
+    price: 0,
+    description: '',
+    tags: [],
+    features: []
+  });
 
   useEffect(() => {
     const savedCart = localStorage.getItem('sx-cart');
     if (savedCart) {
       setCart(JSON.parse(savedCart));
     }
+    loadProducts();
     loadUserProfile();
   }, []);
 
   useEffect(() => {
     localStorage.setItem('sx-cart', JSON.stringify(cart));
   }, [cart]);
+
+  const loadProducts = async () => {
+    try {
+      const res = await fetch('/api/products');
+      const data = await res.json();
+      if (res.ok) {
+        setProducts(data.products || []);
+      }
+    } catch (error) {
+      console.error('Failed to load products:', error);
+    }
+  };
 
   const loadUserProfile = async () => {
     const token = localStorage.getItem('authToken');
@@ -222,7 +110,7 @@ export default function StorePage() {
       const meRes = await fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } });
       const meData = await meRes.json();
       if (meRes.ok) {
-        setMe({ id: meData.id, email: meData.email, name: meData.name });
+        setMe({ id: meData.id, email: meData.email, name: meData.name, role: meData.role });
         loadOrders(token);
       }
     } catch (e) {
@@ -240,6 +128,72 @@ export default function StorePage() {
       console.error('Failed to load orders');
     } finally {
       setOrdersLoading(false);
+    }
+  };
+
+  // Admin functions
+  const saveProduct = async (product: Partial<Product>) => {
+    const token = localStorage.getItem('authToken');
+    if (!token) return;
+
+    try {
+      const method = editingProduct ? 'PUT' : 'POST';
+      const url = editingProduct ? `/api/products/${editingProduct.id}` : '/api/products';
+      
+      const res = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(product),
+      });
+
+      const data = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(data?.message || 'Failed to save product');
+      }
+
+      await loadProducts();
+      setEditingProduct(null);
+      setNewProduct({
+        name: '',
+        category: 'account',
+        price: 0,
+        description: '',
+        tags: [],
+        features: []
+      });
+      alert('Product saved successfully!');
+    } catch (error: any) {
+      alert('Failed to save product: ' + error.message);
+    }
+  };
+
+  const deleteProduct = async (productId: string) => {
+    if (!confirm('Are you sure you want to delete this product?')) return;
+
+    const token = localStorage.getItem('authToken');
+    if (!token) return;
+
+    try {
+      const res = await fetch(`/api/products/${productId}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data?.message || 'Failed to delete product');
+      }
+
+      await loadProducts();
+      alert('Product deleted successfully!');
+    } catch (error: any) {
+      alert('Failed to delete product: ' + error.message);
     }
   };
 
@@ -359,6 +313,8 @@ export default function StorePage() {
         status: 'pending',
       };
 
+      console.log('Sending order payload:', orderPayload);
+
       const res = await fetch('/api/orders', {
         method: 'POST',
         headers: {
@@ -369,9 +325,14 @@ export default function StorePage() {
       });
 
       const data = await res.json();
+      console.log('Order API response:', data);
 
       if (!res.ok) {
-        throw new Error(data?.message || 'Failed to create order');
+        throw new Error(data?.message || `Failed to create order: ${res.status}`);
+      }
+
+      if (!data.success) {
+        throw new Error(data?.message || 'Order creation failed');
       }
 
       // Clear cart and show success
@@ -385,7 +346,10 @@ export default function StorePage() {
       alert('Order placed successfully! You can view your order in "My Orders" section.');
       
     } catch (error: any) {
-      setDiscountError(error.message || 'Failed to place order. Please try again.');
+      console.error('Checkout error:', error);
+      const errorMessage = error.message || 'Failed to place order. Please try again.';
+      setDiscountError(errorMessage);
+      alert('Checkout failed: ' + errorMessage);
     } finally {
       setCheckoutLoading(false);
     }
@@ -400,7 +364,7 @@ export default function StorePage() {
   };
 
   const filteredProducts = (category: string) => 
-    productsData.filter(product => product.category === category);
+    products.filter(product => product.category === category);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-purple-900 text-white">
@@ -438,6 +402,14 @@ export default function StorePage() {
             <Link href="/membership" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700/50 transition">
               <Star size={18} /> Membership
             </Link>
+            {me?.role === 'admin' && (
+              <button 
+                onClick={() => setShowAdminPanel(true)}
+                className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700/50 transition w-full text-left"
+              >
+                <ShieldCheck size={18} /> Admin Panel
+              </button>
+            )}
           </nav>
         </div>
       </div>
@@ -466,6 +438,14 @@ export default function StorePage() {
             <Link href="/community" className="hover:text-purple-300 transition">Community</Link>
             <Link href="/status" className="hover:text-purple-300 transition">Status</Link>
             <Link href="/membership" className="hover:text-purple-300 transition">Membership</Link>
+            {me?.role === 'admin' && (
+              <button 
+                onClick={() => setShowAdminPanel(true)}
+                className="hover:text-purple-300 transition flex items-center gap-1"
+              >
+                <ShieldCheck size={16} /> Admin
+              </button>
+            )}
             <button 
               onClick={() => setShowCart(true)}
               className="relative p-2 rounded-full bg-purple-700/50 hover:bg-purple-600/50 transition"
@@ -511,6 +491,7 @@ export default function StorePage() {
               <h3 className="text-lg font-bold mb-2">Your Profile</h3>
               <div className="text-sm text-gray-300">{me.name || 'User'}</div>
               <div className="text-sm text-gray-400">{me.email}</div>
+              <div className="text-sm text-purple-300 capitalize">{me.role}</div>
               <div className="mt-3 text-xs text-gray-500">You are logged in.</div>
             </div>
             <div className="lg:col-span-2 bg-gray-800/40 border border-purple-800/30 rounded-xl p-5">
@@ -665,6 +646,160 @@ export default function StorePage() {
         ))}
       </main>
 
+      {/* Admin Panel Modal */}
+      {showAdminPanel && me?.role === 'admin' && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-gray-800/80 backdrop-blur-lg rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-purple-800/50">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold">Admin Product Management</h2>
+                <button 
+                  onClick={() => {
+                    setShowAdminPanel(false);
+                    setEditingProduct(null);
+                    setNewProduct({
+                      name: '',
+                      category: 'account',
+                      price: 0,
+                      description: '',
+                      tags: [],
+                      features: []
+                    });
+                  }}
+                  className="text-gray-400 hover:text-white"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+
+              {/* Product Form */}
+              <div className="bg-gray-700/30 rounded-lg p-4 mb-6">
+                <h3 className="text-lg font-bold mb-4">
+                  {editingProduct ? 'Edit Product' : 'Add New Product'}
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <input
+                    type="text"
+                    placeholder="Product Name"
+                    value={editingProduct ? editingProduct.name : newProduct.name}
+                    onChange={(e) => editingProduct 
+                      ? setEditingProduct({...editingProduct, name: e.target.value})
+                      : setNewProduct({...newProduct, name: e.target.value})
+                    }
+                    className="bg-gray-600/50 border border-gray-500/50 rounded-lg px-3 py-2 text-white placeholder-gray-400"
+                  />
+                  <select
+                    value={editingProduct ? editingProduct.category : newProduct.category}
+                    onChange={(e) => editingProduct 
+                      ? setEditingProduct({...editingProduct, category: e.target.value as any})
+                      : setNewProduct({...newProduct, category: e.target.value as any})
+                    }
+                    className="bg-gray-600/50 border border-gray-500/50 rounded-lg px-3 py-2 text-white"
+                  >
+                    <option value="account">Premium Account</option>
+                    <option value="tool">Game Tool</option>
+                    <option value="service">Custom Service</option>
+                    <option value="mod">Mod Menu</option>
+                    <option value="bundle">Bundle</option>
+                  </select>
+                  <input
+                    type="number"
+                    placeholder="Price"
+                    value={editingProduct ? editingProduct.price : newProduct.price}
+                    onChange={(e) => editingProduct 
+                      ? setEditingProduct({...editingProduct, price: Number(e.target.value)})
+                      : setNewProduct({...newProduct, price: Number(e.target.value)})
+                    }
+                    className="bg-gray-600/50 border border-gray-500/50 rounded-lg px-3 py-2 text-white"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Original Price (optional)"
+                    value={editingProduct ? editingProduct.originalPrice || '' : newProduct.originalPrice || ''}
+                    onChange={(e) => editingProduct 
+                      ? setEditingProduct({...editingProduct, originalPrice: e.target.value ? Number(e.target.value) : undefined})
+                      : setNewProduct({...newProduct, originalPrice: e.target.value ? Number(e.target.value) : undefined})
+                    }
+                    className="bg-gray-600/50 border border-gray-500/50 rounded-lg px-3 py-2 text-white"
+                  />
+                  <textarea
+                    placeholder="Description"
+                    value={editingProduct ? editingProduct.description : newProduct.description}
+                    onChange={(e) => editingProduct 
+                      ? setEditingProduct({...editingProduct, description: e.target.value})
+                      : setNewProduct({...newProduct, description: e.target.value})
+                    }
+                    rows={3}
+                    className="bg-gray-600/50 border border-gray-500/50 rounded-lg px-3 py-2 text-white md:col-span-2"
+                  />
+                </div>
+                <div className="flex gap-2 mt-4">
+                  <button
+                    onClick={() => editingProduct ? saveProduct(editingProduct) : saveProduct(newProduct)}
+                    className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition"
+                  >
+                    {editingProduct ? 'Update Product' : 'Add Product'}
+                  </button>
+                  {editingProduct && (
+                    <button
+                      onClick={() => setEditingProduct(null)}
+                      className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition"
+                    >
+                      Cancel
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Products List */}
+              <div>
+                <h3 className="text-lg font-bold mb-4">Existing Products ({products.length})</h3>
+                <div className="space-y-3">
+                  {products.map(product => (
+                    <div key={product.id} className="bg-gray-700/30 rounded-lg p-4 border border-gray-600/30">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h4 className="font-bold">{product.name}</h4>
+                          <p className="text-sm text-gray-300">{product.description}</p>
+                          <div className="flex gap-2 mt-2">
+                            <span className="text-xs bg-purple-500/20 text-purple-300 px-2 py-1 rounded-full">
+                              {product.category}
+                            </span>
+                            <span className="text-xs bg-green-500/20 text-green-300 px-2 py-1 rounded-full">
+                              ₹{product.price}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => setEditingProduct(product)}
+                            className="p-2 bg-blue-600/50 hover:bg-blue-600/70 rounded-lg transition"
+                          >
+                            <Edit size={16} />
+                          </button>
+                          <button
+                            onClick={() => deleteProduct(product.id)}
+                            className="p-2 bg-red-600/50 hover:bg-red-600/70 rounded-lg transition"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {products.length === 0 && (
+                    <div className="text-center py-8 text-gray-400">
+                      No products yet. Add your first product above!
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Rest of the modals (selected product, cart) remain the same */}
       {selectedProduct && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className={`bg-gray-800/80 backdrop-blur-lg rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto ${
