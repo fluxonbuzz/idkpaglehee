@@ -310,6 +310,8 @@ export default function StorePage() {
   };
 
   const generateReceipt = () => {
+    // Also create a backend order tied to the logged-in user
+    void placeOrder();
     if (!agreeToTerms) {
       setDiscountError('You must agree to the terms and conditions');
       return;
@@ -359,6 +361,50 @@ export default function StorePage() {
     URL.revokeObjectURL(url);
 
     setShowPayment(true);
+  };
+
+  const placeOrder = async () => {
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+      if (!token) {
+        window.location.href = '/login';
+        return;
+      }
+      const { subtotal, discount, total } = calculateTotal();
+      const orderPayload = {
+        items: cart.map((item) => ({
+          id: item.id,
+          name: item.name,
+          qty: item.quantity,
+          unitPrice: item.selectedMod ? item.selectedMod.price : item.price,
+          selectedMod: item.selectedMod || null,
+          category: item.category,
+        })),
+        discount: appliedDiscount ? { code: appliedDiscount.code, amount: discount } : null,
+        subtotal,
+        total,
+        status: 'pending',
+        createdAt: new Date().toISOString(),
+      };
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ order: orderPayload }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        console.error('Order creation failed', data);
+        return;
+      }
+      // Clear cart on successful order creation
+      setCart([]);
+      localStorage.removeItem('sx-cart');
+    } catch (e) {
+      console.error('Order creation error', e);
+    }
   };
 
   const copyReceiptToClipboard = () => {
