@@ -6,16 +6,23 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // Set CORS headers
+// Helper to set CORS headers
+const setCorsHeaders = (res: NextApiResponse) => {
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
+};
 
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
+    setCorsHeaders(res);
     return res.status(200).end();
   }
+
+  // Set CORS headers for all responses
+  setCorsHeaders(res);
 
   // Authentication middleware
   const authHeader = req.headers.authorization;
@@ -41,7 +48,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching orders:', error);
+        return res.status(500).json({ message: 'Failed to fetch orders', error: error.message });
+      }
       
       return res.status(200).json({ 
         orders: orders || [],
@@ -78,7 +88,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         if (error) {
           console.error('Database error:', error);
-          throw error;
+          return res.status(500).json({ 
+            message: 'Failed to create order', 
+            error: error.message 
+          });
         }
 
         console.log('Order created successfully:', data);
