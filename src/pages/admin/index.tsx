@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 import { 
   Package, 
   Users, 
-  DollarSign, 
+  IndianRupee, 
   Truck, 
   X, 
   Edit3, 
@@ -17,7 +17,9 @@ import {
   BarChart3,
   Settings,
   User,
-  Shield
+  Shield,
+  Trash2,
+  Filter
 } from 'lucide-react'
 
 interface Order {
@@ -30,6 +32,8 @@ interface Order {
   discount: any
   created_at: string
   updated_at: string
+  user_email?: string
+  user_name?: string
 }
 
 export default function AdminDashboard() {
@@ -45,6 +49,7 @@ export default function AdminDashboard() {
     delivered: 0,
     cancelled: 0
   })
+  const [activeTab, setActiveTab] = useState('all')
 
   useEffect(() => {
     const token = localStorage.getItem('authToken')
@@ -81,8 +86,30 @@ export default function AdminDashboard() {
         return
       }
       
-      setOrders(data.orders)
-      calculateStats(data.orders)
+      // Add user email/name to orders for display
+      const ordersWithUserInfo = await Promise.all(
+        data.orders.map(async (order: Order) => {
+          try {
+            const userRes = await fetch(`/api/auth/user/${order.user_id}`, {
+              headers: { Authorization: `Bearer ${authToken}` }
+            })
+            if (userRes.ok) {
+              const userData = await userRes.json()
+              return {
+                ...order,
+                user_email: userData.user?.email || 'Unknown',
+                user_name: userData.user?.user_metadata?.name || 'Unknown'
+              }
+            }
+          } catch (e) {
+            console.error('Failed to fetch user info:', e)
+          }
+          return order
+        })
+      )
+      
+      setOrders(ordersWithUserInfo)
+      calculateStats(ordersWithUserInfo)
     } catch (err) {
       setError('Failed to load orders')
     }
@@ -111,9 +138,8 @@ export default function AdminDashboard() {
 
       console.log('Updating order:', id, 'with data:', body)
 
-      // FIX: Change PATCH to PUT
       const res = await fetch(`/api/orders/${id}`, {
-        method: 'PUT', // Changed from PATCH to PUT
+        method: 'PUT',
         headers: { 
           'Content-Type': 'application/json', 
           Authorization: `Bearer ${token}` 
@@ -134,22 +160,55 @@ export default function AdminDashboard() {
     }
   }
 
+  const deleteOrder = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this order? This action cannot be undone.')) {
+      return
+    }
+
+    try {
+      setLoadingId(id)
+      const token = localStorage.getItem('authToken')
+      if (!token) {
+        router.replace('/admin/login')
+        return
+      }
+
+      const res = await fetch(`/api/orders/${id}`, {
+        method: 'DELETE',
+        headers: { 
+          Authorization: `Bearer ${token}` 
+        },
+      })
+      
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data?.message || 'Delete failed')
+      }
+      
+      await loadOrders(token)
+    } catch (e: any) {
+      setError(e?.message || 'Delete failed')
+    } finally {
+      setLoadingId(null)
+    }
+  }
+
   const getStatusColor = (status: string) => {
     const colors = {
-      pending: 'bg-yellow-500/20 text-yellow-600 border-yellow-500/30',
-      confirmed: 'bg-blue-500/20 text-blue-600 border-blue-500/30',
-      paid: 'bg-green-500/20 text-green-600 border-green-500/30',
-      delivered: 'bg-purple-500/20 text-purple-600 border-purple-500/30',
-      cancelled: 'bg-red-500/20 text-red-600 border-red-500/30'
+      pending: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+      confirmed: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+      paid: 'bg-green-500/20 text-green-400 border-green-500/30',
+      delivered: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
+      cancelled: 'bg-red-500/20 text-red-400 border-red-500/30'
     }
-    return colors[status as keyof typeof colors] || 'bg-gray-500/20 text-gray-600 border-gray-500/30'
+    return colors[status as keyof typeof colors] || 'bg-gray-500/20 text-gray-400 border-gray-500/30'
   }
 
   const getStatusIcon = (status: string) => {
     const icons = {
       pending: Clock,
       confirmed: CheckCircle2,
-      paid: DollarSign,
+      paid: IndianRupee,
       delivered: Truck,
       cancelled: X
     }
@@ -158,14 +217,14 @@ export default function AdminDashboard() {
 
   const getStatColor = (stat: string) => {
     const colors = {
-      total: 'from-blue-500 to-cyan-500',
-      pending: 'from-yellow-500 to-amber-500',
-      confirmed: 'from-blue-500 to-indigo-500',
-      paid: 'from-green-500 to-emerald-500',
-      delivered: 'from-purple-500 to-pink-500',
-      cancelled: 'from-red-500 to-rose-500'
+      total: 'from-blue-600 to-cyan-600',
+      pending: 'from-yellow-600 to-amber-600',
+      confirmed: 'from-blue-600 to-indigo-600',
+      paid: 'from-green-600 to-emerald-600',
+      delivered: 'from-purple-600 to-pink-600',
+      cancelled: 'from-red-600 to-rose-600'
     }
-    return colors[stat as keyof typeof colors] || 'from-gray-500 to-gray-600'
+    return colors[stat as keyof typeof colors] || 'from-gray-600 to-gray-700'
   }
 
   const handleLogout = () => {
@@ -179,16 +238,29 @@ export default function AdminDashboard() {
       .reduce((sum, order) => sum + order.total, 0)
   }
 
+  const filteredOrders = activeTab === 'all' 
+    ? orders 
+    : orders.filter(order => order.status === activeTab)
+
+  const tabs = [
+    { id: 'all', name: 'All Orders', count: orders.length },
+    { id: 'pending', name: 'Pending', count: stats.pending },
+    { id: 'confirmed', name: 'Confirmed', count: stats.confirmed },
+    { id: 'paid', name: 'Paid', count: stats.paid },
+    { id: 'delivered', name: 'Delivered', count: stats.delivered },
+    { id: 'cancelled', name: 'Cancelled', count: stats.cancelled }
+  ]
+
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-purple-900 flex items-center justify-center p-6">
-        <div className="bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-xl border border-purple-500/20 p-8 max-w-md w-full text-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-blue-900 flex items-center justify-center p-6">
+        <div className="bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-xl border border-blue-500/20 p-8 max-w-md w-full text-center">
           <AlertCircle className="w-16 h-16 text-red-400 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-white mb-2">Error</h2>
           <p className="text-gray-300 mb-6">{error}</p>
           <button
             onClick={() => loadOrders()}
-            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-xl font-medium hover:from-purple-700 hover:to-pink-700 transition-all duration-300"
+            className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white py-3 rounded-xl font-medium hover:from-blue-700 hover:to-cyan-700 transition-all duration-300"
           >
             Try Again
           </button>
@@ -198,16 +270,16 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-indigo-900">
       {/* Header */}
-      <header className="bg-gray-800/50 backdrop-blur-md border-b border-purple-500/20 shadow-lg">
+      <header className="bg-gray-800/50 backdrop-blur-md border-b border-blue-500/20 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg">
+              <div className="p-2 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg">
                 <Shield className="w-6 h-6 text-white" />
               </div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text text-transparent">
                 Admin Dashboard
               </h1>
             </div>
@@ -217,7 +289,7 @@ export default function AdminDashboard() {
               </div>
               <button
                 onClick={() => loadOrders()}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-purple-600/50 rounded-lg hover:bg-purple-600/70 backdrop-blur-sm transition-all duration-300 border border-purple-500/30"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600/50 rounded-lg hover:bg-blue-600/70 backdrop-blur-sm transition-all duration-300 border border-blue-500/30"
               >
                 <RefreshCw className="w-4 h-4" />
                 Refresh
@@ -247,7 +319,7 @@ export default function AdminDashboard() {
                   {key === 'total' && <ShoppingCart className="w-6 h-6 text-white" />}
                   {key === 'pending' && <Clock className="w-6 h-6 text-white" />}
                   {key === 'confirmed' && <CheckCircle2 className="w-6 h-6 text-white" />}
-                  {key === 'paid' && <DollarSign className="w-6 h-6 text-white" />}
+                  {key === 'paid' && <IndianRupee className="w-6 h-6 text-white" />}
                   {key === 'delivered' && <Truck className="w-6 h-6 text-white" />}
                   {key === 'cancelled' && <X className="w-6 h-6 text-white" />}
                 </div>
@@ -260,14 +332,36 @@ export default function AdminDashboard() {
           ))}
         </div>
 
+        {/* Tabs */}
+        <div className="flex flex-wrap gap-2 mb-6 p-4 bg-gray-800/50 rounded-2xl border border-blue-500/20 backdrop-blur-sm">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 border backdrop-blur-sm ${
+                activeTab === tab.id
+                  ? 'bg-blue-600 text-white border-blue-500 shadow-lg shadow-blue-500/25'
+                  : 'bg-gray-700/50 text-gray-300 border-gray-600/50 hover:bg-gray-700/70'
+              }`}
+            >
+              <span>{tab.name}</span>
+              <span className={`px-2 py-1 text-xs rounded-full ${
+                activeTab === tab.id ? 'bg-white/20' : 'bg-gray-600/50'
+              }`}>
+                {tab.count}
+              </span>
+            </button>
+          ))}
+        </div>
+
         {/* Orders */}
         <div className="space-y-4">
-          {orders.map((order) => {
+          {filteredOrders.map((order) => {
             const StatusIcon = getStatusIcon(order.status)
             return (
               <div 
                 key={order.id} 
-                className="bg-gray-800/50 backdrop-blur-lg rounded-2xl shadow-xl border border-purple-500/20 p-6 transform hover:scale-[1.02] transition-all duration-300"
+                className="bg-gray-800/50 backdrop-blur-lg rounded-2xl shadow-xl border border-blue-500/20 p-6 transform hover:scale-[1.02] transition-all duration-300"
               >
                 {/* Order Header */}
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
@@ -294,17 +388,19 @@ export default function AdminDashboard() {
                 {/* Order Info */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                   <div className="flex items-center gap-2 bg-gray-700/30 p-3 rounded-lg">
-                    <User className="w-4 h-4 text-purple-400" />
+                    <User className="w-4 h-4 text-blue-400" />
                     <span className="text-sm text-gray-300">User:</span>
-                    <span className="text-sm font-medium text-white">{order.user_id.slice(0, 8)}...</span>
+                    <span className="text-sm font-medium text-white">
+                      {order.user_name || order.user_email || order.user_id.slice(0, 8)}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2 bg-gray-700/30 p-3 rounded-lg">
-                    <DollarSign className="w-4 h-4 text-green-400" />
+                    <IndianRupee className="w-4 h-4 text-green-400" />
                     <span className="text-sm text-gray-300">Total:</span>
                     <span className="text-sm font-medium text-green-400">₹{order.total}</span>
                   </div>
                   <div className="flex items-center gap-2 bg-gray-700/30 p-3 rounded-lg">
-                    <Package className="w-4 h-4 text-blue-400" />
+                    <Package className="w-4 h-4 text-cyan-400" />
                     <span className="text-sm text-gray-300">Items:</span>
                     <span className="text-sm font-medium text-white">{order.items?.length || 0}</span>
                   </div>
@@ -346,7 +442,7 @@ export default function AdminDashboard() {
                     onClick={() => act(order.id, { status: 'paid' })}
                     className="flex items-center gap-2 px-4 py-2 text-sm bg-green-600/50 text-white rounded-lg hover:bg-green-600/70 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 border border-green-500/30 backdrop-blur-sm"
                   >
-                    <DollarSign className="w-4 h-4" />
+                    <IndianRupee className="w-4 h-4" />
                     {loadingId === order.id ? 'Updating...' : 'Mark Paid'}
                   </button>
                   <button
@@ -382,16 +478,29 @@ export default function AdminDashboard() {
                     <Tag className="w-4 h-4" />
                     {loadingId === order.id ? 'Updating...' : 'Discount'}
                   </button>
+                  <button
+                    disabled={loadingId === order.id}
+                    onClick={() => deleteOrder(order.id)}
+                    className="flex items-center gap-2 px-4 py-2 text-sm bg-red-700/50 text-white rounded-lg hover:bg-red-700/70 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 border border-red-600/30 backdrop-blur-sm"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    {loadingId === order.id ? 'Deleting...' : 'Delete'}
+                  </button>
                 </div>
               </div>
             )
           })}
           
-          {orders.length === 0 && (
-            <div className="text-center py-12 bg-gray-800/50 backdrop-blur-lg rounded-2xl border border-purple-500/20">
+          {filteredOrders.length === 0 && (
+            <div className="text-center py-12 bg-gray-800/50 backdrop-blur-lg rounded-2xl border border-blue-500/20">
               <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-white mb-2">No orders yet</h3>
-              <p className="text-gray-400">Orders will appear here once customers start placing them.</p>
+              <h3 className="text-xl font-bold text-white mb-2">No orders found</h3>
+              <p className="text-gray-400">
+                {activeTab === 'all' 
+                  ? 'No orders have been placed yet.' 
+                  : `No ${activeTab} orders found.`
+                }
+              </p>
             </div>
           )}
         </div>
