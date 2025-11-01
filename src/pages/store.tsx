@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { ShoppingCart, Zap, Star, Tag, Gift, ShieldCheck, Download, X, Check, ArrowRight, Home, Users, AlertCircle, Clock, Plus, Edit, Trash2, Search, Heart, ChevronRight, ChevronLeft, Menu, User, Package, Settings, MessageCircle, LogOut, Bell, CreditCard, MapPin, BarChart3, Mail, Phone, Image as ImageIcon } from 'lucide-react';
+import { ShoppingCart, Zap, Star, Tag, Gift, ShieldCheck, Download, X, Check, ArrowRight, Home, Users, AlertCircle, Clock, Plus, Edit, Trash2, Search, Heart, ChevronRight, ChevronLeft, Menu, User, Package, Settings, MessageCircle, LogOut, Bell, CreditCard, MapPin, BarChart3 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
@@ -48,7 +48,7 @@ interface User {
   role?: string;
 }
 
-// Enhanced Toast Notification
+// Toast Notification
 const Toast = ({ message, type = 'success', onClose }: { message: string; type?: 'success' | 'error' | 'info'; onClose: () => void }) => {
   useEffect(() => {
     const timer = setTimeout(onClose, 3000);
@@ -151,7 +151,6 @@ const SupportChat = ({ onClose }: { onClose: () => void }) => {
     setNewMessage('');
     setIsTyping(true);
 
-    // Simulate bot response
     setTimeout(() => {
       setMessages(prev => [...prev, 
         { id: Date.now() + 1, text: 'Thanks for your message. Our team will get back to you soon!', sender: 'bot' }
@@ -279,7 +278,6 @@ const SearchBar = ({ onSearch, onResultSelect, products }: { onSearch: (query: s
         />
       </div>
 
-      {/* Search Results Dropdown */}
       {isOpen && results.length > 0 && (
         <div className="absolute top-full left-0 right-0 mt-2 bg-gray-800/90 backdrop-blur-lg border border-gray-700/50 rounded-2xl shadow-xl z-50 max-h-96 overflow-y-auto">
           {results.map(product => (
@@ -307,7 +305,6 @@ const SearchBar = ({ onSearch, onResultSelect, products }: { onSearch: (query: s
         </div>
       )}
 
-      {/* Mobile Full-screen Search */}
       {isOpen && typeof window !== 'undefined' && window.innerWidth < 768 && (
         <div className="fixed inset-0 z-[100] bg-gray-900/95 backdrop-blur-sm">
           <div className="p-4">
@@ -395,25 +392,32 @@ const AdminPanel = ({
       const method = isUpdate ? 'PUT' : 'POST';
       const url = isUpdate ? `/api/products/${editingProduct.id}` : '/api/products';
       
-      // Simulate API call - replace with actual API
-      console.log('Saving product:', product);
-      
-      // For demo purposes, just show success message
-      setTimeout(() => {
-        onProductUpdate();
-        setEditingProduct(null);
-        setNewProduct({
-          name: '',
-          category: 'account',
-          price: 0,
-          description: '',
-          tags: [],
-          features: [],
-          images: ['/product-placeholder.jpg']
-        });
-        alert('Product saved successfully!');
-      }, 1000);
+      const res = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(product),
+      });
 
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || errorData.message || 'Failed to save product');
+      }
+
+      await onProductUpdate();
+      setEditingProduct(null);
+      setNewProduct({
+        name: '',
+        category: 'account',
+        price: 0,
+        description: '',
+        tags: [],
+        features: [],
+        images: ['/product-placeholder.jpg']
+      });
+      alert('Product saved successfully!');
     } catch (error: any) {
       alert('Failed to save product: ' + (error.message || 'Unknown error'));
     }
@@ -429,15 +433,19 @@ const AdminPanel = ({
     }
 
     try {
-      // Simulate API call - replace with actual API
-      console.log('Deleting product:', productId);
-      
-      // For demo purposes, just show success message
-      setTimeout(() => {
-        onProductUpdate();
-        alert('Product deleted successfully!');
-      }, 1000);
+      const res = await fetch(`/api/products/${productId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
 
+      if (!res.ok) {
+        throw new Error('Failed to delete product');
+      }
+
+      await onProductUpdate();
+      alert('Product deleted successfully!');
     } catch (error: any) {
       alert('Failed to delete product: ' + error.message);
     }
@@ -460,7 +468,6 @@ const AdminPanel = ({
             </button>
           </div>
 
-          {/* Admin Navigation */}
           <div className="flex gap-2 mb-6 overflow-x-auto">
             {['dashboard', 'products', 'orders', 'users', 'settings'].map((section) => (
               <button
@@ -477,7 +484,6 @@ const AdminPanel = ({
             ))}
           </div>
 
-          {/* Dashboard Section */}
           {adminSection === 'dashboard' && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
               <div className="bg-gray-700/30 rounded-2xl p-6 border border-gray-600/30">
@@ -495,7 +501,6 @@ const AdminPanel = ({
             </div>
           )}
 
-          {/* Products Section */}
           {adminSection === 'products' && (
             <div className="space-y-6">
               <div className="bg-gray-700/30 rounded-2xl p-6 border border-gray-600/30">
@@ -650,7 +655,6 @@ const AdminPanel = ({
             </div>
           )}
 
-          {/* Orders Section */}
           {adminSection === 'orders' && (
             <div className="bg-gray-700/30 rounded-2xl p-6 border border-gray-600/30">
               <h3 className="text-lg font-bold mb-4">Order Management</h3>
@@ -660,7 +664,6 @@ const AdminPanel = ({
             </div>
           )}
 
-          {/* Users Section */}
           {adminSection === 'users' && (
             <div className="bg-gray-700/30 rounded-2xl p-6 border border-gray-600/30">
               <h3 className="text-lg font-bold mb-4">User Management</h3>
@@ -670,7 +673,6 @@ const AdminPanel = ({
             </div>
           )}
 
-          {/* Settings Section */}
           {adminSection === 'settings' && (
             <div className="bg-gray-700/30 rounded-2xl p-6 border border-gray-600/30">
               <h3 className="text-lg font-bold mb-4">Store Settings</h3>
@@ -690,88 +692,6 @@ const discountCodes: DiscountCode[] = [
   { code: 'SX20', discount: 20, minPurchase: 200, type: 'percentage' },
   { code: 'SAVE50', discount: 50, minPurchase: 250, type: 'fixed' }
 ];
-
-// Demo products data
-const demoProducts: Product[] = [
-  {
-    id: '1',
-    name: 'Premium Game Account',
-    category: 'account',
-    price: 299,
-    original_price: 399,
-    description: 'Full access premium account with all features unlocked',
-    features: ['Full game access', 'Premium skins', 'Exclusive content', '24/7 support'],
-    tags: ['Popular', 'Limited'],
-    images: ['/placeholder.jpg']
-  },
-  {
-    id: '2',
-    name: 'Game Mod Tool',
-    category: 'tool',
-    price: 199,
-    description: 'Advanced modification tool for enhanced gameplay',
-    features: ['Easy to use', 'Safe', 'Regular updates', 'Multi-game support'],
-    tags: ['New', 'Hot'],
-    images: ['/placeholder.jpg']
-  },
-  {
-    id: '3',
-    name: 'Custom Service Package',
-    category: 'service',
-    price: 499,
-    description: 'Customized gaming service tailored to your needs',
-    features: ['24/7 support', 'Custom setup', 'Priority service', 'Guaranteed results'],
-    tags: ['Premium', 'Featured'],
-    images: ['/placeholder.jpg']
-  },
-  {
-    id: '4',
-    name: 'Mod Menu Bundle',
-    category: 'mod',
-    price: 349,
-    original_price: 449,
-    description: 'Complete mod menu bundle with all features',
-    features: ['All features unlocked', 'Regular updates', 'Safe to use', 'Easy installation'],
-    mod_options: [
-      { name: 'Basic', price: 249 },
-      { name: 'Pro', price: 349 },
-      { name: 'Ultimate', price: 499 }
-    ],
-    tags: ['Bundle', 'Discount'],
-    images: ['/placeholder.jpg']
-  },
-  {
-    id: '5',
-    name: 'Starter Bundle',
-    category: 'bundle',
-    price: 599,
-    original_price: 799,
-    description: 'Perfect starter bundle for new gamers',
-    features: ['Multiple accounts', 'Essential tools', 'Beginner guide', 'Support included'],
-    tags: ['Bundle', 'Best Value'],
-    images: ['/placeholder.jpg'],
-    is_pre_order: true,
-    pre_order_discount: {
-      original_price: 799,
-      discount_price: 599,
-      end_date: '2024-12-31'
-    }
-  }
-];
-
-const demoUser: User = {
-  id: '1',
-  email: 'user@example.com',
-  name: 'Demo User',
-  role: 'user'
-};
-
-const demoAdmin: User = {
-  id: '2',
-  email: 'admin@example.com',
-  name: 'Admin User',
-  role: 'admin'
-};
 
 export default function StorePage() {
   const router = useRouter();
@@ -800,29 +720,22 @@ export default function StorePage() {
   const [adminSection, setAdminSection] = useState('dashboard');
   const [showAdminPanel, setShowAdminPanel] = useState(false);
 
-  // Cart animation ref
   const cartIconRef = useRef<HTMLButtonElement>(null);
 
-  // Check authentication on component mount
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     const initializeApp = async () => {
-      // Check if we're in the browser
-      if (typeof window === 'undefined') {
-        setAuthLoading(false);
-        return;
-      }
-
       const token = localStorage.getItem('authToken');
       
       if (!token) {
-        // No token, redirect to login
         setAuthLoading(false);
         router.push('/login?redirect=/store');
         return;
       }
 
       try {
-        // Try to verify token with API
+        // Verify token and get user data
         const meRes = await fetch('/api/auth/me', {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -840,66 +753,105 @@ export default function StorePage() {
             name: userData.name,
             role: userData.role || 'user'
           });
+          
+          await loadInitialData();
         } else {
-          // Token is invalid, use demo mode
-          console.log('Token invalid, using demo mode');
-          setMe(demoAdmin); // Change to demoUser for regular user
+          // Token is invalid
+          localStorage.removeItem('authToken');
+          setAuthLoading(false);
+          router.push('/login?redirect=/store');
         }
       } catch (error) {
-        // API not available, use demo mode
-        console.log('API not available, using demo mode');
-        setMe(demoAdmin); // Change to demoUser for regular user
+        console.error('Auth check failed:', error);
+        localStorage.removeItem('authToken');
+        setAuthLoading(false);
+        router.push('/login?redirect=/store');
       }
-
-      // Load demo data
-      await loadDemoData();
-      setAuthLoading(false);
     };
 
     initializeApp();
   }, []);
 
-  const loadDemoData = async () => {
-    // Load demo products
-    setProducts(demoProducts);
-    setProductsLoading(false);
-
-    // Load demo orders
-    setMyOrders([
-      {
-        id: 'order-1',
-        status: 'delivered',
-        total: 299,
-        created_at: new Date().toISOString(),
-        items: [{ name: 'Premium Game Account', quantity: 1 }]
-      },
-      {
-        id: 'order-2',
-        status: 'processing',
-        total: 199,
-        created_at: new Date(Date.now() - 86400000).toISOString(),
-        items: [{ name: 'Game Mod Tool', quantity: 1 }]
-      }
+  const loadInitialData = async () => {
+    await Promise.all([
+      loadProducts(),
+      loadOrders(),
+      loadWishlist()
     ]);
-
-    // Load saved cart and wishlist from localStorage
-    const savedCart = localStorage.getItem('sx-cart');
-    const savedWishlist = localStorage.getItem('sx-wishlist');
     
-    if (savedCart) {
-      try {
-        setCart(JSON.parse(savedCart));
-      } catch (error) {
-        setCart([]);
+    // Load cart from localStorage (client-side only)
+    if (typeof window !== 'undefined') {
+      const savedCart = localStorage.getItem('sx-cart');
+      if (savedCart) {
+        try {
+          setCart(JSON.parse(savedCart));
+        } catch (error) {
+          setCart([]);
+        }
       }
     }
     
-    if (savedWishlist) {
-      try {
-        setWishlist(JSON.parse(savedWishlist));
-      } catch (error) {
-        setWishlist([]);
+    setAuthLoading(false);
+  };
+
+  const loadProducts = async () => {
+    setProductsLoading(true);
+    try {
+      const res = await fetch('/api/products');
+      if (!res.ok) throw new Error('Failed to load products');
+      const data = await res.json();
+      setProducts(data.products || []);
+    } catch (error) {
+      console.error('Error loading products:', error);
+      setProducts([]);
+    } finally {
+      setProductsLoading(false);
+    }
+  };
+
+  const loadOrders = async () => {
+    setOrdersLoading(true);
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) return;
+
+      const res = await fetch('/api/orders', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setMyOrders(data.orders || []);
       }
+    } catch (error) {
+      console.error('Error loading orders:', error);
+      setMyOrders([]);
+    } finally {
+      setOrdersLoading(false);
+    }
+  };
+
+  const loadWishlist = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) return;
+
+      const res = await fetch('/api/wishlist', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setWishlist(data.wishlist?.map((item: any) => item.product_id) || []);
+      }
+    } catch (error) {
+      console.error('Error loading wishlist:', error);
     }
   };
 
@@ -908,12 +860,6 @@ export default function StorePage() {
       localStorage.setItem('sx-cart', JSON.stringify(cart));
     }
   }, [cart]);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('sx-wishlist', JSON.stringify(wishlist));
-    }
-  }, [wishlist]);
 
   const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
     setToast({ message, type });
@@ -928,20 +874,42 @@ export default function StorePage() {
     }
   };
 
-  const toggleWishlist = (productId: string) => {
-    setWishlist(prev => {
-      const newWishlist = prev.includes(productId)
-        ? prev.filter(id => id !== productId)
-        : [...prev, productId];
-      
-      if (!prev.includes(productId)) {
-        showToast('Added to wishlist');
+  const toggleWishlist = async (productId: string) => {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      showToast('Please login to manage wishlist', 'error');
+      return;
+    }
+
+    try {
+      const isInWishlist = wishlist.includes(productId);
+      const method = isInWishlist ? 'DELETE' : 'POST';
+      const url = isInWishlist ? `/api/wishlist/${productId}` : '/api/wishlist';
+
+      const res = await fetch(url, {
+        method,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: !isInWishlist ? JSON.stringify({ product_id: productId }) : undefined
+      });
+
+      if (res.ok) {
+        setWishlist(prev => {
+          const newWishlist = isInWishlist
+            ? prev.filter(id => id !== productId)
+            : [...prev, productId];
+          
+          showToast(isInWishlist ? 'Removed from wishlist' : 'Added to wishlist');
+          return newWishlist;
+        });
       } else {
-        showToast('Removed from wishlist', 'info');
+        throw new Error('Failed to update wishlist');
       }
-      
-      return newWishlist;
-    });
+    } catch (error) {
+      showToast('Failed to update wishlist', 'error');
+    }
   };
 
   const addToCart = (product: Product) => {
@@ -976,7 +944,67 @@ export default function StorePage() {
     showToast(`${itemName} added to cart!`);
   };
 
+  const removeFromCart = (index: number) => {
+    const newCart = [...cart];
+    newCart.splice(index, 1);
+    setCart(newCart);
+    showToast('Item removed from cart');
+  };
+
+  const updateQuantity = (index: number, newQuantity: number) => {
+    if (newQuantity < 1) return;
+    const newCart = [...cart];
+    newCart[index].quantity = newQuantity;
+    setCart(newCart);
+  };
+
+  const applyDiscount = () => {
+    const code = discountCodes.find(dc => dc.code === discountCode.toUpperCase());
+    if (!code) {
+      setDiscountError('Invalid discount code');
+      return;
+    }
+
+    const subtotal = cart.reduce((sum, item) => sum + (item.selectedMod ? item.selectedMod.price : item.price) * item.quantity, 0);
+    if (subtotal < code.minPurchase) {
+      setDiscountError(`Minimum purchase of ₹${code.minPurchase} required`);
+      return;
+    }
+
+    setAppliedDiscount(code);
+    setDiscountError('');
+    showToast('Discount applied successfully!');
+  };
+
+  const removeDiscount = () => {
+    setAppliedDiscount(null);
+    setDiscountCode('');
+    showToast('Discount removed');
+  };
+
+  const calculateTotal = () => {
+    const subtotal = cart.reduce((sum, item) => sum + (item.selectedMod ? item.selectedMod.price : item.price) * item.quantity, 0);
+    
+    let discount = 0;
+    if (appliedDiscount) {
+      if (appliedDiscount.type === 'percentage') {
+        discount = subtotal * (appliedDiscount.discount / 100);
+      } else {
+        discount = appliedDiscount.discount;
+      }
+    }
+
+    const total = Math.max(0, subtotal - discount);
+    return { subtotal, discount, total };
+  };
+
   const handleCheckout = async () => {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      router.push('/login?redirect=/store');
+      return;
+    }
+
     if (!agreeToTerms) {
       setDiscountError('You must agree to the terms and conditions');
       return;
@@ -991,15 +1019,50 @@ export default function StorePage() {
     setDiscountError('');
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const { subtotal, discount, total } = calculateTotal();
       
+      const orderPayload = {
+        items: cart.map((item) => ({
+          product_id: item.id,
+          name: item.selectedMod ? `${item.name} - ${item.selectedMod.name}` : item.name,
+          quantity: item.quantity,
+          unit_price: item.selectedMod ? item.selectedMod.price : item.price,
+          selected_mod: item.selectedMod || null,
+          category: item.category,
+        })),
+        discount: appliedDiscount ? { 
+          code: appliedDiscount.code, 
+          amount: discount 
+        } : null,
+        subtotal: subtotal,
+        total: total,
+        status: 'pending',
+      };
+
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ order: orderPayload }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || errorData.error || 'Failed to create order');
+      }
+
+      const data = await res.json();
+
       setCart([]);
       localStorage.removeItem('sx-cart');
       setShowCart(false);
       setShowSuccess(true);
       
-      showToast('Order placed successfully!');
+      await loadOrders();
+      
+      showToast('Order placed successfully! You can view your order in "My Orders" section.');
       
     } catch (error: any) {
       const errorMessage = error.message || 'Failed to place order. Please try again.';
@@ -1030,7 +1093,6 @@ export default function StorePage() {
             </button>
           </div>
           
-          {/* User Info */}
           {me && (
             <div className="mb-8 p-4 bg-gray-700/30 rounded-2xl">
               <div className="flex items-center gap-3">
@@ -1046,7 +1108,6 @@ export default function StorePage() {
             </div>
           )}
           
-          {/* Main Navigation */}
           <nav className="space-y-2 mb-8">
             <button 
               onClick={() => { setActiveTab('home'); setSidebarOpen(false); }}
@@ -1082,7 +1143,6 @@ export default function StorePage() {
             </button>
           </nav>
 
-          {/* Admin Navigation */}
           {me?.role === 'admin' && (
             <div className="mb-8">
               <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3 px-3">Admin</h3>
@@ -1111,7 +1171,6 @@ export default function StorePage() {
             </div>
           )}
 
-          {/* Support & Actions */}
           <div className="space-y-2">
             <button 
               onClick={() => { setShowSupport(true); setSidebarOpen(false); }}
@@ -1201,26 +1260,6 @@ export default function StorePage() {
     );
   }
 
-  if (!me) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-purple-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
-            <X size={32} className="text-white" />
-          </div>
-          <h2 className="text-2xl font-bold mb-2">Authentication Required</h2>
-          <p className="text-gray-300 mb-6">Please log in to access the store</p>
-          <button
-            onClick={() => router.push('/login?redirect=/store')}
-            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 px-8 rounded-2xl transition-all active:scale-95"
-          >
-            Go to Login
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-purple-900 text-white pb-16 md:pb-0">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
@@ -1229,16 +1268,14 @@ export default function StorePage() {
 
       <SlideBar />
 
-      {/* Admin Panel */}
       <AdminPanel
         isOpen={showAdminPanel}
         onClose={() => setShowAdminPanel(false)}
         products={products}
-        onProductUpdate={loadDemoData}
+        onProductUpdate={loadProducts}
         adminSection={adminSection}
       />
 
-      {/* Enhanced Header */}
       <header className="bg-gray-800/30 backdrop-blur-xl sticky top-0 z-40 border-b border-purple-800/20">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
@@ -1254,7 +1291,6 @@ export default function StorePage() {
               </Link>
             </div>
 
-            {/* Search Bar - Hidden on mobile when not on home */}
             {activeTab === 'home' && (
               <div className="hidden md:flex flex-1 max-w-md mx-4">
                 <SearchBar 
@@ -1289,7 +1325,6 @@ export default function StorePage() {
             </div>
           </div>
 
-          {/* Mobile Search - Only show on home tab */}
           {activeTab === 'home' && (
             <div className="mt-3 md:hidden">
               <SearchBar 
@@ -1308,64 +1343,26 @@ export default function StorePage() {
 
       <BottomNav />
 
-      {/* Enhanced Cart Drawer */}
       {showCart && (
         <CartDrawer
           cart={cart}
           onClose={() => setShowCart(false)}
-          onUpdateQuantity={(index: number, quantity: number) => {
-            const newCart = [...cart];
-            newCart[index].quantity = quantity;
-            setCart(newCart);
-          }}
-          onRemoveItem={(index: number) => {
-            const newCart = [...cart];
-            newCart.splice(index, 1);
-            setCart(newCart);
-          }}
+          onUpdateQuantity={updateQuantity}
+          onRemoveItem={removeFromCart}
           discountCode={discountCode}
           onDiscountCodeChange={setDiscountCode}
           appliedDiscount={appliedDiscount}
-          onApplyDiscount={() => {
-            const code = discountCodes.find(dc => dc.code === discountCode.toUpperCase());
-            if (!code) {
-              setDiscountError('Invalid discount code');
-              return;
-            }
-            const subtotal = cart.reduce((sum, item) => sum + (item.selectedMod ? item.selectedMod.price : item.price) * item.quantity, 0);
-            if (subtotal < code.minPurchase) {
-              setDiscountError(`Minimum purchase of ₹${code.minPurchase} required`);
-              return;
-            }
-            setAppliedDiscount(code);
-            setDiscountError('');
-          }}
-          onRemoveDiscount={() => {
-            setAppliedDiscount(null);
-            setDiscountCode('');
-          }}
+          onApplyDiscount={applyDiscount}
+          onRemoveDiscount={removeDiscount}
           discountError={discountError}
           agreeToTerms={agreeToTerms}
           onAgreeToTermsChange={setAgreeToTerms}
           onCheckout={handleCheckout}
           checkoutLoading={checkoutLoading}
-          calculateTotal={() => {
-            const subtotal = cart.reduce((sum, item) => sum + (item.selectedMod ? item.selectedMod.price : item.price) * item.quantity, 0);
-            let discount = 0;
-            if (appliedDiscount) {
-              if (appliedDiscount.type === 'percentage') {
-                discount = subtotal * (appliedDiscount.discount / 100);
-              } else {
-                discount = appliedDiscount.discount;
-              }
-            }
-            const total = Math.max(0, subtotal - discount);
-            return { subtotal, discount, total };
-          }}
+          calculateTotal={calculateTotal}
         />
       )}
 
-      {/* Product Modal */}
       {selectedProduct && (
         <ProductModal
           product={selectedProduct}
@@ -1382,10 +1379,7 @@ export default function StorePage() {
   );
 }
 
-// Section Components (HomeSection, OrdersSection, WishlistSection, ProfileSection)
-// ProductCard, ProductModal, and CartDrawer components remain the same as in the previous code
-
-// Add the missing section components here...
+// Section Components
 const HomeSection = ({ products, searchQuery, onProductSelect, onWishlistToggle, wishlist, productsLoading }: any) => {
   const categoryNames = {
     bundle: 'Special Bundles',
@@ -1432,7 +1426,6 @@ const HomeSection = ({ products, searchQuery, onProductSelect, onWishlistToggle,
 
   return (
     <>
-      {/* Hero Section */}
       <section className="mb-12 text-center">
         <div className="inline-block bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-2 rounded-2xl text-sm font-medium mb-6 shadow-lg backdrop-blur-sm">
           🎮 Premium Digital Products
@@ -1445,7 +1438,6 @@ const HomeSection = ({ products, searchQuery, onProductSelect, onWishlistToggle,
         </p>
       </section>
 
-      {/* Products Grid */}
       {!searchQuery ? (
         Object.entries(categoryNames).map(([categoryKey, categoryName]) => {
           const categoryProducts = filteredProducts(categoryKey);
@@ -1618,7 +1610,7 @@ const ProfileSection = ({ user }: any) => (
   </div>
 );
 
-// Enhanced Product Card with proper wishlist animation
+// Product Card Component
 const ProductCard = ({ product, onSelect, onWishlistToggle, isInWishlist }: any) => {
   const [isWishlistAnimating, setIsWishlistAnimating] = useState(false);
 
@@ -1635,7 +1627,6 @@ const ProductCard = ({ product, onSelect, onWishlistToggle, isInWishlist }: any)
       onClick={() => onSelect(product)}
     >
       <div className="relative">
-        {/* Image placeholder */}
         <div className="h-48 bg-gradient-to-br from-purple-900/20 to-pink-900/20 rounded-2xl flex items-center justify-center">
           <div className="text-center">
             <div className="w-16 h-16 bg-gray-700/50 rounded-2xl mx-auto mb-2 flex items-center justify-center">
@@ -1731,7 +1722,6 @@ const ProductModal = ({
           </button>
         </div>
         
-        {/* Image placeholder */}
         <div className="h-64 bg-gradient-to-br from-purple-900/20 to-pink-900/20 rounded-2xl flex items-center justify-center mb-6">
           <div className="text-center">
             <div className="w-16 h-16 bg-gray-700/50 rounded-2xl mx-auto mb-2 flex items-center justify-center">
@@ -1809,7 +1799,7 @@ const ProductModal = ({
   </div>
 );
 
-// Enhanced Cart Drawer with smooth animations
+// Cart Drawer Component
 const CartDrawer = ({
   cart,
   onClose,
