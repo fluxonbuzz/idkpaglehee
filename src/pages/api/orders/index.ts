@@ -6,23 +6,16 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// Helper to set CO
-const setCorsHeaders = (res: NextApiResponse) => {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // Set CORS headers
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
-};
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
-    setCorsHeaders(res);
     return res.status(200).end();
   }
-
-  // Set CORS headers for all responses
-  setCorsHeaders(res);
 
   // Authentication middleware
   const authHeader = req.headers.authorization;
