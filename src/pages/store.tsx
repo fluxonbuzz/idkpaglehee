@@ -1,4 +1,3 @@
-// src/pages/store.tsx
 import { useState, useEffect } from 'react';
 import { ShoppingCart, Zap, Star, Tag, Gift, ShieldCheck, Download, X, Check, ArrowRight, Home, Users, AlertCircle, Clock, Plus, Edit, Trash2 } from 'lucide-react';
 import Link from 'next/link';
@@ -42,6 +41,13 @@ interface DiscountCode {
   type: 'percentage' | 'fixed';
 }
 
+interface User {
+  id: string;
+  email: string;
+  name?: string;
+  role?: string;
+}
+
 const discountCodes: DiscountCode[] = [
   { code: 'WELCOME10', discount: 10, minPurchase: 100, type: 'percentage' },
   { code: 'SX20', discount: 20, minPurchase: 200, type: 'percentage' },
@@ -60,8 +66,8 @@ export default function StorePage() {
   const [selectedMod, setSelectedMod] = useState<{ name: string; price: number } | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
-  const [me, setMe] = useState<{ id: string; email: string; name?: string; role?: string } | null>(null);
-  const [myOrders, setMyOrders] = useState<any[] | null>(null);
+  const [me, setMe] = useState<User | null>(null);
+  const [myOrders, setMyOrders] = useState<any[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
@@ -78,6 +84,7 @@ export default function StorePage() {
     features: []
   });
 
+  // Load initial data
   useEffect(() => {
     const savedCart = localStorage.getItem('sx-cart');
     if (savedCart) {
@@ -92,6 +99,7 @@ export default function StorePage() {
     loadUserProfile();
   }, []);
 
+  // Save cart to localStorage
   useEffect(() => {
     localStorage.setItem('sx-cart', JSON.stringify(cart));
   }, [cart]);
@@ -121,26 +129,35 @@ export default function StorePage() {
     
     try {
       const meRes = await fetch('/api/auth/me', { 
-        headers: { Authorization: `Bearer ${token}` } 
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        } 
       });
       
       if (meRes.ok) {
         const meData = await meRes.json();
+        const userData = meData.user || meData;
+        
         setMe({ 
-          id: meData.user?.id || meData.id, 
-          email: meData.user?.email || meData.email, 
-          name: meData.user?.name || meData.name, 
-          role: meData.user?.role || meData.role 
+          id: userData.id, 
+          email: userData.email, 
+          name: userData.name, 
+          role: userData.role 
         });
-        loadOrders(token);
+        
+        // Load orders after successful auth
+        await loadOrders(token);
       } else {
-        // Token might be invalid, clear it
+        // Token is invalid or expired
+        console.warn('Token invalid, clearing auth data');
         localStorage.removeItem('authToken');
         setMe(null);
+        setMyOrders([]);
       }
     } catch (e) {
       console.error('Failed to load user profile:', e);
-      localStorage.removeItem('authToken');
+      // Don't clear token on network errors
       setMe(null);
     } finally {
       setAuthLoading(false);
@@ -151,15 +168,22 @@ export default function StorePage() {
     setOrdersLoading(true);
     try {
       const ordRes = await fetch('/api/orders', { 
-        headers: { Authorization: `Bearer ${token}` } 
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        } 
       });
+      
       if (ordRes.ok) {
         const ordData = await ordRes.json();
         setMyOrders(ordData.orders || []);
+      } else if (ordRes.status === 401) {
+        // Token expired during orders fetch
+        localStorage.removeItem('authToken');
+        setMe(null);
       }
     } catch (e) {
       console.error('Failed to load orders:', e);
-      setMyOrders([]);
     } finally {
       setOrdersLoading(false);
     }
@@ -174,25 +198,38 @@ export default function StorePage() {
     }
 
     try {
-      const method = editingProduct ? 'PUT' : 'POST';
-      const url = editingProduct ? `/api/products/${editingProduct.id}` : '/api/products';
+      const isUpdate = editingProduct && editingProduct.id;
+      const method = isUpdate ? 'PUT' : 'POST';
+      const url = isUpdate ? `/api/products/${editingProduct.id}` : '/api/products';
       
-      console.log('Saving product:', product);
+      console.log('Saving product:', { method, url, product });
       
       const res = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
+          'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify(product),
+        body: JSON.stringify({
+          ...product,
+          id: isUpdate ? editingProduct.id : undefined,
+        }),
       });
 
-      // Check if response is OK before trying to parse JSON
       if (!res.ok) {
-        const errorText = await res.text();
-        console.error('Server response error:', errorText);
-        throw new Error(`HTTP error! status: ${res.status}`);
+        let errorMessage = `HTTP error! status: ${res.status}`;
+        try {
+          const errorData = await res.json();
+          errorMessage = errorData.error || errorData.message || errorMessage;
+        } catch (e) {
+          try {
+            const errorText = await res.text();
+            if (errorText) errorMessage = errorText;
+          } catch (textError) {
+            // Ignore if we can't get text either
+          }
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await res.json();
@@ -211,7 +248,7 @@ export default function StorePage() {
       alert('Product saved successfully!');
     } catch (error: any) {
       console.error('Save product error:', error);
-      alert('Failed to save product: ' + error.message);
+      alert('Failed to save product: ' + (error.message || 'Unknown error'));
     }
   };
 
@@ -228,7 +265,7 @@ export default function StorePage() {
       const res = await fetch(`/api/products/${productId}`, {
         method: 'DELETE',
         headers: {
-          Authorization: `Bearer ${token}`,
+          'Authorization': `Bearer ${token}`,
         },
       });
 
@@ -354,19 +391,19 @@ export default function StorePage() {
       
       const orderPayload = {
         items: cart.map((item) => ({
-          id: item.id,
+          product_id: item.id,
           name: item.selectedMod ? `${item.name} - ${item.selectedMod.name}` : item.name,
-          qty: item.quantity,
-          unitPrice: item.selectedMod ? item.selectedMod.price : item.price,
-          selectedMod: item.selectedMod || null,
+          quantity: item.quantity,
+          unit_price: item.selectedMod ? item.selectedMod.price : item.price,
+          selected_mod: item.selectedMod || null,
           category: item.category,
         })),
         discount: appliedDiscount ? { 
           code: appliedDiscount.code, 
           amount: discount 
         } : null,
-        subtotal,
-        total,
+        subtotal: subtotal,
+        total: total,
         status: 'pending',
       };
 
@@ -376,20 +413,24 @@ export default function StorePage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({ order: orderPayload }),
       });
 
-      // Check if response is OK before parsing JSON
       if (!res.ok) {
-        const errorText = await res.text();
-        console.error('Order creation error response:', errorText);
-        throw new Error(`Failed to create order: ${res.status} ${res.statusText}`);
+        let errorMessage = `Failed to create order: ${res.status} ${res.statusText}`;
+        try {
+          const errorData = await res.json();
+          errorMessage = errorData.message || errorData.error || errorMessage;
+        } catch (e) {
+          // Ignore JSON parsing errors
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await res.json();
-      console.log('Order API response:', data);
+      console.log('Order created successfully:', data);
 
       // Clear cart and show success
       setCart([]);
@@ -405,7 +446,6 @@ export default function StorePage() {
       console.error('Checkout error:', error);
       const errorMessage = error.message || 'Failed to place order. Please try again.';
       setDiscountError(errorMessage);
-      alert('Checkout failed: ' + errorMessage);
     } finally {
       setCheckoutLoading(false);
     }
@@ -416,6 +456,8 @@ export default function StorePage() {
     console.log('Current cart:', cart);
     console.log('Cart in localStorage:', localStorage.getItem('sx-cart'));
     console.log('Products:', products);
+    console.log('User:', me);
+    console.log('Orders:', myOrders);
   };
 
   const categoryNames = {
@@ -432,7 +474,10 @@ export default function StorePage() {
   if (authLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 to-purple-900 flex items-center justify-center">
-        <div className="text-white text-xl">Loading...</div>
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="text-white text-xl">Loading store...</div>
+        </div>
       </div>
     );
   }
@@ -586,7 +631,7 @@ export default function StorePage() {
                 onClick={() => {
                   localStorage.removeItem('authToken');
                   setMe(null);
-                  setMyOrders(null);
+                  setMyOrders([]);
                   router.reload();
                 }}
                 className="mt-4 text-sm text-red-400 hover:text-red-300"
@@ -599,7 +644,7 @@ export default function StorePage() {
                 <h3 className="text-lg font-bold">My Orders</h3>
                 {ordersLoading && <span className="text-xs text-gray-400">Loading…</span>}
               </div>
-              {(!myOrders || myOrders.length === 0) ? (
+              {myOrders.length === 0 ? (
                 <div className="text-sm text-gray-400">No orders yet.</div>
               ) : (
                 <div className="space-y-3">
