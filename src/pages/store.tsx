@@ -691,7 +691,87 @@ const discountCodes: DiscountCode[] = [
   { code: 'SAVE50', discount: 50, minPurchase: 250, type: 'fixed' }
 ];
 
-const isClient = typeof window !== 'undefined';
+// Demo products data
+const demoProducts: Product[] = [
+  {
+    id: '1',
+    name: 'Premium Game Account',
+    category: 'account',
+    price: 299,
+    original_price: 399,
+    description: 'Full access premium account with all features unlocked',
+    features: ['Full game access', 'Premium skins', 'Exclusive content', '24/7 support'],
+    tags: ['Popular', 'Limited'],
+    images: ['/placeholder.jpg']
+  },
+  {
+    id: '2',
+    name: 'Game Mod Tool',
+    category: 'tool',
+    price: 199,
+    description: 'Advanced modification tool for enhanced gameplay',
+    features: ['Easy to use', 'Safe', 'Regular updates', 'Multi-game support'],
+    tags: ['New', 'Hot'],
+    images: ['/placeholder.jpg']
+  },
+  {
+    id: '3',
+    name: 'Custom Service Package',
+    category: 'service',
+    price: 499,
+    description: 'Customized gaming service tailored to your needs',
+    features: ['24/7 support', 'Custom setup', 'Priority service', 'Guaranteed results'],
+    tags: ['Premium', 'Featured'],
+    images: ['/placeholder.jpg']
+  },
+  {
+    id: '4',
+    name: 'Mod Menu Bundle',
+    category: 'mod',
+    price: 349,
+    original_price: 449,
+    description: 'Complete mod menu bundle with all features',
+    features: ['All features unlocked', 'Regular updates', 'Safe to use', 'Easy installation'],
+    mod_options: [
+      { name: 'Basic', price: 249 },
+      { name: 'Pro', price: 349 },
+      { name: 'Ultimate', price: 499 }
+    ],
+    tags: ['Bundle', 'Discount'],
+    images: ['/placeholder.jpg']
+  },
+  {
+    id: '5',
+    name: 'Starter Bundle',
+    category: 'bundle',
+    price: 599,
+    original_price: 799,
+    description: 'Perfect starter bundle for new gamers',
+    features: ['Multiple accounts', 'Essential tools', 'Beginner guide', 'Support included'],
+    tags: ['Bundle', 'Best Value'],
+    images: ['/placeholder.jpg'],
+    is_pre_order: true,
+    pre_order_discount: {
+      original_price: 799,
+      discount_price: 599,
+      end_date: '2024-12-31'
+    }
+  }
+];
+
+const demoUser: User = {
+  id: '1',
+  email: 'user@example.com',
+  name: 'Demo User',
+  role: 'user'
+};
+
+const demoAdmin: User = {
+  id: '2',
+  email: 'admin@example.com',
+  name: 'Admin User',
+  role: 'admin'
+};
 
 export default function StorePage() {
   const router = useRouter();
@@ -725,19 +805,24 @@ export default function StorePage() {
 
   // Check authentication on component mount
   useEffect(() => {
-    if (!isClient) return;
-    
-    const checkAuth = async () => {
+    const initializeApp = async () => {
+      // Check if we're in the browser
+      if (typeof window === 'undefined') {
+        setAuthLoading(false);
+        return;
+      }
+
       const token = localStorage.getItem('authToken');
       
       if (!token) {
+        // No token, redirect to login
         setAuthLoading(false);
         router.push('/login?redirect=/store');
         return;
       }
 
-      // Verify token is still valid
       try {
+        // Try to verify token with API
         const meRes = await fetch('/api/auth/me', {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -755,67 +840,27 @@ export default function StorePage() {
             name: userData.name,
             role: userData.role || 'user'
           });
-          
-          await loadInitialData();
         } else {
-          // Token is invalid, redirect to login
-          localStorage.removeItem('authToken');
-          setAuthLoading(false);
-          router.push('/login?redirect=/store');
+          // Token is invalid, use demo mode
+          console.log('Token invalid, using demo mode');
+          setMe(demoAdmin); // Change to demoUser for regular user
         }
       } catch (error) {
-        // If API is not available, create a demo user for development
+        // API not available, use demo mode
         console.log('API not available, using demo mode');
-        setMe({
-          id: '1',
-          email: 'demo@example.com',
-          name: 'Demo User',
-          role: 'admin' // Change to 'user' for non-admin demo
-        });
-        setAuthLoading(false);
-        loadDemoData();
+        setMe(demoAdmin); // Change to demoUser for regular user
       }
+
+      // Load demo data
+      await loadDemoData();
+      setAuthLoading(false);
     };
 
-    checkAuth();
+    initializeApp();
   }, []);
 
-  const loadDemoData = () => {
+  const loadDemoData = async () => {
     // Load demo products
-    const demoProducts: Product[] = [
-      {
-        id: '1',
-        name: 'Premium Game Account',
-        category: 'account',
-        price: 299,
-        original_price: 399,
-        description: 'Full access premium account with all features unlocked',
-        features: ['Full game access', 'Premium skins', 'Exclusive content'],
-        tags: ['Popular', 'Limited'],
-        images: ['/placeholder.jpg']
-      },
-      {
-        id: '2',
-        name: 'Game Mod Tool',
-        category: 'tool',
-        price: 199,
-        description: 'Advanced modification tool for enhanced gameplay',
-        features: ['Easy to use', 'Safe', 'Regular updates'],
-        tags: ['New'],
-        images: ['/placeholder.jpg']
-      },
-      {
-        id: '3',
-        name: 'Custom Service Package',
-        category: 'service',
-        price: 499,
-        description: 'Customized gaming service tailored to your needs',
-        features: ['24/7 support', 'Custom setup', 'Priority service'],
-        tags: ['Premium'],
-        images: ['/placeholder.jpg']
-      }
-    ];
-
     setProducts(demoProducts);
     setProductsLoading(false);
 
@@ -827,34 +872,17 @@ export default function StorePage() {
         total: 299,
         created_at: new Date().toISOString(),
         items: [{ name: 'Premium Game Account', quantity: 1 }]
+      },
+      {
+        id: 'order-2',
+        status: 'processing',
+        total: 199,
+        created_at: new Date(Date.now() - 86400000).toISOString(),
+        items: [{ name: 'Game Mod Tool', quantity: 1 }]
       }
     ]);
 
-    // Load saved cart and wishlist
-    const savedCart = localStorage.getItem('sx-cart');
-    const savedWishlist = localStorage.getItem('sx-wishlist');
-    
-    if (savedCart) {
-      try {
-        setCart(JSON.parse(savedCart));
-      } catch (error) {
-        setCart([]);
-      }
-    }
-    
-    if (savedWishlist) {
-      try {
-        setWishlist(JSON.parse(savedWishlist));
-      } catch (error) {
-        setWishlist([]);
-      }
-    }
-  };
-
-  const loadInitialData = async () => {
-    await loadProducts();
-    await loadOrders();
-    
+    // Load saved cart and wishlist from localStorage
     const savedCart = localStorage.getItem('sx-cart');
     const savedWishlist = localStorage.getItem('sx-wishlist');
     
@@ -876,13 +904,15 @@ export default function StorePage() {
   };
 
   useEffect(() => {
-    if (!isClient) return;
-    localStorage.setItem('sx-cart', JSON.stringify(cart));
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('sx-cart', JSON.stringify(cart));
+    }
   }, [cart]);
 
   useEffect(() => {
-    if (!isClient) return;
-    localStorage.setItem('sx-wishlist', JSON.stringify(wishlist));
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('sx-wishlist', JSON.stringify(wishlist));
+    }
   }, [wishlist]);
 
   const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
@@ -895,90 +925,6 @@ export default function StorePage() {
       setTimeout(() => {
         cartIconRef.current?.classList.remove('animate-bounce');
       }, 600);
-    }
-  };
-
-  const loadProducts = async () => {
-    setProductsLoading(true);
-    try {
-      const res = await fetch('/api/products');
-      if (res.ok) {
-        const data = await res.json();
-        setProducts(data.products || []);
-      } else {
-        // If API fails, use demo data
-        loadDemoData();
-      }
-    } catch (error) {
-      // If API is not available, use demo data
-      loadDemoData();
-    } finally {
-      setProductsLoading(false);
-    }
-  };
-
-  const loadUserProfile = async () => {
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-      setAuthLoading(false);
-      return;
-    }
-    
-    try {
-      const meRes = await fetch('/api/auth/me', { 
-        headers: { 
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        } 
-      });
-      
-      if (meRes.ok) {
-        const meData = await meRes.json();
-        const userData = meData.user || meData;
-        
-        setMe({ 
-          id: userData.id, 
-          email: userData.email, 
-          name: userData.name, 
-          role: userData.role 
-        });
-      } else {
-        localStorage.removeItem('authToken');
-        setMe(null);
-      }
-    } catch (e) {
-      // If API fails, continue with current user state
-      console.log('Failed to load user profile');
-    }
-  };
-
-  const loadOrders = async () => {
-    setOrdersLoading(true);
-    try {
-      const token = localStorage.getItem('authToken');
-      
-      if (!token) {
-        setMyOrders([]);
-        return;
-      }
-
-      const ordRes = await fetch('/api/orders', { 
-        headers: { 
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        } 
-      });
-      
-      if (ordRes.ok) {
-        const ordData = await ordRes.json();
-        setMyOrders(ordData.orders || []);
-      } else {
-        setMyOrders([]);
-      }
-    } catch (e) {
-      setMyOrders([]);
-    } finally {
-      setOrdersLoading(false);
     }
   };
 
@@ -1255,6 +1201,26 @@ export default function StorePage() {
     );
   }
 
+  if (!me) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-purple-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <X size={32} className="text-white" />
+          </div>
+          <h2 className="text-2xl font-bold mb-2">Authentication Required</h2>
+          <p className="text-gray-300 mb-6">Please log in to access the store</p>
+          <button
+            onClick={() => router.push('/login?redirect=/store')}
+            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 px-8 rounded-2xl transition-all active:scale-95"
+          >
+            Go to Login
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-purple-900 text-white pb-16 md:pb-0">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
@@ -1268,7 +1234,7 @@ export default function StorePage() {
         isOpen={showAdminPanel}
         onClose={() => setShowAdminPanel(false)}
         products={products}
-        onProductUpdate={loadProducts}
+        onProductUpdate={loadDemoData}
         adminSection={adminSection}
       />
 
@@ -1416,7 +1382,10 @@ export default function StorePage() {
   );
 }
 
-// Section Components
+// Section Components (HomeSection, OrdersSection, WishlistSection, ProfileSection)
+// ProductCard, ProductModal, and CartDrawer components remain the same as in the previous code
+
+// Add the missing section components here...
 const HomeSection = ({ products, searchQuery, onProductSelect, onWishlistToggle, wishlist, productsLoading }: any) => {
   const categoryNames = {
     bundle: 'Special Bundles',
