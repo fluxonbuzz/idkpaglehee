@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ShoppingCart, Zap, Star, Tag, Gift, ShieldCheck, Download, X, Check, ArrowRight, Home, Users, AlertCircle, Clock, Plus, Edit, Trash2 } from 'lucide-react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useRouter } from 'next/router';
 
 interface Product {
@@ -54,6 +53,8 @@ const discountCodes: DiscountCode[] = [
   { code: 'SAVE50', discount: 50, minPurchase: 250, type: 'fixed' }
 ];
 
+const isClient = typeof window !== 'undefined';
+
 export default function StorePage() {
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
@@ -72,7 +73,6 @@ export default function StorePage() {
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
   
-  // Admin states
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [newProduct, setNewProduct] = useState<Partial<Product>>({
@@ -84,14 +84,14 @@ export default function StorePage() {
     features: []
   });
 
-  // Load initial data
   useEffect(() => {
+    if (!isClient) return;
+    
     const savedCart = localStorage.getItem('sx-cart');
     if (savedCart) {
       try {
         setCart(JSON.parse(savedCart));
       } catch (error) {
-        console.error('Error parsing cart from localStorage:', error);
         setCart([]);
       }
     }
@@ -99,23 +99,20 @@ export default function StorePage() {
     loadUserProfile();
   }, []);
 
-  // Save cart to localStorage
   useEffect(() => {
+    if (!isClient) return;
     localStorage.setItem('sx-cart', JSON.stringify(cart));
   }, [cart]);
 
   const loadProducts = async () => {
     try {
-      console.log('Loading products...');
       const res = await fetch('/api/products');
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
       const data = await res.json();
-      console.log('Products loaded:', data.products?.length);
       setProducts(data.products || []);
     } catch (error) {
-      console.error('Failed to load products:', error);
       setProducts([]);
     }
   };
@@ -146,18 +143,13 @@ export default function StorePage() {
           role: userData.role 
         });
         
-        // Load orders after successful auth
         await loadOrders(token);
       } else {
-        // Token is invalid or expired
-        console.warn('Token invalid, clearing auth data');
         localStorage.removeItem('authToken');
         setMe(null);
         setMyOrders([]);
       }
     } catch (e) {
-      console.error('Failed to load user profile:', e);
-      // Don't clear token on network errors
       setMe(null);
     } finally {
       setAuthLoading(false);
@@ -178,18 +170,15 @@ export default function StorePage() {
         const ordData = await ordRes.json();
         setMyOrders(ordData.orders || []);
       } else if (ordRes.status === 401) {
-        // Token expired during orders fetch
         localStorage.removeItem('authToken');
         setMe(null);
       }
     } catch (e) {
-      console.error('Failed to load orders:', e);
     } finally {
       setOrdersLoading(false);
     }
   };
 
-  // Admin functions
   const saveProduct = async (product: Partial<Product>) => {
     const token = localStorage.getItem('authToken');
     if (!token) {
@@ -202,18 +191,13 @@ export default function StorePage() {
       const method = isUpdate ? 'PUT' : 'POST';
       const url = isUpdate ? `/api/products/${editingProduct.id}` : '/api/products';
       
-      console.log('Saving product:', { method, url, product });
-      
       const res = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          ...product,
-          id: isUpdate ? editingProduct.id : undefined,
-        }),
+        body: JSON.stringify(product),
       });
 
       if (!res.ok) {
@@ -225,15 +209,12 @@ export default function StorePage() {
           try {
             const errorText = await res.text();
             if (errorText) errorMessage = errorText;
-          } catch (textError) {
-            // Ignore if we can't get text either
-          }
+          } catch (textError) {}
         }
         throw new Error(errorMessage);
       }
 
       const data = await res.json();
-      console.log('Product saved successfully:', data);
       
       await loadProducts();
       setEditingProduct(null);
@@ -247,7 +228,6 @@ export default function StorePage() {
       });
       alert('Product saved successfully!');
     } catch (error: any) {
-      console.error('Save product error:', error);
       alert('Failed to save product: ' + (error.message || 'Unknown error'));
     }
   };
@@ -271,14 +251,12 @@ export default function StorePage() {
 
       if (!res.ok) {
         const errorText = await res.text();
-        console.error('Delete error:', errorText);
         throw new Error(`Failed to delete product: ${res.status}`);
       }
 
       await loadProducts();
       alert('Product deleted successfully!');
     } catch (error: any) {
-      console.error('Delete product error:', error);
       alert('Failed to delete product: ' + error.message);
     }
   };
@@ -310,7 +288,6 @@ export default function StorePage() {
     setSelectedProduct(null);
     setSelectedMod(null);
     
-    // Show success message
     const itemName = selectedMod ? `${product.name} - ${selectedMod.name}` : product.name;
     alert(`${itemName} added to cart!`);
   };
@@ -407,8 +384,6 @@ export default function StorePage() {
         status: 'pending',
       };
 
-      console.log('Sending order payload:', orderPayload);
-
       const res = await fetch('/api/orders', {
         method: 'POST',
         headers: {
@@ -423,27 +398,21 @@ export default function StorePage() {
         try {
           const errorData = await res.json();
           errorMessage = errorData.message || errorData.error || errorMessage;
-        } catch (e) {
-          // Ignore JSON parsing errors
-        }
+        } catch (e) {}
         throw new Error(errorMessage);
       }
 
       const data = await res.json();
-      console.log('Order created successfully:', data);
 
-      // Clear cart and show success
       setCart([]);
       localStorage.removeItem('sx-cart');
       setShowCart(false);
       
-      // Reload orders to show the new one
       await loadOrders(token);
       
       alert('Order placed successfully! You can view your order in "My Orders" section.');
       
     } catch (error: any) {
-      console.error('Checkout error:', error);
       const errorMessage = error.message || 'Failed to place order. Please try again.';
       setDiscountError(errorMessage);
     } finally {
@@ -451,7 +420,6 @@ export default function StorePage() {
     }
   };
 
-  // Debug function
   const debugCart = () => {
     console.log('Current cart:', cart);
     console.log('Cart in localStorage:', localStorage.getItem('sx-cart'));
@@ -484,7 +452,6 @@ export default function StorePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-purple-900 text-white">
-      {/* Debug button - remove after testing */}
       <button 
         onClick={debugCart}
         className="fixed top-4 right-4 z-50 bg-red-500 text-white px-3 py-1 rounded text-xs"
@@ -492,7 +459,6 @@ export default function StorePage() {
         Debug
       </button>
 
-      {/* Mobile Sidebar */}
       <div className={`fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity ${sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} 
            onClick={() => setSidebarOpen(false)}></div>
       
@@ -812,7 +778,6 @@ export default function StorePage() {
         )}
       </main>
 
-      {/* Admin Panel Modal */}
       {showAdminPanel && me?.role === 'admin' && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-gray-800/80 backdrop-blur-lg rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-purple-800/50">
@@ -838,7 +803,6 @@ export default function StorePage() {
                 </button>
               </div>
 
-              {/* Product Form */}
               <div className="bg-gray-700/30 rounded-lg p-4 mb-6">
                 <h3 className="text-lg font-bold mb-4">
                   {editingProduct ? 'Edit Product' : 'Add New Product'}
@@ -929,7 +893,6 @@ export default function StorePage() {
                 </div>
               </div>
 
-              {/* Products List */}
               <div>
                 <h3 className="text-lg font-bold mb-4">Existing Products ({products.length})</h3>
                 <div className="space-y-3">
@@ -982,7 +945,6 @@ export default function StorePage() {
         </div>
       )}
 
-      {/* Product Detail Modal */}
       {selectedProduct && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className={`bg-gray-800/80 backdrop-blur-lg rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto ${
@@ -1071,7 +1033,6 @@ export default function StorePage() {
         </div>
       )}
 
-      {/* Cart Modal */}
       {showCart && (
         <div className="fixed inset-0 z-50 overflow-hidden">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowCart(false)}></div>
