@@ -87,6 +87,13 @@ export default function StorePage() {
   useEffect(() => {
     if (!isClient) return;
     
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      setAuthLoading(false);
+      router.push('/login?redirect=/store');
+      return;
+    }
+    
     const savedCart = localStorage.getItem('sx-cart');
     if (savedCart) {
       try {
@@ -143,7 +150,7 @@ export default function StorePage() {
           role: userData.role 
         });
         
-        await loadOrders(token);
+        await loadOrders();
       } else {
         localStorage.removeItem('authToken');
         setMe(null);
@@ -156,9 +163,16 @@ export default function StorePage() {
     }
   };
 
-  const loadOrders = async (token: string) => {
+  const loadOrders = async () => {
     setOrdersLoading(true);
     try {
+      const token = localStorage.getItem('authToken');
+      
+      if (!token) {
+        setMyOrders([]);
+        return;
+      }
+
       const ordRes = await fetch('/api/orders', { 
         headers: { 
           'Authorization': `Bearer ${token}`,
@@ -172,8 +186,12 @@ export default function StorePage() {
       } else if (ordRes.status === 401) {
         localStorage.removeItem('authToken');
         setMe(null);
+        setMyOrders([]);
+      } else {
+        setMyOrders([]);
       }
     } catch (e) {
+      setMyOrders([]);
     } finally {
       setOrdersLoading(false);
     }
@@ -408,7 +426,7 @@ export default function StorePage() {
       localStorage.removeItem('sx-cart');
       setShowCart(false);
       
-      await loadOrders(token);
+      await loadOrders();
       
       alert('Order placed successfully! You can view your order in "My Orders" section.');
       
