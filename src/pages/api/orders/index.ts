@@ -7,6 +7,8 @@ const supabase = createClient(
 );
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  console.log('=== ORDERS API CALLED ===', req.method);
+  
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -17,24 +19,36 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(200).end();
   }
 
-  // Authentication middleware
+  // Authentication
   const authHeader = req.headers.authorization;
+  console.log('Auth header present:', !!authHeader);
+  
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    console.log('Missing or invalid auth header');
     return res.status(401).json({ message: 'Missing or invalid authorization header' });
   }
 
   const token = authHeader.replace('Bearer ', '');
   
   try {
-    // Verify the token and get user
+    console.log('Verifying token...');
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
     
-    if (authError || !user) {
-      return res.status(401).json({ message: 'Invalid or expired token' });
+    if (authError) {
+      console.log('Auth error:', authError);
+      return res.status(401).json({ message: 'Invalid or expired token', error: authError.message });
+    }
+    
+    if (!user) {
+      console.log('No user found');
+      return res.status(401).json({ message: 'User not found' });
     }
 
+    console.log('User authenticated:', user.id);
+
     if (req.method === 'GET') {
-      // Get user's orders
+      console.log('Fetching orders for user:', user.id);
+      
       const { data: orders, error } = await supabase
         .from('orders')
         .select('*')
@@ -42,10 +56,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching orders:', error);
-        return res.status(500).json({ message: 'Failed to fetch orders', error: error.message });
+        console.error('Database error fetching orders:', error);
+        return res.status(500).json({ 
+          message: 'Failed to fetch orders', 
+          error: error.message,
+          details: error.details,
+          hint: error.hint
+        });
       }
-      
+
+      console.log('Orders found:', orders?.length || 0);
       return res.status(200).json({ 
         orders: orders || [],
         message: 'Orders fetched successfully'
@@ -61,29 +81,34 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           return res.status(400).json({ message: 'Order data is missing or invalid' });
         }
 
-        // Validate required fields
         if (typeof order.total !== 'number' || order.total <= 0) {
           return res.status(400).json({ message: 'Invalid order total' });
         }
 
+        const orderData = {
+          user_id: user.id,
+          items: order.items,
+          subtotal: order.subtotal || order.total,
+          total: order.total,
+          status: order.status || 'pending',
+          discount: order.discount || null,
+        };
+
+        console.log('Inserting order data:', orderData);
+
         const { data, error } = await supabase
           .from('orders')
-          .insert([{
-            user_id: user.id,
-            items: order.items,
-            subtotal: order.subtotal || order.total,
-            total: order.total,
-            status: order.status || 'pending',
-            discount: order.discount || null,
-          }])
+          .insert([orderData])
           .select()
           .single();
 
         if (error) {
-          console.error('Database error:', error);
+          console.error('Database error creating order:', error);
           return res.status(500).json({ 
             message: 'Failed to create order', 
-            error: error.message 
+            error: error.message,
+            details: error.details,
+            hint: error.hint
           });
         }
 
@@ -96,7 +121,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         console.error('Order creation error:', error);
         return res.status(500).json({ 
           message: 'Internal server error', 
-          error: error.message 
+          error: error.message
         });
       }
     }
@@ -104,10 +129,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ message: 'Method Not Allowed' });
 
   } catch (error: any) {
-    console.error('API error:', error);
+    console.error('Unexpected API error:', error);
     return res.status(500).json({ 
       message: 'Internal server error', 
-      error: error.message 
+      error: error.message
     });
   }
 }
