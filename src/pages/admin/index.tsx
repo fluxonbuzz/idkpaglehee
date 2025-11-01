@@ -12,7 +12,12 @@ import {
   RefreshCw,
   AlertCircle,
   CheckCircle2,
-  Clock
+  Clock,
+  ShoppingCart,
+  BarChart3,
+  Settings,
+  User,
+  Shield
 } from 'lucide-react'
 
 interface Order {
@@ -106,8 +111,9 @@ export default function AdminDashboard() {
 
       console.log('Updating order:', id, 'with data:', body)
 
+      // FIX: Change PATCH to PUT
       const res = await fetch(`/api/orders/${id}`, {
-        method: 'PATCH',
+        method: 'PUT', // Changed from PATCH to PUT
         headers: { 
           'Content-Type': 'application/json', 
           Authorization: `Bearer ${token}` 
@@ -130,13 +136,13 @@ export default function AdminDashboard() {
 
   const getStatusColor = (status: string) => {
     const colors = {
-      pending: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-      confirmed: 'bg-blue-100 text-blue-800 border-blue-200',
-      paid: 'bg-green-100 text-green-800 border-green-200',
-      delivered: 'bg-purple-100 text-purple-800 border-purple-200',
-      cancelled: 'bg-red-100 text-red-800 border-red-200'
+      pending: 'bg-yellow-500/20 text-yellow-600 border-yellow-500/30',
+      confirmed: 'bg-blue-500/20 text-blue-600 border-blue-500/30',
+      paid: 'bg-green-500/20 text-green-600 border-green-500/30',
+      delivered: 'bg-purple-500/20 text-purple-600 border-purple-500/30',
+      cancelled: 'bg-red-500/20 text-red-600 border-red-500/30'
     }
-    return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800 border-gray-200'
+    return colors[status as keyof typeof colors] || 'bg-gray-500/20 text-gray-600 border-gray-500/30'
   }
 
   const getStatusIcon = (status: string) => {
@@ -150,21 +156,39 @@ export default function AdminDashboard() {
     return icons[status as keyof typeof icons] || Package
   }
 
+  const getStatColor = (stat: string) => {
+    const colors = {
+      total: 'from-blue-500 to-cyan-500',
+      pending: 'from-yellow-500 to-amber-500',
+      confirmed: 'from-blue-500 to-indigo-500',
+      paid: 'from-green-500 to-emerald-500',
+      delivered: 'from-purple-500 to-pink-500',
+      cancelled: 'from-red-500 to-rose-500'
+    }
+    return colors[stat as keyof typeof colors] || 'from-gray-500 to-gray-600'
+  }
+
   const handleLogout = () => {
     localStorage.removeItem('authToken')
     router.replace('/admin/login')
   }
 
+  const getTotalRevenue = () => {
+    return orders
+      .filter(order => order.status === 'paid' || order.status === 'delivered')
+      .reduce((sum, order) => sum + order.total, 0)
+  }
+
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-        <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full text-center">
-          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Error</h2>
-          <p className="text-gray-600 mb-6">{error}</p>
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-purple-900 flex items-center justify-center p-6">
+        <div className="bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-xl border border-purple-500/20 p-8 max-w-md w-full text-center">
+          <AlertCircle className="w-16 h-16 text-red-400 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-white mb-2">Error</h2>
+          <p className="text-gray-300 mb-6">{error}</p>
           <button
             onClick={() => loadOrders()}
-            className="w-full bg-black text-white py-3 rounded-xl font-medium hover:bg-gray-800 transition-colors"
+            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-xl font-medium hover:from-purple-700 hover:to-pink-700 transition-all duration-300"
           >
             Try Again
           </button>
@@ -174,26 +198,33 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-gray-800/50 backdrop-blur-md border-b border-purple-500/20 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-3">
-              <Package className="w-8 h-8 text-purple-600" />
-              <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+              <div className="p-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg">
+                <Shield className="w-6 h-6 text-white" />
+              </div>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">
+                Admin Dashboard
+              </h1>
             </div>
             <div className="flex items-center gap-4">
+              <div className="text-sm text-gray-300">
+                Revenue: <span className="font-bold text-green-400">₹{getTotalRevenue()}</span>
+              </div>
               <button
                 onClick={() => loadOrders()}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-purple-600/50 rounded-lg hover:bg-purple-600/70 backdrop-blur-sm transition-all duration-300 border border-purple-500/30"
               >
                 <RefreshCw className="w-4 h-4" />
                 Refresh
               </button>
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-red-600/50 rounded-lg hover:bg-red-600/70 backdrop-blur-sm transition-all duration-300 border border-red-500/30"
               >
                 <LogOut className="w-4 h-4" />
                 Logout
@@ -205,61 +236,28 @@ export default function AdminDashboard() {
 
       {/* Stats */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
-          <div className="bg-white rounded-xl p-4 shadow-sm border">
-            <div className="flex items-center gap-3">
-              <Package className="w-8 h-8 text-blue-600" />
-              <div>
-                <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-                <p className="text-sm text-gray-500">Total Orders</p>
+        <div className="grid grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
+          {Object.entries(stats).map(([key, value]) => (
+            <div 
+              key={key}
+              className={`bg-gradient-to-br ${getStatColor(key)} rounded-2xl p-4 shadow-lg border border-white/10 backdrop-blur-sm transform hover:scale-105 transition-all duration-300`}
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
+                  {key === 'total' && <ShoppingCart className="w-6 h-6 text-white" />}
+                  {key === 'pending' && <Clock className="w-6 h-6 text-white" />}
+                  {key === 'confirmed' && <CheckCircle2 className="w-6 h-6 text-white" />}
+                  {key === 'paid' && <DollarSign className="w-6 h-6 text-white" />}
+                  {key === 'delivered' && <Truck className="w-6 h-6 text-white" />}
+                  {key === 'cancelled' && <X className="w-6 h-6 text-white" />}
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-white">{value}</p>
+                  <p className="text-sm text-white/80 capitalize">{key}</p>
+                </div>
               </div>
             </div>
-          </div>
-          <div className="bg-white rounded-xl p-4 shadow-sm border">
-            <div className="flex items-center gap-3">
-              <Clock className="w-8 h-8 text-yellow-600" />
-              <div>
-                <p className="text-2xl font-bold text-gray-900">{stats.pending}</p>
-                <p className="text-sm text-gray-500">Pending</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white rounded-xl p-4 shadow-sm border">
-            <div className="flex items-center gap-3">
-              <CheckCircle2 className="w-8 h-8 text-blue-600" />
-              <div>
-                <p className="text-2xl font-bold text-gray-900">{stats.confirmed}</p>
-                <p className="text-sm text-gray-500">Confirmed</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white rounded-xl p-4 shadow-sm border">
-            <div className="flex items-center gap-3">
-              <DollarSign className="w-8 h-8 text-green-600" />
-              <div>
-                <p className="text-2xl font-bold text-gray-900">{stats.paid}</p>
-                <p className="text-sm text-gray-500">Paid</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white rounded-xl p-4 shadow-sm border">
-            <div className="flex items-center gap-3">
-              <Truck className="w-8 h-8 text-purple-600" />
-              <div>
-                <p className="text-2xl font-bold text-gray-900">{stats.delivered}</p>
-                <p className="text-sm text-gray-500">Delivered</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white rounded-xl p-4 shadow-sm border">
-            <div className="flex items-center gap-3">
-              <X className="w-8 h-8 text-red-600" />
-              <div>
-                <p className="text-2xl font-bold text-gray-900">{stats.cancelled}</p>
-                <p className="text-sm text-gray-500">Cancelled</p>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
 
         {/* Orders */}
@@ -267,49 +265,66 @@ export default function AdminDashboard() {
           {orders.map((order) => {
             const StatusIcon = getStatusIcon(order.status)
             return (
-              <div key={order.id} className="bg-white rounded-2xl shadow-sm border p-6">
+              <div 
+                key={order.id} 
+                className="bg-gray-800/50 backdrop-blur-lg rounded-2xl shadow-xl border border-purple-500/20 p-6 transform hover:scale-[1.02] transition-all duration-300"
+              >
                 {/* Order Header */}
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
                   <div className="flex items-center gap-4">
-                    <div className={`flex items-center gap-2 px-3 py-1 rounded-full border ${getStatusColor(order.status)}`}>
+                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border backdrop-blur-sm ${getStatusColor(order.status)}`}>
                       <StatusIcon className="w-4 h-4" />
                       <span className="text-sm font-medium capitalize">{order.status}</span>
                     </div>
-                    <div className="text-sm text-gray-500 font-mono">#{order.id.slice(0, 8)}</div>
+                    <div className="text-sm text-gray-300 font-mono bg-gray-700/50 px-2 py-1 rounded">
+                      #{order.id.slice(0, 8)}
+                    </div>
                   </div>
-                  <div className="text-sm text-gray-500">
-                    {order.created_at && new Date(order.created_at).toLocaleDateString()}
+                  <div className="text-sm text-gray-300 bg-gray-700/50 px-3 py-1 rounded">
+                    {order.created_at && new Date(order.created_at).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
                   </div>
                 </div>
 
                 {/* Order Info */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                  <div className="flex items-center gap-2">
-                    <Users className="w-4 h-4 text-gray-400" />
-                    <span className="text-sm text-gray-600">User ID:</span>
-                    <span className="text-sm font-medium">{order.user_id}</span>
+                  <div className="flex items-center gap-2 bg-gray-700/30 p-3 rounded-lg">
+                    <User className="w-4 h-4 text-purple-400" />
+                    <span className="text-sm text-gray-300">User:</span>
+                    <span className="text-sm font-medium text-white">{order.user_id.slice(0, 8)}...</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <DollarSign className="w-4 h-4 text-gray-400" />
-                    <span className="text-sm text-gray-600">Total:</span>
-                    <span className="text-sm font-medium">₹{order.total}</span>
+                  <div className="flex items-center gap-2 bg-gray-700/30 p-3 rounded-lg">
+                    <DollarSign className="w-4 h-4 text-green-400" />
+                    <span className="text-sm text-gray-300">Total:</span>
+                    <span className="text-sm font-medium text-green-400">₹{order.total}</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Package className="w-4 h-4 text-gray-400" />
-                    <span className="text-sm text-gray-600">Items:</span>
-                    <span className="text-sm font-medium">{order.items?.length || 0}</span>
+                  <div className="flex items-center gap-2 bg-gray-700/30 p-3 rounded-lg">
+                    <Package className="w-4 h-4 text-blue-400" />
+                    <span className="text-sm text-gray-300">Items:</span>
+                    <span className="text-sm font-medium text-white">{order.items?.length || 0}</span>
                   </div>
                 </div>
 
                 {/* Order Items */}
                 {order.items && order.items.length > 0 && (
-                  <div className="mb-4">
-                    <h4 className="text-sm font-bold mb-2 text-gray-700">Items:</h4>
-                    <div className="space-y-1">
+                  <div className="mb-4 bg-gray-700/30 rounded-lg p-4 border border-gray-600/50">
+                    <h4 className="text-sm font-bold mb-3 text-white flex items-center gap-2">
+                      <ShoppingCart className="w-4 h-4" />
+                      Order Items
+                    </h4>
+                    <div className="space-y-2">
                       {order.items.map((item: any, index: number) => (
-                        <div key={index} className="flex justify-between text-sm text-gray-600">
-                          <span>{item.name} (x{item.qty})</span>
-                          <span>₹{item.unitPrice * item.qty}</span>
+                        <div key={index} className="flex justify-between items-center text-sm bg-gray-600/30 p-2 rounded">
+                          <div>
+                            <span className="text-white font-medium">{item.name}</span>
+                            <span className="text-gray-400 ml-2">(x{item.quantity})</span>
+                          </div>
+                          <span className="text-green-400 font-medium">₹{item.unit_price * item.quantity}</span>
                         </div>
                       ))}
                     </div>
@@ -319,36 +334,36 @@ export default function AdminDashboard() {
                 {/* Action Buttons */}
                 <div className="flex flex-wrap gap-2">
                   <button
-                    disabled={loadingId === order.id}
+                    disabled={loadingId === order.id || order.status === 'confirmed'}
                     onClick={() => act(order.id, { status: 'confirmed' })}
-                    className="flex items-center gap-2 px-3 py-2 text-sm bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 disabled:opacity-50 transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 text-sm bg-blue-600/50 text-white rounded-lg hover:bg-blue-600/70 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 border border-blue-500/30 backdrop-blur-sm"
                   >
                     <CheckCircle2 className="w-4 h-4" />
-                    Confirm
+                    {loadingId === order.id ? 'Updating...' : 'Confirm'}
                   </button>
                   <button
-                    disabled={loadingId === order.id}
+                    disabled={loadingId === order.id || order.status === 'paid'}
                     onClick={() => act(order.id, { status: 'paid' })}
-                    className="flex items-center gap-2 px-3 py-2 text-sm bg-green-50 text-green-700 rounded-lg hover:bg-green-100 disabled:opacity-50 transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 text-sm bg-green-600/50 text-white rounded-lg hover:bg-green-600/70 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 border border-green-500/30 backdrop-blur-sm"
                   >
                     <DollarSign className="w-4 h-4" />
-                    Mark Paid
+                    {loadingId === order.id ? 'Updating...' : 'Mark Paid'}
                   </button>
                   <button
-                    disabled={loadingId === order.id}
+                    disabled={loadingId === order.id || order.status === 'delivered'}
                     onClick={() => act(order.id, { status: 'delivered' })}
-                    className="flex items-center gap-2 px-3 py-2 text-sm bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 disabled:opacity-50 transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 text-sm bg-purple-600/50 text-white rounded-lg hover:bg-purple-600/70 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 border border-purple-500/30 backdrop-blur-sm"
                   >
                     <Truck className="w-4 h-4" />
-                    Delivered
+                    {loadingId === order.id ? 'Updating...' : 'Delivered'}
                   </button>
                   <button
-                    disabled={loadingId === order.id}
+                    disabled={loadingId === order.id || order.status === 'cancelled'}
                     onClick={() => act(order.id, { status: 'cancelled' })}
-                    className="flex items-center gap-2 px-3 py-2 text-sm bg-red-50 text-red-700 rounded-lg hover:bg-red-100 disabled:opacity-50 transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 text-sm bg-red-600/50 text-white rounded-lg hover:bg-red-600/70 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 border border-red-500/30 backdrop-blur-sm"
                   >
                     <X className="w-4 h-4" />
-                    Cancel
+                    {loadingId === order.id ? 'Updating...' : 'Cancel'}
                   </button>
                   <button
                     disabled={loadingId === order.id}
@@ -362,10 +377,10 @@ export default function AdminDashboard() {
                       }
                       act(order.id, { discount: code || amount ? { code, amount } : null })
                     }}
-                    className="flex items-center gap-2 px-3 py-2 text-sm bg-orange-50 text-orange-700 rounded-lg hover:bg-orange-100 disabled:opacity-50 transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 text-sm bg-orange-600/50 text-white rounded-lg hover:bg-orange-600/70 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 border border-orange-500/30 backdrop-blur-sm"
                   >
                     <Tag className="w-4 h-4" />
-                    Discount
+                    {loadingId === order.id ? 'Updating...' : 'Discount'}
                   </button>
                 </div>
               </div>
@@ -373,10 +388,10 @@ export default function AdminDashboard() {
           })}
           
           {orders.length === 0 && (
-            <div className="text-center py-12">
-              <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No orders yet</h3>
-              <p className="text-gray-500">Orders will appear here once customers start placing them.</p>
+            <div className="text-center py-12 bg-gray-800/50 backdrop-blur-lg rounded-2xl border border-purple-500/20">
+              <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-white mb-2">No orders yet</h3>
+              <p className="text-gray-400">Orders will appear here once customers start placing them.</p>
             </div>
           )}
         </div>
