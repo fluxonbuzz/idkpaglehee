@@ -17,7 +17,16 @@ import {
   Crown,
   Star,
   Trophy,
-  Heart
+  Heart,
+  ShoppingCart,
+  UserPlus,
+  LogIn,
+  MessageSquare,
+  ShieldCheck,
+  DollarSign,
+  FileText,
+  StarIcon,
+  Users2
 } from "lucide-react";
 import Link from "next/link";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
@@ -54,7 +63,7 @@ const newFeatures = [
   },
   {
     title: "Active Community",
-    description: "Reloaded Discord and social channels with daily engagement",
+    description: "Reloaded Telegram and social channels with daily engagement",
     icon: Users,
     color: "text-amber-400"
   }
@@ -62,18 +71,18 @@ const newFeatures = [
 
 const socialLinks = [
   {
-    name: "Discord",
-    href: "https://discord.gg/nY4hxDvfAb",
-    icon: MessageCircle,
-    color: "bg-indigo-600 hover:bg-indigo-700",
-    description: "Join our relaunched community"
-  },
-  {
     name: "Telegram",
     href: "https://t.me/shivaxmods1",
     icon: Users,
     color: "bg-blue-500 hover:bg-blue-600",
     description: "Instant updates and support"
+  },
+  {
+    name: "Discord",
+    href: "https://discord.gg/nY4hxDvfAb",
+    icon: MessageCircle,
+    color: "bg-indigo-600 hover:bg-indigo-700",
+    description: "Join our relaunched community"
   },
   {
     name: "YouTube",
@@ -89,6 +98,21 @@ const socialLinks = [
     color: "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600",
     description: "Behind the scenes content"
   }
+];
+
+const pageLinks = [
+  { name: "Store", href: "/store", icon: ShoppingCart, color: "from-green-500 to-emerald-500", description: "Premium Mods & Products" },
+  { name: "Apply", href: "/apply", icon: UserPlus, color: "from-blue-500 to-cyan-500", description: "Join Our Team" },
+  { name: "Community", href: "/community", icon: Users2, color: "from-purple-500 to-pink-500", description: "Connect with Players" },
+  { name: "Games", href: "/games", icon: Gamepad2, color: "from-orange-500 to-red-500", description: "Supported Games" },
+  { name: "Membership", href: "/membership", icon: Crown, color: "from-yellow-500 to-amber-500", description: "Exclusive Benefits" },
+  { name: "Login", href: "/login", icon: LogIn, color: "from-gray-600 to-gray-700", description: "Access Your Account" },
+  { name: "Register", href: "/register", icon: UserPlus, color: "from-indigo-500 to-purple-500", description: "Create Account" },
+  { name: "Support", href: "/support", icon: MessageSquare, color: "from-cyan-500 to-blue-500", description: "Get Help & Support" },
+  { name: "Testimonials", href: "/testimonials", icon: StarIcon, color: "from-amber-500 to-orange-500", description: "User Reviews" },
+  { name: "Privacy", href: "/privacy", icon: ShieldCheck, color: "from-green-600 to-emerald-600", description: "Privacy Policy" },
+  { name: "Terms", href: "/terms", icon: FileText, color: "from-gray-500 to-gray-600", description: "Terms of Service" },
+  { name: "Refund", href: "/refund", icon: DollarSign, color: "from-red-500 to-pink-500", description: "Refund Policy" }
 ];
 
 const TypeWriter = ({ texts }: { texts: string[] }) => {
@@ -124,7 +148,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100 overflow-x-hidden">
-      {/* Animated Cyber Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-900 via-gray-950 to-black"></div>
         {[...Array(12)].map((_, i) => (
@@ -150,7 +173,6 @@ export default function Home() {
         ))}
       </div>
 
-      {/* Header */}
       <header className="fixed w-full z-50 bg-gray-950/90 backdrop-blur-md border-b border-cyan-500/20">
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-3 group">
@@ -169,6 +191,12 @@ export default function Home() {
           </Link>
 
           <nav className="hidden md:flex items-center gap-8">
+            <Link href="#store" className="text-sm font-medium text-gray-300 hover:text-cyan-400 transition-colors">
+              Store
+            </Link>
+            <Link href="#pages" className="text-sm font-medium text-gray-300 hover:text-cyan-400 transition-colors">
+              All Pages
+            </Link>
             <Link href="#comeback" className="text-sm font-medium text-gray-300 hover:text-cyan-400 transition-colors">
               Our Story
             </Link>
@@ -178,15 +206,12 @@ export default function Home() {
             <Link href="#community" className="text-sm font-medium text-gray-300 hover:text-cyan-400 transition-colors">
               Join Us
             </Link>
-            <Link href="#mods" className="text-sm font-medium text-gray-300 hover:text-cyan-400 transition-colors">
-              Get Mods
-            </Link>
           </nav>
 
           <div className="flex items-center gap-4">
             <Link href="#community">
               <Button className="bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-sm font-medium">
-                Join Discord
+                Join Telegram
               </Button>
             </Link>
             <button
@@ -199,7 +224,6 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Mobile Sidebar */}
       <AnimatePresence>
         {sidebarOpen && (
           <>
@@ -215,7 +239,7 @@ export default function Home() {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 30 }}
-              className="fixed inset-y-0 right-0 z-50 w-80 bg-gray-900 border-l border-cyan-500/20 shadow-2xl"
+              className="fixed inset-y-0 right-0 z-50 w-80 bg-gray-900 border-l border-cyan-500/20 shadow-2xl overflow-y-auto"
             >
               <div className="flex justify-between items-center p-6 border-b border-gray-800">
                 <Link href="/" className="flex items-center gap-3">
@@ -236,22 +260,21 @@ export default function Home() {
                   <X className="h-5 w-5" />
                 </button>
               </div>
-              <nav className="flex flex-col p-6 space-y-3">
-                <Link href="#comeback" className="px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium border border-transparent hover:border-cyan-500/20">
-                  Our Comeback Story
-                </Link>
-                <Link href="#features" className="px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium border border-transparent hover:border-cyan-500/20">
-                  What's New
-                </Link>
-                <Link href="#community" className="px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium border border-transparent hover:border-cyan-500/20">
-                  Join Community
-                </Link>
-                <Link href="#mods" className="px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium border border-transparent hover:border-cyan-500/20">
-                  Download Mods
-                </Link>
+              <nav className="flex flex-col p-6 space-y-2">
+                {pageLinks.map((page) => (
+                  <Link
+                    key={page.name}
+                    href={page.href}
+                    className="flex items-center px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium border border-transparent hover:border-cyan-500/20"
+                    onClick={() => setSidebarOpen(false)}
+                  >
+                    <page.icon className="h-5 w-5 mr-3" />
+                    {page.name}
+                  </Link>
+                ))}
                 <div className="pt-4 mt-4 border-t border-gray-800">
                   <Button className="w-full bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 font-medium">
-                    Join Our Discord
+                    Join Our Telegram
                   </Button>
                 </div>
               </nav>
@@ -261,7 +284,6 @@ export default function Home() {
       </AnimatePresence>
 
       <main className="relative">
-        {/* Hero Section */}
         <section className="relative min-h-screen flex items-center justify-center pt-20 pb-16 overflow-hidden">
           <div className="absolute inset-0 z-0">
             <motion.div
@@ -315,7 +337,16 @@ export default function Home() {
                 transition={{ duration: 0.8, delay: 0.6 }}
                 className="flex flex-col sm:flex-row justify-center gap-4 mb-16"
               >
-                <Link href="#mods">
+                <Link href="/store">
+                  <Button
+                    size="lg"
+                    className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 font-bold text-lg px-8 py-6"
+                  >
+                    <ShoppingCart className="mr-2 h-5 w-5" />
+                    Visit Store
+                  </Button>
+                </Link>
+                <Link href="#community">
                   <Button
                     size="lg"
                     className="bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 font-bold text-lg px-8 py-6"
@@ -324,18 +355,8 @@ export default function Home() {
                     Get Latest Mods
                   </Button>
                 </Link>
-                <Link href="#community">
-                  <Button
-                    size="lg"
-                    className="bg-gray-800 hover:bg-gray-700 border border-cyan-500/20 font-bold text-lg px-8 py-6"
-                  >
-                    <Users className="mr-2 h-5 w-5" />
-                    Join Community
-                  </Button>
-                </Link>
               </motion.div>
 
-              {/* Stats */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -377,7 +398,129 @@ export default function Home() {
           </motion.div>
         </section>
 
-        {/* Comeback Story Section */}
+        <section id="store" className="py-20 relative">
+          <div className="container mx-auto px-6">
+            <div className="max-w-6xl mx-auto text-center mb-16">
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                viewport={{ once: true }}
+                className="text-4xl md:text-5xl font-bold mb-6"
+              >
+                Premium <span className="bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">Store</span>
+              </motion.h2>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+                viewport={{ once: true }}
+                className="text-xl text-gray-400 max-w-2xl mx-auto"
+              >
+                Get access to exclusive mods, premium features, and much more
+              </motion.p>
+            </div>
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.7 }}
+              viewport={{ once: true }}
+              className="bg-gradient-to-br from-green-500/10 to-emerald-500/5 border border-green-500/30 rounded-2xl p-8 md:p-12 text-center relative overflow-hidden backdrop-blur-sm max-w-4xl mx-auto"
+            >
+              <div className="absolute -top-20 -left-20 w-40 h-40 bg-green-500/10 rounded-full filter blur-3xl"></div>
+              <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-emerald-500/10 rounded-full filter blur-3xl"></div>
+              
+              <div className="relative z-10">
+                <div className="w-20 h-20 bg-gradient-to-br from-green-400 to-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                  <ShoppingCart className="h-10 w-10 text-white" />
+                </div>
+                <h3 className="text-3xl font-bold mb-4 text-white">Exclusive Mods Store</h3>
+                <p className="text-gray-300 text-lg mb-8 max-w-2xl mx-auto">
+                  Discover our premium collection of mods, tools, and exclusive content. 
+                  Get early access to new releases and enjoy premium support.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                  <div className="bg-gray-800/50 rounded-lg p-4 border border-green-500/20">
+                    <Zap className="h-8 w-8 text-green-400 mx-auto mb-3" />
+                    <h4 className="font-semibold mb-2">Premium Mods</h4>
+                    <p className="text-gray-400 text-sm">Exclusive features & early access</p>
+                  </div>
+                  <div className="bg-gray-800/50 rounded-lg p-4 border border-green-500/20">
+                    <Shield className="h-8 w-8 text-green-400 mx-auto mb-3" />
+                    <h4 className="font-semibold mb-2">Safe & Secure</h4>
+                    <p className="text-gray-400 text-sm">Guaranteed security & updates</p>
+                  </div>
+                  <div className="bg-gray-800/50 rounded-lg p-4 border border-green-500/20">
+                    <Crown className="h-8 w-8 text-green-400 mx-auto mb-3" />
+                    <h4 className="font-semibold mb-2">Priority Support</h4>
+                    <p className="text-gray-400 text-sm">24/7 dedicated assistance</p>
+                  </div>
+                </div>
+                <Link href="/store">
+                  <Button
+                    size="lg"
+                    className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 font-bold text-lg px-8 py-6"
+                  >
+                    <ShoppingCart className="mr-2 h-5 w-5" />
+                    Explore Store
+                  </Button>
+                </Link>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        <section id="pages" className="py-20 relative">
+          <div className="container mx-auto px-6">
+            <div className="max-w-6xl mx-auto text-center mb-16">
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                viewport={{ once: true }}
+                className="text-4xl md:text-5xl font-bold mb-6"
+              >
+                Explore <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">All Pages</span>
+              </motion.h2>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+                viewport={{ once: true }}
+                className="text-xl text-gray-400 max-w-2xl mx-auto"
+              >
+                Everything you need in one place - from community to support
+              </motion.p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-7xl mx-auto">
+              {pageLinks.map((page, index) => (
+                <motion.div
+                  key={page.name}
+                  initial={{ opacity: 0, y: 50 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                  className="group"
+                >
+                  <Link
+                    href={page.href}
+                    className={`bg-gradient-to-br ${page.color} rounded-xl p-6 flex flex-col items-center text-center transition-all hover:shadow-lg hover:scale-105 h-full border border-transparent hover:border-white/20`}
+                  >
+                    <div className="w-14 h-14 rounded-xl bg-white/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                      <page.icon className="h-7 w-7 text-white" />
+                    </div>
+                    <h3 className="text-lg font-bold mb-2 text-white">{page.name}</h3>
+                    <p className="text-white/80 text-sm flex-grow">{page.description}</p>
+                    <div className="mt-4 text-xs text-white/60">Click to explore</div>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <section id="comeback" className="py-20 relative">
           <div className="container mx-auto px-6">
             <div className="max-w-4xl mx-auto">
@@ -437,7 +580,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* New Features */}
         <section id="features" className="py-20 relative">
           <div className="container mx-auto px-6">
             <div className="max-w-6xl mx-auto text-center mb-16">
@@ -482,7 +624,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Community Relaunch */}
         <section id="community" className="py-20 relative">
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className="absolute left-1/4 top-0 w-96 h-96 bg-cyan-500/5 rounded-full filter blur-3xl"></div>
@@ -507,7 +648,7 @@ export default function Home() {
                 viewport={{ once: true }}
                 className="text-xl text-gray-400"
               >
-                Our Discord and social channels are live and waiting for you
+                Our Telegram and social channels are live and waiting for you
               </motion.p>
             </div>
 
@@ -539,8 +680,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Final CTA */}
-        <section id="mods" className="py-20 relative">
+        <section className="py-20 relative">
           <div className="container mx-auto px-6">
             <div className="bg-gradient-to-br from-gray-900/60 to-cyan-900/20 border border-cyan-500/30 rounded-2xl p-8 md:p-16 text-center relative overflow-hidden">
               <div className="absolute inset-0 bg-[url('/assets/grid.svg')] bg-center opacity-10"></div>
@@ -570,22 +710,22 @@ export default function Home() {
                   viewport={{ once: true }}
                   className="flex flex-col sm:flex-row justify-center gap-4"
                 >
-                  <Link href="#mods">
+                  <Link href="/store">
+                    <Button
+                      size="lg"
+                      className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 font-bold text-lg px-8"
+                    >
+                      <ShoppingCart className="mr-2 h-5 w-5" />
+                      Visit Store
+                    </Button>
+                  </Link>
+                  <Link href="#community">
                     <Button
                       size="lg"
                       className="bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 font-bold text-lg px-8"
                     >
                       <Download className="mr-2 h-5 w-5" />
                       Download Mods
-                    </Button>
-                  </Link>
-                  <Link href="#community">
-                    <Button
-                      size="lg"
-                      className="bg-gray-800 hover:bg-gray-700 border border-cyan-500/20 font-bold text-lg px-8"
-                    >
-                      <Users className="mr-2 h-5 w-5" />
-                      Join Discord
                     </Button>
                   </Link>
                 </motion.div>
@@ -595,7 +735,6 @@ export default function Home() {
         </section>
       </main>
 
-      {/* Footer */}
       <footer className="relative border-t border-cyan-500/20 bg-gray-900/60 backdrop-blur-sm">
         <div className="container mx-auto px-6 py-12">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
@@ -620,23 +759,23 @@ export default function Home() {
               <h4 className="text-lg font-semibold mb-4 text-gray-200">Quick Links</h4>
               <ul className="space-y-3">
                 <li>
-                  <Link href="#comeback" className="text-gray-400 hover:text-cyan-400 transition-colors text-sm">
-                    Our Comeback
+                  <Link href="/store" className="text-gray-400 hover:text-cyan-400 transition-colors text-sm">
+                    Store
                   </Link>
                 </li>
                 <li>
-                  <Link href="#features" className="text-gray-400 hover:text-cyan-400 transition-colors text-sm">
-                    What's New
+                  <Link href="/community" className="text-gray-400 hover:text-cyan-400 transition-colors text-sm">
+                    Community
                   </Link>
                 </li>
                 <li>
-                  <Link href="#community" className="text-gray-400 hover:text-cyan-400 transition-colors text-sm">
-                    Join Community
+                  <Link href="/games" className="text-gray-400 hover:text-cyan-400 transition-colors text-sm">
+                    Games
                   </Link>
                 </li>
                 <li>
-                  <Link href="/downloads" className="text-gray-400 hover:text-cyan-400 transition-colors text-sm">
-                    Download Mods
+                  <Link href="/support" className="text-gray-400 hover:text-cyan-400 transition-colors text-sm">
+                    Support
                   </Link>
                 </li>
               </ul>
