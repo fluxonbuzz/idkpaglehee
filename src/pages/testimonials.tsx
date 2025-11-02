@@ -165,7 +165,7 @@ export default function TrustedStaffPage() {
     }
   ];
 
-  // Enhanced Staff Members Data
+  // Enhanced Staff Members Data with Nishad
   const staffMembers = [
     {
       id: 0,
@@ -207,11 +207,11 @@ export default function TrustedStaffPage() {
     },
     {
       id: 2,
-      name: 'Fantom',
+      name: 'Nishad',
       role: 'Lead Admin',
       level: 'Veteran',
       icon: <Shield className="text-blue-500" />,
-      joinDate: 'Jan 2022',
+      joinDate: 'Mar 2023',
       badge: 'Guardian',
       progress: {
         messages: '140/500',
