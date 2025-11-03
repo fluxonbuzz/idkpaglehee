@@ -1,4 +1,5 @@
 import { type AppType } from "next/dist/shared/lib/utils";
+import { Analytics } from "@vercel/analytics/next";
 
 import "@/styles/globals.css";
 import "@/styles/locomotive-scroll.css";
@@ -14,6 +15,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
   return (
     <div lang={"en"} className={dmSans.className}>
       <Component {...pageProps} />
+      <Analytics /> {/* Add this line */}
     </div>
   );
 };
