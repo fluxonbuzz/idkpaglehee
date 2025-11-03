@@ -11,7 +11,7 @@ interface Game {
   size: string;
   description: string;
   image: string;
-  status: 'available' | 'coming-soon';
+  status: 'available' | 'coming-soon' | 'beta';
   downloadLink?: string;
   features: {
     category: string;
@@ -20,6 +20,7 @@ interface Game {
       text: string;
     }[];
   }[];
+  tags?: string[];
 }
 
 const gamesData: Game[] = [
@@ -79,6 +80,61 @@ const gamesData: Game[] = [
     ]
   },
   {
+    id: 'cricket-fusion-wc19',
+    title: 'Crick Fusion WC19',
+    version: 'Beta Edition',
+    size: 'Coming Soon',
+    description: 'World Cup 2019 Edition - A compact version with stunning new features while we complete the main release',
+    image: '/games/cricket-fusion-wc19.jpg',
+    status: 'beta',
+    tags: ['BETA', 'NOVEMBER RELEASE'],
+    features: [
+      {
+        category: 'World Cup 2019 Experience',
+        items: [
+          { icon: <Trophy size={16} className="text-yellow-400" />, text: 'World Cup 2019 Scorecards & Main Menu' },
+          { icon: <Film size={16} className="text-yellow-400" />, text: 'Match intro with WC19 graphics' },
+          { icon: <Award size={16} className="text-yellow-400" />, text: 'New trophy celebration scenes' },
+          { icon: <Globe size={16} className="text-yellow-400" />, text: 'All England stadiums (not from RC20)' }
+        ]
+      },
+      {
+        category: 'Audio & Commentary',
+        items: [
+          { icon: <Volume2 size={16} className="text-blue-400" />, text: 'New Hindi and English commentary' },
+          { icon: <Volume2 size={16} className="text-blue-400" />, text: 'Completely new sound effects' },
+          { icon: <Volume2 size={16} className="text-blue-400" />, text: 'Removed all old sound effects' }
+        ]
+      },
+      {
+        category: 'Gameplay & Controls',
+        items: [
+          { icon: <Zap size={16} className="text-green-400" />, text: '200+ new shots with enhanced physics' },
+          { icon: <Joystick size={16} className="text-green-400" />, text: 'New joystick and control system' },
+          { icon: <Activity size={16} className="text-green-400" />, text: 'New QTE System in bowling' },
+          { icon: <Star size={16} className="text-green-400" />, text: 'New celebrations (century, wicket, etc.)' }
+        ]
+      },
+      {
+        category: 'Visual Enhancements',
+        items: [
+          { icon: <Film size={16} className="text-purple-400" />, text: 'All new cutscenes throughout the game' },
+          { icon: <Activity size={16} className="text-purple-400" />, text: 'Revamped stadiums with new sky effects' },
+          { icon: <Award size={16} className="text-purple-400" />, text: 'New bat 3D models' },
+          { icon: <List size={16} className="text-purple-400" />, text: 'Completely redesigned main menu' }
+        ]
+      },
+      {
+        category: 'Special Notes',
+        items: [
+          { icon: <Smile size={16} className="text-red-400" />, text: 'Community-voted release (WhatsApp poll)' },
+          { icon: <Clock size={16} className="text-red-400" />, text: 'Releasing end of November' },
+          { icon: <Users size={16} className="text-red-400" />, text: 'Compact version while main release is in development' }
+        ]
+      }
+    ]
+  },
+  {
     id: 'cricket-fusion',
     title: 'Crick Fusion',
     version: 'V1.0',
@@ -120,6 +176,40 @@ const gamesData: Game[] = [
 
 export default function DownloadsPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const getStatusBadge = (status: Game['status']) => {
+    switch (status) {
+      case 'available':
+        return (
+          <div className="bg-green-600/80 text-xs font-bold px-3 py-1 rounded-full flex items-center">
+            <CheckCircle size={14} className="mr-1" /> Available
+          </div>
+        );
+      case 'beta':
+        return (
+          <div className="bg-orange-600/80 text-xs font-bold px-3 py-1 rounded-full flex items-center">
+            <Activity size={14} className="mr-1" /> Beta - Coming Soon
+          </div>
+        );
+      case 'coming-soon':
+        return (
+          <div className="bg-purple-600/80 text-xs font-bold px-3 py-1 rounded-full flex items-center">
+            <Clock size={14} className="mr-1" /> Coming Soon
+          </div>
+        );
+    }
+  };
+
+  const getBorderColor = (status: Game['status']) => {
+    switch (status) {
+      case 'available':
+        return 'border-green-500/30 hover:border-green-500 hover:shadow-green-500/20';
+      case 'beta':
+        return 'border-orange-500/30 hover:border-orange-500 hover:shadow-orange-500/20';
+      case 'coming-soon':
+        return 'border-purple-500/30 hover:border-purple-500 hover:shadow-purple-500/20';
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-purple-900 text-white">
@@ -204,9 +294,9 @@ export default function DownloadsPage() {
         </section>
 
         {/* Games Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-20">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8 mb-20">
           {gamesData.map(game => (
-            <div key={game.id} className={`relative overflow-hidden rounded-2xl border ${game.status === 'available' ? 'border-green-500/30 hover:border-green-500' : 'border-purple-500/30 hover:border-purple-500'} transition-all hover:shadow-lg ${game.status === 'available' ? 'hover:shadow-green-500/20' : 'hover:shadow-purple-500/20'}`}>
+            <div key={game.id} className={`relative overflow-hidden rounded-2xl border ${getBorderColor(game.status)} transition-all hover:shadow-lg`}>
               {/* Game Header */}
               <div className="bg-gradient-to-r from-gray-800 to-gray-900 p-6 border-b border-gray-700">
                 <div className="flex justify-between items-start">
@@ -218,17 +308,20 @@ export default function DownloadsPage() {
                       <span className="text-gray-400">{game.size}</span>
                     </div>
                   </div>
-                  {game.status === 'coming-soon' ? (
-                    <div className="bg-purple-600/80 text-xs font-bold px-3 py-1 rounded-full flex items-center">
-                      <Clock size={14} className="mr-1" /> Coming Soon
-                    </div>
-                  ) : (
-                    <div className="bg-green-600/80 text-xs font-bold px-3 py-1 rounded-full flex items-center">
-                      <CheckCircle size={14} className="mr-1" /> Available
-                    </div>
-                  )}
+                  {getStatusBadge(game.status)}
                 </div>
                 <p className="mt-4 text-gray-300">{game.description}</p>
+                
+                {/* Tags */}
+                {game.tags && (
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {game.tags.map((tag, index) => (
+                      <span key={index} className="bg-orange-500/20 text-orange-300 text-xs px-2 py-1 rounded-full border border-orange-500/30">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Game Features */}
@@ -264,6 +357,10 @@ export default function DownloadsPage() {
                     >
                       <Download size={18} /> Download Now (v{game.version})
                     </Link>
+                  ) : game.status === 'beta' ? (
+                    <button className="w-full bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2 cursor-not-allowed opacity-90">
+                      <Clock size={18} /> Coming End of November
+                    </button>
                   ) : (
                     <button className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2 cursor-not-allowed opacity-80">
                       <Clock size={18} /> Coming Soon
@@ -276,6 +373,13 @@ export default function DownloadsPage() {
               {game.id === 'cricket-fusion-x' && (
                 <div className="absolute top-0 right-0 bg-gradient-to-r from-yellow-500 to-yellow-600 text-black text-xs font-bold px-4 py-1 transform rotate-45 translate-x-12 -translate-y-1 shadow-md">
                   MOST POPULAR
+                </div>
+              )}
+
+              {/* Beta Ribbon for WC19 */}
+              {game.id === 'cricket-fusion-wc19' && (
+                <div className="absolute top-0 right-0 bg-gradient-to-r from-orange-500 to-red-600 text-white text-xs font-bold px-4 py-1 transform rotate-45 translate-x-12 -translate-y-1 shadow-md">
+                  BETA
                 </div>
               )}
             </div>
