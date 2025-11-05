@@ -38,14 +38,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(401).json({ message: 'Invalid or expired token' });
     }
 
-    // Check admin role
-    const { data: userData, error: userError } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', user.id)
-      .single();
-
-    if (userError || userData?.role !== 'admin') {
+    // Check admin role from user metadata
+    const role = (user.user_metadata as any)?.role || 'user';
+    if (role !== 'admin') {
       return res.status(403).json({ message: 'Admin access required' });
     }
 

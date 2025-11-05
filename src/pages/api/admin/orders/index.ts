@@ -40,29 +40,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(401).json({ message: 'Invalid or expired token' });
     }
 
-    // Check if user is admin
-    const { data: userData, error: userError } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', user.id)
-      .single();
-
-    if (userError || userData?.role !== 'admin') {
+    // Check if user is admin (from user metadata)
+    const role = (user.user_metadata as any)?.role || 'user';
+    if (role !== 'admin') {
       return res.status(403).json({ message: 'Admin access required' });
     }
 
     console.log('Admin user authenticated, fetching all orders...');
 
-    // Fetch all orders with user information
+    // Fetch all orders (no join assumptions)
     const { data: orders, error } = await supabase
       .from('orders')
-      .select(`
-        *,
-        user:users(
-          email,
-          user_metadata
-        )
-      `)
+      .select('*')
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -73,12 +62,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
     }
 
-    // Transform the data to include user info directly
-    const ordersWithUserInfo = orders?.map(order => ({
-      ...order,
-      user_email: order.user?.email || 'Unknown',
-      user_name: order.user?.user_metadata?.name || 'Unknown'
-    })) || [];
+    const ordersWithUserInfo = orders || [];
 
     console.log('All orders found:', ordersWithUserInfo.length);
     
