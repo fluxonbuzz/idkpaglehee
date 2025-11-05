@@ -1526,6 +1526,12 @@ const OrdersSection = ({ orders }: any) => (
                 </div>
               </div>
             </div>
+            {order.admin_message && (
+              <div className="mt-4 p-3 rounded-lg border border-blue-500/30 bg-blue-500/10 text-sm">
+                <div className="text-gray-300">Message from Admin</div>
+                <div className="text-white font-medium mt-1">{order.admin_message}</div>
+              </div>
+            )}
           </div>
         ))}
       </div>

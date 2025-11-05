@@ -34,6 +34,7 @@ interface Order {
   updated_at: string
   user_email?: string
   user_name?: string
+  admin_message?: string
 }
 
 export default function AdminDashboard() {
@@ -455,6 +456,33 @@ export default function AdminDashboard() {
                       </div>
                     </div>
                   )}
+
+                  {/* Admin Message Editor */}
+                  <div className="mb-4 bg-gray-700/30 rounded-lg p-4 border border-gray-600/50">
+                    <h4 className="text-sm font-bold mb-3 text-white flex items-center gap-2">
+                      <Edit3 className="w-4 h-4" />
+                      Message to User
+                    </h4>
+                    <textarea
+                      defaultValue={order.admin_message || ''}
+                      placeholder="Type a message the user will see in their order..."
+                      className="w-full bg-gray-800/60 text-white text-sm p-3 rounded border border-gray-600/50 focus:outline-none focus:border-blue-500/60"
+                      rows={3}
+                      onChange={(e) => { (order as any)._draft = e.target.value }}
+                    />
+                    <div className="mt-2 flex gap-2">
+                      <button
+                        disabled={loadingId === order.id}
+                        onClick={() => updateOrderMessage(order.id, ((order as any)._draft ?? order.admin_message ?? ''))}
+                        className="px-4 py-2 text-sm bg-blue-600/50 text-white rounded-lg hover:bg-blue-600/70 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 border border-blue-500/30 backdrop-blur-sm"
+                      >
+                        {loadingId === order.id ? 'Saving...' : 'Save Message'}
+                      </button>
+                      {order.admin_message && (
+                        <span className="text-xs text-gray-300 self-center">Current: "{order.admin_message}"</span>
+                      )}
+                    </div>
+                  </div>
 
                   {/* Action Buttons */}
                   <div className="flex flex-wrap gap-2">

@@ -45,16 +45,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     if (req.method === 'PUT') {
-      const { status, discount } = req.body;
-      console.log('Updating order:', id, 'with data:', { status, discount });
+      const { status, discount, admin_message } = req.body;
+      console.log('Updating order:', id, 'with data:', { status, discount, admin_message });
 
-      if (!status && !discount) {
+      if (status === undefined && discount === undefined && admin_message === undefined) {
         return res.status(400).json({ message: 'No update data provided' });
       }
 
       const updateData: any = {};
       if (status) updateData.status = status;
       if (discount !== undefined) updateData.discount = discount;
+      if (admin_message !== undefined) updateData.admin_message = admin_message;
 
       const { data, error } = await supabase
         .from('orders')
