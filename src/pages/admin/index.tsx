@@ -50,6 +50,7 @@ export default function AdminDashboard() {
     cancelled: 0
   })
   const [activeTab, setActiveTab] = useState('all')
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const token = localStorage.getItem('authToken')
@@ -62,38 +63,55 @@ export default function AdminDashboard() {
 
   const loadOrders = async (token?: string) => {
     try {
+      setIsLoading(true)
+      setError('')
+      
       const authToken = token || localStorage.getItem('authToken')
       if (!authToken) {
         router.replace('/admin/login')
         return
       }
 
-      const me = await fetch('/api/auth/me', { 
+      // Check if user is admin
+      const meResponse = await fetch('/api/auth/me', { 
         headers: { Authorization: `Bearer ${authToken}` } 
       })
-      const u = await me.json()
-      if (!me.ok || u.role !== 'admin') {
-        setError('Admin access required')
+      
+      if (!meResponse.ok) {
+        throw new Error(`Authentication failed: ${meResponse.status}`)
+      }
+      
+      const userData = await meResponse.json()
+      
+      if (userData.role !== 'admin') {
+        setError(`Access denied. Admin role required. Your role: ${userData.role}`)
+        setIsLoading(false)
         return
       }
 
+      console.log('Admin access confirmed, loading orders...')
+
       // Use admin endpoint to get all orders
-      const res = await fetch('/api/admin/orders', { 
+      const ordersResponse = await fetch('/api/admin/orders', { 
         headers: { Authorization: `Bearer ${authToken}` } 
       })
       
-      if (!res.ok) {
-        const errorData = await res.json()
-        setError(errorData?.message || 'Failed to load orders from admin endpoint.')
-        return
+      if (!ordersResponse.ok) {
+        const errorData = await ordersResponse.json()
+        throw new Error(errorData?.message || `Failed to load orders: ${ordersResponse.status}`)
       }
       
-      const data = await res.json()
+      const data = await ordersResponse.json()
+      console.log('Orders loaded:', data.orders?.length || 0)
 
       setOrders(data.orders || [])
       calculateStats(data.orders || [])
-    } catch (err) {
-      setError('Failed to load orders: ' + (err as Error).message)
+      
+    } catch (err: any) {
+      console.error('Error loading orders:', err)
+      setError(err.message || 'Failed to load orders')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -109,7 +127,7 @@ export default function AdminDashboard() {
     setStats(stats)
   }
 
-  const act = async (id: string, body: any) => {
+  const updateOrderStatus = async (id: string, status: string) => {
     try {
       setLoadingId(id)
       const token = localStorage.getItem('authToken')
@@ -118,15 +136,13 @@ export default function AdminDashboard() {
         return
       }
 
-      console.log('Updating order:', id, 'with data:', body)
-
       const res = await fetch(`/api/admin/orders/${id}`, {
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json', 
           Authorization: `Bearer ${token}` 
         },
-        body: JSON.stringify(body),
+        body: JSON.stringify({ status }),
       })
       
       const data = await res.json()
@@ -233,13 +249,29 @@ export default function AdminDashboard() {
     { id: 'cancelled', name: 'Cancelled', count: stats.cancelled }
   ]
 
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-blue-900 flex items-center justify-center p-6">
+        <div className="bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-xl border border-blue-500/20 p-8 max-w-md w-full text-center">
+          <RefreshCw className="w-16 h-16 text-blue-400 animate-spin mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-white mb-2">Loading...</h2>
+          <p className="text-gray-300">Checking admin access and loading orders</p>
+        </div>
+      </div>
+    )
+  }
+
   if (error) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 to-blue-900 flex items-center justify-center p-6">
         <div className="bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-xl border border-blue-500/20 p-8 max-w-md w-full text-center">
           <AlertCircle className="w-16 h-16 text-red-400 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-white mb-2">Error</h2>
-          <p className="text-gray-300 mb-6">{error}</p>
+          <p className="text-gray-300 mb-4">{error}</p>
+          <div className="text-sm text-gray-400 mb-6 p-3 bg-gray-700/50 rounded">
+            Check browser console for detailed error information
+          </div>
           <div className="space-y-3">
             <button
               onClick={() => loadOrders()}
@@ -428,7 +460,7 @@ export default function AdminDashboard() {
                   <div className="flex flex-wrap gap-2">
                     <button
                       disabled={loadingId === order.id || order.status === 'confirmed'}
-                      onClick={() => act(order.id, { status: 'confirmed' })}
+                      onClick={() => updateOrderStatus(order.id, 'confirmed')}
                       className="flex items-center gap-2 px-4 py-2 text-sm bg-blue-600/50 text-white rounded-lg hover:bg-blue-600/70 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 border border-blue-500/30 backdrop-blur-sm"
                     >
                       <CheckCircle2 className="w-4 h-4" />
@@ -436,7 +468,7 @@ export default function AdminDashboard() {
                     </button>
                     <button
                       disabled={loadingId === order.id || order.status === 'paid'}
-                      onClick={() => act(order.id, { status: 'paid' })}
+                      onClick={() => updateOrderStatus(order.id, 'paid')}
                       className="flex items-center gap-2 px-4 py-2 text-sm bg-green-600/50 text-white rounded-lg hover:bg-green-600/70 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 border border-green-500/30 backdrop-blur-sm"
                     >
                       <IndianRupee className="w-4 h-4" />
@@ -444,7 +476,7 @@ export default function AdminDashboard() {
                     </button>
                     <button
                       disabled={loadingId === order.id || order.status === 'delivered'}
-                      onClick={() => act(order.id, { status: 'delivered' })}
+                      onClick={() => updateOrderStatus(order.id, 'delivered')}
                       className="flex items-center gap-2 px-4 py-2 text-sm bg-purple-600/50 text-white rounded-lg hover:bg-purple-600/70 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 border border-purple-500/30 backdrop-blur-sm"
                     >
                       <Truck className="w-4 h-4" />
@@ -452,28 +484,11 @@ export default function AdminDashboard() {
                     </button>
                     <button
                       disabled={loadingId === order.id || order.status === 'cancelled'}
-                      onClick={() => act(order.id, { status: 'cancelled' })}
+                      onClick={() => updateOrderStatus(order.id, 'cancelled')}
                       className="flex items-center gap-2 px-4 py-2 text-sm bg-red-600/50 text-white rounded-lg hover:bg-red-600/70 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 border border-red-500/30 backdrop-blur-sm"
                     >
                       <X className="w-4 h-4" />
                       {loadingId === order.id ? 'Updating...' : 'Cancel'}
-                    </button>
-                    <button
-                      disabled={loadingId === order.id}
-                      onClick={() => {
-                        const code = window.prompt('Discount code (optional):') || undefined
-                        const amountStr = window.prompt('Discount amount (number):')
-                        const amount = amountStr ? Number(amountStr) : undefined
-                        if (amountStr && isNaN(Number(amountStr))) {
-                          alert('Please enter a valid number')
-                          return
-                        }
-                        act(order.id, { discount: code || amount ? { code, amount } : null })
-                      }}
-                      className="flex items-center gap-2 px-4 py-2 text-sm bg-orange-600/50 text-white rounded-lg hover:bg-orange-600/70 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 border border-orange-500/30 backdrop-blur-sm"
-                    >
-                      <Tag className="w-4 h-4" />
-                      {loadingId === order.id ? 'Updating...' : 'Discount'}
                     </button>
                     <button
                       disabled={loadingId === order.id}
@@ -491,25 +506,23 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {orders.length === 0 && (
+      {orders.length === 0 && !isLoading && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center py-12 bg-gray-800/50 backdrop-blur-lg rounded-2xl border border-blue-500/20">
             <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-xl font-bold text-white mb-2">No orders found</h3>
             <p className="text-gray-400 mb-6">
               {activeTab === 'all' 
-                ? 'No orders have been placed yet or you only have access to your own orders.' 
+                ? 'No orders have been placed yet.' 
                 : `No ${activeTab} orders found.`
               }
             </p>
-            <div className="text-sm text-gray-500 max-w-md mx-auto">
-              <p className="mb-2">To see all orders, you need:</p>
-              <ul className="text-left space-y-1">
-                <li>• An admin API endpoint at <code className="bg-gray-700 px-1 rounded">/api/admin/orders</code></li>
-                <li>• Proper database permissions to read all orders</li>
-                <li>• RLS policies that allow admin access</li>
-              </ul>
-            </div>
+            <button
+              onClick={() => loadOrders()}
+              className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-6 py-3 rounded-lg font-medium hover:from-blue-700 hover:to-cyan-700 transition-all duration-300"
+            >
+              Refresh
+            </button>
           </div>
         </div>
       )}
