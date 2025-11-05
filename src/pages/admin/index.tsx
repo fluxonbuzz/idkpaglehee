@@ -83,56 +83,15 @@ export default function AdminDashboard() {
       })
       
       if (!res.ok) {
-        // If admin endpoint doesn't exist, fall back to regular endpoint
-        const fallbackRes = await fetch('/api/orders', { 
-          headers: { Authorization: `Bearer ${authToken}` } 
-        })
-        const fallbackData = await fallbackRes.json()
-        
-        if (!fallbackRes.ok) {
-          setError(fallbackData?.message || 'Failed to load orders')
-          return
-        }
-        
-        // For now, use the orders from regular endpoint (user's own orders)
-        setOrders(fallbackData.orders || [])
-        calculateStats(fallbackData.orders || [])
+        const errorData = await res.json()
+        setError(errorData?.message || 'Failed to load orders from admin endpoint.')
         return
       }
       
       const data = await res.json()
-      
-      // If we have user info in the response, use it directly
-      if (data.orders && data.orders.length > 0) {
-        setOrders(data.orders)
-        calculateStats(data.orders)
-        return
-      }
-      
-      // Otherwise, try to fetch user info for each order
-      const ordersWithUserInfo = await Promise.all(
-        (data.orders || []).map(async (order: Order) => {
-          try {
-            const userRes = await fetch(`/api/auth/user/${order.user_id}`, {
-              headers: { Authorization: `Bearer ${authToken}` }
-            })
-            if (userRes.ok) {
-              const userData = await userRes.json()
-              return {
-                ...order,
-                user_email: userData.user?.email || 'Unknown',
-                user_name: userData.user?.user_metadata?.name || 'Unknown'
-              }
-            }
-          } catch (e) {
-            console.error('Failed to fetch user info:', e)
-          }
-          return order
-        })
-      )
-      
-      setOrders(ordersWithUserInfo)
-      calculateStats(ordersWithUserInfo)
+
+      setOrders(data.orders || [])
+      calculateStats(data.orders || [])
     } catch (err) {
       setError('Failed to load orders: ' + (err as Error).message)
     }
@@ -161,7 +120,7 @@ export default function AdminDashboard() {
 
       console.log('Updating order:', id, 'with data:', body)
 
-      const res = await fetch(`/api/orders/${id}`, {
+      const res = await fetch(`/api/admin/orders/${id}`, {
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json', 
@@ -196,7 +155,7 @@ export default function AdminDashboard() {
         return
       }
 
-      const res = await fetch(`/api/orders/${id}`, {
+      const res = await fetch(`/api/admin/orders/${id}`, {
         method: 'DELETE',
         headers: { 
           Authorization: `Bearer ${token}` 
