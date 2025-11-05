@@ -114,7 +114,15 @@ export default function AdminDashboard() {
         headers: { Authorization: `Bearer ${authToken}` } 
       })
       
-      if (!meResponse.ok) throw new Error(`Authentication failed: ${meResponse.status}`)
+      if (!meResponse.ok) {
+        if (meResponse.status === 401) {
+          localStorage.removeItem('authToken')
+          showNotification('Session expired. Please log in again.', 'error')
+          router.replace('/admin/login')
+          return
+        }
+        throw new Error(`Authentication failed: ${meResponse.status}`)
+      }
       
       const userData = await meResponse.json()
       if (userData.role !== 'admin') {
@@ -400,6 +408,36 @@ export default function AdminDashboard() {
       await loadOrders(token)
     } catch (e: any) {
       showNotification(e?.message || 'Delete failed', 'error')
+    } finally {
+      setLoadingId(null)
+    }
+  }
+
+  const updateOrderMessage = async (id: string, admin_message: string) => {
+    try {
+      setLoadingId(id)
+      const token = localStorage.getItem('authToken')
+      if (!token) {
+        router.replace('/admin/login')
+        return
+      }
+
+      const res = await fetch(`/api/admin/orders/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ admin_message })
+      })
+
+      const data = await res.json()
+      if (!res.ok) throw new Error(data?.message || 'Save failed')
+
+      showNotification('Message saved')
+      await loadOrders(token)
+    } catch (e: any) {
+      showNotification(e?.message || 'Save failed', 'error')
     } finally {
       setLoadingId(null)
     }
