@@ -73,7 +73,7 @@ export default function AdminDashboard() {
       })
       const u = await me.json()
       if (!me.ok || u.role !== 'admin') {
-        router.replace('/admin/login')
+        setError('Admin access required')
         return
       }
 
