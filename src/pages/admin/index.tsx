@@ -874,12 +874,19 @@ export default function AdminDashboard() {
                   </div>
 
                   {/* Order Info */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                     <div className="flex items-center gap-2 bg-gray-700/30 p-3 rounded-lg">
                       <User className="w-4 h-4 text-blue-400" />
                       <span className="text-sm text-gray-300">User:</span>
                       <span className="text-sm font-medium text-white">
-                        {order.user_name || order.user_email || order.user_id.slice(0, 8)}
+                        {order.user_name || order.user_id.slice(0, 8)}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 bg-gray-700/30 p-3 rounded-lg">
+                      <Mail className="w-4 h-4 text-blue-400" />
+                      <span className="text-sm text-gray-300">Email:</span>
+                      <span className="text-sm font-medium text-white truncate max-w-[200px]">
+                        {order.user_email || '—'}
                       </span>
                     </div>
                     <div className="flex items-center gap-2 bg-gray-700/30 p-3 rounded-lg">
@@ -890,7 +897,14 @@ export default function AdminDashboard() {
                     <div className="flex items-center gap-2 bg-gray-700/30 p-3 rounded-lg">
                       <Package className="w-4 h-4 text-cyan-400" />
                       <span className="text-sm text-gray-300">Items:</span>
-                      <span className="text-sm font-medium text-white">{order.items?.length || 0}</span>
+                      <span className="text-sm font-medium text-white">
+                        {order.items?.length || 0}
+                      </span>
+                      {order.items && order.items.length > 0 && (
+                        <span className="text-xs text-gray-300 ml-2 truncate max-w-[160px]">
+                          • {order.items[0]?.name}{order.items.length > 1 ? ` +${order.items.length - 1} more` : ''}
+                        </span>
+                      )}
                     </div>
                   </div>
 
