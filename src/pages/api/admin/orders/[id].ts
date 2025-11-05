@@ -9,7 +9,7 @@ const supabase = createClient(
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { id } = req.query;
   
-  console.log('=== ADMIN ORDER UPDATE ===', req.method, id);
+  console.log('=== ADMIN ORDER UPDATE ===', req.method, 'Order ID:', id);
 
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -31,14 +31,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const token = authHeader.replace('Bearer ', '');
   
   try {
-    // Verify the user is an admin
+    // Verify user and admin role
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
     
     if (authError || !user) {
       return res.status(401).json({ message: 'Invalid or expired token' });
     }
 
-    // Check if user is admin
+    // Check admin role
     const { data: userData, error: userError } = await supabase
       .from('users')
       .select('role')
@@ -51,8 +51,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (req.method === 'PUT') {
       const { status, discount } = req.body;
-      
-      console.log('Updating order:', id, 'with:', { status, discount });
+      console.log('Updating order:', id, 'with data:', { status, discount });
+
+      if (!status && !discount) {
+        return res.status(400).json({ message: 'No update data provided' });
+      }
 
       const updateData: any = {};
       if (status) updateData.status = status;
@@ -66,10 +69,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .single();
 
       if (error) {
-        console.error('Database error updating order:', error);
+        console.error('Error updating order:', error);
         return res.status(500).json({ 
           message: 'Failed to update order', 
-          error: error.message
+          error: error.message 
         });
       }
 
@@ -88,10 +91,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .eq('id', id);
 
       if (error) {
-        console.error('Database error deleting order:', error);
+        console.error('Error deleting order:', error);
         return res.status(500).json({ 
           message: 'Failed to delete order', 
-          error: error.message
+          error: error.message 
         });
       }
 
@@ -103,7 +106,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ message: 'Method Not Allowed' });
 
   } catch (error: any) {
-    console.error('Unexpected API error:', error);
+    console.error('Unexpected error:', error);
     return res.status(500).json({ 
       message: 'Internal server error', 
       error: error.message
