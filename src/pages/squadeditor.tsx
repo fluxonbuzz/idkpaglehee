@@ -1,4 +1,5 @@
 import { useState, useRef, ChangeEvent, useEffect } from "react";
+import type { GetServerSideProps } from 'next';
 import { 
   User, 
   Flag, 
@@ -36,6 +37,19 @@ interface PlayerData {
   jerseyNumber: string;
 }
 
+export const getServerSideProps: GetServerSideProps<SquadEditorProps> = async (ctx) => {
+  const token = ctx.req.cookies?.['license_session'];
+  const sessionKey = process.env.LICENSE_SESSION_KEY;
+  let isLicensed = false;
+  if (token && sessionKey) {
+    const { verifySessionCookie } = await import('@/lib/license');
+    const result = verifySessionCookie(token, sessionKey);
+    const plan = result.claims?.plan || null;
+    isLicensed = result.valid === true && (!plan || plan === 'all' || plan === 'squadeditor');
+  }
+  return { props: { isLicensed } };
+};
+
 interface SquadEditorProps {
   isLicensed?: boolean;
 }
@@ -64,8 +78,106 @@ export default function SquadEditor({ isLicensed = true }: SquadEditorProps) {
   const [animatedBg, setAnimatedBg] = useState(true);
   const [status, setStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
+  const [isLicenseValid, setIsLicenseValid] = useState<boolean>(!!isLicensed);
+  const [licenseKey, setLicenseKey] = useState('');
+  const [deviceId, setDeviceId] = useState('');
+  const [isCheckingLicense, setIsCheckingLicense] = useState(true);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // License boot: generate deviceId, check stored license, validate and set session
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const nav = window.navigator;
+      const screenInfo = window.screen;
+      const raw = [
+        nav.userAgent,
+        nav.language,
+        String(screenInfo.width),
+        String(screenInfo.height),
+        String(screenInfo.colorDepth)
+      ].join('|');
+      let h = 2166136261;
+      for (let i = 0; i < raw.length; i++) {
+        h ^= raw.charCodeAt(i);
+        h += (h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24);
+      }
+      const generatedDeviceId = (h >>> 0).toString(16);
+      setDeviceId(generatedDeviceId);
+
+      // If SSR says licensed we still mark check complete
+      const storedLicense = localStorage.getItem('se_license');
+      const storedDeviceId = localStorage.getItem('se_deviceId');
+      if (storedLicense && storedDeviceId === generatedDeviceId) {
+        // Validate and set session
+        validateStoredLicense(storedLicense, generatedDeviceId);
+      } else {
+        setIsCheckingLicense(false);
+        if (storedLicense) {
+          localStorage.removeItem('se_license');
+          localStorage.removeItem('se_deviceId');
+        }
+      }
+    } catch {
+      setIsCheckingLicense(false);
+    }
+  }, []);
+
+  const validateStoredLicense = async (storedLicense: string, devId: string) => {
+    try {
+      const res = await fetch('/api/license/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: storedLicense, deviceId: devId })
+      });
+      if (res.ok) {
+        setIsLicenseValid(true);
+        await fetch('/api/license/session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ licenseKey: storedLicense, deviceId: devId })
+        });
+      } else {
+        localStorage.removeItem('se_license');
+        localStorage.removeItem('se_deviceId');
+      }
+    } catch {
+      // offline mode: allow if stored
+      setIsLicenseValid(!!storedLicense);
+    } finally {
+      setIsCheckingLicense(false);
+    }
+  };
+
+  const handleLicenseSubmit = async () => {
+    try {
+      const res = await fetch('/api/license/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: licenseKey, deviceId: deviceId || undefined })
+      });
+      if (!res.ok) throw new Error('Invalid license key');
+      localStorage.setItem('se_license', licenseKey);
+      localStorage.setItem('se_deviceId', deviceId);
+      await fetch('/api/license/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ licenseKey, deviceId })
+      });
+      setIsLicenseValid(true);
+    } catch {
+      alert('❌ Invalid or expired license key');
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('se_license');
+    localStorage.removeItem('se_deviceId');
+    setIsLicenseValid(false);
+    setLicenseKey('');
+    fetch('/api/license/logout', { method: 'POST' });
+  };
 
   const decryptAES = (content: string): string => {
     try {
@@ -228,22 +340,65 @@ export default function SquadEditor({ isLicensed = true }: SquadEditorProps) {
     { value: "6", label: "Swing" }
   ];
 
-  if (!isLicensed) {
+  if (isCheckingLicense) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 text-white flex items-center justify-center">
         <div className="text-center">
-          <Shield className="w-16 h-16 text-cyan-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-white mb-2">License Required</h2>
-          <p className="text-gray-400">Please activate your license to access the Squad Editor.</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-cyan-400 border-t-transparent mx-auto mb-4"></div>
+          <p className="text-gray-400">Checking license...</p>
         </div>
+      </div>
+    );
+  }
+
+  if (!isLicenseValid) {
+    return (
+      <div className={`min-h-screen text-white relative overflow-hidden ${animatedBg ? 'animated-bg' : 'bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900'}`}>
+        <div className="absolute top-4 right-4 z-10">
+          <button onClick={() => setAnimatedBg(!animatedBg)} className="bg-gray-800/80 backdrop-blur-sm border border-cyan-500/30 rounded-xl px-4 py-2 flex items-center gap-2 hover:bg-gray-700/80 transition-all">
+            <Sparkles className="w-4 h-4" />
+            {animatedBg ? 'Disable Effects' : 'Enable Effects'}
+          </button>
+        </div>
+        <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-screen">
+          <div className="bg-gray-800/80 border border-cyan-500/30 rounded-2xl p-8 max-w-md w-full backdrop-blur-sm">
+            <div className="text-center mb-6">
+              <Shield className="w-16 h-16 text-cyan-400 mx-auto mb-4" />
+              <h2 className="text-2xl font-bold text-white mb-2">License Required</h2>
+            </div>
+            <div className="space-y-4">
+              <input 
+                type="text" 
+                value={licenseKey} 
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setLicenseKey(e.target.value)} 
+                placeholder="Enter license key" 
+                className="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 outline-none transition-all" 
+              />
+              <div className="text-xs text-gray-400">Device ID: {deviceId || 'detecting...'}</div>
+              <button 
+                onClick={handleLicenseSubmit} 
+                className="w-full bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white py-3 rounded-xl font-semibold transition-all"
+              >
+                Activate License
+              </button>
+            </div>
+          </div>
+        </div>
+        <style jsx>{`
+          .animated-bg { background: linear-gradient(-45deg, #1a202c, #2d3748, #1a202c, #2d3748); background-size: 400% 400%; animation: gradient 15s ease infinite; }
+          @keyframes gradient { 0% {background-position: 0% 50%;} 50% {background-position: 100% 50%;} 100% {background-position: 0% 50%;} }
+        `}</style>
       </div>
     );
   }
 
   return (
     <div className={`min-h-screen text-white relative overflow-hidden ${animatedBg ? 'animated-bg' : 'bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900'}`}>
-      {/* Background Effects Toggle */}
-      <div className="absolute top-4 right-4 z-10">
+      {/* Background Effects Toggle + Logout */}
+      <div className="absolute top-4 right-4 z-10 flex gap-2">
+        <button onClick={handleLogout} className="bg-gray-800/80 backdrop-blur-sm border border-red-500/30 rounded-xl px-4 py-2 flex items-center gap-2 hover:bg-gray-700/80 transition-all">
+          <Lock className="w-4 h-4" /> Logout
+        </button>
         <button 
           onClick={() => setAnimatedBg(!animatedBg)} 
           className="bg-gray-800/80 backdrop-blur-sm border border-cyan-500/30 rounded-xl px-4 py-2 flex items-center gap-2 hover:bg-gray-700/80 transition-all"

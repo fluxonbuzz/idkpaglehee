@@ -541,7 +541,9 @@ export const getServerSideProps: GetServerSideProps<ToolboxProps> = async (ctx) 
   if (token && sessionKey) {
     const { verifySessionCookie } = await import('@/lib/license');
     const result = verifySessionCookie(token, sessionKey);
-    isLicensed = result.valid === true;
+    const plan = result.claims?.plan || null;
+    // Allow access if valid and plan matches this page or is a universal license
+    isLicensed = result.valid === true && (!plan || plan === 'all' || plan === 'toolbox');
   }
   return { props: { isLicensed } };
 };

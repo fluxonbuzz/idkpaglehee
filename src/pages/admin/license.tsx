@@ -5,7 +5,7 @@ import { Shield, Key, Sparkles } from 'lucide-react';
 export default function AdminLicense() {
   const [animatedBg, setAnimatedBg] = useState(true);
   const [authToken, setAuthToken] = useState<string>('');
-  const [plan, setPlan] = useState<string>('standard');
+  const [plan, setPlan] = useState<string>('toolbox');
   const [days, setDays] = useState<number>(30);
   const [deviceId, setDeviceId] = useState<string>('');
   const [result, setResult] = useState<string>('');
@@ -51,7 +51,15 @@ export default function AdminLicense() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-gray-300 text-sm font-medium mb-2">Plan</label>
-                  <input value={plan} onChange={(e: ChangeEvent<HTMLInputElement>) => setPlan(e.target.value)} className="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 outline-none transition-all" />
+                  <select
+                    value={plan}
+                    onChange={(e: ChangeEvent<HTMLSelectElement>) => setPlan(e.target.value)}
+                    className="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 outline-none transition-all"
+                  >
+                    <option value="toolbox">toolbox</option>
+                    <option value="squadeditor">squadeditor</option>
+                    <option value="all">all</option>
+                  </select>
                 </div>
                 <div>
                   <label className="block text-gray-300 text-sm font-medium mb-2">Duration (days)</label>
