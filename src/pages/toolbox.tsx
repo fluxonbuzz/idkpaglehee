@@ -201,7 +201,7 @@ export default function RC20Crypter({ isLicensed }: ToolboxProps) {
   const [adminPlan, setAdminPlan] = useState<string>('standard');
   const [adminDeviceId, setAdminDeviceId] = useState<string>('');
   const [adminKeyResult, setAdminKeyResult] = useState<string>('');
-  const [adminEmail, setAdminEmail] = useState<string>('');
+  const [authToken, setAuthToken] = useState<string>('');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -224,6 +224,10 @@ export default function RC20Crypter({ isLicensed }: ToolboxProps) {
           h += (h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24);
         }
         setDeviceId((h >>> 0).toString(16));
+      } catch {}
+      try {
+        const token = localStorage.getItem('authToken') || '';
+        setAuthToken(token);
       } catch {}
     }
   }, []);
@@ -321,10 +325,7 @@ export default function RC20Crypter({ isLicensed }: ToolboxProps) {
                 <p className="text-gray-400 text-sm">Generate device-specific license keys stored in database</p>
               </div>
               <div className="space-y-4">
-                <div>
-                  <label className="block text-gray-300 text-sm font-medium mb-2">Admin Email</label>
-                  <input type="email" value={adminEmail} onChange={(e: ChangeEvent<HTMLInputElement>) => setAdminEmail(e.target.value)} placeholder="Enter admin email (must be in admin_users)" className="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-green-400 focus:ring-2 focus:ring-green-400/20 outline-none transition-all" />
-                </div>
+                <div className="text-sm text-gray-400">{authToken ? 'Admin token detected from store login. You can generate keys.' : 'No admin token found. Please log in at /admin/login to generate keys.'}</div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-gray-300 text-sm font-medium mb-2">Plan</label>
@@ -343,14 +344,16 @@ export default function RC20Crypter({ isLicensed }: ToolboxProps) {
                 <button onClick={async () => {
                   try {
                     setAdminKeyResult('');
-                    const res = await fetch('/api/license/create', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: adminEmail, days: adminDays, plan: adminPlan, deviceId: adminDeviceId || undefined }) });
+                    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+                    if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
+                    const res = await fetch('/api/license/create', { method: 'POST', headers, body: JSON.stringify({ days: adminDays, plan: adminPlan, deviceId: adminDeviceId || undefined }) });
                     const data = await res.json();
                     if (!res.ok) throw new Error(data?.message || 'Failed');
                     setAdminKeyResult(data.key);
                   } catch (e: any) {
                     setAdminKeyResult(`Error: ${e?.message || 'Failed'}`);
                   }
-                }} className="w-full bg-gradient-to-r from-green-500 to-cyan-600 hover:from-green-600 hover:to-cyan-700 text-white py-3 rounded-xl font-semibold transition-all">Generate License Key</button>
+                }} disabled={!authToken} className="w-full bg-gradient-to-r from-green-500 to-cyan-600 hover:from-green-600 hover:to-cyan-700 text-white py-3 rounded-xl font-semibold transition-all disabled:opacity-50">Generate License Key</button>
                 {adminKeyResult && (<div className="mt-4 p-4 bg-gray-700/50 border border-gray-600 rounded-xl text-green-300 break-all">{adminKeyResult}</div>)}
               </div>
             </div>
@@ -424,10 +427,7 @@ export default function RC20Crypter({ isLicensed }: ToolboxProps) {
                 <p className="text-gray-400">Generate device-specific license keys stored in database</p>
               </div>
               <div className="space-y-4">
-                <div>
-                  <label className="block text-gray-300 text-sm font-medium mb-2">Admin API Key</label>
-                  <input type="password" value={adminApiKey} onChange={(e: ChangeEvent<HTMLInputElement>) => setAdminApiKey(e.target.value)} placeholder="Enter ADMIN_API_KEY" className="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-green-400 focus:ring-2 focus:ring-green-400/20 outline-none transition-all" />
-                </div>
+                <div className="text-sm text-gray-400">{authToken ? 'Admin token detected from store login. You can generate keys.' : 'No admin token found. Please log in at /admin/login to generate keys.'}</div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-gray-300 text-sm font-medium mb-2">Plan</label>
@@ -446,14 +446,16 @@ export default function RC20Crypter({ isLicensed }: ToolboxProps) {
                 <button onClick={async () => {
                   try {
                     setAdminKeyResult('');
-                    const res = await fetch('/api/license/create', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-key': adminApiKey }, body: JSON.stringify({ days: adminDays, plan: adminPlan, deviceId: adminDeviceId || undefined }) });
+                    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+                    if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
+                    const res = await fetch('/api/license/create', { method: 'POST', headers, body: JSON.stringify({ days: adminDays, plan: adminPlan, deviceId: adminDeviceId || undefined }) });
                     const data = await res.json();
                     if (!res.ok) throw new Error(data?.message || 'Failed');
                     setAdminKeyResult(data.key);
                   } catch (e: any) {
                     setAdminKeyResult(`Error: ${e?.message || 'Failed'}`);
                   }
-                }} className="w-full bg-gradient-to-r from-green-500 to-cyan-600 hover:from-green-600 hover:to-cyan-700 text-white py-3 rounded-xl font-semibold transition-all">Generate License Key</button>
+                }} disabled={!authToken} className="w-full bg-gradient-to-r from-green-500 to-cyan-600 hover:from-green-600 hover:to-cyan-700 text-white py-3 rounded-xl font-semibold transition-all disabled:opacity-50">Generate License Key</button>
                 {adminKeyResult && (<div className="mt-4 p-4 bg-gray-700/50 border border-gray-600 rounded-xl text-green-300 break-all">{adminKeyResult}</div>)}
               </div>
             </div>

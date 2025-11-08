@@ -3,7 +3,7 @@ import { getAdminSupabase } from '@/lib/supabase'
 import crypto from 'crypto'
 
 // POST /api/license/create
-// Headers: x-admin-key: <ADMIN_API_KEY>
+// Auth: Authorization: Bearer <SUPABASE_ACCESS_TOKEN> (must have user_metadata.role === 'admin')
 // Body: { days: number, plan?: string, deviceId?: string }
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -11,43 +11,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ message: 'Method not allowed' })
   }
 
-  const { email } = (req.body || {}) as { email?: string }
-  const emailLower = (email || '').trim().toLowerCase()
-  if (!emailLower) {
-    return res.status(401).json({ message: 'Unauthorized' })
-  }
-
-  // Authorize via DB: admin_users table with a unique lowercased email column
-  const supabaseAuth = getAdminSupabase()
-  const { data: admins, error: adminErr } = await supabaseAuth
-    .from('admin_users')
-    .select('email')
-    .ilike('email', emailLower)
-    .limit(1)
-
-  if (adminErr) {
-    return res.status(500).json({ message: 'Auth database error' })
-  }
-  if (!admins || admins.length === 0) {
-    // Bootstrap: if no admins exist, add the first caller as admin
-    const { count, error: countErr } = await supabaseAuth
-      .from('admin_users')
-      .select('*', { count: 'exact', head: true })
-
-    if (countErr) {
-      return res.status(500).json({ message: 'Auth database error' })
-    }
-
-    if ((count || 0) === 0) {
-      const { error: insertErr } = await supabaseAuth
-        .from('admin_users')
-        .insert({ email: emailLower })
-      if (insertErr) {
-        return res.status(500).json({ message: 'Failed to bootstrap admin' })
-      }
-    } else {
+  // Authorize via Supabase access token like store admin flow
+  try {
+    const authHeader = req.headers.authorization || ''
+    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : ''
+    if (!token) {
       return res.status(401).json({ message: 'Unauthorized' })
     }
+
+    // Use an admin server client to introspect token user
+    const supabaseAuth = getAdminSupabase()
+    const { data, error: userErr } = await supabaseAuth.auth.getUser(token)
+    if (userErr || !data?.user) {
+      return res.status(401).json({ message: 'Invalid or expired token' })
+    }
+    const role = (data.user.user_metadata as any)?.role || 'user'
+    if (role !== 'admin') {
+      return res.status(403).json({ message: 'Admin access required' })
+    }
+  } catch {
+    return res.status(500).json({ message: 'Auth verification failed' })
   }
 
   const { days, plan, deviceId } = req.body as { days?: number; plan?: string; deviceId?: string }
