@@ -184,7 +184,6 @@ class AesEncryptor {
 type ToolboxProps = { isLicensed: boolean };
 
 export default function RC20Crypter({ isLicensed }: ToolboxProps) {
-  const [activeTab, setActiveTab] = useState<'crypter' | 'admin'>('crypter');
   const [crypterMode, setCrypterMode] = useState<'encrypt' | 'decrypt'>('encrypt');
   const [crypterStatus, setCrypterStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
   const [crypterMessage, setCrypterMessage] = useState('');
@@ -196,12 +195,7 @@ export default function RC20Crypter({ isLicensed }: ToolboxProps) {
   const [licenseKey, setLicenseKey] = useState('');
   const [deviceId, setDeviceId] = useState('');
 
-  // Admin panel state
-  const [adminDays, setAdminDays] = useState<number>(30);
-  const [adminPlan, setAdminPlan] = useState<string>('standard');
-  const [adminDeviceId, setAdminDeviceId] = useState<string>('');
-  const [adminKeyResult, setAdminKeyResult] = useState<string>('');
-  const [authToken, setAuthToken] = useState<string>('');
+  
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -224,10 +218,6 @@ export default function RC20Crypter({ isLicensed }: ToolboxProps) {
           h += (h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24);
         }
         setDeviceId((h >>> 0).toString(16));
-      } catch {}
-      try {
-        const token = localStorage.getItem('authToken') || '';
-        setAuthToken(token);
       } catch {}
     }
   }, []);
@@ -316,61 +306,6 @@ export default function RC20Crypter({ isLicensed }: ToolboxProps) {
             </div>
           </div>
         </div>
-        {/* Admin panel accessible without license */}
-        <div className="container mx-auto px-4 pb-12">
-          <div className="max-w-2xl mx-auto mt-6">
-            <div className="bg-gray-800/70 border border-green-500/20 rounded-2xl p-8 backdrop-blur-sm">
-              <div className="text-center mb-6">
-                <h3 className="text-2xl font-bold text-green-400 mb-2">Admin Panel</h3>
-                <p className="text-gray-400 text-sm">Generate device-specific license keys stored in database</p>
-              </div>
-              <div className="space-y-4">
-                <div className="text-sm text-gray-400">{authToken ? 'Admin token detected from store login. You can generate keys.' : 'No admin token found. Please log in at /admin/login to generate keys.'}</div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-gray-300 text-sm font-medium mb-2">Plan</label>
-                    <input type="text" value={adminPlan} onChange={(e: ChangeEvent<HTMLInputElement>) => setAdminPlan(e.target.value)} className="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-green-400 focus:ring-2 focus:ring-green-400/20 outline-none transition-all" />
-                  </div>
-                  <div>
-                    <label className="block text-gray-300 text-sm font-medium mb-2">Duration (days)</label>
-                    <input type="number" value={adminDays} onChange={(e: ChangeEvent<HTMLInputElement>) => setAdminDays(parseInt(e.target.value || '0', 10))} className="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-green-400 focus:ring-2 focus:ring-green-400/20 outline-none transition-all" />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-gray-300 text-sm font-medium mb-2">Device ID (optional to pre-bind)</label>
-                  <input type="text" value={adminDeviceId} onChange={(e: ChangeEvent<HTMLInputElement>) => setAdminDeviceId(e.target.value)} placeholder="Leave empty to bind on first activation" className="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-green-400 focus:ring-2 focus:ring-green-400/20 outline-none transition-all" />
-                  <p className="text-xs text-gray-400 mt-1">Current device: {deviceId || 'detecting...'}</p>
-                </div>
-                <button onClick={async () => {
-                  try {
-                    setAdminKeyResult('');
-                    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-                    if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
-                    const res = await fetch('/api/license/create', { method: 'POST', headers, body: JSON.stringify({ days: adminDays, plan: adminPlan, deviceId: adminDeviceId || undefined }) });
-                    const data = await res.json();
-                    if (!res.ok) throw new Error(data?.message || 'Failed');
-                    setAdminKeyResult(data.key);
-                  } catch (e: any) {
-                    setAdminKeyResult(`Error: ${e?.message || 'Failed'}`);
-                  }
-                }} disabled={!authToken} className="w-full bg-gradient-to-r from-green-500 to-cyan-600 hover:from-green-600 hover:to-cyan-700 text-white py-3 rounded-xl font-semibold transition-all disabled:opacity-50">Generate License Key</button>
-                {adminKeyResult && (
-                  <div className="mt-4 p-4 bg-gray-700/50 border border-gray-600 rounded-xl text-green-300">
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="break-all flex-1">{adminKeyResult}</div>
-                      <button
-                        onClick={async () => {
-                          try { await navigator.clipboard.writeText(adminKeyResult); } catch {}
-                        }}
-                        className="shrink-0 bg-gray-600 hover:bg-gray-500 text-white px-3 py-1 rounded-lg text-sm"
-                      >Copy</button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
         <style jsx>{`
           .animated-bg { background: linear-gradient(-45deg, #1a202c, #2d3748, #1a202c, #2d3748); background-size: 400% 400%; animation: gradient 15s ease infinite; }
           @keyframes gradient { 0% {background-position: 0% 50%;} 50% {background-position: 100% 50%;} 100% {background-position: 0% 50%;} }
@@ -392,20 +327,10 @@ export default function RC20Crypter({ isLicensed }: ToolboxProps) {
             <Shield className="w-12 h-12 text-cyan-400 mr-4" />
             <h1 className="text-5xl md:text-6xl font-black bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">RC 20 CRYPTER</h1>
           </div>
-          <p className="text-xl text-gray-400 mb-2">AES-Powered Secure File Encryption & License Admin</p>
+          <p className="text-xl text-gray-400 mb-2">AES-Powered Secure File Encryption</p>
         </header>
-        <div className="flex justify-center mb-8">
-          <div className="bg-gray-800/50 rounded-xl p-2 flex gap-2 border border-cyan-500/20 backdrop-blur-sm">
-            <button onClick={() => setActiveTab('crypter')} className={`px-6 py-3 rounded-lg font-semibold transition-all flex items-center gap-2 ${activeTab === 'crypter' ? 'bg-gradient-to-r from-cyan-500 to-purple-600 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}>
-              <FileText className="w-5 h-5" /> File Crypter
-            </button>
-            <button onClick={() => setActiveTab('admin')} className={`px-6 py-3 rounded-lg font-semibold transition-all flex items-center gap-2 ${activeTab === 'admin' ? 'bg-gradient-to-r from-green-500 to-cyan-600 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}>
-              <Users className="w-5 h-5" /> Admin Panel
-            </button>
-          </div>
-        </div>
-
-        {activeTab === 'crypter' && (
+        
+        {
           <div className="max-w-2xl mx-auto">
             <div className="bg-gray-800/50 border border-cyan-500/20 rounded-2xl p-8 backdrop-blur-sm">
               <div className="text-center mb-8">
@@ -429,50 +354,8 @@ export default function RC20Crypter({ isLicensed }: ToolboxProps) {
               </div>
             </div>
           </div>
-        )}
-
-        {activeTab === 'admin' && (
-          <div className="max-w-2xl mx-auto space-y-6">
-            <div className="bg-gray-800/50 border border-green-500/20 rounded-2xl p-8 backdrop-blur-sm">
-              <div className="text-center mb-6">
-                <h2 className="text-3xl font-bold text-green-400 mb-2">License Admin</h2>
-                <p className="text-gray-400">Generate device-specific license keys stored in database</p>
-              </div>
-              <div className="space-y-4">
-                <div className="text-sm text-gray-400">{authToken ? 'Admin token detected from store login. You can generate keys.' : 'No admin token found. Please log in at /admin/login to generate keys.'}</div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-gray-300 text-sm font-medium mb-2">Plan</label>
-                    <input type="text" value={adminPlan} onChange={(e: ChangeEvent<HTMLInputElement>) => setAdminPlan(e.target.value)} className="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-green-400 focus:ring-2 focus:ring-green-400/20 outline-none transition-all" />
-                  </div>
-                  <div>
-                    <label className="block text-gray-300 text-sm font-medium mb-2">Duration (days)</label>
-                    <input type="number" value={adminDays} onChange={(e: ChangeEvent<HTMLInputElement>) => setAdminDays(parseInt(e.target.value || '0', 10))} className="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-green-400 focus:ring-2 focus:ring-green-400/20 outline-none transition-all" />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-gray-300 text-sm font-medium mb-2">Device ID (optional to pre-bind)</label>
-                  <input type="text" value={adminDeviceId} onChange={(e: ChangeEvent<HTMLInputElement>) => setAdminDeviceId(e.target.value)} placeholder="Leave empty to bind on first activation" className="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-green-400 focus:ring-2 focus:ring-green-400/20 outline-none transition-all" />
-                  <p className="text-xs text-gray-400 mt-1">Current device: {deviceId || 'detecting...'}</p>
-                </div>
-                <button onClick={async () => {
-                  try {
-                    setAdminKeyResult('');
-                    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-                    if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
-                    const res = await fetch('/api/license/create', { method: 'POST', headers, body: JSON.stringify({ days: adminDays, plan: adminPlan, deviceId: adminDeviceId || undefined }) });
-                    const data = await res.json();
-                    if (!res.ok) throw new Error(data?.message || 'Failed');
-                    setAdminKeyResult(data.key);
-                  } catch (e: any) {
-                    setAdminKeyResult(`Error: ${e?.message || 'Failed'}`);
-                  }
-                }} disabled={!authToken} className="w-full bg-gradient-to-r from-green-500 to-cyan-600 hover:from-green-600 hover:to-cyan-700 text-white py-3 rounded-xl font-semibold transition-all disabled:opacity-50">Generate License Key</button>
-                {adminKeyResult && (<div className="mt-4 p-4 bg-gray-700/50 border border-gray-600 rounded-xl text-green-300 break-all">{adminKeyResult}</div>)}
-              </div>
-            </div>
-          </div>
-        )}
+        }
+        
 
         <footer className="mt-16 text-center">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
