@@ -312,6 +312,50 @@ export default function RC20Crypter({ isLicensed }: ToolboxProps) {
             </div>
           </div>
         </div>
+        {/* Admin panel accessible without license */}
+        <div className="container mx-auto px-4 pb-12">
+          <div className="max-w-2xl mx-auto mt-6">
+            <div className="bg-gray-800/70 border border-green-500/20 rounded-2xl p-8 backdrop-blur-sm">
+              <div className="text-center mb-6">
+                <h3 className="text-2xl font-bold text-green-400 mb-2">Admin Panel</h3>
+                <p className="text-gray-400 text-sm">Generate device-specific license keys stored in database</p>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-gray-300 text-sm font-medium mb-2">Admin API Key</label>
+                  <input type="password" value={adminApiKey} onChange={(e: ChangeEvent<HTMLInputElement>) => setAdminApiKey(e.target.value)} placeholder="Enter ADMIN_API_KEY" className="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-green-400 focus:ring-2 focus:ring-green-400/20 outline-none transition-all" />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-gray-300 text-sm font-medium mb-2">Plan</label>
+                    <input type="text" value={adminPlan} onChange={(e: ChangeEvent<HTMLInputElement>) => setAdminPlan(e.target.value)} className="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-green-400 focus:ring-2 focus:ring-green-400/20 outline-none transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-gray-300 text-sm font-medium mb-2">Duration (days)</label>
+                    <input type="number" value={adminDays} onChange={(e: ChangeEvent<HTMLInputElement>) => setAdminDays(parseInt(e.target.value || '0', 10))} className="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-green-400 focus:ring-2 focus:ring-green-400/20 outline-none transition-all" />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-gray-300 text-sm font-medium mb-2">Device ID (optional to pre-bind)</label>
+                  <input type="text" value={adminDeviceId} onChange={(e: ChangeEvent<HTMLInputElement>) => setAdminDeviceId(e.target.value)} placeholder="Leave empty to bind on first activation" className="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-green-400 focus:ring-2 focus:ring-green-400/20 outline-none transition-all" />
+                  <p className="text-xs text-gray-400 mt-1">Current device: {deviceId || 'detecting...'}</p>
+                </div>
+                <button onClick={async () => {
+                  try {
+                    setAdminKeyResult('');
+                    const res = await fetch('/api/license/create', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-key': adminApiKey }, body: JSON.stringify({ days: adminDays, plan: adminPlan, deviceId: adminDeviceId || undefined }) });
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data?.message || 'Failed');
+                    setAdminKeyResult(data.key);
+                  } catch (e: any) {
+                    setAdminKeyResult(`Error: ${e?.message || 'Failed'}`);
+                  }
+                }} className="w-full bg-gradient-to-r from-green-500 to-cyan-600 hover:from-green-600 hover:to-cyan-700 text-white py-3 rounded-xl font-semibold transition-all">Generate License Key</button>
+                {adminKeyResult && (<div className="mt-4 p-4 bg-gray-700/50 border border-gray-600 rounded-xl text-green-300 break-all">{adminKeyResult}</div>)}
+              </div>
+            </div>
+          </div>
+        </div>
         <style jsx>{`
           .animated-bg { background: linear-gradient(-45deg, #1a202c, #2d3748, #1a202c, #2d3748); background-size: 400% 400%; animation: gradient 15s ease infinite; }
           @keyframes gradient { 0% {background-position: 0% 50%;} 50% {background-position: 100% 50%;} 100% {background-position: 0% 50%;} }
