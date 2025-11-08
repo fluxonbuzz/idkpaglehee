@@ -1,0 +1,46 @@
+import type { NextApiRequest, NextApiResponse } from 'next'
+import { getAdminSupabase } from '@/lib/supabase'
+
+// POST /api/license/create
+// Headers: x-admin-key: <ADMIN_API_KEY>
+// Body: { days: number, plan?: string, deviceId?: string }
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== 'POST') {
+    res.setHeader('Allow', 'POST')
+    return res.status(405).json({ message: 'Method not allowed' })
+  }
+
+  const adminHeader = req.headers['x-admin-key']
+  const ADMIN_API_KEY = process.env.ADMIN_API_KEY
+  if (!ADMIN_API_KEY || adminHeader !== ADMIN_API_KEY) {
+    return res.status(401).json({ message: 'Unauthorized' })
+  }
+
+  const { days, plan, deviceId } = req.body as { days?: number; plan?: string; deviceId?: string }
+  if (!days || days <= 0) {
+    return res.status(400).json({ message: 'days must be > 0' })
+  }
+
+  try {
+    const now = new Date()
+    const exp = new Date(now.getTime() + days * 24 * 60 * 60 * 1000)
+
+    // Generate a random license key (url-safe)
+    const key = [...crypto.getRandomValues(new Uint8Array(24))]
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('')
+
+    const supabase = getAdminSupabase()
+    const { error } = await supabase
+      .from('licenses')
+      .insert({ key, plan: plan || null, exp: exp.toISOString(), device_id: deviceId || null })
+
+    if (error) {
+      return res.status(500).json({ message: 'Database error', detail: error.message })
+    }
+
+    return res.status(200).json({ key, exp: Math.floor(exp.getTime() / 1000), plan: plan || null })
+  } catch (e: any) {
+    return res.status(500).json({ message: 'Internal error', detail: e?.message || 'unknown' })
+  }
+}
