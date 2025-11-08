@@ -306,7 +306,7 @@ export default function RC20Crypter({ isLicensed }: ToolboxProps) {
               <h2 className="text-2xl font-bold text-white mb-2">License Required</h2>
             </div>
             <div className="space-y-4">
-              <input type="text" value={licenseKey} onChange={(e) => setLicenseKey(e.target.value)} placeholder="Enter license key" className="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 outline-none transition-all" />
+              <input type="text" value={licenseKey} onChange={(e: ChangeEvent<HTMLInputElement>) => setLicenseKey(e.target.value)} placeholder="Enter license key" className="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 outline-none transition-all" />
               <div className="text-xs text-gray-400">Device ID: {deviceId || 'detecting...'}</div>
               <button onClick={handleLicenseSubmit} className="w-full bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white py-3 rounded-xl font-semibold transition-all">Activate License</button>
             </div>
@@ -382,21 +382,21 @@ export default function RC20Crypter({ isLicensed }: ToolboxProps) {
               <div className="space-y-4">
                 <div>
                   <label className="block text-gray-300 text-sm font-medium mb-2">Admin API Key</label>
-                  <input type="password" value={adminApiKey} onChange={(e) => setAdminApiKey(e.target.value)} placeholder="Enter ADMIN_API_KEY" className="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-green-400 focus:ring-2 focus:ring-green-400/20 outline-none transition-all" />
+                  <input type="password" value={adminApiKey} onChange={(e: ChangeEvent<HTMLInputElement>) => setAdminApiKey(e.target.value)} placeholder="Enter ADMIN_API_KEY" className="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-green-400 focus:ring-2 focus:ring-green-400/20 outline-none transition-all" />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-gray-300 text-sm font-medium mb-2">Plan</label>
-                    <input type="text" value={adminPlan} onChange={(e) => setAdminPlan(e.target.value)} className="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-green-400 focus:ring-2 focus:ring-green-400/20 outline-none transition-all" />
+                    <input type="text" value={adminPlan} onChange={(e: ChangeEvent<HTMLInputElement>) => setAdminPlan(e.target.value)} className="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-green-400 focus:ring-2 focus:ring-green-400/20 outline-none transition-all" />
                   </div>
                   <div>
                     <label className="block text-gray-300 text-sm font-medium mb-2">Duration (days)</label>
-                    <input type="number" value={adminDays} onChange={(e) => setAdminDays(parseInt(e.target.value || '0', 10))} className="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-green-400 focus:ring-2 focus:ring-green-400/20 outline-none transition-all" />
+                    <input type="number" value={adminDays} onChange={(e: ChangeEvent<HTMLInputElement>) => setAdminDays(parseInt(e.target.value || '0', 10))} className="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-green-400 focus:ring-2 focus:ring-green-400/20 outline-none transition-all" />
                   </div>
                 </div>
                 <div>
                   <label className="block text-gray-300 text-sm font-medium mb-2">Device ID (optional to pre-bind)</label>
-                  <input type="text" value={adminDeviceId} onChange={(e) => setAdminDeviceId(e.target.value)} placeholder="Leave empty to bind on first activation" className="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-green-400 focus:ring-2 focus:ring-green-400/20 outline-none transition-all" />
+                  <input type="text" value={adminDeviceId} onChange={(e: ChangeEvent<HTMLInputElement>) => setAdminDeviceId(e.target.value)} placeholder="Leave empty to bind on first activation" className="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-green-400 focus:ring-2 focus:ring-green-400/20 outline-none transition-all" />
                   <p className="text-xs text-gray-400 mt-1">Current device: {deviceId || 'detecting...'}</p>
                 </div>
                 <button onClick={async () => {
@@ -414,7 +414,6 @@ export default function RC20Crypter({ isLicensed }: ToolboxProps) {
               </div>
             </div>
           </div>
-        </div>
         )}
 
         <footer className="mt-16 text-center">
