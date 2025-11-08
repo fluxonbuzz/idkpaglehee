@@ -188,20 +188,22 @@ export default function RC20Crypter({ isLicensed }: ToolboxProps) {
   const [crypterStatus, setCrypterStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
   const [crypterMessage, setCrypterMessage] = useState('');
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
-  const [isLicenseValid, setIsLicenseValid] = useState(isLicensed);
+  const [isLicenseValid, setIsLicenseValid] = useState(false);
   const [animatedBg, setAnimatedBg] = useState(true);
   const [permanentlyLocked] = useState(false);
   const [timeLeft] = useState(60_000);
   const [licenseKey, setLicenseKey] = useState('');
   const [deviceId, setDeviceId] = useState('');
-
-  
+  const [isCheckingLicense, setIsCheckingLicense] = useState(true);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Check for stored license on component mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
       AesEncryptor.initialize();
+      
+      // Generate device ID
       try {
         const nav = window.navigator;
         const screenInfo = window.screen;
@@ -217,10 +219,60 @@ export default function RC20Crypter({ isLicensed }: ToolboxProps) {
           h ^= raw.charCodeAt(i);
           h += (h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24);
         }
-        setDeviceId((h >>> 0).toString(16));
-      } catch {}
+        const generatedDeviceId = (h >>> 0).toString(16);
+        setDeviceId(generatedDeviceId);
+
+        // Check for stored license
+        const storedLicense = localStorage.getItem('rc20_license');
+        const storedDeviceId = localStorage.getItem('rc20_deviceId');
+        
+        if (storedLicense && storedDeviceId === generatedDeviceId) {
+          // Validate stored license with server
+          validateStoredLicense(storedLicense, generatedDeviceId);
+        } else {
+          setIsCheckingLicense(false);
+          // Clear invalid stored data
+          if (storedLicense) {
+            localStorage.removeItem('rc20_license');
+            localStorage.removeItem('rc20_deviceId');
+          }
+        }
+      } catch (error) {
+        console.error('Error initializing:', error);
+        setIsCheckingLicense(false);
+      }
     }
   }, []);
+
+  const validateStoredLicense = async (storedLicense: string, deviceId: string) => {
+    try {
+      const res = await fetch('/api/license/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: storedLicense, deviceId })
+      });
+      
+      if (res.ok) {
+        setIsLicenseValid(true);
+        // Set server session cookie
+        await fetch('/api/license/session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ licenseKey: storedLicense, deviceId })
+        });
+      } else {
+        // Clear invalid stored license
+        localStorage.removeItem('rc20_license');
+        localStorage.removeItem('rc20_deviceId');
+      }
+    } catch (error) {
+      console.error('License validation failed:', error);
+      // On network error, still allow access if we have stored license (offline mode)
+      setIsLicenseValid(true);
+    } finally {
+      setIsCheckingLicense(false);
+    }
+  };
 
   const readFileAsArrayBuffer = (file: File): Promise<ArrayBuffer> => {
     return new Promise((resolve, reject) => {
@@ -260,12 +312,46 @@ export default function RC20Crypter({ isLicensed }: ToolboxProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ key: licenseKey, deviceId: deviceId || undefined })
       });
-      if (!res.ok) throw new Error('Invalid');
+      
+      if (!res.ok) throw new Error('Invalid license key');
+      
+      // Store license in localStorage for persistence
+      localStorage.setItem('rc20_license', licenseKey);
+      localStorage.setItem('rc20_deviceId', deviceId);
+      
+      // Set server session
+      await fetch('/api/license/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ licenseKey, deviceId })
+      });
+      
       setIsLicenseValid(true);
     } catch {
       alert('❌ Invalid or expired license key');
     }
   };
+
+  const handleLogout = () => {
+    localStorage.removeItem('rc20_license');
+    localStorage.removeItem('rc20_deviceId');
+    setIsLicenseValid(false);
+    setLicenseKey('');
+    // Clear server session
+    fetch('/api/license/logout', { method: 'POST' });
+  };
+
+  // Show loading state while checking license
+  if (isCheckingLicense) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 text-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-cyan-400 border-t-transparent mx-auto mb-4"></div>
+          <p className="text-gray-400">Checking license...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (permanentlyLocked) {
     return (
@@ -300,9 +386,20 @@ export default function RC20Crypter({ isLicensed }: ToolboxProps) {
               <h2 className="text-2xl font-bold text-white mb-2">License Required</h2>
             </div>
             <div className="space-y-4">
-              <input type="text" value={licenseKey} onChange={(e: ChangeEvent<HTMLInputElement>) => setLicenseKey(e.target.value)} placeholder="Enter license key" className="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 outline-none transition-all" />
+              <input 
+                type="text" 
+                value={licenseKey} 
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setLicenseKey(e.target.value)} 
+                placeholder="Enter license key" 
+                className="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 outline-none transition-all" 
+              />
               <div className="text-xs text-gray-400">Device ID: {deviceId || 'detecting...'}</div>
-              <button onClick={handleLicenseSubmit} className="w-full bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white py-3 rounded-xl font-semibold transition-all">Activate License</button>
+              <button 
+                onClick={handleLicenseSubmit} 
+                className="w-full bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white py-3 rounded-xl font-semibold transition-all"
+              >
+                Activate License
+              </button>
             </div>
           </div>
         </div>
@@ -316,7 +413,10 @@ export default function RC20Crypter({ isLicensed }: ToolboxProps) {
 
   return (
     <div className={`min-h-screen text-white relative overflow-hidden ${animatedBg ? 'animated-bg' : 'bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900'}`}>
-      <div className="absolute top-4 right-4 z-10">
+      <div className="absolute top-4 right-4 z-10 flex gap-2">
+        <button onClick={handleLogout} className="bg-gray-800/80 backdrop-blur-sm border border-red-500/30 rounded-xl px-4 py-2 flex items-center gap-2 hover:bg-gray-700/80 transition-all">
+          <Key className="w-4 h-4" />Logout
+        </button>
         <button onClick={() => setAnimatedBg(!animatedBg)} className="bg-gray-800/80 backdrop-blur-sm border border-cyan-500/30 rounded-xl px-4 py-2 flex items-center gap-2 hover:bg-gray-700/80 transition-all">
           <Sparkles className="w-4 h-4" />{animatedBg ? 'Disable Effects' : 'Enable Effects'}
         </button>
@@ -328,34 +428,35 @@ export default function RC20Crypter({ isLicensed }: ToolboxProps) {
             <h1 className="text-5xl md:text-6xl font-black bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">RC 20 CRYPTER</h1>
           </div>
           <p className="text-xl text-gray-400 mb-2">AES-Powered Secure File Encryption</p>
+          <div className="flex items-center justify-center gap-2 text-green-400">
+            <Shield className="w-5 h-5" />
+            <span className="text-sm">License Active • Device: {deviceId.slice(0, 8)}...</span>
+          </div>
         </header>
         
-        {
-          <div className="max-w-2xl mx-auto">
-            <div className="bg-gray-800/50 border border-cyan-500/20 rounded-2xl p-8 backdrop-blur-sm">
-              <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold text-cyan-400 mb-2">Secure File Encryption</h2>
-                <p className="text-gray-400">Protect your files with AES-128-CBC encryption</p>
-              </div>
-              <div className="space-y-6">
-                <div className="flex gap-4 mb-6">
-                  <button onClick={() => setCrypterMode('encrypt')} className={`flex-1 py-3 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 ${crypterMode === 'encrypt' ? 'bg-gradient-to-r from-cyan-500 to-purple-600 text-white shadow-lg' : 'bg-gray-700/50 text-gray-400 hover:text-white'}`}>
-                    <Lock className="w-5 h-5" /> Encrypt
-                  </button>
-                  <button onClick={() => setCrypterMode('decrypt')} className={`flex-1 py-3 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 ${crypterMode === 'decrypt' ? 'bg-gradient-to-r from-cyan-500 to-purple-600 text-white shadow-lg' : 'bg-gray-700/50 text-gray-400 hover:text-white'}`}>
-                    <Unlock className="w-5 h-5" /> Decrypt
-                  </button>
-                </div>
-                <input type="file" ref={fileInputRef} onChange={handleCrypterFileUpload} className="hidden" />
-                <button onClick={() => fileInputRef.current?.click()} disabled={crypterStatus === 'processing'} className="w-full bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white py-4 rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl disabled:opacity-50 flex items-center justify-center gap-2">
-                  {crypterStatus === 'processing' ? (<><div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>Processing...</>) : (<><Upload className="w-5 h-5" /> Select File to {crypterMode === 'encrypt' ? 'Encrypt' : 'Decrypt'}</>)}
+        <div className="max-w-2xl mx-auto">
+          <div className="bg-gray-800/50 border border-cyan-500/20 rounded-2xl p-8 backdrop-blur-sm">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold text-cyan-400 mb-2">Secure File Encryption</h2>
+              <p className="text-gray-400">Protect your files with AES-128-CBC encryption</p>
+            </div>
+            <div className="space-y-6">
+              <div className="flex gap-4 mb-6">
+                <button onClick={() => setCrypterMode('encrypt')} className={`flex-1 py-3 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 ${crypterMode === 'encrypt' ? 'bg-gradient-to-r from-cyan-500 to-purple-600 text-white shadow-lg' : 'bg-gray-700/50 text-gray-400 hover:text-white'}`}>
+                  <Lock className="w-5 h-5" /> Encrypt
                 </button>
-                {crypterStatus !== 'idle' && (<div className={`p-4 rounded-xl text-center font-semibold ${crypterStatus === 'success' ? 'bg-green-500/20 text-green-400 border border-green-500/40' : crypterStatus === 'error' ? 'bg-red-500/20 text-red-400 border border-red-500/40' : 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40'}`}>{crypterMessage}</div>)}
+                <button onClick={() => setCrypterMode('decrypt')} className={`flex-1 py-3 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 ${crypterMode === 'decrypt' ? 'bg-gradient-to-r from-cyan-500 to-purple-600 text-white shadow-lg' : 'bg-gray-700/50 text-gray-400 hover:text-white'}`}>
+                  <Unlock className="w-5 h-5" /> Decrypt
+                </button>
               </div>
+              <input type="file" ref={fileInputRef} onChange={handleCrypterFileUpload} className="hidden" />
+              <button onClick={() => fileInputRef.current?.click()} disabled={crypterStatus === 'processing'} className="w-full bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white py-4 rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl disabled:opacity-50 flex items-center justify-center gap-2">
+                {crypterStatus === 'processing' ? (<><div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>Processing...</>) : (<><Upload className="w-5 h-5" /> Select File to {crypterMode === 'encrypt' ? 'Encrypt' : 'Decrypt'}</>)}
+              </button>
+              {crypterStatus !== 'idle' && (<div className={`p-4 rounded-xl text-center font-semibold ${crypterStatus === 'success' ? 'bg-green-500/20 text-green-400 border border-green-500/40' : crypterStatus === 'error' ? 'bg-red-500/20 text-red-400 border border-red-500/40' : 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40'}`}>{crypterMessage}</div>)}
             </div>
           </div>
-        }
-        
+        </div>
 
         <footer className="mt-16 text-center">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
