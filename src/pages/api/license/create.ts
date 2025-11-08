@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { getAdminSupabase } from '@/lib/supabase'
-import { auth } from '@/pages/api/auth/[...nextauth]'
 
 // POST /api/license/create
 // Headers: x-admin-key: <ADMIN_API_KEY>
@@ -11,8 +10,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ message: 'Method not allowed' })
   }
 
-  const session = await auth(req, res)
-  const email = session?.user?.email || ''
+  const { email } = (req.body || {}) as { email?: string }
   if (!email) {
     return res.status(401).json({ message: 'Unauthorized' })
   }

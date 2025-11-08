@@ -201,7 +201,7 @@ export default function RC20Crypter({ isLicensed }: ToolboxProps) {
   const [adminPlan, setAdminPlan] = useState<string>('standard');
   const [adminDeviceId, setAdminDeviceId] = useState<string>('');
   const [adminKeyResult, setAdminKeyResult] = useState<string>('');
-  const [adminApiKey, setAdminApiKey] = useState<string>('');
+  const [adminEmail, setAdminEmail] = useState<string>('');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -322,8 +322,8 @@ export default function RC20Crypter({ isLicensed }: ToolboxProps) {
               </div>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-gray-300 text-sm font-medium mb-2">Admin API Key</label>
-                  <input type="password" value={adminApiKey} onChange={(e: ChangeEvent<HTMLInputElement>) => setAdminApiKey(e.target.value)} placeholder="Enter ADMIN_API_KEY" className="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-green-400 focus:ring-2 focus:ring-green-400/20 outline-none transition-all" />
+                  <label className="block text-gray-300 text-sm font-medium mb-2">Admin Email</label>
+                  <input type="email" value={adminEmail} onChange={(e: ChangeEvent<HTMLInputElement>) => setAdminEmail(e.target.value)} placeholder="Enter admin email (must be in admin_users)" className="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-green-400 focus:ring-2 focus:ring-green-400/20 outline-none transition-all" />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
@@ -343,7 +343,7 @@ export default function RC20Crypter({ isLicensed }: ToolboxProps) {
                 <button onClick={async () => {
                   try {
                     setAdminKeyResult('');
-                    const res = await fetch('/api/license/create', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-key': adminApiKey }, body: JSON.stringify({ days: adminDays, plan: adminPlan, deviceId: adminDeviceId || undefined }) });
+                    const res = await fetch('/api/license/create', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: adminEmail, days: adminDays, plan: adminPlan, deviceId: adminDeviceId || undefined }) });
                     const data = await res.json();
                     if (!res.ok) throw new Error(data?.message || 'Failed');
                     setAdminKeyResult(data.key);
