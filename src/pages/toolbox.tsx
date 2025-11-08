@@ -354,7 +354,19 @@ export default function RC20Crypter({ isLicensed }: ToolboxProps) {
                     setAdminKeyResult(`Error: ${e?.message || 'Failed'}`);
                   }
                 }} disabled={!authToken} className="w-full bg-gradient-to-r from-green-500 to-cyan-600 hover:from-green-600 hover:to-cyan-700 text-white py-3 rounded-xl font-semibold transition-all disabled:opacity-50">Generate License Key</button>
-                {adminKeyResult && (<div className="mt-4 p-4 bg-gray-700/50 border border-gray-600 rounded-xl text-green-300 break-all">{adminKeyResult}</div>)}
+                {adminKeyResult && (
+                  <div className="mt-4 p-4 bg-gray-700/50 border border-gray-600 rounded-xl text-green-300">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="break-all flex-1">{adminKeyResult}</div>
+                      <button
+                        onClick={async () => {
+                          try { await navigator.clipboard.writeText(adminKeyResult); } catch {}
+                        }}
+                        className="shrink-0 bg-gray-600 hover:bg-gray-500 text-white px-3 py-1 rounded-lg text-sm"
+                      >Copy</button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

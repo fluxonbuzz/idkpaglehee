@@ -11,12 +11,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   const sessionKey = process.env.LICENSE_SESSION_KEY;
-  if (!sessionKey) {
-    return res.status(500).json({ message: 'Server not configured' });
-  }
+  const canIssueCookie = !!sessionKey;
 
   try {
-    const { key, deviceId } = req.body as { key?: string; deviceId?: string };
+    const { key: rawKey, deviceId } = req.body as { key?: string; deviceId?: string };
+    const key = (rawKey ?? '').trim();
     if (!key || typeof key !== 'string') {
       return res.status(400).json({ message: 'License key required' });
     }
@@ -31,7 +30,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .limit(1);
 
     if (error) {
-      return res.status(500).json({ message: 'Database error' });
+      return res.status(500).json({ message: 'Database error', detail: error.message });
     }
     const lic = licenses?.[0];
     if (!lic) {
@@ -66,12 +65,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const maxSessionSeconds = 7 * 24 * 60 * 60;
     const exp = Math.min(licExpSec, nowSec + maxSessionSeconds);
 
-    // Issue session cookie with minimal claims
-    const sessionToken = signSessionCookie({ exp, plan: lic.plan ?? undefined, device: lic.device_id ?? undefined }, sessionKey);
-    const isProd = process.env.NODE_ENV === 'production';
-    res.setHeader('Set-Cookie', `${SESSION_COOKIE}=${sessionToken}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${exp - nowSec}; ${isProd ? 'Secure' : ''}`);
+    // Issue session cookie with minimal claims if configured
+    if (canIssueCookie && sessionKey) {
+      const sessionToken = signSessionCookie({ exp, plan: lic.plan ?? undefined, device: lic.device_id ?? undefined }, sessionKey);
+      const isProd = process.env.NODE_ENV === 'production';
+      res.setHeader('Set-Cookie', `${SESSION_COOKIE}=${sessionToken}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${exp - nowSec}; ${isProd ? 'Secure' : ''}`);
+    }
 
-    return res.status(200).json({ success: true, plan: lic.plan ?? null, exp });
+    return res.status(200).json({ success: true, plan: lic.plan ?? null, exp, cookieIssued: canIssueCookie });
   } catch (e) {
     return res.status(400).json({ message: 'Bad request' });
   }
