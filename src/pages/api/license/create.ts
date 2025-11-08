@@ -11,7 +11,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   const { email } = (req.body || {}) as { email?: string }
-  if (!email) {
+  const emailLower = (email || '').trim().toLowerCase()
+  if (!emailLower) {
     return res.status(401).json({ message: 'Unauthorized' })
   }
 
@@ -20,14 +21,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const { data: admins, error: adminErr } = await supabaseAuth
     .from('admin_users')
     .select('email')
-    .ilike('email', email)
+    .ilike('email', emailLower)
     .limit(1)
 
   if (adminErr) {
     return res.status(500).json({ message: 'Auth database error' })
   }
   if (!admins || admins.length === 0) {
-    return res.status(401).json({ message: 'Unauthorized' })
+    // Bootstrap: if no admins exist, add the first caller as admin
+    const { count, error: countErr } = await supabaseAuth
+      .from('admin_users')
+      .select('*', { count: 'exact', head: true })
+
+    if (countErr) {
+      return res.status(500).json({ message: 'Auth database error' })
+    }
+
+    if ((count || 0) === 0) {
+      const { error: insertErr } = await supabaseAuth
+        .from('admin_users')
+        .insert({ email: emailLower })
+      if (insertErr) {
+        return res.status(500).json({ message: 'Failed to bootstrap admin' })
+      }
+    } else {
+      return res.status(401).json({ message: 'Unauthorized' })
+    }
   }
 
   const { days, plan, deviceId } = req.body as { days?: number; plan?: string; deviceId?: string }
