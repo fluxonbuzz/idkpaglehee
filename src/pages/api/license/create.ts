@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { getAdminSupabase } from '@/lib/supabase'
+import crypto from 'crypto'
 
 // POST /api/license/create
 // Headers: x-admin-key: <ADMIN_API_KEY>
@@ -58,10 +59,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const now = new Date()
     const exp = new Date(now.getTime() + days * 24 * 60 * 60 * 1000)
 
-    // Generate a random license key (url-safe)
-    const key = [...crypto.getRandomValues(new Uint8Array(24))]
-      .map((b) => b.toString(16).padStart(2, '0'))
-      .join('')
+    // Generate a random license key (hex)
+    const key = crypto.randomBytes(24).toString('hex')
 
     const supabase = getAdminSupabase()
     const { error } = await supabase
@@ -69,7 +68,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .insert({ key, plan: plan || null, exp: exp.toISOString(), device_id: deviceId || null })
 
     if (error) {
-      return res.status(500).json({ message: 'Database error', detail: error.message })
+      return res.status(500).json({ message: 'Database error inserting license', detail: error.message })
     }
 
     return res.status(200).json({ key, exp: Math.floor(exp.getTime() / 1000), plan: plan || null })
