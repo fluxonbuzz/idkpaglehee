@@ -70,6 +70,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(200).json({ appeal: data, message: 'Appeal updated' });
     }
 
+    if (req.method === 'DELETE') {
+      const { id } = (req.query.id ? { id: req.query.id } : (req.body || {})) as { id?: string };
+      if (!id) {
+        return res.status(400).json({ message: 'Missing appeal id' });
+      }
+
+      const { error } = await supabase
+        .from('appeals')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        return res.status(500).json({ message: 'Failed to delete appeal', error: error.message, details: error.details, hint: error.hint });
+      }
+
+      return res.status(200).json({ message: 'Appeal deleted' });
+    }
+
     return res.status(405).json({ message: 'Method Not Allowed' });
   } catch (error: any) {
     return res.status(500).json({ message: 'Internal server error', error: error.message });

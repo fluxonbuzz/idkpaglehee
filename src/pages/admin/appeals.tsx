@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
-import { Shield, AlertCircle, CheckCircle2, Clock, Filter, Search, RefreshCw } from 'lucide-react'
+import { Shield, AlertCircle, CheckCircle2, Clock, Filter, Search, RefreshCw, Trash2 } from 'lucide-react'
 
 interface Appeal {
   id: string
@@ -24,6 +24,28 @@ export default function AdminAppealsPage() {
   const [updatingId, setUpdatingId] = useState<string | null>(null)
 
   const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null
+
+  const deleteAppeal = async (id: string) => {
+    if (!token) return router.replace('/admin/login')
+    const ok = window.confirm('Delete this appeal permanently?')
+    if (!ok) return
+    try {
+      setUpdatingId(id)
+      const res = await fetch(`/api/admin/appeals?id=${encodeURIComponent(id)}` , {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data?.message || 'Failed to delete')
+      }
+      setAppeals((prev: Appeal[]) => prev.filter((a: Appeal) => a.id !== id))
+    } catch (e: any) {
+      alert(e?.message || 'Failed to delete appeal')
+    } finally {
+      setUpdatingId(null)
+    }
+  }
 
   useEffect(() => {
     const t = localStorage.getItem('authToken')
@@ -181,6 +203,14 @@ export default function AdminAppealsPage() {
                     title="Reject"
                   >
                     <AlertCircle className="w-4 h-4" />
+                  </button>
+                  <button
+                    disabled={updatingId === a.id}
+                    onClick={() => deleteAppeal(a.id)}
+                    className="px-2 py-1 rounded-lg bg-gray-700 hover:bg-gray-600 border border-gray-600 disabled:opacity-50"
+                    title="Delete"
+                  >
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
               </div>

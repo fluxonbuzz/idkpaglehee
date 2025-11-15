@@ -37,6 +37,7 @@ export default function BanAppealPage() {
     contact_method: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [animateSubmit, setAnimateSubmit] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [errors, setErrors] = useState<Partial<AppealForm>>({});
@@ -149,6 +150,7 @@ export default function BanAppealPage() {
     if (!validateForm()) return;
 
     setIsSubmitting(true);
+    setAnimateSubmit(true);
 
     try {
       const res = await fetch('/api/appeals', {
@@ -167,6 +169,7 @@ export default function BanAppealPage() {
       window.alert(err?.message || 'Something went wrong submitting your appeal. Please try again.');
     } finally {
       setIsSubmitting(false);
+      setTimeout(() => setAnimateSubmit(false), 400);
     }
   };
 
@@ -496,7 +499,7 @@ export default function BanAppealPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-3 px-8 rounded-2xl transition-all duration-300 transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className={`bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-3 px-8 rounded-2xl transition-all duration-300 transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 ${animateSubmit ? 'submit-3d' : ''}`}
               >
                 {isSubmitting ? (
                   <>
@@ -556,6 +559,13 @@ export default function BanAppealPage() {
         }
         .animate-fadeIn {
           animation: fadeIn 0.5s ease-out;
+        }
+        .submit-3d {
+          transform: perspective(600px) translateZ(0) rotateX(8deg) scale(0.98);
+          box-shadow: 0 12px 24px rgba(16, 185, 129, 0.35);
+        }
+        .submit-3d:active {
+          transform: perspective(600px) translateZ(0) rotateX(12deg) scale(0.96);
         }
       `}</style>
     </div>
