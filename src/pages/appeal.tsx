@@ -42,6 +42,23 @@ export default function BanAppealPage() {
   const [errors, setErrors] = useState<Partial<AppealForm>>({});
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
+  // Check if current step is valid
+  const isStepValid = (step: number): boolean => {
+    switch (step) {
+      case 1:
+        return form.username.trim() !== '' && 
+               form.email.trim() !== '' && 
+               /^\S+@\S+\.\S+$/.test(form.email);
+      case 2:
+        return form.reason.trim() !== '' && 
+               form.explanation.trim().length >= 50;
+      case 3:
+        return form.contact_method.trim() !== '';
+      default:
+        return false;
+    }
+  };
+
   // 3D Background Animation
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -154,6 +171,9 @@ export default function BanAppealPage() {
     setAnimateSubmit(true);
 
     try {
+      // Add 3D check animation
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
       const res = await fetch('/api/appeals', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -167,6 +187,7 @@ export default function BanAppealPage() {
 
       setIsSubmitted(true);
     } catch (err: any) {
+      console.error('Submission error:', err);
       window.alert(err?.message || 'Something went wrong submitting your appeal. Please try again.');
     } finally {
       setIsSubmitting(false);
@@ -179,6 +200,31 @@ export default function BanAppealPage() {
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: undefined }));
     }
+  };
+
+  const handleStepContinue = () => {
+    // Validate current step before proceeding
+    if (!isStepValid(currentStep)) {
+      // Show errors for current step
+      const newErrors: Partial<AppealForm> = {};
+      
+      if (currentStep === 1) {
+        if (!form.username.trim()) newErrors.username = 'Username is required';
+        if (!form.email.trim()) newErrors.email = 'Email is required';
+        else if (!/^\S+@\S+\.\S+$/.test(form.email)) newErrors.email = 'Invalid email format';
+      } else if (currentStep === 2) {
+        if (!form.reason.trim()) newErrors.reason = 'Please select a reason';
+        if (!form.explanation.trim()) newErrors.explanation = 'Please explain your situation';
+        else if (form.explanation.trim().length < 50) newErrors.explanation = 'Explanation is too short (minimum 50 characters)';
+      } else if (currentStep === 3) {
+        if (!form.contact_method.trim()) newErrors.contact_method = 'Contact method is required';
+      }
+      
+      setErrors(newErrors);
+      return;
+    }
+    
+    setCurrentStep(prev => Math.min(3, prev + 1));
   };
 
   const PlatformIcon = ({ platform }: { platform: string }) => {
@@ -499,21 +545,33 @@ export default function BanAppealPage() {
             {currentStep < 3 ? (
               <button
                 type="button"
-                onClick={() => setCurrentStep(prev => Math.min(3, prev + 1))}
-                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-3 px-8 rounded-2xl transition-all duration-300 transform hover:scale-105 active:scale-95"
+                onClick={handleStepContinue}
+                disabled={!isStepValid(currentStep)}
+                className={`bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold py-3 px-8 rounded-2xl transition-all duration-300 transform active:scale-95 flex items-center gap-2 ${
+                  isStepValid(currentStep)
+                    ? 'hover:from-purple-700 hover:to-blue-700 hover:scale-105'
+                    : 'opacity-50 cursor-not-allowed'
+                }`}
               >
                 Continue
+                {isStepValid(currentStep) && <CheckCircle2 className="w-4 h-4" />}
               </button>
             ) : (
               <button
                 type="submit"
-                disabled={isSubmitting}
-                className={`bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-3 px-8 rounded-2xl transition-all duration-300 transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 ${animateSubmit ? 'submit-3d' : ''}`}
+                disabled={isSubmitting || !isStepValid(3)}
+                className={`bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold py-3 px-8 rounded-2xl transition-all duration-300 transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 ${
+                  isStepValid(3) && !isSubmitting
+                    ? 'hover:from-green-700 hover:to-emerald-700 hover:scale-105'
+                    : ''
+                } ${animateSubmit ? 'submit-3d' : ''}`}
               >
                 {isSubmitting ? (
                   <>
-                    <RotateCw className="w-5 h-5 animate-spin" />
-                    Submitting...
+                    <div className="submit-3d-check">
+                      <Shield className="w-5 h-5 animate-spin" />
+                    </div>
+                    Security Check...
                   </>
                 ) : (
                   <>
@@ -559,6 +617,13 @@ export default function BanAppealPage() {
           from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
         }
+        @keyframes securityCheck {
+          0% { transform: rotate(0deg) scale(1); }
+          25% { transform: rotate(90deg) scale(1.1); }
+          50% { transform: rotate(180deg) scale(1.2); }
+          75% { transform: rotate(270deg) scale(1.1); }
+          100% { transform: rotate(360deg) scale(1); }
+        }
         .animate-float {
           animation: float 6s ease-in-out infinite;
         }
@@ -566,11 +631,14 @@ export default function BanAppealPage() {
           animation: fadeIn 0.5s ease-out;
         }
         .submit-3d {
-          transform: perspective(600px) translateZ(0) rotateX(8deg) scale(0.98);
-          box-shadow: 0 12px 24px rgba(16, 185, 129, 0.35);
+          transform: perspective(600px) translateZ(20px) rotateX(8deg) scale(0.98);
+          box-shadow: 
+            0 20px 40px rgba(16, 185, 129, 0.4),
+            0 0 0 1px rgba(16, 185, 129, 0.1),
+            inset 0 2px 0 rgba(255, 255, 255, 0.2);
         }
-        .submit-3d:active {
-          transform: perspective(600px) translateZ(0) rotateX(12deg) scale(0.96);
+        .submit-3d-check {
+          animation: securityCheck 2s ease-in-out infinite;
         }
       `}</style>
     </div>
