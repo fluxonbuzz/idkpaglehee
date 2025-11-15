@@ -10,7 +10,6 @@ import {
   Clock,
   CheckCircle2,
   AlertCircle,
-  Twitter,
   MessageSquare,
   ExternalLink,
   RotateCw,
@@ -138,6 +137,8 @@ export default function BanAppealPage() {
     else if (!/^\S+@\S+\.\S+$/.test(form.email)) newErrors.email = 'Invalid email format';
     if (!form.reason.trim()) newErrors.reason = 'Please select a reason';
     if (!form.explanation.trim()) newErrors.explanation = 'Please explain your situation';
+    else if (form.explanation.trim().length < 50) newErrors.explanation = 'Explanation is too short (minimum 50 characters)';
+    else if (form.explanation.trim().length > 5000) newErrors.explanation = 'Explanation is too long (maximum 5000 characters)';
     if (!form.contact_method.trim()) newErrors.contact_method = 'Contact method is required';
 
     setErrors(newErrors);
@@ -417,13 +418,16 @@ export default function BanAppealPage() {
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
                   <FileText className="w-4 h-4" />
                   Your Explanation *
+                  <span className="text-xs text-gray-400 ml-auto">
+                    {form.explanation.length}/5000
+                  </span>
                 </label>
                 <textarea
                   value={form.explanation}
                   onChange={(e) => handleInputChange('explanation', e.target.value)}
                   rows={5}
                   className="w-full bg-gray-700/50 border border-gray-600/50 rounded-2xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent backdrop-blur-sm transition-all duration-300 resize-none"
-                  placeholder="Please explain your situation, why you should be unbanned, and what you'll do differently..."
+                  placeholder="Please provide a detailed explanation of your situation, why you believe the ban was unfair or mistaken, what you've learned, and how you'll follow community guidelines in the future. Minimum 50 characters."
                 />
                 {errors.explanation && (
                   <p className="text-red-400 text-sm mt-1 flex items-center gap-1">
@@ -431,6 +435,10 @@ export default function BanAppealPage() {
                     {errors.explanation}
                   </p>
                 )}
+                <div className="flex justify-between text-xs text-gray-400 mt-1">
+                  <span>Minimum 50 characters required</span>
+                  <span>Detailed explanations are more likely to be approved</span>
+                </div>
               </div>
             </div>
           )}
@@ -468,6 +476,7 @@ export default function BanAppealPage() {
                   <li>• Be honest and detailed in your explanation</li>
                   <li>• Ensure your contact information is correct</li>
                   <li>• Multiple appeals for the same case may be ignored</li>
+                  <li>• Short or spam-like explanations will be rejected</li>
                 </ul>
               </div>
             </div>
@@ -523,10 +532,6 @@ export default function BanAppealPage() {
             <div className="flex items-center gap-4">
               <span>Need help?</span>
               <div className="flex gap-3">
-                <a href="#" className="flex items-center gap-1 hover:text-blue-400 transition-colors">
-                  <Twitter className="w-4 h-4" />
-                  Twitter
-                </a>
                 <a href="#" className="flex items-center gap-1 hover:text-purple-400 transition-colors">
                   <MessageCircle className="w-4 h-4" />
                   Discord
