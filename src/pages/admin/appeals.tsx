@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
-import { Shield, AlertCircle, CheckCircle2, Clock, Filter, Search, RefreshCw, Trash2 } from 'lucide-react'
+import { Shield, AlertCircle, CheckCircle2, Clock, Filter, Search, RefreshCw, Trash2, X, Eye } from 'lucide-react'
 
 interface Appeal {
   id: string
@@ -22,6 +22,7 @@ export default function AdminAppealsPage() {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<'all' | Appeal['status']>('all')
   const [updatingId, setUpdatingId] = useState<string | null>(null)
+  const [selectedAppeal, setSelectedAppeal] = useState<Appeal | null>(null)
 
   const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null
 
@@ -181,7 +182,18 @@ export default function AdminAppealsPage() {
                 <div className="col-span-2 text-gray-300">{a.email}</div>
                 <div className="col-span-1 capitalize">{a.platform}</div>
                 <div className="col-span-2">{a.reason}</div>
-                <div className="col-span-3 text-gray-300 line-clamp-2">{a.explanation}</div>
+                <div className="col-span-3 text-gray-300">
+                  <div className="flex items-start gap-2">
+                    <span className="line-clamp-2 flex-1">{a.explanation}</span>
+                    <button
+                      onClick={() => setSelectedAppeal(a)}
+                      className="flex-shrink-0 p-1 hover:bg-gray-800 rounded-lg transition-colors"
+                      title="View full explanation"
+                    >
+                      <Eye className="w-4 h-4 text-gray-400 hover:text-gray-300" />
+                    </button>
+                  </div>
+                </div>
                 <div className="col-span-1">
                   <span className={`px-2 py-1 rounded-lg text-xs capitalize ${a.status === 'pending' ? 'bg-yellow-500/10 text-yellow-300 border border-yellow-500/30' : a.status === 'approved' ? 'bg-green-500/10 text-green-300 border border-green-500/30' : 'bg-red-500/10 text-red-300 border border-red-500/30'}`}>
                     {a.status}
@@ -222,6 +234,110 @@ export default function AdminAppealsPage() {
           <Clock className="w-4 h-4" /> Appeals are sorted by newest first
         </div>
       </div>
+
+      {/* Explanation Viewer Modal */}
+      {selectedAppeal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-gray-900 border border-gray-800 rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b border-gray-800">
+              <div>
+                <h2 className="text-xl font-bold">Appeal Explanation</h2>
+                <p className="text-gray-400 text-sm mt-1">
+                  From {selectedAppeal.username} ({selectedAppeal.email})
+                </p>
+              </div>
+              <button
+                onClick={() => setSelectedAppeal(null)}
+                className="p-2 hover:bg-gray-800 rounded-xl transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto max-h-[60vh]">
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-sm font-medium text-gray-400 mb-2">Platform</h3>
+                  <p className="capitalize bg-gray-800/50 border border-gray-700 rounded-xl px-3 py-2">
+                    {selectedAppeal.platform}
+                  </p>
+                </div>
+                
+                <div>
+                  <h3 className="text-sm font-medium text-gray-400 mb-2">Ban Reason</h3>
+                  <p className="bg-gray-800/50 border border-gray-700 rounded-xl px-3 py-2">
+                    {selectedAppeal.reason}
+                  </p>
+                </div>
+                
+                <div>
+                  <h3 className="text-sm font-medium text-gray-400 mb-2">Contact Method</h3>
+                  <p className="bg-gray-800/50 border border-gray-700 rounded-xl px-3 py-2">
+                    {selectedAppeal.contact_method}
+                  </p>
+                </div>
+                
+                <div>
+                  <h3 className="text-sm font-medium text-gray-400 mb-2">Full Explanation</h3>
+                  <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-4 whitespace-pre-wrap">
+                    {selectedAppeal.explanation}
+                  </div>
+                </div>
+                
+                {selectedAppeal.created_at && (
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-400 mb-2">Submitted On</h3>
+                    <p className="bg-gray-800/50 border border-gray-700 rounded-xl px-3 py-2">
+                      {new Date(selectedAppeal.created_at).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            <div className="flex items-center justify-between p-6 border-t border-gray-800">
+              <span className={`px-3 py-1 rounded-lg text-sm capitalize ${
+                selectedAppeal.status === 'pending' 
+                  ? 'bg-yellow-500/10 text-yellow-300 border border-yellow-500/30' 
+                  : selectedAppeal.status === 'approved' 
+                  ? 'bg-green-500/10 text-green-300 border border-green-500/30' 
+                  : 'bg-red-500/10 text-red-300 border border-red-500/30'
+              }`}>
+                Status: {selectedAppeal.status}
+              </span>
+              
+              <div className="flex items-center gap-2">
+                <button
+                  disabled={updatingId === selectedAppeal.id || selectedAppeal.status === 'approved'}
+                  onClick={() => {
+                    updateStatus(selectedAppeal.id, 'approved')
+                    setSelectedAppeal(null)
+                  }}
+                  className="px-4 py-2 rounded-xl bg-green-600/20 hover:bg-green-600/30 border border-green-600/30 disabled:opacity-50 transition-colors"
+                >
+                  Approve
+                </button>
+                <button
+                  disabled={updatingId === selectedAppeal.id || selectedAppeal.status === 'rejected'}
+                  onClick={() => {
+                    updateStatus(selectedAppeal.id, 'rejected')
+                    setSelectedAppeal(null)
+                  }}
+                  className="px-4 py-2 rounded-xl bg-red-600/20 hover:bg-red-600/30 border border-red-600/30 disabled:opacity-50 transition-colors"
+                >
+                  Reject
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
