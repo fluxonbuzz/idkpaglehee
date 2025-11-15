@@ -193,7 +193,7 @@ export default function BanAppealPage() {
   if (isSubmitted) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-blue-900 flex items-center justify-center p-4 relative overflow-hidden">
-        <canvas ref={canvasRef} className="absolute inset-0" />
+        <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none" />
         
         <div className="relative z-10 bg-gray-800/80 backdrop-blur-xl rounded-3xl border border-purple-500/30 p-8 max-w-md w-full text-center shadow-2xl">
           <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
@@ -251,7 +251,7 @@ export default function BanAppealPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-blue-900 flex items-center justify-center p-4 relative overflow-hidden">
       {/* Animated Background */}
-      <canvas ref={canvasRef} className="absolute inset-0" />
+      <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none" />
       
       {/* Floating Icons */}
       <div className="absolute top-10 left-10 animate-float">
