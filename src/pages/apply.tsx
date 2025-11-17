@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import { getBrowserSupabase } from '../lib/supabase';
 
 const socialLinks = [
   {
@@ -96,6 +97,9 @@ export default function ApplyPage() {
     motivation: '',
     availability: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({
@@ -112,14 +116,103 @@ export default function ApplyPage() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    alert('Application submitted successfully! We will review your application and get back to you soon.');
+    if (isSubmitting) return;
+
+    setSubmitError(null);
+    setIsSubmitting(true);
+
+    try {
+      const supabase = getBrowserSupabase();
+
+      const { error } = await supabase
+        .from('guardian_applications')
+        .insert({
+          name: formData.name,
+          email: formData.email,
+          contact: formData.discord,
+          experience: formData.experience,
+          motivation: formData.motivation,
+          availability: formData.availability,
+          platform: activeTab,
+          created_at: new Date().toISOString(),
+        });
+
+      if (error) {
+        console.error('Supabase insert error:', error);
+        throw error;
+      }
+
+      setIsSuccess(true);
+      setFormData({
+        name: '',
+        email: '',
+        discord: '',
+        experience: '',
+        motivation: '',
+        availability: '',
+      });
+    } catch (err) {
+      console.error('Application submit failed:', err);
+      setSubmitError('Something went wrong while submitting your application. Please try again in a moment.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100 overflow-x-hidden">
+      {/* Success Overlay */}
+      <AnimatePresence>
+        {isSuccess && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xl"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              initial={{ scale: 0.7, rotateX: -30, opacity: 0 }}
+              animate={{ scale: 1, rotateX: 0, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 120, damping: 14 }}
+              className="relative w-full max-w-md px-8 py-10 rounded-3xl bg-gradient-to-br from-cyan-500/20 via-purple-600/20 to-gray-900 border border-cyan-400/40 shadow-[0_40px_120px_rgba(34,211,238,0.45)] transform perspective-[1200px]"
+            >
+              <div className="absolute -top-32 -left-16 w-56 h-56 bg-cyan-500/20 rounded-full blur-3xl" />
+              <div className="absolute -bottom-32 -right-10 w-64 h-64 bg-purple-500/25 rounded-full blur-3xl" />
+
+              <div className="relative z-10 flex flex-col items-center text-center gap-4">
+                <motion.div
+                  initial={{ scale: 0.8, rotate: -8 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ type: 'spring', stiffness: 200, damping: 16, delay: 0.05 }}
+                  className="w-24 h-24 rounded-3xl bg-gray-950/80 border border-cyan-400/80 shadow-[0_20px_60px_rgba(56,189,248,0.65)] flex items-center justify-center"
+                >
+                  <CheckCircle className="w-14 h-14 text-cyan-400 drop-shadow-[0_0_20px_rgba(34,211,238,0.9)]" />
+                </motion.div>
+
+                <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-cyan-200 via-white to-purple-200 bg-clip-text text-transparent">
+                  Application Received
+                </h2>
+                <p className="text-sm md:text-base text-gray-300/90 max-w-sm">
+                  Your guardianship application has been saved securely. Our team will review your details and get back to you soon.
+                </p>
+
+                <motion.button
+                  whileHover={{ scale: 1.05, translateY: -1 }}
+                  whileTap={{ scale: 0.96, translateY: 0 }}
+                  onClick={() => setIsSuccess(false)}
+                  className="mt-4 px-8 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-semibold text-sm md:text-base shadow-[0_14px_40px_rgba(59,130,246,0.65)] border border-cyan-300/70"
+                >
+                  Close
+                </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Animated Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-900 via-gray-950 to-black"></div>
@@ -540,13 +633,21 @@ export default function ApplyPage() {
                   </div>
 
                   {/* Submit Button */}
-                  <div className="flex justify-center pt-6">
+                  <div className="flex flex-col items-center pt-6 gap-3">
+                    {submitError && (
+                      <p className="text-sm text-red-400 text-center max-w-md">
+                        {submitError}
+                      </p>
+                    )}
                     <button
                       type="submit"
-                      className="group px-8 py-4 bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-bold rounded-xl border-2 border-cyan-400 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-2xl hover:shadow-cyan-500/25 flex items-center gap-3"
+                      disabled={isSubmitting}
+                      className="group px-8 py-4 bg-gradient-to-r from-cyan-500 to-purple-600 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white font-bold rounded-xl border-2 border-cyan-400 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-2xl hover:shadow-cyan-500/25 flex items-center gap-3"
                     >
                       <Send className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                      Submit {activeTab === 'discord' ? 'Discord' : 'Telegram'} Application
+                      {isSubmitting
+                        ? 'Submitting...'
+                        : `Submit ${activeTab === 'discord' ? 'Discord' : 'Telegram'} Application`}
                     </button>
                   </div>
                 </form>
