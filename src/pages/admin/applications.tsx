@@ -68,6 +68,50 @@ export default function AdminApplicationsPage() {
     return matchesSearch && matchesPlatform
   })
 
+  useEffect(() => {
+    if (!isAuthed) return
+    if (typeof window === 'undefined') return
+    if (typeof Notification === 'undefined') return
+
+    const supabase = getBrowserSupabase()
+
+    const channel = supabase
+      .channel('guardian-applications-realtime')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'guardian_applications',
+      }, payload => {
+        const app: any = payload.new
+
+        const showNotification = () => {
+          try {
+            new Notification('New Guardian Application', {
+              body: `${app?.name || 'Unknown'} • ${app?.platform || ''}`.trim(),
+              icon: '/icon-512x512.png',
+            })
+          } catch {
+            // ignore notification failures
+          }
+        }
+
+        if (Notification.permission === 'granted') {
+          showNotification()
+        } else if (Notification.permission === 'default') {
+          Notification.requestPermission().then(result => {
+            if (result === 'granted') {
+              showNotification()
+            }
+          }).catch(() => {})
+        }
+      })
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [isAuthed])
+
   return (
     <div className="min-h-screen bg-gray-950 text-white p-6">
       <div className="max-w-6xl mx-auto">
