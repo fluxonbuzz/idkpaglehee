@@ -1,11 +1,17 @@
 'use client';
 
-import { LockKeyhole, Clock, ScrollText, ShieldCheck, UserCog, AlertTriangle, CheckCircle, ArrowRight, X, Menu, Send, User, Mail, MessageSquare, Calendar } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { 
+  LockKeyhole, Clock, ScrollText, ShieldCheck, UserCog, AlertTriangle, 
+  CheckCircle, ArrowRight, X, Menu, Send, User, Mail, MessageSquare, 
+  Calendar, MessageCircle, Shield, FileText, CheckCircle2, AlertCircle,
+  ExternalLink, RotateCw, Sparkles, Bot, Zap, Users, Star, Crown
+} from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
 
 export default function ApplyPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('discord');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -14,6 +20,94 @@ export default function ApplyPage() {
     motivation: '',
     availability: ''
   });
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  // 3D Background Animation
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const particles: Array<{
+      x: number;
+      y: number;
+      size: number;
+      speedX: number;
+      speedY: number;
+      color: string;
+      opacity: number;
+    }> = [];
+
+    // Create particles
+    for (let i = 0; i < 80; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: Math.random() * 3 + 1,
+        speedX: (Math.random() - 0.5) * 0.5,
+        speedY: (Math.random() - 0.5) * 0.5,
+        color: `hsl(${Math.random() * 60 + 200}, 70%, 60%)`,
+        opacity: Math.random() * 0.3 + 0.1
+      });
+    }
+
+    const animate = () => {
+      ctx.fillStyle = 'rgba(10, 10, 20, 0.05)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      particles.forEach((particle, index) => {
+        particle.x += particle.speedX;
+        particle.y += particle.speedY;
+
+        // Wrap around edges
+        if (particle.x > canvas.width) particle.x = 0;
+        if (particle.x < 0) particle.x = canvas.width;
+        if (particle.y > canvas.height) particle.y = 0;
+        if (particle.y < 0) particle.y = canvas.height;
+
+        // Draw particle
+        ctx.beginPath();
+        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+        ctx.fillStyle = particle.color;
+        ctx.globalAlpha = particle.opacity;
+        ctx.fill();
+
+        // Draw connections
+        particles.slice(index + 1).forEach(otherParticle => {
+          const dx = particle.x - otherParticle.x;
+          const dy = particle.y - otherParticle.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+
+          if (distance < 100) {
+            ctx.beginPath();
+            ctx.strokeStyle = particle.color;
+            ctx.globalAlpha = (100 - distance) / 100 * 0.2;
+            ctx.lineWidth = 0.5;
+            ctx.moveTo(particle.x, particle.y);
+            ctx.lineTo(otherParticle.x, otherParticle.y);
+            ctx.stroke();
+          }
+        });
+      });
+
+      requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    const handleResize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -25,15 +119,31 @@ export default function ApplyPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission here
     console.log('Form submitted:', formData);
     alert('Application submitted successfully! We will review your application and get back to you soon.');
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-blue-900 text-white relative overflow-hidden">
+      {/* Animated Background */}
+      <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none" />
+      
+      {/* Floating Icons */}
+      <div className="absolute top-10 left-10 animate-float">
+        <Shield className="w-8 h-8 text-purple-400/30" />
+      </div>
+      <div className="absolute top-20 right-20 animate-float" style={{ animationDelay: '1s' }}>
+        <MessageCircle className="w-6 h-6 text-blue-400/30" />
+      </div>
+      <div className="absolute bottom-20 left-20 animate-float" style={{ animationDelay: '2s' }}>
+        <User className="w-7 h-7 text-green-400/30" />
+      </div>
+      <div className="absolute bottom-10 right-10 animate-float" style={{ animationDelay: '1.5s' }}>
+        <Crown className="w-8 h-8 text-pink-400/30" />
+      </div>
+
       {/* Header */}
-      <header className="bg-gray-900 border-b border-gray-800">
+      <header className="bg-gray-900/80 backdrop-blur-xl border-b border-purple-500/30 relative z-10">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-300">
             SHIVA X MODS
@@ -71,8 +181,8 @@ export default function ApplyPage() {
       </header>
 
       {/* Mobile Sidebar */}
-      <div className={`fixed inset-y-0 right-0 z-50 w-64 bg-gray-900 shadow-lg transform ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'} transition-transform duration-300 ease-in-out`}>
-        <div className="flex items-center justify-between p-4 border-b border-gray-800">
+      <div className={`fixed inset-y-0 right-0 z-50 w-64 bg-gray-900/95 backdrop-blur-xl shadow-lg transform ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'} transition-transform duration-300 ease-in-out`}>
+        <div className="flex items-center justify-between p-4 border-b border-purple-500/30">
           <h2 className="text-xl font-bold">Menu</h2>
           <button 
             className="p-1 rounded-md text-gray-400 hover:text-white focus:outline-none transition-all duration-300 transform hover:scale-110 active:scale-95 shadow-lg hover:shadow-red-500/25"
@@ -90,7 +200,7 @@ export default function ApplyPage() {
             <li>
               <Link 
                 href="/" 
-                className="block hover:text-purple-300 transition-all duration-300 p-2 rounded hover:bg-gray-800 transform hover:translate-x-2"
+                className="block hover:text-purple-300 transition-all duration-300 p-2 rounded hover:bg-purple-500/10 transform hover:translate-x-2"
                 onClick={() => setSidebarOpen(false)}
               >
                 Home
@@ -99,7 +209,7 @@ export default function ApplyPage() {
             <li>
               <Link 
                 href="/testimonials" 
-                className="block hover:text-purple-300 transition-all duration-300 p-2 rounded hover:bg-gray-800 transform hover:translate-x-2 flex items-center"
+                className="block hover:text-purple-300 transition-all duration-300 p-2 rounded hover:bg-purple-500/10 transform hover:translate-x-2 flex items-center"
                 onClick={() => setSidebarOpen(false)}
               >
                 Testimonials <ArrowRight className="ml-1 h-4 w-4" />
@@ -108,7 +218,7 @@ export default function ApplyPage() {
             <li>
               <Link 
                 href="/contact" 
-                className="block hover:text-purple-300 transition-all duration-300 p-2 rounded hover:bg-gray-800 transform hover:translate-x-2"
+                className="block hover:text-purple-300 transition-all duration-300 p-2 rounded hover:bg-purple-500/10 transform hover:translate-x-2"
                 onClick={() => setSidebarOpen(false)}
               >
                 Contact
@@ -116,7 +226,7 @@ export default function ApplyPage() {
             </li>
             <li>
               <div 
-                className="block bg-gradient-to-r from-green-500 to-emerald-600 text-white p-3 rounded-lg border-2 border-emerald-400 cursor-pointer shadow-lg hover:shadow-emerald-500/25 transition-all duration-300 transform hover:scale-105 active:scale-95 text-center font-bold"
+                className="block bg-gradient-to-r from-green-500 to-emerald-600 text-white p-3 rounded-2xl border-2 border-emerald-400 cursor-pointer shadow-2xl hover:shadow-emerald-500/25 transition-all duration-300 transform hover:scale-105 active:scale-95 text-center font-bold"
                 style={{
                   transformStyle: 'preserve-3d',
                   perspective: '1000px',
@@ -133,38 +243,147 @@ export default function ApplyPage() {
       {/* Overlay for sidebar */}
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 z-40 bg-black bg-opacity-50"
+          className="fixed inset-0 z-40 bg-black bg-opacity-50 backdrop-blur-sm"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      <div className="container mx-auto px-4 py-16">
+      <div className="container mx-auto px-4 py-16 relative z-10">
         <div className="text-center mb-16">
           <div className="flex justify-center mb-6">
             <div className="relative">
               <div className="absolute -inset-4 bg-green-600 rounded-full blur opacity-75 animate-pulse"></div>
-              <div className="relative bg-gray-800 p-4 rounded-full border-2 border-green-500 shadow-2xl"
+              <div className="relative bg-gray-800/80 backdrop-blur-xl p-6 rounded-full border-2 border-green-500 shadow-2xl"
                 style={{
                   transformStyle: 'preserve-3d',
                   transform: 'translateZ(20px)',
                   boxShadow: '0 20px 40px -10px rgba(16, 185, 129, 0.4)'
                 }}
               >
-                <LockKeyhole className="h-12 w-12 text-green-400" />
+                <ShieldCheck className="h-16 w-16 text-green-400" />
               </div>
             </div>
           </div>
           <h1 className="text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-emerald-300">
-            Applications Open!
+            Guardianship Program
           </h1>
-          <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-            We are now accepting applications for the Guardianship program. Apply now to join our elite team!
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+            Join our elite team of moderators and help protect our communities on Discord and Telegram
           </p>
         </div>
 
-        {/* Application Form */}
+        {/* Platform Selection */}
         <div className="max-w-4xl mx-auto mb-16">
-          <div className="bg-gray-800/50 border-2 border-green-500/50 rounded-2xl p-8 shadow-2xl"
+          <div className="bg-gray-800/50 backdrop-blur-xl rounded-3xl border-2 border-purple-500/30 p-2 mb-8">
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => setActiveTab('discord')}
+                className={`p-4 rounded-2xl transition-all duration-300 transform ${
+                  activeTab === 'discord'
+                    ? 'bg-gradient-to-r from-purple-600 to-blue-600 scale-105 shadow-2xl'
+                    : 'bg-gray-700/50 hover:bg-gray-600/50 hover:scale-102'
+                }`}
+                style={{
+                  transformStyle: 'preserve-3d',
+                  perspective: '1000px'
+                }}
+              >
+                <div className="flex items-center justify-center gap-3">
+                  <MessageCircle className={`w-6 h-6 ${
+                    activeTab === 'discord' ? 'text-white' : 'text-purple-400'
+                  }`} />
+                  <span className={`font-bold ${
+                    activeTab === 'discord' ? 'text-white' : 'text-gray-300'
+                  }`}>
+                    Discord Guardians
+                  </span>
+                </div>
+              </button>
+              <button
+                onClick={() => setActiveTab('telegram')}
+                className={`p-4 rounded-2xl transition-all duration-300 transform ${
+                  activeTab === 'telegram'
+                    ? 'bg-gradient-to-r from-blue-500 to-cyan-500 scale-105 shadow-2xl'
+                    : 'bg-gray-700/50 hover:bg-gray-600/50 hover:scale-102'
+                }`}
+                style={{
+                  transformStyle: 'preserve-3d',
+                  perspective: '1000px'
+                }}
+              >
+                <div className="flex items-center justify-center gap-3">
+                  <Send className={`w-6 h-6 ${
+                    activeTab === 'telegram' ? 'text-white' : 'text-blue-400'
+                  }`} />
+                  <span className={`font-bold ${
+                    activeTab === 'telegram' ? 'text-white' : 'text-gray-300'
+                  }`}>
+                    Telegram Guardians
+                  </span>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          {/* Platform-specific Content */}
+          {activeTab === 'discord' && (
+            <div className="animate-fadeIn">
+              <div className="bg-gradient-to-r from-purple-600/20 to-blue-600/20 rounded-3xl p-8 mb-8 border border-purple-500/30">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="p-3 bg-purple-600 rounded-2xl">
+                    <MessageCircle className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-bold text-white">Discord Guardians</h2>
+                    <p className="text-purple-200">Moderate our vibrant Discord community</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {[
+                    { icon: Users, text: '10K+ Members', color: 'text-green-400' },
+                    { icon: Zap, text: 'Active Community', color: 'text-yellow-400' },
+                    { icon: Star, text: 'Elite Team', color: 'text-purple-400' }
+                  ].map((item, index) => (
+                    <div key={index} className="bg-gray-800/50 rounded-2xl p-4 text-center border border-gray-700/50">
+                      <item.icon className={`w-8 h-8 mx-auto mb-2 ${item.color}`} />
+                      <p className="text-sm text-gray-300">{item.text}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'telegram' && (
+            <div className="animate-fadeIn">
+              <div className="bg-gradient-to-r from-blue-600/20 to-cyan-600/20 rounded-3xl p-8 mb-8 border border-blue-500/30">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="p-3 bg-blue-600 rounded-2xl">
+                    <Send className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-bold text-white">Telegram Guardians</h2>
+                    <p className="text-blue-200">Protect our Telegram networks</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {[
+                    { icon: Bot, text: 'Bot Management', color: 'text-blue-400' },
+                    { icon: Users, text: 'Multiple Groups', color: 'text-cyan-400' },
+                    { icon: Shield, text: 'Security Focus', color: 'text-green-400' }
+                  ].map((item, index) => (
+                    <div key={index} className="bg-gray-800/50 rounded-2xl p-4 text-center border border-gray-700/50">
+                      <item.icon className={`w-8 h-8 mx-auto mb-2 ${item.color}`} />
+                      <p className="text-sm text-gray-300">{item.text}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Application Form */}
+          <div className="bg-gray-800/80 backdrop-blur-xl rounded-3xl border-2 border-green-500/50 p-8 shadow-2xl"
             style={{
               transformStyle: 'preserve-3d',
               transform: 'translateZ(10px)',
@@ -172,7 +391,7 @@ export default function ApplyPage() {
             }}
           >
             <div className="flex items-center gap-3 mb-8">
-              <div className="p-3 bg-green-900/30 rounded-xl border border-green-500 shadow-lg"
+              <div className="p-3 bg-green-900/30 rounded-2xl border border-green-500 shadow-lg"
                 style={{
                   transformStyle: 'preserve-3d',
                   transform: 'translateZ(15px)'
@@ -180,7 +399,9 @@ export default function ApplyPage() {
               >
                 <User className="h-8 w-8 text-green-400" />
               </div>
-              <h2 className="text-3xl font-bold">Guardian Application Form</h2>
+              <h2 className="text-3xl font-bold">
+                {activeTab === 'discord' ? 'Discord' : 'Telegram'} Guardian Application
+              </h2>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -189,7 +410,7 @@ export default function ApplyPage() {
                 <div className="space-y-2">
                   <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
                     <User className="h-4 w-4" />
-                    Full Name
+                    Full Name *
                   </label>
                   <input
                     type="text"
@@ -197,7 +418,7 @@ export default function ApplyPage() {
                     value={formData.name}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-4 py-3 bg-gray-700/50 border-2 border-gray-600 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none transition-all duration-300 shadow-lg hover:shadow-xl hover:border-gray-500"
+                    className="w-full px-4 py-3 bg-gray-700/50 border-2 border-gray-600 rounded-2xl focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none transition-all duration-300 shadow-lg hover:shadow-xl hover:border-gray-500 backdrop-blur-sm"
                     style={{
                       transformStyle: 'preserve-3d',
                       transform: 'translateZ(5px)'
@@ -210,7 +431,7 @@ export default function ApplyPage() {
                 <div className="space-y-2">
                   <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
                     <Mail className="h-4 w-4" />
-                    Email Address
+                    Email Address *
                   </label>
                   <input
                     type="email"
@@ -218,7 +439,7 @@ export default function ApplyPage() {
                     value={formData.email}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-4 py-3 bg-gray-700/50 border-2 border-gray-600 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none transition-all duration-300 shadow-lg hover:shadow-xl hover:border-gray-500"
+                    className="w-full px-4 py-3 bg-gray-700/50 border-2 border-gray-600 rounded-2xl focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none transition-all duration-300 shadow-lg hover:shadow-xl hover:border-gray-500 backdrop-blur-sm"
                     style={{
                       transformStyle: 'preserve-3d',
                       transform: 'translateZ(5px)'
@@ -227,11 +448,11 @@ export default function ApplyPage() {
                   />
                 </div>
 
-                {/* Discord */}
+                {/* Discord/Telegram */}
                 <div className="space-y-2">
                   <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
-                    <MessageSquare className="h-4 w-4" />
-                    Discord Username
+                    {activeTab === 'discord' ? <MessageCircle className="h-4 w-4" /> : <Send className="h-4 w-4" />}
+                    {activeTab === 'discord' ? 'Discord Username *' : 'Telegram Username *'}
                   </label>
                   <input
                     type="text"
@@ -239,12 +460,12 @@ export default function ApplyPage() {
                     value={formData.discord}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-4 py-3 bg-gray-700/50 border-2 border-gray-600 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none transition-all duration-300 shadow-lg hover:shadow-xl hover:border-gray-500"
+                    className="w-full px-4 py-3 bg-gray-700/50 border-2 border-gray-600 rounded-2xl focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none transition-all duration-300 shadow-lg hover:shadow-xl hover:border-gray-500 backdrop-blur-sm"
                     style={{
                       transformStyle: 'preserve-3d',
                       transform: 'translateZ(5px)'
                     }}
-                    placeholder="YourDiscord#1234"
+                    placeholder={activeTab === 'discord' ? 'YourDiscord#1234' : '@yourtelegram'}
                   />
                 </div>
 
@@ -252,14 +473,14 @@ export default function ApplyPage() {
                 <div className="space-y-2">
                   <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
                     <Calendar className="h-4 w-4" />
-                    Weekly Availability
+                    Weekly Availability *
                   </label>
                   <select
                     name="availability"
                     value={formData.availability}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-4 py-3 bg-gray-700/50 border-2 border-gray-600 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none transition-all duration-300 shadow-lg hover:shadow-xl hover:border-gray-500"
+                    className="w-full px-4 py-3 bg-gray-700/50 border-2 border-gray-600 rounded-2xl focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none transition-all duration-300 shadow-lg hover:shadow-xl hover:border-gray-500 backdrop-blur-sm"
                     style={{
                       transformStyle: 'preserve-3d',
                       transform: 'translateZ(5px)'
@@ -278,7 +499,7 @@ export default function ApplyPage() {
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
                   <ShieldCheck className="h-4 w-4" />
-                  Previous Moderation Experience
+                  Previous Moderation Experience *
                 </label>
                 <textarea
                   name="experience"
@@ -286,12 +507,12 @@ export default function ApplyPage() {
                   onChange={handleInputChange}
                   required
                   rows={4}
-                  className="w-full px-4 py-3 bg-gray-700/50 border-2 border-gray-600 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none transition-all duration-300 shadow-lg hover:shadow-xl hover:border-gray-500 resize-none"
+                  className="w-full px-4 py-3 bg-gray-700/50 border-2 border-gray-600 rounded-2xl focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none transition-all duration-300 shadow-lg hover:shadow-xl hover:border-gray-500 resize-none backdrop-blur-sm"
                   style={{
                     transformStyle: 'preserve-3d',
                     transform: 'translateZ(5px)'
                   }}
-                  placeholder="Describe your previous moderation or community management experience..."
+                  placeholder={`Describe your previous ${activeTab} moderation or community management experience...`}
                 />
               </div>
 
@@ -299,7 +520,7 @@ export default function ApplyPage() {
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
                   <ScrollText className="h-4 w-4" />
-                  Why do you want to become a Guardian?
+                  Why do you want to become a {activeTab === 'discord' ? 'Discord' : 'Telegram'} Guardian? *
                 </label>
                 <textarea
                   name="motivation"
@@ -307,12 +528,12 @@ export default function ApplyPage() {
                   onChange={handleInputChange}
                   required
                   rows={4}
-                  className="w-full px-4 py-3 bg-gray-700/50 border-2 border-gray-600 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none transition-all duration-300 shadow-lg hover:shadow-xl hover:border-gray-500 resize-none"
+                  className="w-full px-4 py-3 bg-gray-700/50 border-2 border-gray-600 rounded-2xl focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none transition-all duration-300 shadow-lg hover:shadow-xl hover:border-gray-500 resize-none backdrop-blur-sm"
                   style={{
                     transformStyle: 'preserve-3d',
                     transform: 'translateZ(5px)'
                   }}
-                  placeholder="Tell us why you're interested in joining our Guardianship program..."
+                  placeholder={`Tell us why you're interested in joining our ${activeTab} Guardianship program...`}
                 />
               </div>
 
@@ -328,7 +549,7 @@ export default function ApplyPage() {
                   }}
                 >
                   <Send className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                  Submit Application
+                  Submit {activeTab === 'discord' ? 'Discord' : 'Telegram'} Application
                 </button>
               </div>
             </form>
@@ -338,7 +559,7 @@ export default function ApplyPage() {
         {/* Program Information */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
           {/* Requirements */}
-          <div className="bg-gray-800/50 border-2 border-blue-500/30 rounded-xl p-6 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-300 transform hover:-translate-y-1"
+          <div className="bg-gray-800/50 backdrop-blur-xl border-2 border-blue-500/30 rounded-2xl p-6 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-300 transform hover:-translate-y-1"
             style={{
               transformStyle: 'preserve-3d',
               transform: 'translateZ(10px)'
@@ -372,7 +593,7 @@ export default function ApplyPage() {
           </div>
 
           {/* Time Commitment */}
-          <div className="bg-gray-800/50 border-2 border-purple-500/30 rounded-xl p-6 hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-300 transform hover:-translate-y-1"
+          <div className="bg-gray-800/50 backdrop-blur-xl border-2 border-purple-500/30 rounded-2xl p-6 hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-300 transform hover:-translate-y-1"
             style={{
               transformStyle: 'preserve-3d',
               transform: 'translateZ(10px)'
@@ -402,7 +623,7 @@ export default function ApplyPage() {
           </div>
 
           {/* Expectations */}
-          <div className="bg-gray-800/50 border-2 border-pink-500/30 rounded-xl p-6 hover:shadow-2xl hover:shadow-pink-500/10 transition-all duration-300 transform hover:-translate-y-1"
+          <div className="bg-gray-800/50 backdrop-blur-xl border-2 border-pink-500/30 rounded-2xl p-6 hover:shadow-2xl hover:shadow-pink-500/10 transition-all duration-300 transform hover:-translate-y-1"
             style={{
               transformStyle: 'preserve-3d',
               transform: 'translateZ(10px)'
@@ -437,7 +658,7 @@ export default function ApplyPage() {
         </div>
 
         {/* Application Tips */}
-        <div className="my-16 bg-gradient-to-br from-blue-900/50 to-gray-800/50 p-8 rounded-2xl border-2 border-blue-500/30 shadow-2xl"
+        <div className="my-16 bg-gradient-to-br from-blue-900/50 to-gray-800/50 backdrop-blur-xl p-8 rounded-3xl border-2 border-blue-500/30 shadow-2xl"
           style={{
             transformStyle: 'preserve-3d',
             transform: 'translateZ(10px)'
@@ -451,7 +672,7 @@ export default function ApplyPage() {
                   transform: 'translateZ(20px)'
                 }}
               >
-                <AlertTriangle className="h-16 w-16 text-blue-400" />
+                <Sparkles className="h-16 w-16 text-blue-400" />
               </div>
             </div>
             <div className="text-center md:text-left">
@@ -478,7 +699,7 @@ export default function ApplyPage() {
         </div>
 
         {/* Footer */}
-        <footer className="bg-gray-900 border-t border-gray-800 py-8 mt-16">
+        <footer className="bg-gray-900/80 backdrop-blur-xl border-t border-purple-500/30 py-8 mt-16">
           <div className="container mx-auto px-4">
             <div className="flex flex-col md:flex-row justify-between items-center">
               <div className="mb-4 md:mb-0">
@@ -493,12 +714,29 @@ export default function ApplyPage() {
                 <Link href="/contact" className="text-gray-400 hover:text-purple-300 transition-colors transform hover:scale-105 duration-200">Contact</Link>
               </div>
             </div>
-            <div className="mt-8 pt-8 border-t border-gray-800 text-center text-gray-600 text-sm">
+            <div className="mt-8 pt-8 border-t border-gray-700/50 text-center text-gray-500 text-sm">
               © {new Date().getFullYear()} SHIVA X MODS. All rights reserved.
             </div>
           </div>
         </footer>
       </div>
+
+      <style jsx global>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-float {
+          animation: float 6s ease-in-out infinite;
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.5s ease-out;
+        }
+      `}</style>
     </div>
   );
 }
