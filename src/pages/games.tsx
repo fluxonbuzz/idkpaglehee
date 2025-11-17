@@ -5,7 +5,8 @@ import {
   Download, Clock, Zap, CheckCircle, Star, Award, Users, Trophy, 
   Shirt, Activity, Film, Globe, Volume2, Joystick, List, Flag, 
   Coins, Home, ShoppingCart, AlertCircle, X, ChevronDown, ChevronUp, 
-  Search, Menu, Filter, Sparkles, Gamepad2, Crown, Heart
+  Search, Menu, Filter, Sparkles, Gamepad2, Crown, Heart,
+  Shield, FileText, DollarSign, User
 } from 'lucide-react';
 import Link from 'next/link';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
@@ -186,7 +187,7 @@ const pageLinks = [
   { name: "Community", href: "/community", icon: Users, color: "from-purple-500 to-pink-500", description: "Connect with Players" },
   { name: "Games", href: "/games", icon: Gamepad2, color: "from-orange-500 to-red-500", description: "Supported Games" },
   { name: "Membership", href: "/membership", icon: Crown, color: "from-yellow-500 to-amber-500", description: "Exclusive Benefits" },
-  { name: "Login", href: "/login", icon: LogIn, color: "from-gray-600 to-gray-700", description: "Access Your Account" },
+  { name: "Login", href: "/login", icon: User, color: "from-gray-600 to-gray-700", description: "Access Your Account" },
   { name: "Register", href: "/register", icon: User, color: "from-indigo-500 to-purple-500", description: "Create Account" },
   { name: "Support", href: "/support", icon: AlertCircle, color: "from-cyan-500 to-blue-500", description: "Get Help & Support" },
   { name: "Testimonials", href: "/testimonials", icon: Star, color: "from-amber-500 to-orange-500", description: "User Reviews" },
