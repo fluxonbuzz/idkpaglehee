@@ -1,63 +1,26 @@
+'use client';
+
 import { useState, useRef, useEffect } from 'react';
-import { useRouter } from 'next/router';
 import { 
-  MessageCircle, 
-  Send, 
-  Shield, 
-  User, 
-  Mail, 
-  FileText, 
-  Clock,
-  CheckCircle2,
-  AlertCircle,
-  MessageSquare,
-  ExternalLink,
-  RotateCw,
-  Sparkles
+  LockKeyhole, Clock, ScrollText, ShieldCheck, UserCog, AlertTriangle, 
+  CheckCircle, ArrowRight, X, Menu, Send, User, Mail, MessageSquare, 
+  Calendar, MessageCircle, Shield, FileText, CheckCircle2, AlertCircle,
+  ExternalLink, RotateCw, Sparkles, Bot, Zap, Users, Star, Crown
 } from 'lucide-react';
+import Link from 'next/link';
 
-interface AppealForm {
-  username: string;
-  email: string;
-  platform: 'discord' | 'telegram' | 'whatsapp' | 'other';
-  reason: string;
-  explanation: string;
-  contact_method: string;
-}
-
-export default function BanAppealPage() {
-  const router = useRouter();
-  const [form, setForm] = useState<AppealForm>({
-    username: '',
+export default function ApplyPage() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('discord');
+  const [formData, setFormData] = useState({
+    name: '',
     email: '',
-    platform: 'discord',
-    reason: '',
-    explanation: '',
-    contact_method: ''
+    discord: '',
+    experience: '',
+    motivation: '',
+    availability: ''
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [animateSubmit, setAnimateSubmit] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [currentStep, setCurrentStep] = useState(1);
-  const [errors, setErrors] = useState<Partial<AppealForm>>({});
   const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  // Check if current step is valid
-  const isStepValid = (step: number): boolean => {
-    switch (step) {
-      case 1:
-        return form.username.trim() !== '' && 
-               form.email.trim() !== '' && 
-               /^\S+@\S+\.\S+$/.test(form.email);
-      case 2:
-        return form.reason.trim() !== '' && 
-               form.explanation.trim().length >= 50;
-      case 3:
-        return form.contact_method.trim() !== '';
-      default:
-        return false;
-    }
-  };
 
   // 3D Background Animation
   useEffect(() => {
@@ -146,160 +109,22 @@ export default function BanAppealPage() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const validateForm = (): boolean => {
-    const newErrors: Partial<AppealForm> = {};
-
-    if (!form.username.trim()) newErrors.username = 'Username is required';
-    if (!form.email.trim()) newErrors.email = 'Email is required';
-    else if (!/^\S+@\S+\.\S+$/.test(form.email)) newErrors.email = 'Invalid email format';
-    if (!form.reason.trim()) newErrors.reason = 'Please select a reason';
-    if (!form.explanation.trim()) newErrors.explanation = 'Please explain your situation';
-    else if (form.explanation.trim().length < 50) newErrors.explanation = 'Explanation is too short (minimum 50 characters)';
-    else if (form.explanation.trim().length > 5000) newErrors.explanation = 'Explanation is too long (maximum 5000 characters)';
-    if (!form.contact_method.trim()) newErrors.contact_method = 'Contact method is required';
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!validateForm()) return;
-
-    setIsSubmitting(true);
-    setAnimateSubmit(true);
-
-    try {
-      // Add 3D check animation
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      const res = await fetch('/api/appeals', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form)
-      });
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data?.message || 'Failed to submit appeal');
-      }
-
-      setIsSubmitted(true);
-    } catch (err: any) {
-      console.error('Submission error:', err);
-      window.alert(err?.message || 'Something went wrong submitting your appeal. Please try again.');
-    } finally {
-      setIsSubmitting(false);
-      setTimeout(() => setAnimateSubmit(false), 400);
-    }
+    console.log('Form submitted:', formData);
+    alert('Application submitted successfully! We will review your application and get back to you soon.');
   };
-
-  const handleInputChange = (field: keyof AppealForm, value: string) => {
-    setForm(prev => ({ ...prev, [field]: value }));
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: undefined }));
-    }
-  };
-
-  const handleStepContinue = () => {
-    // Validate current step before proceeding
-    if (!isStepValid(currentStep)) {
-      // Show errors for current step
-      const newErrors: Partial<AppealForm> = {};
-      
-      if (currentStep === 1) {
-        if (!form.username.trim()) newErrors.username = 'Username is required';
-        if (!form.email.trim()) newErrors.email = 'Email is required';
-        else if (!/^\S+@\S+\.\S+$/.test(form.email)) newErrors.email = 'Invalid email format';
-      } else if (currentStep === 2) {
-        if (!form.reason.trim()) newErrors.reason = 'Please select a reason';
-        if (!form.explanation.trim()) newErrors.explanation = 'Please explain your situation';
-        else if (form.explanation.trim().length < 50) newErrors.explanation = 'Explanation is too short (minimum 50 characters)';
-      } else if (currentStep === 3) {
-        if (!form.contact_method.trim()) newErrors.contact_method = 'Contact method is required';
-      }
-      
-      setErrors(newErrors);
-      return;
-    }
-    
-    setCurrentStep(prev => Math.min(3, prev + 1));
-  };
-
-  const PlatformIcon = ({ platform }: { platform: string }) => {
-    switch (platform) {
-      case 'discord':
-        return <MessageCircle className="w-5 h-5" />;
-      case 'telegram':
-        return <Send className="w-5 h-5" />;
-      case 'whatsapp':
-        return <MessageSquare className="w-5 h-5" />;
-      default:
-        return <MessageCircle className="w-5 h-5" />;
-    }
-  };
-
-  if (isSubmitted) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-blue-900 flex items-center justify-center p-4 relative overflow-hidden">
-        <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none" />
-        
-        <div className="relative z-10 bg-gray-800/80 backdrop-blur-xl rounded-3xl border border-purple-500/30 p-8 max-w-md w-full text-center shadow-2xl">
-          <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
-            <CheckCircle2 className="w-10 h-10 text-white" />
-          </div>
-          
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent mb-4">
-            Appeal Submitted!
-          </h1>
-          
-          <p className="text-gray-300 mb-6 leading-relaxed">
-            Your ban appeal has been received. We'll review your case and contact you via {form.contact_method} within 24-48 hours.
-          </p>
-          
-          <div className="bg-gray-700/50 rounded-2xl p-4 mb-6 border border-gray-600/50">
-            <h3 className="text-sm font-semibold text-gray-400 mb-2">Next Steps:</h3>
-            <ul className="text-sm text-gray-300 space-y-1 text-left">
-              <li className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-blue-400" />
-                Wait for our team to review
-              </li>
-              <li className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-green-400" />
-                Check your email for updates
-              </li>
-              <li className="flex items-center gap-2">
-                <MessageCircle className="w-4 h-4 text-purple-400" />
-                Be available on {form.platform}
-              </li>
-            </ul>
-          </div>
-          
-          <button
-            onClick={() => {
-              setIsSubmitted(false);
-              setForm({
-                username: '',
-                email: '',
-                platform: 'discord',
-                reason: '',
-                explanation: '',
-                contact_method: ''
-              });
-              setCurrentStep(1);
-            }}
-            className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-105 active:scale-95"
-          >
-            Submit Another Appeal
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-blue-900 flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-blue-900 text-white relative overflow-hidden">
       {/* Animated Background */}
       <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none" />
       
@@ -314,298 +139,586 @@ export default function BanAppealPage() {
         <User className="w-7 h-7 text-green-400/30" />
       </div>
       <div className="absolute bottom-10 right-10 animate-float" style={{ animationDelay: '1.5s' }}>
-        <FileText className="w-8 h-8 text-pink-400/30" />
+        <Crown className="w-8 h-8 text-pink-400/30" />
       </div>
 
-      <div className="relative z-10 bg-gray-800/80 backdrop-blur-xl rounded-3xl border border-purple-500/30 shadow-2xl w-full max-w-2xl overflow-hidden">
-        {/* Header */}
-        <div className="bg-gradient-to-r from-purple-600/20 to-blue-600/20 p-8 text-center border-b border-purple-500/30">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="p-3 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl">
-              <Shield className="w-8 h-8 text-white" />
+      {/* Header */}
+      <header className="bg-gray-900/80 backdrop-blur-xl border-b border-purple-500/30 relative z-10">
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-300">
+            SHIVA X MODS
+          </h1>
+          
+          {/* Mobile Menu Button */}
+          <button 
+            className="md:hidden p-2 rounded-md text-gray-400 hover:text-white focus:outline-none transition-all duration-300 transform hover:scale-110 active:scale-95 shadow-lg hover:shadow-purple-500/25"
+            onClick={() => setSidebarOpen(true)}
+            style={{
+              transformStyle: 'preserve-3d',
+              perspective: '1000px'
+            }}
+          >
+            <Menu className="h-6 w-6" />
+          </button>
+          
+          {/* Desktop Navigation */}
+          <nav className="hidden md:block">
+            <ul className="flex space-x-6">
+              <li>
+                <Link href="/" className="hover:text-purple-300 transition-colors transform hover:scale-105 duration-200">Home</Link>
+              </li>
+              <li>
+                <Link href="/testimonials" className="hover:text-purple-300 transition-colors flex items-center transform hover:scale-105 duration-200">
+                  Testimonials <ArrowRight className="ml-1 h-4 w-4" />
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact" className="hover:text-purple-300 transition-colors transform hover:scale-105 duration-200">Contact</Link>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </header>
+
+      {/* Mobile Sidebar */}
+      <div className={`fixed inset-y-0 right-0 z-50 w-64 bg-gray-900/95 backdrop-blur-xl shadow-lg transform ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'} transition-transform duration-300 ease-in-out`}>
+        <div className="flex items-center justify-between p-4 border-b border-purple-500/30">
+          <h2 className="text-xl font-bold">Menu</h2>
+          <button 
+            className="p-1 rounded-md text-gray-400 hover:text-white focus:outline-none transition-all duration-300 transform hover:scale-110 active:scale-95 shadow-lg hover:shadow-red-500/25"
+            onClick={() => setSidebarOpen(false)}
+            style={{
+              transformStyle: 'preserve-3d',
+              perspective: '1000px'
+            }}
+          >
+            <X className="h-6 w-6" />
+          </button>
+        </div>
+        <nav className="p-4">
+          <ul className="space-y-4">
+            <li>
+              <Link 
+                href="/" 
+                className="block hover:text-purple-300 transition-all duration-300 p-2 rounded hover:bg-purple-500/10 transform hover:translate-x-2"
+                onClick={() => setSidebarOpen(false)}
+              >
+                Home
+              </Link>
+            </li>
+            <li>
+              <Link 
+                href="/testimonials" 
+                className="block hover:text-purple-300 transition-all duration-300 p-2 rounded hover:bg-purple-500/10 transform hover:translate-x-2 flex items-center"
+                onClick={() => setSidebarOpen(false)}
+              >
+                Testimonials <ArrowRight className="ml-1 h-4 w-4" />
+              </Link>
+            </li>
+            <li>
+              <Link 
+                href="/contact" 
+                className="block hover:text-purple-300 transition-all duration-300 p-2 rounded hover:bg-purple-500/10 transform hover:translate-x-2"
+                onClick={() => setSidebarOpen(false)}
+              >
+                Contact
+              </Link>
+            </li>
+            <li>
+              <div 
+                className="block bg-gradient-to-r from-green-500 to-emerald-600 text-white p-3 rounded-2xl border-2 border-emerald-400 cursor-pointer shadow-2xl hover:shadow-emerald-500/25 transition-all duration-300 transform hover:scale-105 active:scale-95 text-center font-bold"
+                style={{
+                  transformStyle: 'preserve-3d',
+                  perspective: '1000px',
+                  boxShadow: '0 10px 25px -5px rgba(16, 185, 129, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.5)'
+                }}
+              >
+                Apply Now (Open!)
+              </div>
+            </li>
+          </ul>
+        </nav>
+      </div>
+
+      {/* Overlay for sidebar */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-black bg-opacity-50 backdrop-blur-sm"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      <div className="container mx-auto px-4 py-16 relative z-10">
+        <div className="text-center mb-16">
+          <div className="flex justify-center mb-6">
+            <div className="relative">
+              <div className="absolute -inset-4 bg-green-600 rounded-full blur opacity-75 animate-pulse"></div>
+              <div className="relative bg-gray-800/80 backdrop-blur-xl p-6 rounded-full border-2 border-green-500 shadow-2xl"
+                style={{
+                  transformStyle: 'preserve-3d',
+                  transform: 'translateZ(20px)',
+                  boxShadow: '0 20px 40px -10px rgba(16, 185, 129, 0.4)'
+                }}
+              >
+                <ShieldCheck className="h-16 w-16 text-green-400" />
+              </div>
             </div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-300 to-blue-300 bg-clip-text text-transparent">
-              Ban Appeal
-            </h1>
           </div>
-          <p className="text-gray-300 text-lg">
-            Submit your appeal to get back into the community
+          <h1 className="text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-emerald-300">
+            Guardianship Program
+          </h1>
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+            Join our elite team of moderators and help protect our communities on Discord and Telegram
           </p>
         </div>
 
-        {/* Progress Steps */}
-        <div className="flex justify-center px-8 pt-6">
-          {[1, 2, 3].map((step) => (
-            <div key={step} className="flex items-center">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
-                step === currentStep
-                  ? 'bg-purple-600 border-purple-500 text-white scale-110'
-                  : step < currentStep
-                  ? 'bg-green-500 border-green-500 text-white'
-                  : 'bg-gray-700 border-gray-600 text-gray-400'
-              }`}>
-                {step < currentStep ? <CheckCircle2 className="w-5 h-5" /> : step}
-              </div>
-              {step < 3 && (
-                <div className={`w-16 h-1 transition-all duration-300 ${
-                  step < currentStep ? 'bg-green-500' : 'bg-gray-700'
-                }`} />
-              )}
+        {/* Platform Selection */}
+        <div className="max-w-4xl mx-auto mb-16">
+          <div className="bg-gray-800/50 backdrop-blur-xl rounded-3xl border-2 border-purple-500/30 p-2 mb-8">
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => setActiveTab('discord')}
+                className={`p-4 rounded-2xl transition-all duration-300 transform ${
+                  activeTab === 'discord'
+                    ? 'bg-gradient-to-r from-purple-600 to-blue-600 scale-105 shadow-2xl'
+                    : 'bg-gray-700/50 hover:bg-gray-600/50 hover:scale-102'
+                }`}
+                style={{
+                  transformStyle: 'preserve-3d',
+                  perspective: '1000px'
+                }}
+              >
+                <div className="flex items-center justify-center gap-3">
+                  <MessageCircle className={`w-6 h-6 ${
+                    activeTab === 'discord' ? 'text-white' : 'text-purple-400'
+                  }`} />
+                  <span className={`font-bold ${
+                    activeTab === 'discord' ? 'text-white' : 'text-gray-300'
+                  }`}>
+                    Discord Guardians
+                  </span>
+                </div>
+              </button>
+              <button
+                onClick={() => setActiveTab('telegram')}
+                className={`p-4 rounded-2xl transition-all duration-300 transform ${
+                  activeTab === 'telegram'
+                    ? 'bg-gradient-to-r from-blue-500 to-cyan-500 scale-105 shadow-2xl'
+                    : 'bg-gray-700/50 hover:bg-gray-600/50 hover:scale-102'
+                }`}
+                style={{
+                  transformStyle: 'preserve-3d',
+                  perspective: '1000px'
+                }}
+              >
+                <div className="flex items-center justify-center gap-3">
+                  <Send className={`w-6 h-6 ${
+                    activeTab === 'telegram' ? 'text-white' : 'text-blue-400'
+                  }`} />
+                  <span className={`font-bold ${
+                    activeTab === 'telegram' ? 'text-white' : 'text-gray-300'
+                  }`}>
+                    Telegram Guardians
+                  </span>
+                </div>
+              </button>
             </div>
-          ))}
-        </div>
+          </div>
 
-        <form onSubmit={handleSubmit} className="p-8 space-y-6">
-          {/* Step 1: Basic Information */}
-          {currentStep === 1 && (
-            <div className="space-y-6 animate-fadeIn">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
-                    <User className="w-4 h-4" />
-                    Username *
-                  </label>
-                  <input
-                    type="text"
-                    value={form.username}
-                    onChange={(e) => handleInputChange('username', e.target.value)}
-                    className="w-full bg-gray-700/50 border border-gray-600/50 rounded-2xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent backdrop-blur-sm transition-all duration-300"
-                    placeholder="Your banned username"
-                  />
-                  {errors.username && (
-                    <p className="text-red-400 text-sm mt-1 flex items-center gap-1">
-                      <AlertCircle className="w-4 h-4" />
-                      {errors.username}
-                    </p>
-                  )}
+          {/* Platform-specific Content */}
+          {activeTab === 'discord' && (
+            <div className="animate-fadeIn">
+              <div className="bg-gradient-to-r from-purple-600/20 to-blue-600/20 rounded-3xl p-8 mb-8 border border-purple-500/30">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="p-3 bg-purple-600 rounded-2xl">
+                    <MessageCircle className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-bold text-white">Discord Guardians</h2>
+                    <p className="text-purple-200">Moderate our vibrant Discord community</p>
+                  </div>
                 </div>
-
-                <div>
-                  <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
-                    <Mail className="w-4 h-4" />
-                    Email Address *
-                  </label>
-                  <input
-                    type="email"
-                    value={form.email}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
-                    className="w-full bg-gray-700/50 border border-gray-600/50 rounded-2xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent backdrop-blur-sm transition-all duration-300"
-                    placeholder="your@email.com"
-                  />
-                  {errors.email && (
-                    <p className="text-red-400 text-sm mt-1 flex items-center gap-1">
-                      <AlertCircle className="w-4 h-4" />
-                      {errors.email}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
-                  <MessageCircle className="w-4 h-4" />
-                  Platform Where Banned *
-                </label>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {['discord', 'telegram', 'whatsapp', 'other'].map((platform) => (
-                    <button
-                      key={platform}
-                      type="button"
-                      onClick={() => handleInputChange('platform', platform)}
-                      className={`p-4 rounded-2xl border-2 transition-all duration-300 backdrop-blur-sm ${
-                        form.platform === platform
-                          ? 'border-purple-500 bg-purple-600/20 scale-105'
-                          : 'border-gray-600 bg-gray-700/50 hover:border-purple-500/50 hover:scale-102'
-                      }`}
-                    >
-                      <div className="flex flex-col items-center gap-2">
-                        <PlatformIcon platform={platform} />
-                        <span className="text-sm font-medium text-white capitalize">
-                          {platform}
-                        </span>
-                      </div>
-                    </button>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {[
+                    { icon: Users, text: '10K+ Members', color: 'text-green-400' },
+                    { icon: Zap, text: 'Active Community', color: 'text-yellow-400' },
+                    { icon: Star, text: 'Elite Team', color: 'text-purple-400' }
+                  ].map((item, index) => (
+                    <div key={index} className="bg-gray-800/50 rounded-2xl p-4 text-center border border-gray-700/50">
+                      <item.icon className={`w-8 h-8 mx-auto mb-2 ${item.color}`} />
+                      <p className="text-sm text-gray-300">{item.text}</p>
+                    </div>
                   ))}
                 </div>
               </div>
             </div>
           )}
 
-          {/* Step 2: Appeal Details */}
-          {currentStep === 2 && (
-            <div className="space-y-6 animate-fadeIn">
-              <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
-                  <FileText className="w-4 h-4" />
-                  Reason for Ban *
-                </label>
-                <select
-                  value={form.reason}
-                  onChange={(e) => handleInputChange('reason', e.target.value)}
-                  className="w-full bg-gray-700/50 border border-gray-600/50 rounded-2xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent backdrop-blur-sm"
-                >
-                  <option value="">Select a reason...</option>
-                  <option value="spam">Spam/Advertising</option>
-                  <option value="harassment">Harassment</option>
-                  <option value="cheating">Cheating/Exploits</option>
-                  <option value="toxicity">Toxic Behavior</option>
-                  <option value="misunderstanding">Misunderstanding</option>
-                  <option value="other">Other</option>
-                </select>
-                {errors.reason && (
-                  <p className="text-red-400 text-sm mt-1 flex items-center gap-1">
-                    <AlertCircle className="w-4 h-4" />
-                    {errors.reason}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
-                  <FileText className="w-4 h-4" />
-                  Your Explanation *
-                  <span className="text-xs text-gray-400 ml-auto">
-                    {form.explanation.length}/5000
-                  </span>
-                </label>
-                <textarea
-                  value={form.explanation}
-                  onChange={(e) => handleInputChange('explanation', e.target.value)}
-                  rows={5}
-                  className="w-full bg-gray-700/50 border border-gray-600/50 rounded-2xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent backdrop-blur-sm transition-all duration-300 resize-none"
-                  placeholder="Please provide a detailed explanation of your situation, why you believe the ban was unfair or mistaken, what you've learned, and how you'll follow community guidelines in the future. Minimum 50 characters."
-                />
-                {errors.explanation && (
-                  <p className="text-red-400 text-sm mt-1 flex items-center gap-1">
-                    <AlertCircle className="w-4 h-4" />
-                    {errors.explanation}
-                  </p>
-                )}
-                <div className="flex justify-between text-xs text-gray-400 mt-1">
-                  <span>Minimum 50 characters required</span>
-                  <span>Detailed explanations are more likely to be approved</span>
+          {activeTab === 'telegram' && (
+            <div className="animate-fadeIn">
+              <div className="bg-gradient-to-r from-blue-600/20 to-cyan-600/20 rounded-3xl p-8 mb-8 border border-blue-500/30">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="p-3 bg-blue-600 rounded-2xl">
+                    <Send className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-bold text-white">Telegram Guardians</h2>
+                    <p className="text-blue-200">Protect our Telegram networks</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {[
+                    { icon: Bot, text: 'Bot Management', color: 'text-blue-400' },
+                    { icon: Users, text: 'Multiple Groups', color: 'text-cyan-400' },
+                    { icon: Shield, text: 'Security Focus', color: 'text-green-400' }
+                  ].map((item, index) => (
+                    <div key={index} className="bg-gray-800/50 rounded-2xl p-4 text-center border border-gray-700/50">
+                      <item.icon className={`w-8 h-8 mx-auto mb-2 ${item.color}`} />
+                      <p className="text-sm text-gray-300">{item.text}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
           )}
 
-          {/* Step 3: Contact & Submit */}
-          {currentStep === 3 && (
-            <div className="space-y-6 animate-fadeIn">
-              <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
-                  <Send className="w-4 h-4" />
-                  Preferred Contact Method *
+          {/* Application Form */}
+          <div className="bg-gray-800/80 backdrop-blur-xl rounded-3xl border-2 border-green-500/50 p-8 shadow-2xl"
+            style={{
+              transformStyle: 'preserve-3d',
+              transform: 'translateZ(10px)',
+              boxShadow: '0 25px 50px -12px rgba(16, 185, 129, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+            }}
+          >
+            <div className="flex items-center gap-3 mb-8">
+              <div className="p-3 bg-green-900/30 rounded-2xl border border-green-500 shadow-lg"
+                style={{
+                  transformStyle: 'preserve-3d',
+                  transform: 'translateZ(15px)'
+                }}
+              >
+                <User className="h-8 w-8 text-green-400" />
+              </div>
+              <h2 className="text-3xl font-bold">
+                {activeTab === 'discord' ? 'Discord' : 'Telegram'} Guardian Application
+              </h2>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Name */}
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
+                    <User className="h-4 w-4" />
+                    Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-4 py-3 bg-gray-700/50 border-2 border-gray-600 rounded-2xl focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none transition-all duration-300 shadow-lg hover:shadow-xl hover:border-gray-500 backdrop-blur-sm"
+                    style={{
+                      transformStyle: 'preserve-3d',
+                      transform: 'translateZ(5px)'
+                    }}
+                    placeholder="Enter your full name"
+                  />
+                </div>
+
+                {/* Email */}
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
+                    <Mail className="h-4 w-4" />
+                    Email Address *
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-4 py-3 bg-gray-700/50 border-2 border-gray-600 rounded-2xl focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none transition-all duration-300 shadow-lg hover:shadow-xl hover:border-gray-500 backdrop-blur-sm"
+                    style={{
+                      transformStyle: 'preserve-3d',
+                      transform: 'translateZ(5px)'
+                    }}
+                    placeholder="Enter your email"
+                  />
+                </div>
+
+                {/* Discord/Telegram */}
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
+                    {activeTab === 'discord' ? <MessageCircle className="h-4 w-4" /> : <Send className="h-4 w-4" />}
+                    {activeTab === 'discord' ? 'Discord Username *' : 'Telegram Username *'}
+                  </label>
+                  <input
+                    type="text"
+                    name="discord"
+                    value={formData.discord}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-4 py-3 bg-gray-700/50 border-2 border-gray-600 rounded-2xl focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none transition-all duration-300 shadow-lg hover:shadow-xl hover:border-gray-500 backdrop-blur-sm"
+                    style={{
+                      transformStyle: 'preserve-3d',
+                      transform: 'translateZ(5px)'
+                    }}
+                    placeholder={activeTab === 'discord' ? 'YourDiscord#1234' : '@yourtelegram'}
+                  />
+                </div>
+
+                {/* Availability */}
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
+                    <Calendar className="h-4 w-4" />
+                    Weekly Availability *
+                  </label>
+                  <select
+                    name="availability"
+                    value={formData.availability}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-4 py-3 bg-gray-700/50 border-2 border-gray-600 rounded-2xl focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none transition-all duration-300 shadow-lg hover:shadow-xl hover:border-gray-500 backdrop-blur-sm"
+                    style={{
+                      transformStyle: 'preserve-3d',
+                      transform: 'translateZ(5px)'
+                    }}
+                  >
+                    <option value="">Select your availability</option>
+                    <option value="10-15">10-15 hours per week</option>
+                    <option value="15-20">15-20 hours per week</option>
+                    <option value="20-25">20-25 hours per week</option>
+                    <option value="25+">25+ hours per week</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Experience */}
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
+                  <ShieldCheck className="h-4 w-4" />
+                  Previous Moderation Experience *
                 </label>
-                <input
-                  type="text"
-                  value={form.contact_method}
-                  onChange={(e) => handleInputChange('contact_method', e.target.value)}
-                  className="w-full bg-gray-700/50 border border-gray-600/50 rounded-2xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent backdrop-blur-sm transition-all duration-300"
-                  placeholder="e.g., Discord: username#1234, Telegram: @username, Email, etc."
+                <textarea
+                  name="experience"
+                  value={formData.experience}
+                  onChange={handleInputChange}
+                  required
+                  rows={4}
+                  className="w-full px-4 py-3 bg-gray-700/50 border-2 border-gray-600 rounded-2xl focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none transition-all duration-300 shadow-lg hover:shadow-xl hover:border-gray-500 resize-none backdrop-blur-sm"
+                  style={{
+                    transformStyle: 'preserve-3d',
+                    transform: 'translateZ(5px)'
+                  }}
+                  placeholder={`Describe your previous ${activeTab} moderation or community management experience...`}
                 />
-                {errors.contact_method && (
-                  <p className="text-red-400 text-sm mt-1 flex items-center gap-1">
-                    <AlertCircle className="w-4 h-4" />
-                    {errors.contact_method}
-                  </p>
-                )}
               </div>
 
-              <div className="bg-blue-600/10 border border-blue-500/30 rounded-2xl p-4">
-                <h3 className="text-sm font-semibold text-blue-400 mb-2 flex items-center gap-2">
-                  <Sparkles className="w-4 h-4" />
-                  Important Notes
-                </h3>
-                <ul className="text-sm text-blue-300 space-y-1">
-                  <li>• Appeals are typically reviewed within 24-48 hours</li>
-                  <li>• Be honest and detailed in your explanation</li>
-                  <li>• Ensure your contact information is correct</li>
-                  <li>• Multiple appeals for the same case may be ignored</li>
-                  <li>• Short or spam-like explanations will be rejected</li>
-                </ul>
+              {/* Motivation */}
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
+                  <ScrollText className="h-4 w-4" />
+                  Why do you want to become a {activeTab === 'discord' ? 'Discord' : 'Telegram'} Guardian? *
+                </label>
+                <textarea
+                  name="motivation"
+                  value={formData.motivation}
+                  onChange={handleInputChange}
+                  required
+                  rows={4}
+                  className="w-full px-4 py-3 bg-gray-700/50 border-2 border-gray-600 rounded-2xl focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none transition-all duration-300 shadow-lg hover:shadow-xl hover:border-gray-500 resize-none backdrop-blur-sm"
+                  style={{
+                    transformStyle: 'preserve-3d',
+                    transform: 'translateZ(5px)'
+                  }}
+                  placeholder={`Tell us why you're interested in joining our ${activeTab} Guardianship program...`}
+                />
               </div>
-            </div>
-          )}
 
-          {/* Navigation Buttons */}
-          <div className="flex justify-between pt-6">
-            <button
-              type="button"
-              onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))}
-              className={`px-6 py-3 rounded-2xl font-medium transition-all duration-300 ${
-                currentStep === 1
-                  ? 'invisible'
-                  : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50 border border-gray-600/50'
-              }`}
-            >
-              Back
-            </button>
-
-            {currentStep < 3 ? (
-              <button
-                type="button"
-                onClick={handleStepContinue}
-                disabled={!isStepValid(currentStep)}
-                className={`bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold py-3 px-8 rounded-2xl transition-all duration-300 transform active:scale-95 flex items-center gap-2 ${
-                  isStepValid(currentStep)
-                    ? 'hover:from-purple-700 hover:to-blue-700 hover:scale-105'
-                    : 'opacity-50 cursor-not-allowed'
-                }`}
-              >
-                Continue
-                {isStepValid(currentStep) && <CheckCircle2 className="w-4 h-4" />}
-              </button>
-            ) : (
-              <button
-                type="submit"
-                disabled={isSubmitting || !isStepValid(3)}
-                className={`bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold py-3 px-8 rounded-2xl transition-all duration-300 transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 ${
-                  isStepValid(3) && !isSubmitting
-                    ? 'hover:from-green-700 hover:to-emerald-700 hover:scale-105'
-                    : ''
-                } ${animateSubmit ? 'submit-3d' : ''}`}
-              >
-                {isSubmitting ? (
-                  <>
-                    <div className="submit-3d-check">
-                      <Shield className="w-5 h-5 animate-spin" />
-                    </div>
-                    Security Check...
-                  </>
-                ) : (
-                  <>
-                    <Send className="w-5 h-5" />
-                    Submit Appeal
-                  </>
-                )}
-              </button>
-            )}
+              {/* Submit Button */}
+              <div className="flex justify-center pt-6">
+                <button
+                  type="submit"
+                  className="group px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-2xl border-2 border-emerald-400 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-2xl hover:shadow-emerald-500/25 flex items-center gap-3"
+                  style={{
+                    transformStyle: 'preserve-3d',
+                    perspective: '1000px',
+                    boxShadow: '0 20px 40px -10px rgba(16, 185, 129, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.5)'
+                  }}
+                >
+                  <Send className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  Submit {activeTab === 'discord' ? 'Discord' : 'Telegram'} Application
+                </button>
+              </div>
+            </form>
           </div>
-        </form>
+        </div>
 
-        {/* Footer Links */}
-        <div className="bg-gray-900/50 border-t border-gray-700/50 p-6">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-400">
-            <div className="flex items-center gap-4">
-              <span>Need help?</span>
-              <div className="flex gap-3">
-                <a href="#" className="flex items-center gap-1 hover:text-purple-400 transition-colors">
-                  <MessageCircle className="w-4 h-4" />
-                  Discord
-                </a>
-                <a href="#" className="flex items-center gap-1 hover:text-blue-400 transition-colors">
-                  <Send className="w-4 h-4" />
-                  Telegram
-                </a>
+        {/* Program Information */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
+          {/* Requirements */}
+          <div className="bg-gray-800/50 backdrop-blur-xl border-2 border-blue-500/30 rounded-2xl p-6 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-300 transform hover:-translate-y-1"
+            style={{
+              transformStyle: 'preserve-3d',
+              transform: 'translateZ(10px)'
+            }}
+          >
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 bg-blue-900/30 rounded-lg border border-blue-500 shadow-lg"
+                style={{
+                  transformStyle: 'preserve-3d',
+                  transform: 'translateZ(15px)'
+                }}
+              >
+                <ScrollText className="h-6 w-6 text-blue-400" />
+              </div>
+              <h2 className="text-2xl font-bold">Requirements</h2>
+            </div>
+            <ul className="space-y-4">
+              <li className="flex items-start gap-3">
+                <CheckCircle className="flex-shrink-0 h-5 w-5 text-green-400 mt-0.5" />
+                <span>Minimum 3 months active membership</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <CheckCircle className="flex-shrink-0 h-5 w-5 text-green-400 mt-0.5" />
+                <span>Clean disciplinary record</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <CheckCircle className="flex-shrink-0 h-5 w-5 text-green-400 mt-0.5" />
+                <span>Consistent positive community contributions</span>
+              </li>
+            </ul>
+          </div>
+
+          {/* Time Commitment */}
+          <div className="bg-gray-800/50 backdrop-blur-xl border-2 border-purple-500/30 rounded-2xl p-6 hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-300 transform hover:-translate-y-1"
+            style={{
+              transformStyle: 'preserve-3d',
+              transform: 'translateZ(10px)'
+            }}
+          >
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 bg-purple-900/30 rounded-lg border border-purple-500 shadow-lg"
+                style={{
+                  transformStyle: 'preserve-3d',
+                  transform: 'translateZ(15px)'
+                }}
+              >
+                <Clock className="h-6 w-6 text-purple-400" />
+              </div>
+              <h2 className="text-2xl font-bold">Time Commitment</h2>
+            </div>
+            <div className="space-y-4">
+              <div className="bg-gray-700/50 p-4 rounded-lg border-l-4 border-purple-500 shadow-lg">
+                <h3 className="font-bold text-purple-300 mb-1">Minimum</h3>
+                <p className="text-sm">10-15 hours per week</p>
+              </div>
+              <div className="bg-gray-700/50 p-4 rounded-lg border-l-4 border-pink-500 shadow-lg">
+                <h3 className="font-bold text-pink-300 mb-1">Peak Periods</h3>
+                <p className="text-sm">20+ hours during events</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Shield className="w-4 h-4" />
-              <span>All appeals are reviewed by our moderation team</span>
+          </div>
+
+          {/* Expectations */}
+          <div className="bg-gray-800/50 backdrop-blur-xl border-2 border-pink-500/30 rounded-2xl p-6 hover:shadow-2xl hover:shadow-pink-500/10 transition-all duration-300 transform hover:-translate-y-1"
+            style={{
+              transformStyle: 'preserve-3d',
+              transform: 'translateZ(10px)'
+            }}
+          >
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 bg-pink-900/30 rounded-lg border border-pink-500 shadow-lg"
+                style={{
+                  transformStyle: 'preserve-3d',
+                  transform: 'translateZ(15px)'
+                }}
+              >
+                <ShieldCheck className="h-6 w-6 text-pink-400" />
+              </div>
+              <h2 className="text-2xl font-bold">Expectations</h2>
+            </div>
+            <ul className="space-y-4">
+              <li className="flex items-start gap-3">
+                <UserCog className="flex-shrink-0 h-5 w-5 text-pink-400 mt-0.5" />
+                <span>Professional conduct at all times</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <UserCog className="flex-shrink-0 h-5 w-5 text-pink-400 mt-0.5" />
+                <span>Active participation</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <UserCog className="flex-shrink-0 h-5 w-5 text-pink-400 mt-0.5" />
+                <span>Confidentiality of sensitive information</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Application Tips */}
+        <div className="my-16 bg-gradient-to-br from-blue-900/50 to-gray-800/50 backdrop-blur-xl p-8 rounded-3xl border-2 border-blue-500/30 shadow-2xl"
+          style={{
+            transformStyle: 'preserve-3d',
+            transform: 'translateZ(10px)'
+          }}
+        >
+          <div className="flex flex-col md:flex-row items-center gap-8">
+            <div className="flex-shrink-0">
+              <div className="p-4 bg-blue-900/30 rounded-full border-2 border-blue-500 shadow-2xl"
+                style={{
+                  transformStyle: 'preserve-3d',
+                  transform: 'translateZ(20px)'
+                }}
+              >
+                <Sparkles className="h-16 w-16 text-blue-400" />
+              </div>
+            </div>
+            <div className="text-center md:text-left">
+              <h2 className="text-3xl font-bold mb-4">Application Tips</h2>
+              <p className="text-lg text-gray-300 mb-6">
+                Make your application stand out with these helpful tips:
+              </p>
+              <div className="space-y-4 max-w-md mx-auto md:mx-0">
+                <div className="bg-gray-700/50 p-4 rounded-lg border-l-4 border-amber-500 shadow-lg">
+                  <h3 className="font-bold text-amber-300 mb-1">Be Detailed</h3>
+                  <p className="text-sm">Provide specific examples of your experience and contributions</p>
+                </div>
+                <div className="bg-gray-700/50 p-4 rounded-lg border-l-4 border-green-500 shadow-lg">
+                  <h3 className="font-bold text-green-300 mb-1">Show Enthusiasm</h3>
+                  <p className="text-sm">Demonstrate your passion for our community</p>
+                </div>
+                <div className="bg-gray-700/50 p-4 rounded-lg border-l-4 border-purple-500 shadow-lg">
+                  <h3 className="font-bold text-purple-300 mb-1">Be Honest</h3>
+                  <p className="text-sm">We value transparency and authenticity</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
+
+        {/* Footer */}
+        <footer className="bg-gray-900/80 backdrop-blur-xl border-t border-purple-500/30 py-8 mt-16">
+          <div className="container mx-auto px-4">
+            <div className="flex flex-col md:flex-row justify-between items-center">
+              <div className="mb-4 md:mb-0">
+                <h2 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-300">
+                  SHIVA X MODS
+                </h2>
+                <p className="text-gray-500 text-sm mt-1">Community Guardianship Program</p>
+              </div>
+              <div className="flex space-x-6">
+                <Link href="/privacy" className="text-gray-400 hover:text-purple-300 transition-colors transform hover:scale-105 duration-200">Privacy</Link>
+                <Link href="/terms" className="text-gray-400 hover:text-purple-300 transition-colors transform hover:scale-105 duration-200">Terms</Link>
+                <Link href="/contact" className="text-gray-400 hover:text-purple-300 transition-colors transform hover:scale-105 duration-200">Contact</Link>
+              </div>
+            </div>
+            <div className="mt-8 pt-8 border-t border-gray-700/50 text-center text-gray-500 text-sm">
+              © {new Date().getFullYear()} SHIVA X MODS. All rights reserved.
+            </div>
+          </div>
+        </footer>
       </div>
 
       <style jsx global>{`
@@ -617,28 +730,11 @@ export default function BanAppealPage() {
           from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        @keyframes securityCheck {
-          0% { transform: rotate(0deg) scale(1); }
-          25% { transform: rotate(90deg) scale(1.1); }
-          50% { transform: rotate(180deg) scale(1.2); }
-          75% { transform: rotate(270deg) scale(1.1); }
-          100% { transform: rotate(360deg) scale(1); }
-        }
         .animate-float {
           animation: float 6s ease-in-out infinite;
         }
         .animate-fadeIn {
           animation: fadeIn 0.5s ease-out;
-        }
-        .submit-3d {
-          transform: perspective(600px) translateZ(20px) rotateX(8deg) scale(0.98);
-          box-shadow: 
-            0 20px 40px rgba(16, 185, 129, 0.4),
-            0 0 0 1px rgba(16, 185, 129, 0.1),
-            inset 0 2px 0 rgba(255, 255, 255, 0.2);
-        }
-        .submit-3d-check {
-          animation: securityCheck 2s ease-in-out infinite;
         }
       `}</style>
     </div>
