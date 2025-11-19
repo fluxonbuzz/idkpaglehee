@@ -4,26 +4,29 @@ import { useState } from 'react';
 import { 
   Trophy, 
   Users, 
-  Clock, 
-  Zap, 
   Settings, 
-  Home, 
-  ShoppingBag, 
   Star,
   Crown,
   Gift,
-  Calendar,
   Sword,
   BookOpen,
   User,
   Target,
   Sparkles,
   Coins,
-  Shield
+  Shield,
+  Zap,
+  Clock,
+  Award,
+  TrendingUp,
+  Search,
+  Book,
+  HelpCircle,
+  UserCheck
 } from 'lucide-react';
 
 export default function CricketFusionHome() {
-  const [activeTab, setActiveTab] = useState('home');
+  const [activeTab, setActiveTab] = useState('quests');
   const [activeNav, setActiveNav] = useState('home');
 
   const mainPanels = [
@@ -74,16 +77,12 @@ export default function CricketFusionHome() {
     { icon: Users, label: 'Update Squad', badge: 'NEW' }
   ];
 
-  const navItems = [
-    { icon: Home, label: 'Home' },
-    { icon: Users, label: 'Multiplayer' },
-    { icon: Trophy, label: 'Tournaments' },
-    { icon: Sword, label: 'Modes' },
-    { icon: ShoppingBag, label: 'Store' }
-  ];
-
   const menuTabs = [
-    'Quests', 'Missions', 'Shot Book', 'Mods', 'Profile', 'Nets', 'Tips', 'Settings'
+    { name: 'Quests', icon: Target },
+    { name: 'Missions', icon: Award },
+    { name: 'Profile', icon: UserCheck },
+    { name: 'Tips', icon: HelpCircle },
+    { name: 'Settings', icon: Settings }
   ];
 
   return (
@@ -115,20 +114,21 @@ export default function CricketFusionHome() {
           </p>
         </header>
 
-        {/* Menu Tabs */}
+        {/* Menu Tabs with Icons */}
         <nav className="mb-8">
-          <div className="flex overflow-x-auto gap-1 pb-2 scrollbar-hide">
+          <div className="flex overflow-x-auto gap-2 pb-2 scrollbar-hide justify-center">
             {menuTabs.map((tab) => (
               <button
-                key={tab}
-                className={`flex-shrink-0 px-4 py-2 rounded-xl font-semibold transition-all duration-300 ${
-                  activeTab === tab.toLowerCase()
+                key={tab.name}
+                className={`flex items-center gap-2 flex-shrink-0 px-4 py-3 rounded-xl font-semibold transition-all duration-300 ${
+                  activeTab === tab.name.toLowerCase()
                     ? 'bg-gradient-to-r from-red-600 to-rose-700 text-white shadow-lg shadow-red-500/25'
                     : 'bg-red-900/50 text-red-200 hover:bg-red-800/50 hover:text-white'
                 }`}
-                onClick={() => setActiveTab(tab.toLowerCase())}
+                onClick={() => setActiveTab(tab.name.toLowerCase())}
               >
-                {tab}
+                <tab.icon className="w-5 h-5" />
+                <span>{tab.name}</span>
               </button>
             ))}
           </div>
@@ -232,32 +232,6 @@ export default function CricketFusionHome() {
           </div>
         </div>
 
-        {/* Bottom Navigation */}
-        <nav className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-red-900/90 backdrop-blur-xl rounded-2xl border-2 border-rose-600 shadow-2xl shadow-rose-500/25 px-4 py-2 z-50">
-          <div className="flex items-center gap-6">
-            {navItems.map((item) => (
-              <button
-                key={item.label}
-                onClick={() => setActiveNav(item.label.toLowerCase())}
-                className={`flex flex-col items-center gap-1 transition-all duration-300 ${
-                  activeNav === item.label.toLowerCase()
-                    ? 'text-white scale-110'
-                    : 'text-red-300 hover:text-white'
-                }`}
-              >
-                <div className={`p-2 rounded-xl transition-all duration-300 ${
-                  activeNav === item.label.toLowerCase()
-                    ? 'bg-gradient-to-r from-red-600 to-rose-700 shadow-lg shadow-red-500/25'
-                    : 'bg-red-800/50'
-                }`}>
-                  <item.icon className="w-5 h-5" />
-                </div>
-                <span className="text-xs font-semibold">{item.label}</span>
-              </button>
-            ))}
-          </div>
-        </nav>
-
         {/* Status Bar */}
         <div className="fixed top-4 right-4 bg-red-900/90 backdrop-blur-xl rounded-xl border-2 border-rose-600 shadow-lg shadow-rose-500/25 px-4 py-2 z-50">
           <div className="flex items-center gap-4 text-sm">
@@ -280,13 +254,13 @@ export default function CricketFusionHome() {
         <div className="fixed top-4 left-4 bg-red-900/90 backdrop-blur-xl rounded-xl border-2 border-rose-600 shadow-lg shadow-rose-500/25 px-4 py-2 z-50">
           <div className="flex items-center gap-3">
             <button className="p-2 bg-red-700 rounded-lg hover:bg-red-600 transition-colors">
-              <Settings className="w-5 h-5" />
+              <BookOpen className="w-5 h-5" />
             </button>
             <button className="p-2 bg-red-700 rounded-lg hover:bg-red-600 transition-colors">
-              <User className="w-5 h-5" />
+              <TrendingUp className="w-5 h-5" />
             </button>
             <button className="p-2 bg-red-700 rounded-lg hover:bg-red-600 transition-colors">
-              <Calendar className="w-5 h-5" />
+              <Search className="w-5 h-5" />
             </button>
           </div>
         </div>
