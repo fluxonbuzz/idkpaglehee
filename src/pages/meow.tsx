@@ -1,313 +1,312 @@
-import { useState, useRef, useEffect } from 'react';
+'use client';
+
+import { useState } from 'react';
 import { 
-  Play, 
-  Settings, 
-  Users, 
   Trophy, 
-  Star, 
-  Sparkles, 
-  Zap,
-  Gamepad2,
+  Users, 
+  Clock, 
+  Zap, 
+  Settings, 
+  Home, 
+  ShoppingBag, 
+  Star,
   Crown,
-  Shield,
-  Volume2,
-  Globe,
-  Mail
+  Gift,
+  Calendar,
+  Sword,
+  BookOpen,
+  User,
+  Target,
+  Sparkles,
+  Coins,
+  Shield
 } from 'lucide-react';
 
-export default function GameStartMenu() {
-  const [isHovered, setIsHovered] = useState(false);
-  const [activeButton, setActiveButton] = useState('');
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+export default function CricketFusionHome() {
+  const [activeTab, setActiveTab] = useState('home');
+  const [activeNav, setActiveNav] = useState('home');
 
-  // 3D Particle Background
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    const particles: Array<{
-      x: number;
-      y: number;
-      size: number;
-      speedX: number;
-      speedY: number;
-      color: string;
-      opacity: number;
-    }> = [];
-
-    // Create particles
-    for (let i = 0; i < 60; i++) {
-      particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        size: Math.random() * 2 + 0.5,
-        speedX: (Math.random() - 0.5) * 0.3,
-        speedY: (Math.random() - 0.5) * 0.3,
-        color: `hsl(${Math.random() * 30 + 350}, 70%, 60%)`,
-        opacity: Math.random() * 0.4 + 0.1
-      });
+  const mainPanels = [
+    {
+      title: 'Tournament Factory',
+      subtitle: 'Create & Join',
+      icon: Trophy,
+      gradient: 'from-red-600 to-rose-700',
+      border: 'border-rose-500',
+      glow: 'shadow-rose-500/25',
+      badge: 'NEW'
+    },
+    {
+      title: 'Quick Match',
+      subtitle: 'Instant Action',
+      icon: Zap,
+      gradient: 'from-crimson-600 to-red-700',
+      border: 'border-crimson-500',
+      glow: 'shadow-crimson-500/25',
+      badge: 'HOT'
+    },
+    {
+      title: 'Test Match',
+      subtitle: 'Classic Format',
+      icon: Clock,
+      gradient: 'from-red-700 to-rose-800',
+      border: 'border-red-600',
+      glow: 'shadow-red-500/25',
+      badge: 'PRO'
+    },
+    {
+      title: 'Ongoing Tournament',
+      subtitle: 'Champions Cup',
+      icon: Crown,
+      gradient: 'from-rose-700 to-red-800',
+      border: 'border-rose-600',
+      glow: 'shadow-rose-600/25',
+      badge: 'LIVE'
     }
+  ];
 
-    const animate = () => {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+  const sidebarButtons = [
+    { icon: Gift, label: 'Daily Rewards', badge: '3' },
+    { icon: Star, label: 'Subscription', premium: true },
+    { icon: Sparkles, label: 'Super Offers', badge: '!' },
+    { icon: Coins, label: 'Currency Discount', discount: '50%' },
+    { icon: Trophy, label: 'Tournament Discount', discount: '30%' },
+    { icon: Users, label: 'Update Squad', badge: 'NEW' }
+  ];
 
-      particles.forEach((particle, index) => {
-        particle.x += particle.speedX;
-        particle.y += particle.speedY;
+  const navItems = [
+    { icon: Home, label: 'Home' },
+    { icon: Users, label: 'Multiplayer' },
+    { icon: Trophy, label: 'Tournaments' },
+    { icon: Sword, label: 'Modes' },
+    { icon: ShoppingBag, label: 'Store' }
+  ];
 
-        // Wrap around edges
-        if (particle.x > canvas.width) particle.x = 0;
-        if (particle.x < 0) particle.x = canvas.width;
-        if (particle.y > canvas.height) particle.y = 0;
-        if (particle.y < 0) particle.y = canvas.height;
-
-        // Draw particle
-        ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-        ctx.fillStyle = particle.color;
-        ctx.globalAlpha = particle.opacity;
-        ctx.fill();
-
-        // Draw connections
-        particles.slice(index + 1).forEach(otherParticle => {
-          const dx = particle.x - otherParticle.x;
-          const dy = particle.y - otherParticle.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-
-          if (distance < 120) {
-            ctx.beginPath();
-            ctx.strokeStyle = particle.color;
-            ctx.globalAlpha = (120 - distance) / 120 * 0.1;
-            ctx.lineWidth = 0.3;
-            ctx.moveTo(particle.x, particle.y);
-            ctx.lineTo(otherParticle.x, otherParticle.y);
-            ctx.stroke();
-          }
-        });
-      });
-
-      requestAnimationFrame(animate);
-    };
-
-    animate();
-
-    const handleResize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  const menuTabs = [
+    'Quests', 'Missions', 'Shot Book', 'Mods', 'Profile', 'Nets', 'Tips', 'Settings'
+  ];
 
   return (
-    <div className="min-h-screen bg-black text-white relative overflow-hidden">
-      {/* Animated 3D Background */}
-      <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none" />
-      
-      {/* Floating 3D Elements */}
-      <div className="absolute inset-0">
-        {/* Floating Cricket Balls */}
-        {[...Array(4)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-6 h-6 rounded-full border-2 border-red-500/30 opacity-20"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animation: `floatBall ${Math.random() * 15 + 10}s infinite linear`
-            }}
-          />
-        ))}
-        
-        {/* Pulsing Grid */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(220,38,38,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(220,38,38,0.1)_1px,transparent_1px)] bg-[size:60px_60px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_70%)]"></div>
-        
-        {/* Animated Orbs */}
-        <div className="absolute top-1/4 left-1/4 w-80 h-80 bg-red-600/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/3 right-1/4 w-96 h-96 bg-red-800/5 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}}></div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-red-900/50 to-black text-white overflow-hidden relative">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 bg-gradient-to-br from-red-900/20 to-black pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-red-600/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/3 right-1/3 w-96 h-96 bg-rose-700/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 right-1/4 w-48 h-48 bg-crimson-600/10 rounded-full blur-2xl animate-pulse delay-500"></div>
       </div>
 
-      {/* Main Content */}
-      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-8">
-        {/* Game Title with 3D Effect */}
-        <div className="text-center mb-16 relative">
-          {/* Main Title Glow */}
-          <div className="absolute inset-0 bg-gradient-to-r from-red-500 via-red-600 to-red-700 blur-2xl opacity-30 rounded-full transform scale-150"></div>
-          
-          <h1 className="text-8xl md:text-9xl font-black mb-6 tracking-tighter relative">
-            <span className="bg-gradient-to-b from-white via-red-100 to-red-300 bg-clip-text text-transparent relative z-10">
-              CRICKET
-              <div className="absolute inset-0 bg-gradient-to-b from-white via-red-100 to-red-300 bg-clip-text text-transparent blur-sm opacity-50 -z-10 transform translate-y-1">
-                CRICKET
+      {/* Main Container */}
+      <div className="relative z-10 container mx-auto px-4 py-6">
+        {/* Header with Logo */}
+        <header className="text-center mb-8">
+          <div className="flex items-center justify-center gap-4 mb-2">
+            <div className="w-12 h-12 bg-gradient-to-r from-red-600 to-rose-700 rounded-2xl rotate-45 flex items-center justify-center">
+              <Sword className="w-6 h-6 text-white -rotate-45" />
+            </div>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-red-400 to-rose-300 bg-clip-text text-transparent">
+              CRICK FUSION
+            </h1>
+            <div className="w-12 h-12 bg-gradient-to-r from-rose-700 to-red-600 rounded-2xl -rotate-45 flex items-center justify-center">
+              <Target className="w-6 h-6 text-white rotate-45" />
+            </div>
+          </div>
+          <p className="text-red-300 text-sm font-light tracking-widest">
+            THE ULTIMATE CRICKET EXPERIENCE
+          </p>
+        </header>
+
+        {/* Menu Tabs */}
+        <nav className="mb-8">
+          <div className="flex overflow-x-auto gap-1 pb-2 scrollbar-hide">
+            {menuTabs.map((tab) => (
+              <button
+                key={tab}
+                className={`flex-shrink-0 px-4 py-2 rounded-xl font-semibold transition-all duration-300 ${
+                  activeTab === tab.toLowerCase()
+                    ? 'bg-gradient-to-r from-red-600 to-rose-700 text-white shadow-lg shadow-red-500/25'
+                    : 'bg-red-900/50 text-red-200 hover:bg-red-800/50 hover:text-white'
+                }`}
+                onClick={() => setActiveTab(tab.toLowerCase())}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+        </nav>
+
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          {/* Left Side - Main Panels */}
+          <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+            {mainPanels.map((panel, index) => (
+              <div
+                key={panel.title}
+                className={`bg-gradient-to-br ${panel.gradient} rounded-2xl p-4 border-2 ${panel.border} shadow-2xl ${panel.glow} transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer group relative overflow-hidden`}
+              >
+                {/* Badge */}
+                {panel.badge && (
+                  <div className="absolute top-3 right-3 bg-white text-red-700 px-2 py-1 rounded-full text-xs font-bold z-10">
+                    {panel.badge}
+                  </div>
+                )}
+
+                {/* Content */}
+                <div className="relative z-10">
+                  <panel.icon className="w-8 h-8 text-white mb-2" />
+                  <h3 className="text-xl font-bold text-white mb-1">{panel.title}</h3>
+                  <p className="text-red-100 text-sm">{panel.subtitle}</p>
+                </div>
+
+                {/* Decorative Elements */}
+                <div className="absolute bottom-2 right-2 opacity-20 group-hover:opacity-30 transition-opacity">
+                  <panel.icon className="w-16 h-16 text-white" />
+                </div>
               </div>
-            </span>
-          </h1>
-          
-          {/* Subtitle */}
-          <div className="relative">
-            <h2 className="text-3xl md:text-4xl font-bold text-red-400 tracking-widest uppercase flex items-center justify-center gap-4">
-              <Sparkles className="w-8 h-8 text-red-400" />
-              FUSION PRO
-              <Sparkles className="w-8 h-8 text-red-400" />
-            </h2>
-            <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 w-48 h-1 bg-gradient-to-r from-transparent via-red-500 to-transparent"></div>
+            ))}
           </div>
 
-          {/* Version Badge */}
-          <div className="absolute -top-4 -right-4 bg-gradient-to-r from-red-600 to-red-800 text-white text-sm font-bold px-4 py-2 rounded-full border border-red-400/30 shadow-lg">
-            v2.0.1
-          </div>
-        </div>
+          {/* Right Side - Cricket Player & Sidebar */}
+          <div className="space-y-4">
+            {/* Cricket Player Display */}
+            <div className="bg-gradient-to-br from-red-800 to-rose-900 rounded-2xl p-6 border-2 border-rose-600 shadow-2xl shadow-rose-500/25 relative overflow-hidden min-h-64 flex items-center justify-center">
+              {/* Player Silhouette with Red Highlights */}
+              <div className="relative">
+                <div className="w-32 h-40 bg-gradient-to-b from-red-600 to-rose-700 rounded-full opacity-20 absolute inset-0 blur-xl"></div>
+                <div className="relative z-10 text-center">
+                  <div className="w-24 h-24 bg-gradient-to-br from-white to-red-200 rounded-full mx-auto mb-4 flex items-center justify-center shadow-2xl shadow-red-500/50">
+                    <div className="w-4 h-12 bg-red-800 rounded-full rotate-45 transform origin-bottom"></div>
+                  </div>
+                  <div className="text-white font-bold text-lg">BATSMAN</div>
+                  <div className="text-red-200 text-sm">READY TO STRIKE</div>
+                </div>
+              </div>
 
-        {/* Start Button with 3D Effect */}
-        <div className="relative mb-16">
-          <button
-            className={`relative px-20 py-6 text-3xl font-bold uppercase tracking-widest transition-all duration-500 transform ${
-              isHovered ? 'scale-110 -translate-y-2' : 'scale-100'
-            }`}
-            onMouseEnter={() => {
-              setIsHovered(true);
-              setActiveButton('start');
-            }}
-            onMouseLeave={() => {
-              setIsHovered(false);
-              setActiveButton('');
-            }}
-          >
-            {/* Button Glow Effect */}
-            <div className={`absolute inset-0 bg-gradient-to-r from-red-600 to-red-800 rounded-full transition-all duration-500 ${
-              isHovered ? 'blur-xl opacity-80' : 'blur-lg opacity-60'
-            }`}></div>
-            
-            {/* Main Button 3D Layer */}
-            <div className={`relative bg-gradient-to-b from-red-500 to-red-700 rounded-full px-20 py-6 border-2 ${
-              isHovered ? 'border-red-300 shadow-2xl' : 'border-red-400 shadow-xl'
-            } transition-all duration-300 backdrop-blur-sm`}>
-              <span className={`bg-gradient-to-b from-white to-red-100 bg-clip-text text-transparent flex items-center gap-4 ${
-                isHovered ? 'drop-shadow-lg scale-105' : ''
-              } transition-all duration-300`}>
-                <Play className="w-8 h-8" fill="currentColor" />
-                START GAME
-              </span>
+              {/* Dynamic Elements */}
+              <div className="absolute bottom-4 left-4 bg-red-700/80 rounded-lg px-3 py-1 text-xs font-semibold">
+                ENERGY: 100%
+              </div>
+              <div className="absolute top-4 right-4 bg-rose-600/80 rounded-lg px-3 py-1 text-xs font-semibold">
+                LEVEL 25
+              </div>
             </div>
-            
-            {/* Animated Ring */}
-            <div className={`absolute inset-0 rounded-full border-2 border-red-400/50 transition-all duration-1000 ${
-              isHovered ? 'animate-ping opacity-20' : 'opacity-0'
-            }`}></div>
-          </button>
 
-          {/* Floating Particles around button */}
-          <div className="absolute -top-4 -left-4 w-4 h-4 bg-red-400 rounded-full animate-bounce"></div>
-          <div className="absolute -bottom-2 -right-6 w-3 h-3 bg-red-300 rounded-full animate-bounce" style={{animationDelay: '0.5s'}}></div>
-          <div className="absolute -top-6 -right-4 w-2 h-2 bg-red-500 rounded-full animate-bounce" style={{animationDelay: '1s'}}></div>
+            {/* Sidebar Buttons */}
+            <div className="space-y-3">
+              {sidebarButtons.map((button, index) => (
+                <button
+                  key={button.label}
+                  className={`w-full bg-gradient-to-r from-red-700 to-rose-800 hover:from-red-600 hover:to-rose-700 rounded-xl p-3 border-2 border-rose-600 shadow-lg shadow-rose-500/20 transition-all duration-300 hover:scale-105 hover:shadow-xl group relative overflow-hidden flex items-center justify-between ${
+                    button.premium ? 'border-yellow-400 shadow-yellow-500/20' : ''
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <button.icon className={`w-5 h-5 ${
+                      button.premium ? 'text-yellow-400' : 'text-white'
+                    }`} />
+                    <span className={`font-semibold ${
+                      button.premium ? 'text-yellow-400' : 'text-white'
+                    }`}>
+                      {button.label}
+                    </span>
+                  </div>
+                  
+                  {/* Badges */}
+                  <div className="flex items-center gap-2">
+                    {button.discount && (
+                      <span className="bg-green-600 text-white text-xs px-2 py-1 rounded-full font-bold">
+                        {button.discount}
+                      </span>
+                    )}
+                    {button.badge && (
+                      <span className="bg-white text-red-700 text-xs w-6 h-6 rounded-full flex items-center justify-center font-bold">
+                        {button.badge}
+                      </span>
+                    )}
+                    {button.premium && (
+                      <Crown className="w-4 h-4 text-yellow-400" />
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
-        {/* Secondary Menu Buttons */}
-        <div className="flex gap-8 mb-12">
-          {[
-            { icon: Settings, label: 'Settings', color: 'blue' },
-            { icon: Trophy, label: 'Leaderboard', color: 'yellow' },
-            { icon: Users, label: 'Multiplayer', color: 'green' },
-            { icon: Gamepad2, label: 'Controls', color: 'purple' }
-          ].map((item, index) => (
-            <button
-              key={item.label}
-              className={`group relative p-4 rounded-2xl backdrop-blur-sm border transition-all duration-300 transform ${
-                activeButton === item.label.toLowerCase() 
-                  ? 'scale-110 -translate-y-1' 
-                  : 'hover:scale-105 hover:-translate-y-1'
-              } ${
-                item.color === 'blue' ? 'bg-blue-600/20 border-blue-500/30 hover:bg-blue-600/30' :
-                item.color === 'yellow' ? 'bg-yellow-600/20 border-yellow-500/30 hover:bg-yellow-600/30' :
-                item.color === 'green' ? 'bg-green-600/20 border-green-500/30 hover:bg-green-600/30' :
-                'bg-purple-600/20 border-purple-500/30 hover:bg-purple-600/30'
-              }`}
-              onMouseEnter={() => setActiveButton(item.label.toLowerCase())}
-              onMouseLeave={() => setActiveButton('')}
-            >
-              <item.icon className={`w-8 h-8 ${
-                item.color === 'blue' ? 'text-blue-400' :
-                item.color === 'yellow' ? 'text-yellow-400' :
-                item.color === 'green' ? 'text-green-400' :
-                'text-purple-400'
-              } group-hover:scale-110 transition-transform duration-300`} />
+        {/* Bottom Navigation */}
+        <nav className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-red-900/90 backdrop-blur-xl rounded-2xl border-2 border-rose-600 shadow-2xl shadow-rose-500/25 px-4 py-2 z-50">
+          <div className="flex items-center gap-6">
+            {navItems.map((item) => (
+              <button
+                key={item.label}
+                onClick={() => setActiveNav(item.label.toLowerCase())}
+                className={`flex flex-col items-center gap-1 transition-all duration-300 ${
+                  activeNav === item.label.toLowerCase()
+                    ? 'text-white scale-110'
+                    : 'text-red-300 hover:text-white'
+                }`}
+              >
+                <div className={`p-2 rounded-xl transition-all duration-300 ${
+                  activeNav === item.label.toLowerCase()
+                    ? 'bg-gradient-to-r from-red-600 to-rose-700 shadow-lg shadow-red-500/25'
+                    : 'bg-red-800/50'
+                }`}>
+                  <item.icon className="w-5 h-5" />
+                </div>
+                <span className="text-xs font-semibold">{item.label}</span>
+              </button>
+            ))}
+          </div>
+        </nav>
+
+        {/* Status Bar */}
+        <div className="fixed top-4 right-4 bg-red-900/90 backdrop-blur-xl rounded-xl border-2 border-rose-600 shadow-lg shadow-rose-500/25 px-4 py-2 z-50">
+          <div className="flex items-center gap-4 text-sm">
+            <div className="flex items-center gap-2">
+              <Coins className="w-4 h-4 text-yellow-400" />
+              <span className="font-bold">12,450</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Star className="w-4 h-4 text-blue-400" />
+              <span className="font-bold">850</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Shield className="w-4 h-4 text-green-400" />
+              <span className="font-bold">PRO</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="fixed top-4 left-4 bg-red-900/90 backdrop-blur-xl rounded-xl border-2 border-rose-600 shadow-lg shadow-rose-500/25 px-4 py-2 z-50">
+          <div className="flex items-center gap-3">
+            <button className="p-2 bg-red-700 rounded-lg hover:bg-red-600 transition-colors">
+              <Settings className="w-5 h-5" />
             </button>
-          ))}
-        </div>
-
-        {/* Social Links - Minimal */}
-        <div className="absolute bottom-8 left-0 right-0">
-          <div className="flex justify-center items-center gap-8 text-red-400/60">
-            {/* Social Icons */}
-            <div className="flex gap-6">
-              <a href="#" className="hover:text-red-300 transition-all duration-300 transform hover:scale-110">
-                <Mail className="w-6 h-6" />
-              </a>
-              <a href="#" className="hover:text-red-300 transition-all duration-300 transform hover:scale-110">
-                <Globe className="w-6 h-6" />
-              </a>
-              <a href="#" className="hover:text-red-300 transition-all duration-300 transform hover:scale-110">
-                <Volume2 className="w-6 h-6" />
-              </a>
-            </div>
-            
-            {/* Separator */}
-            <div className="w-px h-6 bg-red-400/30"></div>
-            
-            {/* Text Links */}
-            <div className="flex gap-6 text-sm uppercase tracking-widest">
-              <a href="#" className="hover:text-red-300 transition-colors duration-300">
-                Telegram
-              </a>
-              <a href="#" className="hover:text-red-300 transition-colors duration-300">
-                YouTube
-              </a>
-            </div>
-          </div>
-
-          {/* Copyright */}
-          <div className="text-center mt-4 text-red-400/40 text-sm">
-            © 2024 CRICKET FUSION PRO. All rights reserved.
+            <button className="p-2 bg-red-700 rounded-lg hover:bg-red-600 transition-colors">
+              <User className="w-5 h-5" />
+            </button>
+            <button className="p-2 bg-red-700 rounded-lg hover:bg-red-600 transition-colors">
+              <Calendar className="w-5 h-5" />
+            </button>
           </div>
         </div>
       </div>
 
-      <style jsx>{`
-        @keyframes floatBall {
-          0% {
-            transform: translateY(0px) rotate(0deg) scale(1);
-            opacity: 0.2;
-          }
-          50% {
-            transform: translateY(-25px) rotate(180deg) scale(1.2);
-            opacity: 0.4;
-          }
-          100% {
-            transform: translateY(0px) rotate(360deg) scale(1);
-            opacity: 0.2;
-          }
+      {/* Custom Styles */}
+      <style jsx global>{`
+        @keyframes pulse-glow {
+          0%, 100% { box-shadow: 0 0 20px rgba(244, 63, 94, 0.3); }
+          50% { box-shadow: 0 0 30px rgba(244, 63, 94, 0.6); }
         }
-        
-        @keyframes float {
-          0%, 100% { 
-            transform: translateY(0px) rotate(0deg); 
-          }
-          50% { 
-            transform: translateY(-20px) rotate(180deg); 
-          }
+        .animate-pulse-glow {
+          animation: pulse-glow 2s ease-in-out infinite;
         }
-        
-        .animate-float {
-          animation: float 6s ease-in-out infinite;
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
         }
       `}</style>
     </div>
