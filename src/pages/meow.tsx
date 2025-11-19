@@ -22,7 +22,10 @@ import {
   Search,
   Book,
   HelpCircle,
-  UserCheck
+  UserCheck,
+  Home,
+  ShoppingBag,
+  Gamepad2
 } from 'lucide-react';
 
 export default function CricketFusionHome() {
@@ -85,6 +88,12 @@ export default function CricketFusionHome() {
     { name: 'Settings', icon: Settings }
   ];
 
+  const bottomNavItems = [
+    { icon: Home, label: 'Home' },
+    { icon: Gamepad2, label: 'Modes' },
+    { icon: ShoppingBag, label: 'Store' }
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-red-900/50 to-black text-white overflow-hidden relative">
       {/* Animated Background Elements */}
@@ -135,7 +144,7 @@ export default function CricketFusionHome() {
         </nav>
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-20">
           {/* Left Side - Main Panels */}
           <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
             {mainPanels.map((panel, index) => (
@@ -231,6 +240,32 @@ export default function CricketFusionHome() {
             </div>
           </div>
         </div>
+
+        {/* Bottom Navigation - Home, Modes, Store */}
+        <nav className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-red-900/90 backdrop-blur-xl rounded-2xl border-2 border-rose-600 shadow-2xl shadow-rose-500/25 px-6 py-3 z-50">
+          <div className="flex items-center gap-8">
+            {bottomNavItems.map((item) => (
+              <button
+                key={item.label}
+                onClick={() => setActiveNav(item.label.toLowerCase())}
+                className={`flex flex-col items-center gap-1 transition-all duration-300 ${
+                  activeNav === item.label.toLowerCase()
+                    ? 'text-white scale-110'
+                    : 'text-red-300 hover:text-white'
+                }`}
+              >
+                <div className={`p-3 rounded-xl transition-all duration-300 ${
+                  activeNav === item.label.toLowerCase()
+                    ? 'bg-gradient-to-r from-red-600 to-rose-700 shadow-lg shadow-red-500/25'
+                    : 'bg-red-800/50'
+                }`}>
+                  <item.icon className="w-6 h-6" />
+                </div>
+                <span className="text-xs font-semibold">{item.label}</span>
+              </button>
+            ))}
+          </div>
+        </nav>
 
         {/* Status Bar */}
         <div className="fixed top-4 right-4 bg-red-900/90 backdrop-blur-xl rounded-xl border-2 border-rose-600 shadow-lg shadow-rose-500/25 px-4 py-2 z-50">
