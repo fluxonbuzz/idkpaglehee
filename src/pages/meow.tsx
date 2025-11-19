@@ -25,7 +25,8 @@ import {
   UserCheck,
   Home,
   ShoppingBag,
-  Gamepad2
+  Gamepad2,
+  MessageCircle
 } from 'lucide-react';
 
 export default function CricketFusionHome() {
@@ -91,6 +92,7 @@ export default function CricketFusionHome() {
   const bottomNavItems = [
     { icon: Home, label: 'Home' },
     { icon: Gamepad2, label: 'Modes' },
+    { icon: MessageCircle, label: 'Social' },
     { icon: ShoppingBag, label: 'Store' }
   ];
 
@@ -241,9 +243,9 @@ export default function CricketFusionHome() {
           </div>
         </div>
 
-        {/* Bottom Navigation - Home, Modes, Store */}
+        {/* Bottom Navigation - Home, Modes, Social, Store */}
         <nav className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-red-900/90 backdrop-blur-xl rounded-2xl border-2 border-rose-600 shadow-2xl shadow-rose-500/25 px-6 py-3 z-50">
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-6">
             {bottomNavItems.map((item) => (
               <button
                 key={item.label}
