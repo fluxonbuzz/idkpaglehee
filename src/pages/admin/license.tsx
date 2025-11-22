@@ -11,7 +11,7 @@ import {
   Lock,
   Globe,
   Calendar,
-  DeviceTablet,
+  Smartphone,
   Crown
 } from 'lucide-react';
 
@@ -299,7 +299,7 @@ export default function AdminLicense() {
 
                 <div>
                   <label className="flex items-center gap-2 text-gray-300 text-sm font-semibold mb-2 uppercase tracking-wide">
-                    <DeviceTablet className="w-4 h-4" />
+                    <Smartphone className="w-4 h-4" />
                     Device ID (optional)
                   </label>
                   <input 
