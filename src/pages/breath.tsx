@@ -30,13 +30,23 @@ interface BreathingSession {
   icon: JSX.Element;
 }
 
+interface BreathingState {
+  phase: number;
+  timeLeft: number;
+  cycleCount: number;
+  totalElapsed: number;
+}
+
 export default function BreathingApp() {
   const [sessions, setSessions] = useState<BreathingSession[]>([]);
   const [activeSession, setActiveSession] = useState<BreathingSession | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentPhase, setCurrentPhase] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(0);
-  const [progress, setProgress] = useState(0);
+  const [breathingState, setBreathingState] = useState<BreathingState>({
+    phase: 0,
+    timeLeft: 0,
+    cycleCount: 0,
+    totalElapsed: 0
+  });
   const [sessionTime, setSessionTime] = useState(0);
   const [sessionHistory, setSessionHistory] = useState<{date: string; session: string; duration: number}[]>([]);
   const [activeTab, setActiveTab] = useState<'sessions' | 'planner' | 'stats'>('sessions');
@@ -195,67 +205,94 @@ export default function BreathingApp() {
   // Clean up timers on unmount
   useEffect(() => {
     return () => {
-      if (sessionTimerRef.current) clearInterval(sessionTimerRef.current);
-      if (breathingTimerRef.current) clearInterval(breathingTimerRef.current);
+      stopAllTimers();
     };
   }, []);
+
+  const stopAllTimers = () => {
+    if (sessionTimerRef.current) {
+      clearInterval(sessionTimerRef.current);
+      sessionTimerRef.current = null;
+    }
+    if (breathingTimerRef.current) {
+      clearInterval(breathingTimerRef.current);
+      breathingTimerRef.current = null;
+    }
+  };
 
   const startSession = (session: BreathingSession) => {
     setActiveSession(session);
     setIsPlaying(true);
     setSessionComplete(false);
-    setCurrentPhase(0);
-    setTimeLeft(session.pattern[0]);
-    setProgress(0);
     setSessionTime(0);
 
+    // Initialize breathing state
+    const initialPhase = 0;
+    const initialTimeLeft = session.pattern[initialPhase];
+    
+    setBreathingState({
+      phase: initialPhase,
+      timeLeft: initialTimeLeft,
+      cycleCount: 0,
+      totalElapsed: 0
+    });
+
     // Start session timer (stopwatch)
+    stopAllTimers();
     sessionTimerRef.current = setInterval(() => {
-      setSessionTime(prev => prev + 1);
+      setSessionTime(prev => {
+        const newTime = prev + 1;
+        
+        // Check if session duration is complete
+        if (newTime >= session.duration) {
+          completeSession();
+          return session.duration;
+        }
+        
+        return newTime;
+      });
     }, 1000);
 
-    // Start breathing pattern
-    startBreathingPattern(session.pattern);
+    // Start breathing pattern timer
+    startBreathingTimer(session);
   };
 
-  const startBreathingPattern = (pattern: number[]) => {
-    let currentIndex = 0;
-    let phaseTimeLeft = pattern[currentIndex];
-    let cycleCount = 0;
-    const totalCycles = Math.ceil((activeSession?.duration || 300) / pattern.reduce((a, b) => a + b, 0));
+  const startBreathingTimer = (session: BreathingSession) => {
+    if (breathingTimerRef.current) {
+      clearInterval(breathingTimerRef.current);
+    }
 
     breathingTimerRef.current = setInterval(() => {
-      setTimeLeft(phaseTimeLeft);
-      setCurrentPhase(currentIndex);
-      
-      // Calculate progress based on total session time
-      const totalTime = activeSession?.duration || 300;
-      const currentCycleTime = cycleCount * pattern.reduce((a, b) => a + b, 0) + 
-                              pattern.slice(0, currentIndex).reduce((a, b) => a + b, 0) + 
-                              (pattern[currentIndex] - phaseTimeLeft);
-      setProgress((currentCycleTime / totalTime) * 100);
+      if (!isPlaying) return;
 
-      phaseTimeLeft--;
+      setBreathingState(prev => {
+        const pattern = session.pattern;
+        let { phase, timeLeft, cycleCount, totalElapsed } = prev;
 
-      if (phaseTimeLeft < 0) {
-        currentIndex = (currentIndex + 1) % pattern.length;
-        phaseTimeLeft = pattern[currentIndex];
-        
-        // If we completed a full cycle
-        if (currentIndex === 0) {
-          cycleCount++;
+        // Decrement time for current phase
+        timeLeft--;
+
+        // If current phase time is up, move to next phase
+        if (timeLeft <= 0) {
+          phase = (phase + 1) % pattern.length;
+          timeLeft = pattern[phase];
           
-          // Check if session duration is complete
-          if (cycleCount >= totalCycles) {
-            completeSession();
+          // If we completed a full cycle (returned to phase 0)
+          if (phase === 0) {
+            cycleCount++;
           }
         }
-      }
+
+        totalElapsed++;
+
+        return { phase, timeLeft, cycleCount, totalElapsed };
+      });
     }, 1000);
   };
 
   const completeSession = () => {
-    stopSession();
+    stopAllTimers();
+    setIsPlaying(false);
     setSessionComplete(true);
     
     // Add to history
@@ -269,19 +306,42 @@ export default function BreathingApp() {
   };
 
   const stopSession = () => {
+    stopAllTimers();
     setIsPlaying(false);
-    if (sessionTimerRef.current) {
-      clearInterval(sessionTimerRef.current);
-      sessionTimerRef.current = null;
-    }
-    if (breathingTimerRef.current) {
-      clearInterval(breathingTimerRef.current);
-      breathingTimerRef.current = null;
+  };
+
+  const togglePlayPause = () => {
+    if (!activeSession) return;
+
+    if (isPlaying) {
+      // Pause
+      stopAllTimers();
+      setIsPlaying(false);
+    } else {
+      // Resume
+      setIsPlaying(true);
+      
+      // Restart session timer
+      sessionTimerRef.current = setInterval(() => {
+        setSessionTime(prev => {
+          const newTime = prev + 1;
+          
+          if (newTime >= activeSession.duration) {
+            completeSession();
+            return activeSession.duration;
+          }
+          
+          return newTime;
+        });
+      }, 1000);
+
+      // Restart breathing timer
+      startBreathingTimer(activeSession);
     }
   };
 
   const resetSession = () => {
-    stopSession();
+    stopAllTimers();
     setSessionComplete(false);
     if (activeSession) {
       startSession(activeSession);
@@ -295,24 +355,31 @@ export default function BreathingApp() {
   const getPhaseInstruction = () => {
     if (!activeSession) return '';
     const phases = ['Breathe In', 'Hold', 'Breathe Out', 'Hold'];
-    return phases[currentPhase];
+    return phases[breathingState.phase];
   };
 
   const getCircleSize = () => {
-    if (!activeSession) return 50;
+    if (!activeSession) return 30;
     const pattern = activeSession.pattern;
-    const maxTime = Math.max(...pattern);
+    const currentPhase = breathingState.phase;
+    const phaseTime = pattern[currentPhase];
+    const timeLeft = breathingState.timeLeft;
+    
     const baseSize = 30;
     const maxSize = 80;
     
-    // Scale based on current phase time left
     if (currentPhase === 0) { // Breathe In - expand
-      return baseSize + (maxSize - baseSize) * (1 - timeLeft / pattern[0]);
+      return baseSize + (maxSize - baseSize) * (1 - timeLeft / phaseTime);
     } else if (currentPhase === 2) { // Breathe Out - contract
-      return baseSize + (maxSize - baseSize) * (timeLeft / pattern[2]);
+      return baseSize + (maxSize - baseSize) * (timeLeft / phaseTime);
     } else { // Hold phases - maintain size
-      return maxSize;
+      return currentPhase === 1 ? maxSize : baseSize; // Hold after inhale = max, Hold after exhale = min
     }
+  };
+
+  const getProgress = () => {
+    if (!activeSession) return 0;
+    return (sessionTime / activeSession.duration) * 100;
   };
 
   const formatTime = (seconds: number) => {
@@ -441,7 +508,7 @@ export default function BreathingApp() {
                             </span>
                             {!sessionComplete && (
                               <span className="text-2xl text-cyan-300 font-mono">
-                                {timeLeft}s
+                                {breathingState.timeLeft}s
                               </span>
                             )}
                           </div>
@@ -454,7 +521,7 @@ export default function BreathingApp() {
                       <div className="bg-slate-700/30 rounded-full h-3">
                         <div 
                           className="bg-gradient-to-r from-cyan-500 to-blue-500 h-3 rounded-full transition-all duration-1000"
-                          style={{ width: `${Math.min(progress, 100)}%` }}
+                          style={{ width: `${Math.min(getProgress(), 100)}%` }}
                         />
                       </div>
                     </div>
@@ -474,13 +541,15 @@ export default function BreathingApp() {
                           <button
                             onClick={stopSession}
                             className="p-4 bg-red-500/20 text-red-400 rounded-2xl hover:bg-red-500/30 transition-colors"
+                            title="Stop Session"
                           >
                             <X className="h-8 w-8" />
                           </button>
                           
                           <button
-                            onClick={() => setIsPlaying(!isPlaying)}
+                            onClick={togglePlayPause}
                             className="p-4 bg-cyan-500/20 text-cyan-400 rounded-2xl hover:bg-cyan-500/30 transition-colors"
+                            title={isPlaying ? 'Pause' : 'Resume'}
                           >
                             {isPlaying ? <Pause className="h-8 w-8" /> : <Play className="h-8 w-8" />}
                           </button>
@@ -488,6 +557,7 @@ export default function BreathingApp() {
                           <button
                             onClick={skipSession}
                             className="p-4 bg-blue-500/20 text-blue-400 rounded-2xl hover:bg-blue-500/30 transition-colors"
+                            title="Skip to End"
                           >
                             <SkipForward className="h-8 w-8" />
                           </button>
@@ -532,6 +602,7 @@ export default function BreathingApp() {
             </div>
           )}
 
+          {/* Rest of the code remains the same for planner and stats tabs */}
           {activeTab === 'planner' && (
             <div className="max-w-4xl mx-auto px-4">
               <div className="bg-slate-800/20 backdrop-blur-xl border border-slate-700/30 rounded-3xl p-8 shadow-2xl">
