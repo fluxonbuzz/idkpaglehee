@@ -16,7 +16,8 @@ import {
   Waves,
   Leaf,
   Sparkles,
-  Crown
+  Crown,
+  RotateCcw
 } from 'lucide-react';
 
 interface BreathingSession {
@@ -36,10 +37,14 @@ export default function BreathingApp() {
   const [currentPhase, setCurrentPhase] = useState(0);
   const [timeLeft, setTimeLeft] = useState(0);
   const [progress, setProgress] = useState(0);
+  const [sessionTime, setSessionTime] = useState(0);
   const [sessionHistory, setSessionHistory] = useState<{date: string; session: string; duration: number}[]>([]);
   const [activeTab, setActiveTab] = useState<'sessions' | 'planner' | 'stats'>('sessions');
   const [showSettings, setShowSettings] = useState(false);
+  const [sessionComplete, setSessionComplete] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const sessionTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const breathingTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Initialize breathing sessions
   useEffect(() => {
@@ -47,54 +52,54 @@ export default function BreathingApp() {
       {
         id: '1',
         name: 'Calm Focus',
-        duration: 300,
+        duration: 300, // 5 minutes
         description: 'Perfect for stress relief and mental clarity',
-        pattern: [4, 4, 4, 4],
+        pattern: [4, 4, 4, 4], // In, Hold, Out, Hold
         color: 'from-blue-500 to-teal-400',
         icon: <Feather className="h-6 w-6" />
       },
       {
         id: '2',
         name: 'Energy Boost',
-        duration: 180,
+        duration: 180, // 3 minutes
         description: 'Quick energizing session for midday slumps',
-        pattern: [4, 0, 4, 0],
+        pattern: [4, 0, 4, 0], // In, Out (no holds)
         color: 'from-orange-500 to-yellow-400',
         icon: <Zap className="h-6 w-6" />
       },
       {
         id: '3',
         name: 'Deep Relaxation',
-        duration: 420,
+        duration: 420, // 7 minutes
         description: 'Extended session for deep relaxation',
-        pattern: [4, 7, 8, 0],
+        pattern: [4, 7, 8, 0], // In, Hold, Out
         color: 'from-purple-500 to-pink-400',
         icon: <Waves className="h-6 w-6" />
       },
       {
         id: '4',
         name: 'Sleep Prep',
-        duration: 600,
+        duration: 600, // 10 minutes
         description: 'Wind down before sleep with this gentle pattern',
-        pattern: [4, 4, 6, 2],
+        pattern: [4, 4, 6, 2], // In, Hold, Out, Hold
         color: 'from-indigo-500 to-blue-400',
         icon: <Moon className="h-6 w-6" />
       },
       {
         id: '5',
         name: 'Mindful Moment',
-        duration: 120,
+        duration: 120, // 2 minutes
         description: 'Quick mindfulness break anytime, anywhere',
-        pattern: [3, 3, 3, 3],
+        pattern: [3, 3, 3, 3], // In, Hold, Out, Hold
         color: 'from-green-500 to-emerald-400',
         icon: <Leaf className="h-6 w-6" />
       },
       {
         id: '6',
         name: 'Box Breathing',
-        duration: 240,
+        duration: 240, // 4 minutes
         description: 'Classic technique used by professionals',
-        pattern: [4, 4, 4, 4],
+        pattern: [4, 4, 4, 4], // In, Hold, Out, Hold
         color: 'from-cyan-500 to-blue-400',
         icon: <Target className="h-6 w-6" />
       }
@@ -187,59 +192,104 @@ export default function BreathingApp() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Breathing animation logic
+  // Clean up timers on unmount
   useEffect(() => {
-    if (!isPlaying || !activeSession) return;
+    return () => {
+      if (sessionTimerRef.current) clearInterval(sessionTimerRef.current);
+      if (breathingTimerRef.current) clearInterval(breathingTimerRef.current);
+    };
+  }, []);
 
-    const phases = ['Breathe In', 'Hold', 'Breathe Out', 'Hold'];
-    const pattern = activeSession.pattern;
+  const startSession = (session: BreathingSession) => {
+    setActiveSession(session);
+    setIsPlaying(true);
+    setSessionComplete(false);
+    setCurrentPhase(0);
+    setTimeLeft(session.pattern[0]);
+    setProgress(0);
+    setSessionTime(0);
+
+    // Start session timer (stopwatch)
+    sessionTimerRef.current = setInterval(() => {
+      setSessionTime(prev => prev + 1);
+    }, 1000);
+
+    // Start breathing pattern
+    startBreathingPattern(session.pattern);
+  };
+
+  const startBreathingPattern = (pattern: number[]) => {
     let currentIndex = 0;
     let phaseTimeLeft = pattern[currentIndex];
+    let cycleCount = 0;
+    const totalCycles = Math.ceil((activeSession?.duration || 300) / pattern.reduce((a, b) => a + b, 0));
 
-    const interval = setInterval(() => {
+    breathingTimerRef.current = setInterval(() => {
       setTimeLeft(phaseTimeLeft);
       setCurrentPhase(currentIndex);
       
-      const totalTime = pattern.reduce((a, b) => a + b, 0);
-      const elapsedTime = pattern.slice(0, currentIndex).reduce((a, b) => a + b, 0) + 
-                         (pattern[currentIndex] - phaseTimeLeft);
-      setProgress((elapsedTime / totalTime) * 100);
+      // Calculate progress based on total session time
+      const totalTime = activeSession?.duration || 300;
+      const currentCycleTime = cycleCount * pattern.reduce((a, b) => a + b, 0) + 
+                              pattern.slice(0, currentIndex).reduce((a, b) => a + b, 0) + 
+                              (pattern[currentIndex] - phaseTimeLeft);
+      setProgress((currentCycleTime / totalTime) * 100);
 
       phaseTimeLeft--;
 
       if (phaseTimeLeft < 0) {
         currentIndex = (currentIndex + 1) % pattern.length;
         phaseTimeLeft = pattern[currentIndex];
+        
+        // If we completed a full cycle
+        if (currentIndex === 0) {
+          cycleCount++;
+          
+          // Check if session duration is complete
+          if (cycleCount >= totalCycles) {
+            completeSession();
+          }
+        }
       }
     }, 1000);
-
-    return () => clearInterval(interval);
-  }, [isPlaying, activeSession]);
-
-  const startSession = (session: BreathingSession) => {
-    setActiveSession(session);
-    setIsPlaying(true);
-    setCurrentPhase(0);
-    setTimeLeft(session.pattern[0]);
-    setProgress(0);
   };
 
-  const stopSession = () => {
-    setIsPlaying(false);
+  const completeSession = () => {
+    stopSession();
+    setSessionComplete(true);
+    
+    // Add to history
     if (activeSession) {
       setSessionHistory(prev => [...prev, {
         date: new Date().toISOString(),
         session: activeSession.name,
-        duration: activeSession.duration
+        duration: sessionTime
       }]);
     }
   };
 
-  const skipSession = () => {
+  const stopSession = () => {
+    setIsPlaying(false);
+    if (sessionTimerRef.current) {
+      clearInterval(sessionTimerRef.current);
+      sessionTimerRef.current = null;
+    }
+    if (breathingTimerRef.current) {
+      clearInterval(breathingTimerRef.current);
+      breathingTimerRef.current = null;
+    }
+  };
+
+  const resetSession = () => {
+    stopSession();
+    setSessionComplete(false);
     if (activeSession) {
-      stopSession();
       startSession(activeSession);
     }
+  };
+
+  const skipSession = () => {
+    completeSession();
   };
 
   const getPhaseInstruction = () => {
@@ -252,7 +302,23 @@ export default function BreathingApp() {
     if (!activeSession) return 50;
     const pattern = activeSession.pattern;
     const maxTime = Math.max(...pattern);
-    return 50 + (50 * (timeLeft / maxTime));
+    const baseSize = 30;
+    const maxSize = 80;
+    
+    // Scale based on current phase time left
+    if (currentPhase === 0) { // Breathe In - expand
+      return baseSize + (maxSize - baseSize) * (1 - timeLeft / pattern[0]);
+    } else if (currentPhase === 2) { // Breathe Out - contract
+      return baseSize + (maxSize - baseSize) * (timeLeft / pattern[2]);
+    } else { // Hold phases - maintain size
+      return maxSize;
+    }
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   return (
@@ -335,12 +401,27 @@ export default function BreathingApp() {
           {activeTab === 'sessions' && (
             <div className="max-w-6xl mx-auto px-4">
               {/* Active Session View */}
-              {activeSession && isPlaying ? (
+              {activeSession && (isPlaying || sessionComplete) ? (
                 <div className="bg-slate-800/20 backdrop-blur-xl border border-slate-700/30 rounded-3xl p-8 shadow-2xl mb-8">
                   <div className="text-center">
                     <h2 className="text-3xl font-bold text-white mb-2">{activeSession.name}</h2>
                     <p className="text-slate-300 mb-8">{activeSession.description}</p>
                     
+                    {/* Session Timer */}
+                    <div className="flex justify-center mb-8">
+                      <div className="bg-slate-700/50 rounded-2xl px-6 py-3 border border-slate-600/30">
+                        <div className="flex items-center space-x-2">
+                          <Clock className="h-5 w-5 text-cyan-400" />
+                          <span className="text-2xl font-mono font-bold text-white">
+                            {formatTime(sessionTime)}
+                          </span>
+                          <span className="text-slate-400 text-sm">
+                            / {formatTime(activeSession.duration)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
                     {/* Breathing Animation */}
                     <div className="flex justify-center items-center mb-8">
                       <div className="relative">
@@ -354,44 +435,64 @@ export default function BreathingApp() {
                           }}
                         />
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <span className="text-4xl font-bold text-white">
-                            {getPhaseInstruction()}
-                          </span>
+                          <div className="text-center">
+                            <span className="text-4xl font-bold text-white block mb-2">
+                              {sessionComplete ? 'Complete!' : getPhaseInstruction()}
+                            </span>
+                            {!sessionComplete && (
+                              <span className="text-2xl text-cyan-300 font-mono">
+                                {timeLeft}s
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
 
-                    {/* Progress and Controls */}
-                    <div className="max-w-md mx-auto">
-                      <div className="bg-slate-700/30 rounded-full h-3 mb-6">
+                    {/* Progress Bar */}
+                    <div className="max-w-md mx-auto mb-8">
+                      <div className="bg-slate-700/30 rounded-full h-3">
                         <div 
                           className="bg-gradient-to-r from-cyan-500 to-blue-500 h-3 rounded-full transition-all duration-1000"
-                          style={{ width: `${progress}%` }}
+                          style={{ width: `${Math.min(progress, 100)}%` }}
                         />
                       </div>
-                      
-                      <div className="flex justify-center space-x-6">
+                    </div>
+                    
+                    {/* Controls */}
+                    <div className="flex justify-center space-x-6">
+                      {sessionComplete ? (
                         <button
-                          onClick={stopSession}
-                          className="p-4 bg-red-500/20 text-red-400 rounded-2xl hover:bg-red-500/30 transition-colors"
+                          onClick={resetSession}
+                          className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold rounded-2xl hover:from-cyan-600 hover:to-blue-700 transition-all transform hover:scale-105"
                         >
-                          <X className="h-8 w-8" />
+                          <RotateCcw className="h-6 w-6 inline mr-2" />
+                          Start Again
                         </button>
-                        
-                        <button
-                          onClick={() => setIsPlaying(!isPlaying)}
-                          className="p-4 bg-cyan-500/20 text-cyan-400 rounded-2xl hover:bg-cyan-500/30 transition-colors"
-                        >
-                          {isPlaying ? <Pause className="h-8 w-8" /> : <Play className="h-8 w-8" />}
-                        </button>
-                        
-                        <button
-                          onClick={skipSession}
-                          className="p-4 bg-blue-500/20 text-blue-400 rounded-2xl hover:bg-blue-500/30 transition-colors"
-                        >
-                          <SkipForward className="h-8 w-8" />
-                        </button>
-                      </div>
+                      ) : (
+                        <>
+                          <button
+                            onClick={stopSession}
+                            className="p-4 bg-red-500/20 text-red-400 rounded-2xl hover:bg-red-500/30 transition-colors"
+                          >
+                            <X className="h-8 w-8" />
+                          </button>
+                          
+                          <button
+                            onClick={() => setIsPlaying(!isPlaying)}
+                            className="p-4 bg-cyan-500/20 text-cyan-400 rounded-2xl hover:bg-cyan-500/30 transition-colors"
+                          >
+                            {isPlaying ? <Pause className="h-8 w-8" /> : <Play className="h-8 w-8" />}
+                          </button>
+                          
+                          <button
+                            onClick={skipSession}
+                            className="p-4 bg-blue-500/20 text-blue-400 rounded-2xl hover:bg-blue-500/30 transition-colors"
+                          >
+                            <SkipForward className="h-8 w-8" />
+                          </button>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -414,7 +515,7 @@ export default function BreathingApp() {
                       <div className="flex items-center justify-between text-slate-400 text-sm">
                         <div className="flex items-center">
                           <Clock className="h-4 w-4 mr-1" />
-                          {Math.floor(session.duration / 60)}min
+                          {formatTime(session.duration)}
                         </div>
                         <div className="flex items-center space-x-1">
                           {session.pattern.map((time, index) => (
@@ -498,7 +599,7 @@ export default function BreathingApp() {
                       <Play className="h-6 w-6 text-cyan-400" />
                     </div>
                     <h3 className="text-cyan-100 font-semibold">Total Sessions</h3>
-                    <p className="text-2xl font-bold text-cyan-300 mt-2">24</p>
+                    <p className="text-2xl font-bold text-cyan-300 mt-2">{sessionHistory.length}</p>
                   </div>
                   
                   <div className="bg-slate-700/30 rounded-2xl p-6 text-center border border-slate-600/30">
@@ -506,7 +607,9 @@ export default function BreathingApp() {
                       <Clock className="h-6 w-6 text-blue-400" />
                     </div>
                     <h3 className="text-blue-100 font-semibold">Total Time</h3>
-                    <p className="text-2xl font-bold text-blue-300 mt-2">2h 18m</p>
+                    <p className="text-2xl font-bold text-blue-300 mt-2">
+                      {formatTime(sessionHistory.reduce((total, session) => total + session.duration, 0))}
+                    </p>
                   </div>
                   
                   <div className="bg-slate-700/30 rounded-2xl p-6 text-center border border-slate-600/30">
@@ -514,7 +617,15 @@ export default function BreathingApp() {
                       <Crown className="h-6 w-6 text-purple-400" />
                     </div>
                     <h3 className="text-purple-100 font-semibold">Favorite</h3>
-                    <p className="text-lg font-bold text-purple-300 mt-2">Calm Focus</p>
+                    <p className="text-lg font-bold text-purple-300 mt-2">
+                      {sessionHistory.length > 0 
+                        ? sessionHistory.reduce((a, b) => 
+                            sessionHistory.filter(s => s.session === a.session).length > 
+                            sessionHistory.filter(s => s.session === b.session).length ? a : b
+                          ).session
+                        : 'N/A'
+                      }
+                    </p>
                   </div>
                 </div>
                 
@@ -529,7 +640,7 @@ export default function BreathingApp() {
                             {new Date(session.date).toLocaleDateString()}
                           </span>
                         </div>
-                        <span className="text-cyan-400">{Math.floor(session.duration / 60)}min</span>
+                        <span className="text-cyan-400">{formatTime(session.duration)}</span>
                       </div>
                     ))}
                   </div>
