@@ -993,8 +993,10 @@ export default function StorePage() {
       const token = localStorage.getItem('authToken');
       
       if (!token) {
+        // Allow access to store without authentication
         setAuthLoading(false);
-        router.push('/login?redirect=/store');
+        setMe(null);
+        await loadInitialData();
         return;
       }
 
@@ -1019,15 +1021,19 @@ export default function StorePage() {
           
           await loadInitialData();
         } else {
+          // If token is invalid but user is trying to access store, still allow access
           localStorage.removeItem('authToken');
           setAuthLoading(false);
-          router.push('/login?redirect=/store');
+          setMe(null);
+          await loadInitialData();
         }
       } catch (error) {
         console.error('Auth check failed:', error);
+        // On error, still allow access to the store
         localStorage.removeItem('authToken');
         setAuthLoading(false);
-        router.push('/login?redirect=/store');
+        setMe(null);
+        await loadInitialData();
       }
     };
 
