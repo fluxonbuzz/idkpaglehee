@@ -1,17 +1,45 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { createClient } from '@supabase/supabase-js';
 
+// Initialize Supabase client
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  }
 );
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // Set CORS headers
+// Helper function to handle CORS
+const allowCors = (res: NextApiResponse) => {
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
+};
+
+// Helper function to handle errors
+const handleError = (res: NextApiResponse, status: number, message: string, error?: any) => {
+  console.error(`[${status}] ${message}`, error);
+  return res.status(status).json({
+    success: false,
+    message,
+    error: process.env.NODE_ENV === 'development' ? error?.message : undefined
+  });
+};
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // Handle CORS preflight
+  if (req.method === 'OPTIONS') {
+    allowCors(res);
+    return res.status(200).end();
+  }
+
+  // Set CORS headers for all responses
+  allowCors(res);
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
@@ -19,23 +47,55 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === 'GET') {
     try {
-      const { data: products, error } = await supabase
+      // Add pagination and filtering
+      const { page = 1, limit = 20, category } = req.query;
+      const offset = (Number(page) - 1) * Number(limit);
+      
+      let query = supabase
         .from('products')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .select('*', { count: 'exact' });
+      
+      // Apply filters if provided
+      if (category) {
+        query = query.eq('category', category);
+      }
+      
+      // Add pagination and ordering
+      query = query
+        .order('created_at', { ascending: false })
+        .range(offset, offset + Number(limit) - 1);
+      
+      const { data: products, error, count } = await query;
 
       if (error) {
         console.error('Error fetching products:', error);
-        return res.status(500).json({ message: 'Failed to fetch products', error: error.message });
+        return res.status(500).json({ 
+          success: false,
+          message: 'Failed to fetch products', 
+          error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
       }
       
       return res.status(200).json({ 
-        products: products || [],
+        success: true,
+        data: {
+          products: products || [],
+          pagination: {
+            total: count || 0,
+            page: Number(page),
+            limit: Number(limit),
+            totalPages: Math.ceil((count || 0) / Number(limit))
+          }
+        },
         message: 'Products fetched successfully'
       });
     } catch (error: any) {
       console.error('Server error:', error);
-      return res.status(500).json({ message: 'Internal server error', error: error.message });
+      return res.status(500).json({ 
+        success: false,
+        message: 'Internal server error', 
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
     }
   }
 

@@ -1055,16 +1055,36 @@ export default function StorePage() {
     setAuthLoading(false);
   };
 
-  const loadProducts = async () => {
+  const loadProducts = async (page = 1, limit = 20, category?: string) => {
     setProductsLoading(true);
+    setError(null);
+    
     try {
-      const res = await fetch('/api/products');
-      if (!res.ok) throw new Error('Failed to load products');
+      // Build query string with pagination and filters
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+        ...(category && { category })
+      });
+      
+      const res = await fetch(`/api/products?${params.toString()}`);
       const data = await res.json();
-      setProducts(data.products || []);
+      
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || 'Failed to load products');
+      }
+      
+      setProducts(data.data.products || []);
+      setPagination(data.data.pagination || {});
     } catch (error) {
       console.error('Error loading products:', error);
-      setProducts([]);
+      setError(error instanceof Error ? error.message : 'Failed to load products. Please try again later.');
+      if (typeof window !== 'undefined' && window.showToast) {
+        window.showToast({
+          message: error instanceof Error ? error.message : 'Failed to load products',
+          type: 'error'
+        });
+      }
     } finally {
       setProductsLoading(false);
     }
