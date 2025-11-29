@@ -1,7 +1,14 @@
-import { useState, useEffect, useRef } from 'react';
-import { ShoppingCart, Zap, Star, Tag, Gift, ShieldCheck, Download, X, Check, ArrowRight, Home, Users, AlertCircle, Clock, Plus, Edit, Trash2, Search, Heart, ChevronRight, ChevronLeft, Menu, User, Package, Settings, MessageCircle, LogOut, Bell, CreditCard, MapPin, BarChart3, Camera, QrCode, Shirt } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { 
+  ShoppingCart, Zap, Star, Tag, Gift, ShieldCheck, Download, X, Check, 
+  ArrowRight, Home, Users, AlertCircle, Clock, Plus, Edit, Trash2, 
+  Search, Heart, ChevronRight, ChevronLeft, Menu, User, Package, 
+  Settings, MessageCircle, LogOut, Bell, CreditCard, MapPin, 
+  BarChart3, Camera, QrCode, Shirt 
+} from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import Image from 'next/image';
 
 interface Product {
   id: string;
@@ -988,174 +995,26 @@ export default function StorePage() {
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [showQRCode, setShowQRCode] = useState(false);
   const [currentQRCode, setCurrentQRCode] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0, pages: 1 });
 
   const cartIconRef = useRef<HTMLButtonElement>(null);
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    
-    const initializeApp = async () => {
-      const token = localStorage.getItem('authToken');
-      
-      if (!token) {
-        // Allow access to store without authentication
-        setAuthLoading(false);
-        setMe(null);
-        await loadInitialData();
-        return;
-      }
-
-      try {
-        const meRes = await fetch('/api/auth/me', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-
-        if (meRes.ok) {
-          const meData = await meRes.json();
-          const userData = meData.user || meData;
-          
-          setMe({
-            id: userData.id,
-            email: userData.email,
-            name: userData.name,
-            role: userData.role || 'user'
-          });
-          
-          await loadInitialData();
-        } else {
-          // If token is invalid but user is trying to access store, still allow access
-          localStorage.removeItem('authToken');
-          setAuthLoading(false);
-          setMe(null);
-          await loadInitialData();
-        }
-      } catch (error) {
-        console.error('Auth check failed:', error);
-        // On error, still allow access to the store
-        localStorage.removeItem('authToken');
-        setAuthLoading(false);
-        setMe(null);
-        await loadInitialData();
-      }
-    };
-
-    initializeApp();
+  const showToast = useCallback((message: string, type: 'success' | 'error' | 'info' = 'success') => {
+    setToast({ message, type });
   }, []);
 
-  const loadInitialData = async () => {
-    await Promise.all([
-      loadProducts(),
-      loadOrders(),
-      loadWishlist()
-    ]);
-    
-    if (typeof window !== 'undefined') {
-      const savedCart = localStorage.getItem('redstore-cart');
-      if (savedCart) {
-        try {
-          setCart(JSON.parse(savedCart));
-        } catch (error) {
-          setCart([]);
-        }
-      }
-    }
-    
-    setAuthLoading(false);
-  };
-
-  const loadProducts = async (page = 1, limit = 20, category?: string) => {
-    setProductsLoading(true);
-    setError(null);
-    
-    try {
-      // Build query string with pagination and filters
-      const params = new URLSearchParams({
-        page: page.toString(),
-        limit: limit.toString(),
-        ...(category && { category })
-      });
-      
-      const res = await fetch(`/api/products?${params.toString()}`);
-      const data = await res.json();
-      
-      if (!res.ok || !data.success) {
-        throw new Error(data.message || 'Failed to load products');
-      }
-      
-      setProducts(data.data.products || []);
-      setPagination(data.data.pagination || {});
-    } catch (error) {
-      console.error('Error loading products:', error);
-      setError(error instanceof Error ? error.message : 'Failed to load products. Please try again later.');
-      if (typeof window !== 'undefined' && window.showToast) {
-        window.showToast({
-          message: error instanceof Error ? error.message : 'Failed to load products',
-          type: 'error'
-        });
-      }
-    } finally {
-      setProductsLoading(false);
-    }
-  };
-
-  const loadOrders = async () => {
-    setOrdersLoading(true);
-    try {
-      const token = localStorage.getItem('authToken');
-      if (!token) return;
-
-      const res = await fetch('/api/orders', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setMyOrders(data.orders || []);
-      }
-    } catch (error) {
-      console.error('Error loading orders:', error);
-      setMyOrders([]);
-    } finally {
-      setOrdersLoading(false);
-    }
-  };
-
-  const loadWishlist = async () => {
-    try {
-      const token = localStorage.getItem('authToken');
-      if (!token) return;
-
-      const res = await fetch('/api/wishlist', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setWishlist(data.wishlist?.map((item: any) => item.product_id) || []);
-      }
-    } catch (error) {
-      console.error('Error loading wishlist:', error);
-    }
-  };
-
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      localStorage.setItem('redstore-cart', JSON.stringify(cart));
+      (window as any).showToast = showToast;
     }
-  }, [cart]);
-
-  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
-    setToast({ message, type });
-  };
+    return () => {
+      if (typeof window !== 'undefined') {
+        delete (window as any).showToast;
+      }
+    };
+  }, [showToast]);
 
   const animateCart = () => {
     if (cartIconRef.current) {
@@ -1378,7 +1237,7 @@ export default function StorePage() {
   };
 
   // Enhanced Slide Bar Component with Red Theme
-  const SlideBar = () => (
+  const SlideBar = useCallback(() => (
     <div className={`fixed inset-0 z-50 transform transition-transform duration-300 ease-in-out ${
       sidebarOpen ? 'translate-x-0' : '-translate-x-full'
     }`}>
@@ -1481,10 +1340,10 @@ export default function StorePage() {
         </div>
       </div>
     </div>
-  );
+  ), [sidebarOpen, me, activeTab, adminSection]);
 
   // Bottom Navigation Component
-  const BottomNav = () => (
+  const BottomNav = useCallback(() => (
     <div className="fixed bottom-0 left-0 right-0 bg-gray-800/90 backdrop-blur-lg border-t border-gray-700/50 z-40 md:hidden">
       <div className="flex justify-around items-center p-3">
         {[
@@ -1509,7 +1368,7 @@ export default function StorePage() {
   );
 
   // Render different sections based on active tab
-  const renderActiveSection = () => {
+  const renderActiveSection = useCallback(() => {
     switch (activeTab) {
       case 'orders':
         return <OrdersSection orders={myOrders} />;
