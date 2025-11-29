@@ -965,7 +965,12 @@ export default function StorePage() {
   const [discountError, setDiscountError] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedMod, setSelectedMod] = useState<{ name: string; price: number } | null>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarItems, setSidebarItems] = useState([
+    { id: 'home', label: 'Home', icon: <Home size={20} />, onClick: () => setActiveTab('home') },
+    { id: 'orders', label: 'Orders', icon: <Package size={20} />, onClick: () => setActiveTab('orders') },
+    { id: 'wishlist', label: 'Wishlist', icon: <Heart size={20} />, onClick: () => setActiveTab('wishlist') },
+    { id: 'profile', label: 'Profile', icon: <User size={20} />, onClick: () => setActiveTab('profile') },
+  ]);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [me, setMe] = useState<User | null>(null);
   const [myOrders, setMyOrders] = useState<any[]>([]);
@@ -1382,7 +1387,7 @@ export default function StorePage() {
         <div className="p-6">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-xl font-bold bg-gradient-to-r from-red-400 to-orange-400 bg-clip-text text-transparent">
-              Red Store
+              My Store
             </h2>
             <button 
               onClick={() => setSidebarOpen(false)}
@@ -1408,38 +1413,17 @@ export default function StorePage() {
           )}
           
           <nav className="space-y-2 mb-8">
-            <button 
-              onClick={() => { setActiveTab('home'); setSidebarOpen(false); }}
-              className={`w-full flex items-center gap-3 p-3 rounded-2xl transition-all ${
-                activeTab === 'home' ? 'bg-red-600/20 text-red-300' : 'hover:bg-gray-700/50'
-              }`}
-            >
-              <Home size={20} /> Home
-            </button>
-            <button 
-              onClick={() => { setActiveTab('orders'); setSidebarOpen(false); }}
-              className={`w-full flex items-center gap-3 p-3 rounded-2xl transition-all ${
-                activeTab === 'orders' ? 'bg-red-600/20 text-red-300' : 'hover:bg-gray-700/50'
-              }`}
-            >
-              <Package size={20} /> My Orders
-            </button>
-            <button 
-              onClick={() => { setActiveTab('wishlist'); setSidebarOpen(false); }}
-              className={`w-full flex items-center gap-3 p-3 rounded-2xl transition-all ${
-                activeTab === 'wishlist' ? 'bg-red-600/20 text-red-300' : 'hover:bg-gray-700/50'
-              }`}
-            >
-              <Heart size={20} /> Wishlist
-            </button>
-            <button 
-              onClick={() => { setActiveTab('profile'); setSidebarOpen(false); }}
-              className={`w-full flex items-center gap-3 p-3 rounded-2xl transition-all ${
-                activeTab === 'profile' ? 'bg-red-600/20 text-red-300' : 'hover:bg-gray-700/50'
-              }`}
-            >
-              <User size={20} /> Profile
-            </button>
+            {sidebarItems.map((item) => (
+              <button 
+                key={item.id}
+                onClick={item.onClick}
+                className={`w-full flex items-center gap-3 p-3 rounded-2xl transition-all ${
+                  activeTab === item.id ? 'bg-red-600/20 text-red-300' : 'hover:bg-gray-700/50'
+                }`}
+              >
+                {item.icon} {item.label}
+              </button>
+            ))}
           </nav>
 
           {me?.role === 'admin' && (
