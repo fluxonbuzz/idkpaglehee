@@ -1365,49 +1365,144 @@ export default function StorePage() {
             <Icon size={20} />
             <span className="text-xs mt-1">{label}</span>
           </button>
-        ))}
+        </div>
+        
+        {me && (
+          <div className="mb-8 p-4 bg-gray-700/30 rounded-2xl">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-red-600 to-orange-600 rounded-2xl flex items-center justify-center text-white font-bold">
+                {me.name?.charAt(0) || me.email.charAt(0).toUpperCase()}
+              </div>
+              <div className="flex-1">
+                <div className="font-semibold">{me.name || 'User'}</div>
+                <div className="text-sm text-gray-400">{me.email}</div>
+                <div className="text-xs text-red-300 capitalize mt-1">{me.role}</div>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        <nav className="space-y-2 mb-8">
+          {sidebarItems.map((item) => (
+            <button 
+              key={item.id}
+              onClick={item.onClick}
+              className={`w-full flex items-center gap-3 p-3 rounded-2xl transition-all ${
+                activeTab === item.id ? 'bg-red-600/20 text-red-300' : 'hover:bg-gray-700/50'
+              }`}
+            >
+              {item.icon} {item.label}
+            </button>
+          ))}
+        </nav>
+
+        {me?.role === 'admin' && (
+          <div className="mb-8">
+            <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3 px-3">Admin</h3>
+            <nav className="space-y-2">
+              {['dashboard', 'products', 'jerseys', 'orders', 'users', 'settings'].map((section) => (
+                <button
+                  key={section}
+                  onClick={() => {
+                    setAdminSection(section);
+                    setShowAdminPanel(true);
+                    setSidebarOpen(false);
+                  }}
+                  className={`w-full flex items-center gap-3 p-3 rounded-2xl transition-all text-left ${
+                    adminSection === section ? 'bg-red-600/20 text-red-300' : 'hover:bg-gray-700/50'
+                  }`}
+                >
+                  {section === 'dashboard' && <BarChart3 size={18} />}
+                  {section === 'products' && <Package size={18} />}
+                  {section === 'jerseys' && <Shirt size={18} />}
+                  {section === 'orders' && <ShoppingCart size={18} />}
+                  {section === 'users' && <Users size={18} />}
+                  {section === 'settings' && <Settings size={18} />}
+                  {section.charAt(0).toUpperCase() + section.slice(1)}
+                </button>
+              ))}
+            </nav>
+          </div>
+        )}
+
+        <div className="space-y-2">
+          <button 
+            onClick={() => { setShowSupport(true); setSidebarOpen(false); }}
+            className="w-full flex items-center gap-3 p-3 rounded-2xl hover:bg-gray-700/50 transition-all"
+          >
+            <MessageCircle size={20} /> Support Chat
+          </button>
+          <button 
+            onClick={() => {
+              localStorage.removeItem('authToken');
+              localStorage.removeItem('redstore-cart');
+              localStorage.removeItem('redstore-wishlist');
+              setMe(null);
+              setMyOrders([]);
+              setCart([]);
+              setWishlist([]);
+              router.push('/login');
+            }}
+            className="w-full flex items-center gap-3 p-3 rounded-2xl hover:bg-red-500/20 text-red-400 transition-all"
+          >
+            <LogOut size={20} /> Logout
+          </button>
+        </div>
       </div>
     </div>
-  ), [activeTab]);
+  </div>
+), [sidebarOpen, me, activeTab, adminSection]);
 
-  // Render different sections based on active tab
-  const renderActiveSection = useCallback(() => {
-    switch (activeTab) {
-      case 'orders':
-        return <OrdersSection orders={myOrders} />;
-      case 'wishlist':
-        return <WishlistSection 
-          products={products.filter(p => wishlist.includes(p.id))}
-          onProductSelect={setSelectedProduct}
-          onWishlistToggle={toggleWishlist}
-        />;
-      case 'profile':
-        return <ProfileSection user={me} />;
-      case 'home':
-      default:
-        return (
-          <HomeSection
-            products={products}
-            searchQuery={searchQuery}
-            onProductSelect={setSelectedProduct}
-            onWishlistToggle={toggleWishlist}
-            wishlist={wishlist}
-            productsLoading={productsLoading}
-          />
-        );
+// Bottom Navigation Component
+const BottomNav = useCallback(() => (
+  <div className="fixed bottom-0 left-0 right-0 bg-gray-800/90 backdrop-blur-lg border-t border-gray-700/50 z-40 md:hidden">
+    <div className="flex justify-around items-center p-3">
+      {[
+        { id: 'home', icon: Home, label: 'Home' },
+        { id: 'orders', icon: Package, label: 'Orders' },
+        { id: 'wishlist', icon: Heart, label: 'Wishlist' },
+        { id: 'profile', icon: User, label: 'Profile' }
+      ].map(({ id, icon: Icon, label }) => (
+        <button
+          key={id}
+          onClick={() => setActiveTab(id)}
+          className={`flex flex-col items-center p-2 rounded-2xl transition-all flex-1 mx-1 ${
+            activeTab === id ? 'text-red-400 bg-red-600/20' : 'text-gray-400'
+          }`}
+        >
+          <Icon size={20} />
+          <span className="text-xs mt-1">{label}</span>
+        </button>
+      ))}
+    </div>
+  </div>
+), [activeTab]);
+
+// Render different sections based on active tab
+const renderActiveSection = useCallback(() => {
+  switch (activeTab) {
+    case 'orders':
+      return <OrdersSection orders={myOrders} />;
+    case 'wishlist':
+      return <WishlistSection 
+        products={products.filter(p => wishlist.includes(p.id))}
+        onProductSelect={setSelectedProduct}
+        onWishlistToggle={toggleWishlist}
+      />;
+    case 'profile':
+      return <ProfileSection user={me} />;
+    case 'home':
+    default:
+      return (
+        <HomeSection
+          products={products}
           searchQuery={searchQuery}
           onProductSelect={setSelectedProduct}
           onWishlistToggle={toggleWishlist}
           wishlist={wishlist}
           productsLoading={productsLoading}
-        />;
-    }
-  };
-
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-red-900 flex items-center justify-center">
-        <div className="text-center">
+        />
+      );
           <div className="w-12 h-12 border-4 border-red-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <div className="text-white text-xl">Loading store...</div>
         </div>
