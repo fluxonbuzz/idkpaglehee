@@ -1043,12 +1043,19 @@ export default function StorePage() {
         console.log('[Debug] Fetching products...');
         const res = await fetch('/api/products');
         console.log('[Debug] Products response status:', res.status);
-        const data = await res.json();
-        console.log('[Debug] Products data:', data);
-        setProducts(data.products || []);
+        const response = await res.json();
+        console.log('[Debug] Products data:', response);
         
-        if (data.pagination) {
-          setPagination(data.pagination);
+        // Handle the API response format: { success: true, data: { products: [...] }, message: '...' }
+        if (response.success && response.data && Array.isArray(response.data.products)) {
+          setProducts(response.data.products);
+          
+          if (response.data.pagination) {
+            setPagination(response.data.pagination);
+          }
+        } else {
+          console.error('[Debug] Unexpected products data format:', response);
+          setError('Failed to load products. Invalid data format.');
         }
       } catch (error) {
         console.error('[Debug] Error loading products:', error);
