@@ -1002,6 +1002,24 @@ export default function StorePage() {
 
   const cartIconRef = useRef<HTMLButtonElement>(null);
 
+  const loadProducts = useCallback(async () => {
+    try {
+      setProductsLoading(true);
+      const res = await fetch('/api/products');
+      if (!res.ok) throw new Error('Failed to load products');
+      const data = await res.json();
+      setProducts(data.products || []);
+      if (data.pagination) {
+        setPagination(data.pagination);
+      }
+    } catch (err) {
+      console.error('Error loading products:', err);
+      setError('Failed to load products. Please try again later.');
+    } finally {
+      setProductsLoading(false);
+    }
+  }, []);
+
   const showToast = useCallback((message: string, type: 'success' | 'error' | 'info' = 'success') => {
     setToast({ message, type });
   }, []);
@@ -1009,13 +1027,15 @@ export default function StorePage() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       (window as any).showToast = showToast;
+      // Load products when component mounts
+      loadProducts();
     }
     return () => {
       if (typeof window !== 'undefined') {
         delete (window as any).showToast;
       }
     };
-  }, [showToast]);
+  }, [showToast, loadProducts]);
 
   const animateCart = () => {
     if (cartIconRef.current) {
