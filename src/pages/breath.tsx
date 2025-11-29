@@ -342,7 +342,7 @@ export default function BreathingApp() {
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')`;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   // Update ripples for animation
@@ -362,6 +362,12 @@ export default function BreathingApp() {
     return () => clearInterval(interval);
   }, [ripples.length]);
 
+  // Get background style for canvas
+  const getCanvasBackground = () => {
+    if (!activeSession?.lightColor) return 'none';
+    return `radial-gradient(circle at 30% 20%, ${activeSession.lightColor}20 0%, transparent 50%), radial-gradient(circle at 70% 80%, ${activeSession.lightColor}15 0%, transparent 50%)`;
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden">
       {/* Animated Background */}
@@ -369,7 +375,7 @@ export default function BreathingApp() {
         ref={canvasRef} 
         className="absolute inset-0 pointer-events-none transition-all duration-1000"
         style={{
-          background: activeSession?.gradient ? `radial-gradient(circle at 30% 20%, ${activeSession.lightColor}20 0%, transparent 50%), radial-gradient(circle at 70% 80%, ${activeSession.lightColor}15 0%, transparent 50%)` : 'none'
+          background: getCanvasBackground()
         }}
       />
       
