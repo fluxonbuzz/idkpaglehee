@@ -998,8 +998,6 @@ export default function StorePage() {
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [showQRCode, setShowQRCode] = useState(false);
   const [currentQRCode, setCurrentQRCode] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0, pages: 1 });
 
   const cartIconRef = useRef<HTMLButtonElement>(null);
