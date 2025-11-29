@@ -1002,6 +1002,65 @@ export default function StorePage() {
 
   const cartIconRef = useRef<HTMLButtonElement>(null);
 
+  // Debug: Check authentication status
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = localStorage.getItem('authToken');
+      console.log('[Debug] Auth token exists:', !!token);
+      
+      if (token) {
+        try {
+          console.log('[Debug] Fetching user data...');
+          const userRes = await fetch('/api/auth/me', {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          
+          console.log('[Debug] User data response status:', userRes.status);
+          
+          if (userRes.ok) {
+            const userData = await userRes.json();
+            console.log('[Debug] User data:', userData);
+            setMe(userData);
+          } else {
+            console.error('[Debug] Failed to fetch user data');
+            localStorage.removeItem('authToken');
+          }
+        } catch (error) {
+          console.error('[Debug] Auth check error:', error);
+        }
+      }
+    };
+    
+    checkAuth();
+  }, []);
+
+  // Debug: Check products loading
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        console.log('[Debug] Fetching products...');
+        const res = await fetch('/api/products');
+        console.log('[Debug] Products response status:', res.status);
+        const data = await res.json();
+        console.log('[Debug] Products data:', data);
+        setProducts(data.products || []);
+        
+        if (data.pagination) {
+          setPagination(data.pagination);
+        }
+      } catch (error) {
+        console.error('[Debug] Error loading products:', error);
+        setError('Failed to load products. Please try again later.');
+      } finally {
+        setProductsLoading(false);
+      }
+    };
+    
+    fetchProducts();
+  }, []);
+
   const loadProducts = useCallback(async () => {
     try {
       setProductsLoading(true);
