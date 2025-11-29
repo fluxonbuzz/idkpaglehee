@@ -1365,6 +1365,10 @@ export default function StorePage() {
             <Icon size={20} />
             <span className="text-xs mt-1">{label}</span>
           </button>
+        ))}
+      </div>
+    </div>
+  ), [activeTab]);
 
   // Render different sections based on active tab
   const renderActiveSection = useCallback(() => {
