@@ -1362,10 +1362,6 @@ export default function StorePage() {
             <Icon size={20} />
             <span className="text-xs mt-1">{label}</span>
           </button>
-        ))}
-      </div>
-    </div>
-  );
 
   // Render different sections based on active tab
   const renderActiveSection = useCallback(() => {
@@ -1380,9 +1376,18 @@ export default function StorePage() {
         />;
       case 'profile':
         return <ProfileSection user={me} />;
+      case 'home':
       default:
-        return <HomeSection 
-          products={products}
+        return (
+          <HomeSection
+            products={products}
+            searchQuery={searchQuery}
+            onProductSelect={setSelectedProduct}
+            onWishlistToggle={toggleWishlist}
+            wishlist={wishlist}
+            productsLoading={productsLoading}
+          />
+        );
           searchQuery={searchQuery}
           onProductSelect={setSelectedProduct}
           onWishlistToggle={toggleWishlist}
