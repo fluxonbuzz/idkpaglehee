@@ -1,9 +1,16 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
+// Initialize the admin client for server-side operations
+const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  }
 );
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -30,8 +37,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   
   try {
     // Verify token and get user
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
     if (authError || !user) {
+      console.error('Auth error:', authError);
       return res.status(401).json({ 
         success: false,
         message: 'Invalid or expired token' 
@@ -40,6 +48,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const userId = user.id;
 
+    // Create an authenticated client for this request
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        global: {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      }
+    );
+
     // Handle GET request
     if (req.method === 'GET') {
       const { data: wishlist, error } = await supabase
@@ -47,7 +68,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .select('*')
         .eq('user_id', userId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching wishlist:', error);
+        throw error;
+      }
       
       return res.status(200).json({ 
         success: true,
@@ -84,7 +108,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         });
       }
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error adding to wishlist:', error);
+        throw error;
+      }
       
       return res.status(201).json({ 
         success: true,
@@ -109,7 +136,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .eq('user_id', userId)
         .eq('product_id', productId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error removing from wishlist:', error);
+        throw error;
+      }
       
       return res.status(200).json({ 
         success: true,
