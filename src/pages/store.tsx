@@ -712,8 +712,6 @@ export default function StorePage() {
   const [authLoading, setAuthLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
-  const [wishlist, setWishlist] = useState<string[]>([]);
-  const [productsLoading, setProductsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('home');
   const [showSupport, setShowSupport] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -775,8 +773,7 @@ export default function StorePage() {
   const loadInitialData = async () => {
     await Promise.all([
       loadProducts(),
-      loadOrders(),
-      loadWishlist()
+      loadOrders()
     ]);
     
     // Load cart from localStorage (client-side only)
@@ -834,30 +831,6 @@ export default function StorePage() {
     }
   };
 
-  const loadWishlist = async () => {
-    try {
-      const token = localStorage.getItem('authToken');
-      if (!token) return;
-
-      const res = await fetch('/api/wishlist', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setWishlist(data.wishlist?.map((item: any) => item.product_id) || []);
-      } else {
-        const error = await res.json().catch(() => ({}));
-        console.error('Failed to load wishlist:', error.message || 'Unknown error');
-      }
-    } catch (error) {
-      console.error('Error loading wishlist:', error);
-    }
-  };
-
   useEffect(() => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('sx-cart', JSON.stringify(cart));
@@ -874,56 +847,6 @@ export default function StorePage() {
       setTimeout(() => {
         cartIconRef.current?.classList.remove('animate-bounce');
       }, 600);
-    }
-  };
-
-  const toggleWishlist = async (productId: string) => {
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-      showToast('Please login to manage wishlist', 'error');
-      return;
-    }
-
-    try {
-      const isInWishlist = wishlist.includes(productId);
-      const method = isInWishlist ? 'DELETE' : 'POST';
-      const url = isInWishlist ? `/api/wishlist?id=${productId}` : '/api/wishlist';
-
-      const res = await fetch(url, {
-        method,
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        ...(method === 'POST' && { 
-          body: JSON.stringify({ product_id: productId }) 
-        })
-      });
-
-      const responseData = await res.json().catch(() => ({}));
-      
-      if (!res.ok) {
-        // If it's a duplicate, we'll still consider it a success
-        if (responseData.is_duplicate) {
-          setWishlist((prev: string[]) => [...prev, productId]);
-          showToast('Already in wishlist');
-          return;
-        }
-        throw new Error(responseData.message || 'Failed to update wishlist');
-      }
-
-      // Update the wishlist state
-      setWishlist((prev: string[]) => {
-        const newWishlist = isInWishlist
-          ? prev.filter(id => id !== productId)
-          : [...prev, productId];
-        
-        showToast(isInWishlist ? 'Removed from wishlist' : 'Added to wishlist');
-        return newWishlist;
-      });
-    } catch (error: any) {
-      console.error('Wishlist update error:', error);
-      showToast(error.message || 'Failed to update wishlist', 'error');
     }
   };
 
@@ -1141,14 +1064,6 @@ export default function StorePage() {
               <Package size={20} /> My Orders
             </button>
             <button 
-              onClick={() => { setActiveTab('wishlist'); setSidebarOpen(false); }}
-              className={`w-full flex items-center gap-3 p-3 rounded-2xl transition-all ${
-                activeTab === 'wishlist' ? 'bg-purple-600/20 text-purple-300' : 'hover:bg-gray-700/50'
-              }`}
-            >
-              <Heart size={20} /> Wishlist
-            </button>
-            <button 
               onClick={() => { setActiveTab('profile'); setSidebarOpen(false); }}
               className={`w-full flex items-center gap-3 p-3 rounded-2xl transition-all ${
                 activeTab === 'profile' ? 'bg-purple-600/20 text-purple-300' : 'hover:bg-gray-700/50'
@@ -1197,11 +1112,9 @@ export default function StorePage() {
               onClick={() => {
                 localStorage.removeItem('authToken');
                 localStorage.removeItem('sx-cart');
-                localStorage.removeItem('sx-wishlist');
                 setMe(null);
                 setMyOrders([]);
                 setCart([]);
-                setWishlist([]);
                 router.push('/login');
               }}
               className="w-full flex items-center gap-3 p-3 rounded-2xl hover:bg-red-500/20 text-red-400 transition-all"
@@ -1220,8 +1133,7 @@ export default function StorePage() {
       <div className="flex justify-around items-center p-3">
         {[
           { id: 'home', icon: Home, label: 'Home' },
-          { id: 'orders', icon: Package, label: 'Orders' },
-          { id: 'wishlist', icon: Heart, label: 'Wishlist' },
+          { id: 'orders', icon: Package, label: 'My Orders' },
           { id: 'profile', icon: User, label: 'Profile' }
         ].map(({ id, icon: Icon, label }) => (
           <button
@@ -1244,12 +1156,6 @@ export default function StorePage() {
     switch (activeTab) {
       case 'orders':
         return <OrdersSection orders={myOrders} />;
-      case 'wishlist':
-        return <WishlistSection 
-          products={products.filter(p => wishlist.includes(p.id))}
-          onProductSelect={setSelectedProduct}
-          onWishlistToggle={toggleWishlist}
-        />;
       case 'profile':
         return <ProfileSection user={me} />;
       default:
@@ -1257,8 +1163,6 @@ export default function StorePage() {
           products={products}
           searchQuery={searchQuery}
           onProductSelect={setSelectedProduct}
-          onWishlistToggle={toggleWishlist}
-          wishlist={wishlist}
           productsLoading={productsLoading}
         />;
     }
@@ -1395,7 +1299,7 @@ export default function StorePage() {
 }
 
 // Section Components
-const HomeSection = ({ products, searchQuery, onProductSelect, onWishlistToggle, wishlist, productsLoading }: any) => {
+const HomeSection = ({ products, searchQuery, onProductSelect, productsLoading }: any) => {
   const categoryNames = {
     bundle: 'Special Bundles',
     account: 'Premium Accounts',
@@ -1477,8 +1381,6 @@ const HomeSection = ({ products, searchQuery, onProductSelect, onWishlistToggle,
                     key={product.id}
                     product={product}
                     onSelect={onProductSelect}
-                    onWishlistToggle={onWishlistToggle}
-                    isInWishlist={wishlist.includes(product.id)}
                   />
                 ))}
               </div>
@@ -1492,8 +1394,6 @@ const HomeSection = ({ products, searchQuery, onProductSelect, onWishlistToggle,
               key={product.id}
               product={product}
               onSelect={onProductSelect}
-              onWishlistToggle={onWishlistToggle}
-              isInWishlist={wishlist.includes(product.id)}
             />
           ))}
         </div>
@@ -1554,29 +1454,6 @@ const OrdersSection = ({ orders }: any) => (
   </div>
 );
 
-const WishlistSection = ({ products, onProductSelect, onWishlistToggle }: any) => (
-  <div>
-    <h2 className="text-2xl font-bold mb-8">My Wishlist</h2>
-    {products.length === 0 ? (
-      <div className="text-center py-16">
-        <Heart className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-        <p className="text-gray-400">Your wishlist is empty</p>
-      </div>
-    ) : (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {products.map((product: any) => (
-          <ProductCard 
-            key={product.id}
-            product={product}
-            onSelect={onProductSelect}
-            onWishlistToggle={onWishlistToggle}
-            isInWishlist={true}
-          />
-        ))}
-      </div>
-    )}
-  </div>
-);
 
 const ProfileSection = ({ user }: any) => (
   <div>
@@ -1657,16 +1534,6 @@ const ProductCard = ({ product, onSelect, onWishlistToggle, isInWishlist }: any)
           </div>
         </div>
         
-        <button
-          onClick={handleWishlistClick}
-          className={`absolute top-3 right-3 w-8 h-8 rounded-full backdrop-blur-sm flex items-center justify-center transition-all ${
-            isInWishlist 
-              ? 'bg-pink-500/20 text-pink-400' 
-              : 'bg-gray-900/30 text-gray-400 hover:bg-pink-500/20 hover:text-pink-400'
-          } ${isWishlistAnimating ? 'animate-ping' : ''}`}
-        >
-          <Heart size={16} fill={isInWishlist ? 'currentColor' : 'none'} />
-        </button>
         
         {product.is_pre_order && (
           <div className="absolute top-3 left-3 bg-yellow-500/20 backdrop-blur-sm text-yellow-300 px-3 py-1 rounded-full text-xs font-medium">
