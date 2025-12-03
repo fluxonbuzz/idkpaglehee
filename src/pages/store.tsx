@@ -920,7 +920,7 @@ export default function StorePage() {
         
         showToast(isInWishlist ? 'Removed from wishlist' : 'Added to wishlist');
         return newWishlist;
-      } as (prev: string[]) => string[]);
+      });
     } catch (error: any) {
       console.error('Wishlist update error:', error);
       showToast(error.message || 'Failed to update wishlist', 'error');
