@@ -849,6 +849,9 @@ export default function StorePage() {
       if (res.ok) {
         const data = await res.json();
         setWishlist(data.wishlist?.map((item: any) => item.product_id) || []);
+      } else {
+        const error = await res.json().catch(() => ({}));
+        console.error('Failed to load wishlist:', error.message || 'Unknown error');
       }
     } catch (error) {
       console.error('Error loading wishlist:', error);
@@ -884,7 +887,7 @@ export default function StorePage() {
     try {
       const isInWishlist = wishlist.includes(productId);
       const method = isInWishlist ? 'DELETE' : 'POST';
-      const url = isInWishlist ? `/api/wishlist/${productId}` : '/api/wishlist';
+      const url = isInWishlist ? `/api/wishlist?id=${productId}` : '/api/wishlist';
 
       const res = await fetch(url, {
         method,
@@ -892,23 +895,35 @@ export default function StorePage() {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: !isInWishlist ? JSON.stringify({ product_id: productId }) : undefined
+        ...(method === 'POST' && { 
+          body: JSON.stringify({ product_id: productId }) 
+        })
       });
 
-      if (res.ok) {
-        setWishlist(prev => {
-          const newWishlist = isInWishlist
-            ? prev.filter(id => id !== productId)
-            : [...prev, productId];
-          
-          showToast(isInWishlist ? 'Removed from wishlist' : 'Added to wishlist');
-          return newWishlist;
-        });
-      } else {
-        throw new Error('Failed to update wishlist');
+      const responseData = await res.json().catch(() => ({}));
+      
+      if (!res.ok) {
+        // If it's a duplicate, we'll still consider it a success
+        if (responseData.is_duplicate) {
+          setWishlist(prev => [...prev, productId]);
+          showToast('Already in wishlist');
+          return;
+        }
+        throw new Error(responseData.message || 'Failed to update wishlist');
       }
-    } catch (error) {
-      showToast('Failed to update wishlist', 'error');
+
+      // Update the wishlist state
+      setWishlist(prev => {
+        const newWishlist = isInWishlist
+          ? prev.filter(id => id !== productId)
+          : [...prev, productId];
+        
+        showToast(isInWishlist ? 'Removed from wishlist' : 'Added to wishlist');
+        return newWishlist;
+      });
+    } catch (error: any) {
+      console.error('Wishlist update error:', error);
+      showToast(error.message || 'Failed to update wishlist', 'error');
     }
   };
 
