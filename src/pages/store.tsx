@@ -796,10 +796,19 @@ export default function StorePage() {
     setProductsLoading(true);
     try {
       const res = await fetch('/api/products');
-      if (!res.ok) throw new Error('Failed to load products');
       const data = await res.json();
-      setProducts(data.products || []);
-      setProductsLoading(false);
+      
+      if (!res.ok) {
+        throw new Error(data.message || 'Failed to load products');
+      }
+      
+      // The API returns data in a nested structure: data.data.productsss
+      const products = data.data?.products || [];
+      setProducts(products);
+      
+      if (products.length === 0) {
+        setToast({ message: 'No products found', type: 'info' });
+      }
     } catch (error) {
       console.error('Error loading products:', error);
       setProducts([]);
