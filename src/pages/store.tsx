@@ -905,7 +905,7 @@ export default function StorePage() {
       if (!res.ok) {
         // If it's a duplicate, we'll still consider it a success
         if (responseData.is_duplicate) {
-          setWishlist(prev => [...prev, productId]);
+          setWishlist((prev: string[]) => [...prev, productId]);
           showToast('Already in wishlist');
           return;
         }
@@ -913,14 +913,14 @@ export default function StorePage() {
       }
 
       // Update the wishlist state
-      setWishlist(prev => {
+      setWishlist((prev: string[]) => {
         const newWishlist = isInWishlist
           ? prev.filter(id => id !== productId)
           : [...prev, productId];
         
         showToast(isInWishlist ? 'Removed from wishlist' : 'Added to wishlist');
         return newWishlist;
-      });
+      } as (prev: string[]) => string[]);
     } catch (error: any) {
       console.error('Wishlist update error:', error);
       showToast(error.message || 'Failed to update wishlist', 'error');

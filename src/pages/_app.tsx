@@ -1,6 +1,6 @@
 import { type AppType } from "next/dist/shared/lib/utils";
-import { Analytics } from "@vercel/analytics/next";
-import { SpeedInsights } from "@vercel/speed-insights/next"
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import "@/styles/globals.css";
 import "@/styles/locomotive-scroll.css";
@@ -14,9 +14,10 @@ const dmSans = DM_Sans({
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   return (
-    <div lang={"en"} className={dmSans.className}>
+    <div lang="en" className={dmSans.className}>
       <Component {...pageProps} />
-      <Analytics /> {/* Add this line */}
+      <Analytics />
+      <SpeedInsights />
     </div>
   );
 };
