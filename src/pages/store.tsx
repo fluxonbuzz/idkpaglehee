@@ -1,19 +1,12 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { 
-  ShoppingCart, Zap, Star, Tag, Gift, ShieldCheck, Download, X, Check, 
-  ArrowRight, Home, Users, AlertCircle, Clock, Plus, Edit, Trash2, 
-  Search, Heart, ChevronRight, ChevronLeft, Menu, User, Package, 
-  Settings, MessageCircle, LogOut, Bell, CreditCard, MapPin, 
-  BarChart3, Camera, QrCode, Shirt 
-} from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { ShoppingCart, Zap, Star, Tag, Gift, ShieldCheck, Download, X, Check, ArrowRight, Home, Users, AlertCircle, Clock, Plus, Edit, Trash2, Search, Heart, ChevronRight, ChevronLeft, Menu, User, Package, Settings, MessageCircle, LogOut, Bell, CreditCard, MapPin, BarChart3 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import Image from 'next/image';
 
 interface Product {
   id: string;
   name: string;
-  category: 'bundle' | 'account' | 'tool' | 'service' | 'mod' | 'jersey';
+  category: 'bundle' | 'account' | 'tool' | 'service' | 'mod';
   price: number;
   original_price?: number;
   description: string;
@@ -31,10 +24,6 @@ interface Product {
     end_date: string;
   };
   images?: string[];
-  jersey_file?: string;
-  jersey_thumbnail?: string;
-  is_exclusive?: boolean;
-  qr_code?: string;
 }
 
 interface CartItem extends Product {
@@ -69,14 +58,14 @@ const Toast = ({ message, type = 'success', onClose }: { message: string; type?:
   return (
     <div className={`fixed top-4 right-4 z-[100] p-4 rounded-2xl backdrop-blur-lg border transition-all duration-300 animate-slide-in ${
       type === 'success' 
-        ? 'bg-red-500/10 border-red-500/30 text-red-300' 
+        ? 'bg-green-500/10 border-green-500/30 text-green-300' 
         : type === 'error'
         ? 'bg-red-500/10 border-red-500/30 text-red-300'
         : 'bg-blue-500/10 border-blue-500/30 text-blue-300'
     }`}>
       <div className="flex items-center gap-3">
         <div className={`w-2 h-2 rounded-full ${
-          type === 'success' ? 'bg-red-400' : type === 'error' ? 'bg-red-400' : 'bg-blue-400'
+          type === 'success' ? 'bg-green-400' : type === 'error' ? 'bg-red-400' : 'bg-blue-400'
         }`}></div>
         <span className="text-sm font-medium">{message}</span>
         <button onClick={onClose} className="text-gray-400 hover:text-white transition">
@@ -97,7 +86,7 @@ const SuccessAnimation = ({ onComplete }: { onComplete: () => void }) => {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm">
       <div className="bg-gray-800/90 backdrop-blur-lg rounded-3xl p-8 text-center max-w-sm mx-4">
-        <div className="w-20 h-20 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-6 animate-scale">
+        <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6 animate-scale">
           <Check size={32} className="text-white" />
         </div>
         <h3 className="text-2xl font-bold mb-2">Order Placed!</h3>
@@ -125,19 +114,19 @@ const OrderProgress = ({ status }: { status: string }) => {
         <div key={step.key} className="flex flex-col items-center flex-1">
           <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all ${
             index <= currentIndex
-              ? 'bg-red-500 border-red-500 text-white'
+              ? 'bg-green-500 border-green-500 text-white'
               : 'bg-gray-700 border-gray-600 text-gray-400'
           }`}>
             {index < currentIndex ? <Check size={14} /> : index + 1}
           </div>
           <span className={`text-xs mt-2 text-center ${
-            index <= currentIndex ? 'text-red-400' : 'text-gray-400'
+            index <= currentIndex ? 'text-green-400' : 'text-gray-400'
           }`}>
             {step.label}
           </span>
           {index < steps.length - 1 && (
             <div className={`h-1 flex-1 mt-4 -mx-4 z-0 ${
-              index < currentIndex ? 'bg-red-500' : 'bg-gray-700'
+              index < currentIndex ? 'bg-green-500' : 'bg-gray-700'
             }`} />
           )}
         </div>
@@ -173,15 +162,15 @@ const SupportChat = ({ onClose }: { onClose: () => void }) => {
   return (
     <div className="fixed inset-0 z-[100] flex items-end justify-end p-4">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose}></div>
-      <div className="relative bg-gray-800/90 backdrop-blur-lg rounded-2xl w-full max-w-md h-96 shadow-xl border border-red-800/30">
+      <div className="relative bg-gray-800/90 backdrop-blur-lg rounded-2xl w-full max-w-md h-96 shadow-xl border border-purple-800/30">
         <div className="p-4 border-b border-gray-700 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
+            <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
               <MessageCircle size={16} className="text-white" />
             </div>
             <div>
               <h3 className="font-bold">Support Chat</h3>
-              <p className="text-xs text-gray-400">@redstorebot</p>
+              <p className="text-xs text-gray-400">@cumbacksxbot</p>
             </div>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-white transition">
@@ -197,7 +186,7 @@ const SupportChat = ({ onClose }: { onClose: () => void }) => {
             >
               <div className={`max-w-xs p-3 rounded-2xl ${
                 message.sender === 'user' 
-                  ? 'bg-red-600 text-white rounded-br-none' 
+                  ? 'bg-purple-600 text-white rounded-br-none' 
                   : 'bg-gray-700 text-gray-100 rounded-bl-none'
               }`}>
                 {message.text}
@@ -225,11 +214,11 @@ const SupportChat = ({ onClose }: { onClose: () => void }) => {
               onChange={(e) => setNewMessage(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
               placeholder="Type your message..."
-              className="flex-1 bg-gray-700 border border-gray-600 rounded-2xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500/50"
+              className="flex-1 bg-gray-700 border border-gray-600 rounded-2xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50"
             />
             <button
               onClick={sendMessage}
-              className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-2xl transition-all active:scale-95"
+              className="bg-purple-600 hover:bg-purple-700 text-white p-2 rounded-2xl transition-all active:scale-95"
             >
               <MessageCircle size={16} />
             </button>
@@ -285,7 +274,7 @@ const SearchBar = ({ onSearch, onResultSelect, products }: { onSearch: (query: s
           value={query}
           onChange={(e) => handleSearch(e.target.value)}
           onFocus={() => query.length > 1 && setIsOpen(true)}
-          className="w-full bg-gray-700/50 border border-gray-600/50 rounded-2xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-500/50 backdrop-blur-sm"
+          className="w-full bg-gray-700/50 border border-gray-600/50 rounded-2xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50 backdrop-blur-sm"
         />
       </div>
 
@@ -302,18 +291,14 @@ const SearchBar = ({ onSearch, onResultSelect, products }: { onSearch: (query: s
               className="p-4 border-b border-gray-700/50 last:border-b-0 hover:bg-gray-700/50 transition cursor-pointer"
             >
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-red-600 to-orange-600 rounded-2xl flex items-center justify-center">
-                  {product.category === 'jersey' ? (
-                    <Shirt size={20} className="text-white" />
-                  ) : (
-                    <span className="text-white text-sm">📦</span>
-                  )}
+                <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl flex items-center justify-center">
+                  <span className="text-white text-sm">📦</span>
                 </div>
                 <div className="flex-1">
                   <h4 className="font-semibold text-sm">{product.name}</h4>
                   <p className="text-gray-400 text-xs mt-1 line-clamp-1">{product.description}</p>
                 </div>
-                <div className="text-red-300 font-bold">₹{product.price}</div>
+                <div className="text-purple-300 font-bold">₹{product.price}</div>
               </div>
             </div>
           ))}
@@ -333,7 +318,7 @@ const SearchBar = ({ onSearch, onResultSelect, products }: { onSearch: (query: s
                   placeholder="Search products..."
                   value={query}
                   onChange={(e) => handleSearch(e.target.value)}
-                  className="w-full bg-gray-700 border border-gray-600 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+                  className="w-full bg-gray-700 border border-gray-600 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
                   autoFocus
                 />
               </div>
@@ -351,17 +336,13 @@ const SearchBar = ({ onSearch, onResultSelect, products }: { onSearch: (query: s
                   className="p-4 bg-gray-800/50 rounded-2xl border border-gray-700/50 hover:bg-gray-700/50 transition cursor-pointer"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-16 h-16 bg-gradient-to-br from-red-600 to-orange-600 rounded-2xl flex items-center justify-center">
-                      {product.category === 'jersey' ? (
-                        <Shirt size={24} className="text-white" />
-                      ) : (
-                        <span className="text-white">📦</span>
-                      )}
+                    <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl flex items-center justify-center">
+                      <span className="text-white">📦</span>
                     </div>
                     <div className="flex-1">
                       <h4 className="font-semibold">{product.name}</h4>
                       <p className="text-gray-400 text-sm mt-1">{product.description}</p>
-                      <div className="text-red-300 font-bold mt-2">₹{product.price}</div>
+                      <div className="text-purple-300 font-bold mt-2">₹{product.price}</div>
                     </div>
                   </div>
                 </div>
@@ -370,194 +351,6 @@ const SearchBar = ({ onSearch, onResultSelect, products }: { onSearch: (query: s
           </div>
         </div>
       )}
-    </div>
-  );
-};
-
-// QR Code Modal Component
-const QRCodeModal = ({ qrCode, onClose }: { qrCode: string; onClose: () => void }) => (
-  <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-    <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose}></div>
-    <div className="relative bg-gray-800/90 backdrop-blur-lg rounded-3xl p-8 max-w-sm w-full border border-red-800/50">
-      <div className="text-center">
-        <div className="w-12 h-12 bg-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <QrCode size={24} className="text-white" />
-        </div>
-        <h3 className="text-xl font-bold mb-4">Payment QR Code</h3>
-        <div className="bg-white p-4 rounded-2xl mb-6">
-          <img 
-            src={qrCode} 
-            alt="Payment QR Code" 
-            className="w-full h-auto rounded-xl"
-          />
-        </div>
-        <p className="text-gray-300 text-sm mb-6">
-          Scan this QR code to complete your payment. Your order will be confirmed after payment verification.
-        </p>
-        <button
-          onClick={onClose}
-          className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-2xl transition-all active:scale-95"
-        >
-          I've Completed Payment
-        </button>
-      </div>
-    </div>
-  </div>
-);
-
-// Jersey Uploader Component
-const JerseyUploader = ({ onUploadComplete }: { onUploadComplete: () => void }) => {
-  const [uploading, setUploading] = useState(false);
-  const [jerseyData, setJerseyData] = useState({
-    name: '',
-    price: 0,
-    original_price: 0,
-    description: '',
-    is_exclusive: false,
-    jersey_file: null as File | null,
-    jersey_thumbnail: null as File | null,
-    qr_code: null as File | null
-  });
-
-  const handleUpload = async () => {
-    if (!jerseyData.name || !jerseyData.price || !jerseyData.jersey_file || !jerseyData.jersey_thumbnail) {
-      alert('Please fill all required fields and upload both jersey file and thumbnail');
-      return;
-    }
-
-    setUploading(true);
-    const token = localStorage.getItem('authToken');
-    
-    try {
-      const formData = new FormData();
-      formData.append('name', jerseyData.name);
-      formData.append('price', jerseyData.price.toString());
-      formData.append('original_price', jerseyData.original_price.toString());
-      formData.append('description', jerseyData.description);
-      formData.append('category', 'jersey');
-      formData.append('is_exclusive', jerseyData.is_exclusive.toString());
-      formData.append('jersey_file', jerseyData.jersey_file);
-      formData.append('jersey_thumbnail', jerseyData.jersey_thumbnail);
-      if (jerseyData.qr_code) {
-        formData.append('qr_code', jerseyData.qr_code);
-      }
-
-      const res = await fetch('/api/products', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-        body: formData,
-      });
-
-      if (!res.ok) throw new Error('Upload failed');
-      
-      alert('Jersey uploaded successfully!');
-      setJerseyData({
-        name: '',
-        price: 0,
-        original_price: 0,
-        description: '',
-        is_exclusive: false,
-        jersey_file: null,
-        jersey_thumbnail: null,
-        qr_code: null
-      });
-      onUploadComplete();
-    } catch (error) {
-      alert('Failed to upload jersey');
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  return (
-    <div className="bg-gray-700/30 rounded-2xl p-6 border border-gray-600/30">
-      <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-        <Shirt size={20} /> Upload New Jersey
-      </h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <input
-          type="text"
-          placeholder="Jersey Name"
-          value={jerseyData.name}
-          onChange={(e) => setJerseyData({...jerseyData, name: e.target.value})}
-          className="bg-gray-600/50 border border-gray-500/50 rounded-2xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500/50"
-        />
-        <input
-          type="number"
-          placeholder="Price"
-          value={jerseyData.price}
-          onChange={(e) => setJerseyData({...jerseyData, price: Number(e.target.value)})}
-          className="bg-gray-600/50 border border-gray-500/50 rounded-2xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50"
-        />
-        <input
-          type="number"
-          placeholder="Original Price (optional)"
-          value={jerseyData.original_price}
-          onChange={(e) => setJerseyData({...jerseyData, original_price: Number(e.target.value)})}
-          className="bg-gray-600/50 border border-gray-500/50 rounded-2xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50"
-        />
-        <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            id="exclusive"
-            checked={jerseyData.is_exclusive}
-            onChange={(e) => setJerseyData({...jerseyData, is_exclusive: e.target.checked})}
-            className="rounded"
-          />
-          <label htmlFor="exclusive" className="text-sm text-gray-300">
-            Exclusive Jersey
-          </label>
-        </div>
-        <textarea
-          placeholder="Description"
-          value={jerseyData.description}
-          onChange={(e) => setJerseyData({...jerseyData, description: e.target.value})}
-          rows={3}
-          className="bg-gray-600/50 border border-gray-500/50 rounded-2xl px-4 py-3 text-white md:col-span-2 focus:outline-none focus:ring-2 focus:ring-red-500/50"
-        />
-        
-        <div className="md:col-span-2 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Jersey File (Required)</label>
-            <input
-              type="file"
-              accept=".zip,.rar,.7z,.pdf"
-              onChange={(e) => setJerseyData({...jerseyData, jersey_file: e.target.files?.[0] || null})}
-              className="w-full bg-gray-600/50 border border-gray-500/50 rounded-2xl px-4 py-3 text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-red-500 file:text-white hover:file:bg-red-600"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Jersey Thumbnail (Required)</label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => setJerseyData({...jerseyData, jersey_thumbnail: e.target.files?.[0] || null})}
-              className="w-full bg-gray-600/50 border border-gray-500/50 rounded-2xl px-4 py-3 text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-red-500 file:text-white hover:file:bg-red-600"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">QR Code (Optional)</label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => setJerseyData({...jerseyData, qr_code: e.target.files?.[0] || null})}
-              className="w-full bg-gray-600/50 border border-gray-500/50 rounded-2xl px-4 py-3 text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-red-500 file:text-white hover:file:bg-red-600"
-            />
-          </div>
-        </div>
-      </div>
-      
-      <button
-        onClick={handleUpload}
-        disabled={uploading}
-        className="mt-4 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-2xl transition-all active:scale-95 disabled:opacity-50"
-      >
-        {uploading ? 'Uploading...' : 'Upload Jersey'}
-      </button>
     </div>
   );
 };
@@ -663,7 +456,7 @@ const AdminPanel = ({
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose}></div>
-      <div className="relative bg-gray-800/90 backdrop-blur-lg rounded-3xl max-w-6xl w-full max-h-[90vh] overflow-y-auto border border-red-800/50">
+      <div className="relative bg-gray-800/90 backdrop-blur-lg rounded-3xl max-w-6xl w-full max-h-[90vh] overflow-y-auto border border-purple-800/50">
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold">Admin Panel - {adminSection.charAt(0).toUpperCase() + adminSection.slice(1)}</h2>
@@ -676,13 +469,13 @@ const AdminPanel = ({
           </div>
 
           <div className="flex gap-2 mb-6 overflow-x-auto">
-            {['dashboard', 'products', 'jerseys', 'orders', 'users', 'settings'].map((section) => (
+            {['dashboard', 'products', 'orders', 'users', 'settings'].map((section) => (
               <button
                 key={section}
                 onClick={() => window.location.hash = section}
                 className={`px-4 py-2 rounded-2xl transition-all whitespace-nowrap ${
                   adminSection === section 
-                    ? 'bg-red-600 text-white' 
+                    ? 'bg-purple-600 text-white' 
                     : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50'
                 }`}
               >
@@ -695,7 +488,7 @@ const AdminPanel = ({
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
               <div className="bg-gray-700/30 rounded-2xl p-6 border border-gray-600/30">
                 <h3 className="text-lg font-bold mb-2">Total Products</h3>
-                <p className="text-3xl font-bold text-red-400">{products.length}</p>
+                <p className="text-3xl font-bold text-purple-400">{products.length}</p>
               </div>
               <div className="bg-gray-700/30 rounded-2xl p-6 border border-gray-600/30">
                 <h3 className="text-lg font-bold mb-2">Total Orders</h3>
@@ -723,7 +516,7 @@ const AdminPanel = ({
                       ? setEditingProduct({...editingProduct, name: e.target.value})
                       : setNewProduct({...newProduct, name: e.target.value})
                     }
-                    className="bg-gray-600/50 border border-gray-500/50 rounded-2xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                    className="bg-gray-600/50 border border-gray-500/50 rounded-2xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
                   />
                   <select
                     value={editingProduct ? editingProduct.category : newProduct.category}
@@ -731,7 +524,7 @@ const AdminPanel = ({
                       ? setEditingProduct({...editingProduct, category: e.target.value as any})
                       : setNewProduct({...newProduct, category: e.target.value as any})
                     }
-                    className="bg-gray-600/50 border border-gray-500/50 rounded-2xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                    className="bg-gray-600/50 border border-gray-500/50 rounded-2xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50"
                   >
                     <option value="account">Premium Account</option>
                     <option value="tool">Game Tool</option>
@@ -747,7 +540,7 @@ const AdminPanel = ({
                       ? setEditingProduct({...editingProduct, price: Number(e.target.value)})
                       : setNewProduct({...newProduct, price: Number(e.target.value)})
                     }
-                    className="bg-gray-600/50 border border-gray-500/50 rounded-2xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                    className="bg-gray-600/50 border border-gray-500/50 rounded-2xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50"
                   />
                   <input
                     type="number"
@@ -757,7 +550,7 @@ const AdminPanel = ({
                       ? setEditingProduct({...editingProduct, original_price: e.target.value ? Number(e.target.value) : undefined})
                       : setNewProduct({...newProduct, original_price: e.target.value ? Number(e.target.value) : undefined})
                     }
-                    className="bg-gray-600/50 border border-gray-500/50 rounded-2xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                    className="bg-gray-600/50 border border-gray-500/50 rounded-2xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50"
                   />
                   <textarea
                     placeholder="Description"
@@ -767,7 +560,7 @@ const AdminPanel = ({
                       : setNewProduct({...newProduct, description: e.target.value})
                     }
                     rows={3}
-                    className="bg-gray-600/50 border border-gray-500/50 rounded-2xl px-4 py-3 text-white md:col-span-2 focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                    className="bg-gray-600/50 border border-gray-500/50 rounded-2xl px-4 py-3 text-white md:col-span-2 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
                   />
                   <input
                     type="text"
@@ -779,7 +572,7 @@ const AdminPanel = ({
                         ? setEditingProduct({...editingProduct, tags})
                         : setNewProduct({...newProduct, tags})
                     }}
-                    className="bg-gray-600/50 border border-gray-500/50 rounded-2xl px-4 py-3 text-white md:col-span-2 focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                    className="bg-gray-600/50 border border-gray-500/50 rounded-2xl px-4 py-3 text-white md:col-span-2 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
                   />
                   <input
                     type="text"
@@ -791,7 +584,7 @@ const AdminPanel = ({
                         ? setEditingProduct({...editingProduct, features})
                         : setNewProduct({...newProduct, features})
                     }}
-                    className="bg-gray-600/50 border border-gray-500/50 rounded-2xl px-4 py-3 text-white md:col-span-2 focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                    className="bg-gray-600/50 border border-gray-500/50 rounded-2xl px-4 py-3 text-white md:col-span-2 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
                   />
                 </div>
                 <div className="flex gap-2 mt-4">
@@ -822,7 +615,7 @@ const AdminPanel = ({
                           <h4 className="font-bold">{product.name}</h4>
                           <p className="text-sm text-gray-300 mt-1">{product.description}</p>
                           <div className="flex gap-2 mt-2">
-                            <span className="text-xs bg-red-500/20 text-red-300 px-2 py-1 rounded-full">
+                            <span className="text-xs bg-purple-500/20 text-purple-300 px-2 py-1 rounded-full">
                               {product.category}
                             </span>
                             <span className="text-xs bg-green-500/20 text-green-300 px-2 py-1 rounded-full">
@@ -855,68 +648,6 @@ const AdminPanel = ({
                   {products.length === 0 && (
                     <div className="text-center py-8 text-gray-400">
                       No products yet. Add your first product above!
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {adminSection === 'jerseys' && (
-            <div className="space-y-6">
-              <JerseyUploader onUploadComplete={onProductUpdate} />
-              
-              <div>
-                <h3 className="text-lg font-bold mb-4">Existing Jerseys</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {products.filter(p => p.category === 'jersey').map(jersey => (
-                    <div key={jersey.id} className="bg-gray-700/30 rounded-2xl p-4 border border-gray-600/30">
-                      <div className="flex items-start gap-4">
-                        {jersey.jersey_thumbnail ? (
-                          <img 
-                            src={jersey.jersey_thumbnail} 
-                            alt={jersey.name}
-                            className="w-20 h-20 rounded-2xl object-cover"
-                          />
-                        ) : (
-                          <div className="w-20 h-20 bg-gradient-to-br from-red-600 to-orange-600 rounded-2xl flex items-center justify-center">
-                            <Shirt size={24} className="text-white" />
-                          </div>
-                        )}
-                        <div className="flex-1">
-                          <h4 className="font-bold">{jersey.name}</h4>
-                          <p className="text-sm text-gray-300 mt-1">{jersey.description}</p>
-                          <div className="flex gap-2 mt-2">
-                            <span className="text-xs bg-red-500/20 text-red-300 px-2 py-1 rounded-full">
-                              ₹{jersey.price}
-                            </span>
-                            {jersey.is_exclusive && (
-                              <span className="text-xs bg-yellow-500/20 text-yellow-300 px-2 py-1 rounded-full">
-                                Exclusive
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => setEditingProduct(jersey)}
-                            className="p-2 bg-blue-600/50 hover:bg-blue-600/70 rounded-2xl transition-all active:scale-95"
-                          >
-                            <Edit size={16} />
-                          </button>
-                          <button
-                            onClick={() => deleteProduct(jersey.id)}
-                            className="p-2 bg-red-600/50 hover:bg-red-600/70 rounded-2xl transition-all active:scale-95"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                  {products.filter(p => p.category === 'jersey').length === 0 && (
-                    <div className="text-center py-8 text-gray-400 md:col-span-2">
-                      No jerseys yet. Upload your first jersey above!
                     </div>
                   )}
                 </div>
@@ -958,29 +689,21 @@ const AdminPanel = ({
 
 const discountCodes: DiscountCode[] = [
   { code: 'WELCOME10', discount: 10, minPurchase: 100, type: 'percentage' },
-  { code: 'RED20', discount: 20, minPurchase: 200, type: 'percentage' },
+  { code: 'SX20', discount: 20, minPurchase: 200, type: 'percentage' },
   { code: 'SAVE50', discount: 50, minPurchase: 250, type: 'fixed' }
 ];
 
 export default function StorePage() {
   const router = useRouter();
-  // State management
   const [products, setProducts] = useState<Product[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [showCart, setShowCart] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [discountCode, setDiscountCode] = useState('');
   const [appliedDiscount, setAppliedDiscount] = useState<DiscountCode | null>(null);
   const [discountError, setDiscountError] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedMod, setSelectedMod] = useState<{ name: string; price: number } | null>(null);
-  const [sidebarItems, setSidebarItems] = useState([
-    { id: 'home', label: 'Home', icon: <Home size={20} />, onClick: () => setActiveTab('home') },
-    { id: 'orders', label: 'Orders', icon: <Package size={20} />, onClick: () => setActiveTab('orders') },
-    { id: 'wishlist', label: 'Wishlist', icon: <Heart size={20} />, onClick: () => setActiveTab('wishlist') },
-    { id: 'profile', label: 'Profile', icon: <User size={20} />, onClick: () => setActiveTab('profile') },
-  ]);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [me, setMe] = useState<User | null>(null);
   const [myOrders, setMyOrders] = useState<any[]>([]);
@@ -996,112 +719,151 @@ export default function StorePage() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [adminSection, setAdminSection] = useState('dashboard');
   const [showAdminPanel, setShowAdminPanel] = useState(false);
-  const [showQRCode, setShowQRCode] = useState(false);
-  const [currentQRCode, setCurrentQRCode] = useState('');
-  const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0, pages: 1 });
 
   const cartIconRef = useRef<HTMLButtonElement>(null);
 
-  // Debug: Check authentication status
   useEffect(() => {
-    const checkAuth = async () => {
+    if (typeof window === 'undefined') return;
+    
+    const initializeApp = async () => {
       const token = localStorage.getItem('authToken');
-      console.log('[Debug] Auth token exists:', !!token);
       
-      if (token) {
-        try {
-          console.log('[Debug] Fetching user data...');
-          const userRes = await fetch('/api/auth/me', {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
+      if (!token) {
+        setAuthLoading(false);
+        router.push('/login?redirect=/store');
+        return;
+      }
+
+      try {
+        // Verify token and get user data
+        const meRes = await fetch('/api/auth/me', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (meRes.ok) {
+          const meData = await meRes.json();
+          const userData = meData.user || meData;
+          
+          setMe({
+            id: userData.id,
+            email: userData.email,
+            name: userData.name,
+            role: userData.role || 'user'
           });
           
-          console.log('[Debug] User data response status:', userRes.status);
-          
-          if (userRes.ok) {
-            const userData = await userRes.json();
-            console.log('[Debug] User data:', userData);
-            setMe(userData);
-          } else {
-            console.error('[Debug] Failed to fetch user data');
-            localStorage.removeItem('authToken');
-          }
-        } catch (error) {
-          console.error('[Debug] Auth check error:', error);
-        }
-      }
-    };
-    
-    checkAuth();
-  }, []);
-
-  // Debug: Check products loading
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        console.log('[Debug] Fetching products...');
-        const res = await fetch('/api/products');
-        console.log('[Debug] Products response status:', res.status);
-        const response = await res.json();
-        console.log('[Debug] Products data:', response);
-        
-        // Handle the API response format: { success: true, data: { products: [...] }, message: '...' }
-        if (response.success && response.data && Array.isArray(response.data.products)) {
-          setProducts(response.data.products);
-          
-          if (response.data.pagination) {
-            setPagination(response.data.pagination);
-          }
+          await loadInitialData();
         } else {
-          console.error('[Debug] Unexpected products data format:', response);
-          setError('Failed to load products. Invalid data format.');
+          // Token is invalid
+          localStorage.removeItem('authToken');
+          setAuthLoading(false);
+          router.push('/login?redirect=/store');
         }
       } catch (error) {
-        console.error('[Debug] Error loading products:', error);
-        setError('Failed to load products. Please try again later.');
-      } finally {
-        setProductsLoading(false);
+        console.error('Auth check failed:', error);
+        localStorage.removeItem('authToken');
+        setAuthLoading(false);
+        router.push('/login?redirect=/store');
       }
     };
-    
-    fetchProducts();
+
+    initializeApp();
   }, []);
 
-  const loadProducts = useCallback(async () => {
+  const loadInitialData = async () => {
+    await Promise.all([
+      loadProducts(),
+      loadOrders(),
+      loadWishlist()
+    ]);
+    
+    // Load cart from localStorage (client-side only)
+    if (typeof window !== 'undefined') {
+      const savedCart = localStorage.getItem('sx-cart');
+      if (savedCart) {
+        try {
+          setCart(JSON.parse(savedCart));
+        } catch (error) {
+          setCart([]);
+        }
+      }
+    }
+    
+    setAuthLoading(false);
+  };
+
+  const loadProducts = async () => {
+    setProductsLoading(true);
     try {
-      setProductsLoading(true);
       const res = await fetch('/api/products');
       if (!res.ok) throw new Error('Failed to load products');
       const data = await res.json();
       setProducts(data.products || []);
-      if (data.pagination) {
-        setPagination(data.pagination);
-      }
-    } catch (err) {
-      console.error('Error loading products:', err);
-      setError('Failed to load products. Please try again later.');
+    } catch (error) {
+      console.error('Error loading products:', error);
+      setProducts([]);
     } finally {
       setProductsLoading(false);
     }
-  }, []);
+  };
 
-  const showToast = useCallback((message: string, type: 'success' | 'error' | 'info' = 'success') => {
-    setToast({ message, type });
-  }, []);
+  const loadOrders = async () => {
+    setOrdersLoading(true);
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) return;
+
+      const res = await fetch('/api/orders', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setMyOrders(data.orders || []);
+      }
+    } catch (error) {
+      console.error('Error loading orders:', error);
+      setMyOrders([]);
+    } finally {
+      setOrdersLoading(false);
+    }
+  };
+
+  const loadWishlist = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) return;
+
+      const res = await fetch('/api/wishlist', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setWishlist(data.wishlist?.map((item: any) => item.product_id) || []);
+      }
+    } catch (error) {
+      console.error('Error loading wishlist:', error);
+    }
+  };
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      (window as any).showToast = showToast;
-      // Load products when component mounts
-      loadProducts();
+      localStorage.setItem('sx-cart', JSON.stringify(cart));
     }
-    return () => {
-      if (typeof window !== 'undefined') {
-        delete (window as any).showToast;
-      }
-    };
-  }, [showToast, loadProducts]);
+  }, [cart]);
+
+  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
+    setToast({ message, type });
+  };
 
   const animateCart = () => {
     if (cartIconRef.current) {
@@ -1253,18 +1015,6 @@ export default function StorePage() {
       return;
     }
 
-    // Check if any product has QR code
-    const productWithQR = cart.find(item => item.qr_code);
-    if (productWithQR) {
-      setCurrentQRCode(productWithQR.qr_code!);
-      setShowQRCode(true);
-      return;
-    }
-
-    await processCheckout();
-  };
-
-  const processCheckout = async () => {
     setCheckoutLoading(true);
     setDiscountError('');
 
@@ -1306,7 +1056,7 @@ export default function StorePage() {
       const data = await res.json();
 
       setCart([]);
-      localStorage.removeItem('redstore-cart');
+      localStorage.removeItem('sx-cart');
       setShowCart(false);
       setShowSuccess(true);
       
@@ -1323,17 +1073,17 @@ export default function StorePage() {
     }
   };
 
-  // Enhanced Slide Bar Component with Red Theme
-  const SlideBar = useCallback(() => (
+  // Enhanced Slide Bar Component
+  const SlideBar = () => (
     <div className={`fixed inset-0 z-50 transform transition-transform duration-300 ease-in-out ${
       sidebarOpen ? 'translate-x-0' : '-translate-x-full'
     }`}>
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setSidebarOpen(false)}></div>
-      <div className="relative w-80 h-full bg-gray-800/90 backdrop-blur-lg border-r border-red-800/30 overflow-y-auto">
+      <div className="relative w-80 h-full bg-gray-800/90 backdrop-blur-lg border-r border-purple-800/30 overflow-y-auto">
         <div className="p-6">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-xl font-bold bg-gradient-to-r from-red-400 to-orange-400 bg-clip-text text-transparent">
-              My Store
+            <h2 className="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+              SX Store
             </h2>
             <button 
               onClick={() => setSidebarOpen(false)}
@@ -1346,37 +1096,58 @@ export default function StorePage() {
           {me && (
             <div className="mb-8 p-4 bg-gray-700/30 rounded-2xl">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-red-600 to-orange-600 rounded-2xl flex items-center justify-center text-white font-bold">
+                <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl flex items-center justify-center text-white font-bold">
                   {me.name?.charAt(0) || me.email.charAt(0).toUpperCase()}
                 </div>
                 <div className="flex-1">
                   <div className="font-semibold">{me.name || 'User'}</div>
                   <div className="text-sm text-gray-400">{me.email}</div>
-                  <div className="text-xs text-red-300 capitalize mt-1">{me.role}</div>
+                  <div className="text-xs text-purple-300 capitalize mt-1">{me.role}</div>
                 </div>
               </div>
             </div>
           )}
           
           <nav className="space-y-2 mb-8">
-            {sidebarItems.map((item) => (
-              <button 
-                key={item.id}
-                onClick={item.onClick}
-                className={`w-full flex items-center gap-3 p-3 rounded-2xl transition-all ${
-                  activeTab === item.id ? 'bg-red-600/20 text-red-300' : 'hover:bg-gray-700/50'
-                }`}
-              >
-                {item.icon} {item.label}
-              </button>
-            ))}
+            <button 
+              onClick={() => { setActiveTab('home'); setSidebarOpen(false); }}
+              className={`w-full flex items-center gap-3 p-3 rounded-2xl transition-all ${
+                activeTab === 'home' ? 'bg-purple-600/20 text-purple-300' : 'hover:bg-gray-700/50'
+              }`}
+            >
+              <Home size={20} /> Home
+            </button>
+            <button 
+              onClick={() => { setActiveTab('orders'); setSidebarOpen(false); }}
+              className={`w-full flex items-center gap-3 p-3 rounded-2xl transition-all ${
+                activeTab === 'orders' ? 'bg-purple-600/20 text-purple-300' : 'hover:bg-gray-700/50'
+              }`}
+            >
+              <Package size={20} /> My Orders
+            </button>
+            <button 
+              onClick={() => { setActiveTab('wishlist'); setSidebarOpen(false); }}
+              className={`w-full flex items-center gap-3 p-3 rounded-2xl transition-all ${
+                activeTab === 'wishlist' ? 'bg-purple-600/20 text-purple-300' : 'hover:bg-gray-700/50'
+              }`}
+            >
+              <Heart size={20} /> Wishlist
+            </button>
+            <button 
+              onClick={() => { setActiveTab('profile'); setSidebarOpen(false); }}
+              className={`w-full flex items-center gap-3 p-3 rounded-2xl transition-all ${
+                activeTab === 'profile' ? 'bg-purple-600/20 text-purple-300' : 'hover:bg-gray-700/50'
+              }`}
+            >
+              <User size={20} /> Profile
+            </button>
           </nav>
 
           {me?.role === 'admin' && (
             <div className="mb-8">
               <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3 px-3">Admin</h3>
               <nav className="space-y-2">
-                {['dashboard', 'products', 'jerseys', 'orders', 'users', 'settings'].map((section) => (
+                {['dashboard', 'products', 'orders', 'users', 'settings'].map((section) => (
                   <button
                     key={section}
                     onClick={() => {
@@ -1385,12 +1156,11 @@ export default function StorePage() {
                       setSidebarOpen(false);
                     }}
                     className={`w-full flex items-center gap-3 p-3 rounded-2xl transition-all text-left ${
-                      adminSection === section ? 'bg-red-600/20 text-red-300' : 'hover:bg-gray-700/50'
+                      adminSection === section ? 'bg-purple-600/20 text-purple-300' : 'hover:bg-gray-700/50'
                     }`}
                   >
                     {section === 'dashboard' && <BarChart3 size={18} />}
                     {section === 'products' && <Package size={18} />}
-                    {section === 'jerseys' && <Shirt size={18} />}
                     {section === 'orders' && <ShoppingCart size={18} />}
                     {section === 'users' && <Users size={18} />}
                     {section === 'settings' && <Settings size={18} />}
@@ -1411,8 +1181,8 @@ export default function StorePage() {
             <button 
               onClick={() => {
                 localStorage.removeItem('authToken');
-                localStorage.removeItem('redstore-cart');
-                localStorage.removeItem('redstore-wishlist');
+                localStorage.removeItem('sx-cart');
+                localStorage.removeItem('sx-wishlist');
                 setMe(null);
                 setMyOrders([]);
                 setCart([]);
@@ -1427,10 +1197,10 @@ export default function StorePage() {
         </div>
       </div>
     </div>
-  ), [sidebarOpen, me, activeTab, adminSection]);
+  );
 
   // Bottom Navigation Component
-  const BottomNav = useCallback(() => (
+  const BottomNav = () => (
     <div className="fixed bottom-0 left-0 right-0 bg-gray-800/90 backdrop-blur-lg border-t border-gray-700/50 z-40 md:hidden">
       <div className="flex justify-around items-center p-3">
         {[
@@ -1443,7 +1213,7 @@ export default function StorePage() {
             key={id}
             onClick={() => setActiveTab(id)}
             className={`flex flex-col items-center p-2 rounded-2xl transition-all flex-1 mx-1 ${
-              activeTab === id ? 'text-red-400 bg-red-600/20' : 'text-gray-400'
+              activeTab === id ? 'text-purple-400 bg-purple-600/20' : 'text-gray-400'
             }`}
           >
             <Icon size={20} />
@@ -1452,21 +1222,10 @@ export default function StorePage() {
         ))}
       </div>
     </div>
-  ), [activeTab]);
+  );
 
   // Render different sections based on active tab
-  const renderActiveSection = useCallback(() => {
-    if (productsLoading) {
-      return (
-        <div className="flex items-center justify-center min-h-[50vh]">
-          <div className="text-center">
-            <div className="w-12 h-12 border-4 border-red-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <div className="text-white text-xl">Loading store...</div>
-          </div>
-        </div>
-      );
-    }
-
+  const renderActiveSection = () => {
     switch (activeTab) {
       case 'orders':
         return <OrdersSection orders={myOrders} />;
@@ -1478,27 +1237,34 @@ export default function StorePage() {
         />;
       case 'profile':
         return <ProfileSection user={me} />;
-      case 'home':
       default:
-        return (
-          <HomeSection
-            products={products}
-            searchQuery={searchQuery}
-            onProductSelect={setSelectedProduct}
-            onWishlistToggle={toggleWishlist}
-            wishlist={wishlist}
-            productsLoading={productsLoading}
-          />
-        );
+        return <HomeSection 
+          products={products}
+          searchQuery={searchQuery}
+          onProductSelect={setSelectedProduct}
+          onWishlistToggle={toggleWishlist}
+          wishlist={wishlist}
+          productsLoading={productsLoading}
+        />;
     }
-  }, [activeTab, products, wishlist, myOrders, me, productsLoading, searchQuery, setSelectedProduct, toggleWishlist]);
+  };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-purple-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="text-white text-xl">Loading store...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-red-900 text-white pb-16 md:pb-0">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-purple-900 text-white pb-16 md:pb-0">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       {showSuccess && <SuccessAnimation onComplete={() => setShowSuccess(false)} />}
       {showSupport && <SupportChat onClose={() => setShowSupport(false)} />}
-      {showQRCode && <QRCodeModal qrCode={currentQRCode} onClose={processCheckout} />}
 
       <SlideBar />
 
@@ -1510,7 +1276,7 @@ export default function StorePage() {
         adminSection={adminSection}
       />
 
-      <header className="bg-gray-800/30 backdrop-blur-xl sticky top-0 z-40 border-b border-red-800/20">
+      <header className="bg-gray-800/30 backdrop-blur-xl sticky top-0 z-40 border-b border-purple-800/20">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -1520,8 +1286,8 @@ export default function StorePage() {
               >
                 <Menu size={20} />
               </button>
-              <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-red-400 to-orange-500 bg-clip-text text-transparent">
-                Red Store
+              <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
+                SX Store
               </Link>
             </div>
 
@@ -1539,7 +1305,7 @@ export default function StorePage() {
               {me?.role === 'admin' && (
                 <button 
                   onClick={() => setShowAdminPanel(true)}
-                  className="p-2 rounded-2xl bg-red-700/50 hover:bg-red-600/50 transition-all active:scale-95"
+                  className="p-2 rounded-2xl bg-purple-700/50 hover:bg-purple-600/50 transition-all active:scale-95"
                 >
                   <ShieldCheck size={20} />
                 </button>
@@ -1547,11 +1313,11 @@ export default function StorePage() {
               <button 
                 ref={cartIconRef}
                 onClick={() => setShowCart(true)}
-                className="relative p-2 rounded-2xl bg-red-700/50 hover:bg-red-600/50 transition-all active:scale-95"
+                className="relative p-2 rounded-2xl bg-purple-700/50 hover:bg-purple-600/50 transition-all active:scale-95"
               >
                 <ShoppingCart size={20} />
                 {cart.length > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-orange-500 text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center animate-pulse">
+                  <span className="absolute -top-1 -right-1 bg-pink-500 text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center animate-pulse">
                     {cart.length}
                   </span>
                 )}
@@ -1620,8 +1386,7 @@ const HomeSection = ({ products, searchQuery, onProductSelect, onWishlistToggle,
     account: 'Premium Accounts',
     tool: 'Game Tools',
     service: 'Custom Services',
-    mod: 'Mod Menus',
-    jersey: 'Exclusive Jerseys'
+    mod: 'Mod Menus'
   };
 
   const filteredProducts = (category: string) => 
@@ -1662,52 +1427,19 @@ const HomeSection = ({ products, searchQuery, onProductSelect, onWishlistToggle,
   return (
     <>
       <section className="mb-12 text-center">
-        <div className="inline-block bg-gradient-to-r from-red-600 to-orange-600 text-white px-6 py-2 rounded-2xl text-sm font-medium mb-6 shadow-lg backdrop-blur-sm">
+        <div className="inline-block bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-2 rounded-2xl text-sm font-medium mb-6 shadow-lg backdrop-blur-sm">
           🎮 Premium Digital Products
         </div>
-        <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-red-300 to-orange-400 bg-clip-text text-transparent leading-tight">
+        <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-purple-300 to-pink-400 bg-clip-text text-transparent leading-tight">
           Game Like A Pro
         </h1>
         <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-8">
-          Exclusive accounts, tools, and jerseys for serious gamers
+          Exclusive accounts, tools, and services for serious gamers
         </p>
       </section>
 
-      {/* Exclusive Jerseys Section with Glowing Effect */}
-      {!searchQuery && filteredProducts('jersey').length > 0 && (
-        <section id="jerseys" className="mb-16">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl font-bold flex items-center gap-3">
-              <div className="relative">
-                <Shirt size={24} className="text-red-400" />
-                <div className="absolute inset-0 text-red-400 blur-sm opacity-75">
-                  <Shirt size={24} />
-                </div>
-              </div>
-              <span className="bg-gradient-to-r from-red-400 to-orange-400 bg-clip-text text-transparent">
-                Exclusive Jerseys
-              </span>
-            </h2>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredProducts('jersey').map((product: any) => (
-              <JerseyCard 
-                key={product.id}
-                product={product}
-                onSelect={onProductSelect}
-                onWishlistToggle={onWishlistToggle}
-                isInWishlist={wishlist.includes(product.id)}
-              />
-            ))}
-          </div>
-        </section>
-      )}
-
       {!searchQuery ? (
         Object.entries(categoryNames).map(([categoryKey, categoryName]) => {
-          if (categoryKey === 'jersey') return null; // Already handled above
-          
           const categoryProducts = filteredProducts(categoryKey);
           if (categoryProducts.length === 0) return null;
           
@@ -1715,8 +1447,8 @@ const HomeSection = ({ products, searchQuery, onProductSelect, onWishlistToggle,
             <section key={categoryKey} className="mb-16">
               <div className="flex items-center justify-between mb-8">
                 <h2 className="text-2xl font-bold flex items-center gap-3">
-                  {categoryKey === 'bundle' && <Gift size={24} className="text-orange-400" />}
-                  {categoryKey === 'account' && <ShieldCheck size={24} className="text-red-400" />}
+                  {categoryKey === 'bundle' && <Gift size={24} className="text-pink-400" />}
+                  {categoryKey === 'account' && <ShieldCheck size={24} className="text-purple-400" />}
                   {categoryKey === 'tool' && <Zap size={24} className="text-blue-400" />}
                   {categoryKey === 'service' && <Star size={24} className="text-yellow-400" />}
                   {categoryKey === 'mod' && <Download size={24} className="text-green-400" />}
@@ -1741,23 +1473,13 @@ const HomeSection = ({ products, searchQuery, onProductSelect, onWishlistToggle,
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {allProducts.map((product: any) => (
-            product.category === 'jersey' ? (
-              <JerseyCard 
-                key={product.id}
-                product={product}
-                onSelect={onProductSelect}
-                onWishlistToggle={onWishlistToggle}
-                isInWishlist={wishlist.includes(product.id)}
-              />
-            ) : (
-              <ProductCard 
-                key={product.id}
-                product={product}
-                onSelect={onProductSelect}
-                onWishlistToggle={onWishlistToggle}
-                isInWishlist={wishlist.includes(product.id)}
-              />
-            )
+            <ProductCard 
+              key={product.id}
+              product={product}
+              onSelect={onProductSelect}
+              onWishlistToggle={onWishlistToggle}
+              isInWishlist={wishlist.includes(product.id)}
+            />
           ))}
         </div>
       )}
@@ -1828,23 +1550,13 @@ const WishlistSection = ({ products, onProductSelect, onWishlistToggle }: any) =
     ) : (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {products.map((product: any) => (
-          product.category === 'jersey' ? (
-            <JerseyCard 
-              key={product.id}
-              product={product}
-              onSelect={onProductSelect}
-              onWishlistToggle={onWishlistToggle}
-              isInWishlist={true}
-            />
-          ) : (
-            <ProductCard 
-              key={product.id}
-              product={product}
-              onSelect={onProductSelect}
-              onWishlistToggle={onWishlistToggle}
-              isInWishlist={true}
-            />
-          )
+          <ProductCard 
+            key={product.id}
+            product={product}
+            onSelect={onProductSelect}
+            onWishlistToggle={onWishlistToggle}
+            isInWishlist={true}
+          />
         ))}
       </div>
     )}
@@ -1856,13 +1568,13 @@ const ProfileSection = ({ user }: any) => (
     <h2 className="text-2xl font-bold mb-8">My Profile</h2>
     <div className="bg-gray-800/40 backdrop-blur-sm rounded-2xl p-6 border border-gray-700/50">
       <div className="flex items-center gap-4 mb-6">
-        <div className="w-20 h-20 bg-gradient-to-br from-red-600 to-orange-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold">
+        <div className="w-20 h-20 bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold">
           {user?.name?.charAt(0) || user?.email.charAt(0).toUpperCase()}
         </div>
         <div>
           <h3 className="text-xl font-bold">{user?.name || 'User'}</h3>
           <p className="text-gray-400">{user?.email}</p>
-          <div className="text-sm text-red-300 mt-1 capitalize">{user?.role}</div>
+          <div className="text-sm text-purple-300 mt-1 capitalize">{user?.role}</div>
         </div>
       </div>
       
@@ -1921,7 +1633,7 @@ const ProductCard = ({ product, onSelect, onWishlistToggle, isInWishlist }: any)
       onClick={() => onSelect(product)}
     >
       <div className="relative">
-        <div className="h-48 bg-gradient-to-br from-red-900/20 to-orange-900/20 rounded-2xl flex items-center justify-center">
+        <div className="h-48 bg-gradient-to-br from-purple-900/20 to-pink-900/20 rounded-2xl flex items-center justify-center">
           <div className="text-center">
             <div className="w-16 h-16 bg-gray-700/50 rounded-2xl mx-auto mb-2 flex items-center justify-center">
               <span className="text-2xl">📦</span>
@@ -1934,8 +1646,8 @@ const ProductCard = ({ product, onSelect, onWishlistToggle, isInWishlist }: any)
           onClick={handleWishlistClick}
           className={`absolute top-3 right-3 w-8 h-8 rounded-full backdrop-blur-sm flex items-center justify-center transition-all ${
             isInWishlist 
-              ? 'bg-orange-500/20 text-orange-400' 
-              : 'bg-gray-900/30 text-gray-400 hover:bg-orange-500/20 hover:text-orange-400'
+              ? 'bg-pink-500/20 text-pink-400' 
+              : 'bg-gray-900/30 text-gray-400 hover:bg-pink-500/20 hover:text-pink-400'
           } ${isWishlistAnimating ? 'animate-ping' : ''}`}
         >
           <Heart size={16} fill={isInWishlist ? 'currentColor' : 'none'} />
@@ -1952,7 +1664,7 @@ const ProductCard = ({ product, onSelect, onWishlistToggle, isInWishlist }: any)
         <div className="flex justify-between items-start mb-3">
           <h3 className="text-lg font-bold line-clamp-2">{product.name}</h3>
           <div className="text-right">
-            <span className="text-xl font-bold bg-gradient-to-r from-red-400 to-orange-400 bg-clip-text text-transparent">
+            <span className="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
               ₹{product.price}
             </span>
             {product.original_price && (
@@ -1971,95 +1683,10 @@ const ProductCard = ({ product, onSelect, onWishlistToggle, isInWishlist }: any)
           className={`w-full font-bold py-3 rounded-2xl transition-all active:scale-95 ${
             product.is_pre_order
               ? 'bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-700 hover:to-amber-700'
-              : 'bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700'
+              : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700'
           }`}
         >
           {product.is_pre_order ? 'Pre-Order Now' : 'Add to Cart'}
-        </button>
-      </div>
-    </div>
-  );
-};
-
-// Jersey Card Component with Glowing Effect
-const JerseyCard = ({ product, onSelect, onWishlistToggle, isInWishlist }: any) => {
-  const [isWishlistAnimating, setIsWishlistAnimating] = useState(false);
-
-  const handleWishlistClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsWishlistAnimating(true);
-    onWishlistToggle(product.id);
-    setTimeout(() => setIsWishlistAnimating(false), 600);
-  };
-
-  return (
-    <div 
-      className={`bg-gray-800/30 backdrop-blur-sm rounded-2xl border transition-all hover:scale-[1.02] hover:shadow-2xl overflow-hidden group cursor-pointer ${
-        product.is_exclusive 
-          ? 'border-red-500/50 shadow-lg shadow-red-500/20 glow' 
-          : 'border-gray-700/50'
-      }`}
-      onClick={() => onSelect(product)}
-    >
-      <div className="relative">
-        {product.jersey_thumbnail ? (
-          <img 
-            src={product.jersey_thumbnail} 
-            alt={product.name}
-            className="h-48 w-full object-cover rounded-2xl"
-          />
-        ) : (
-          <div className="h-48 bg-gradient-to-br from-red-900/20 to-orange-900/20 rounded-2xl flex items-center justify-center">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gray-700/50 rounded-2xl mx-auto mb-2 flex items-center justify-center">
-                <Shirt size={24} className="text-white" />
-              </div>
-              <p className="text-sm text-gray-400">Jersey Image</p>
-            </div>
-          </div>
-        )}
-        
-        <button
-          onClick={handleWishlistClick}
-          className={`absolute top-3 right-3 w-8 h-8 rounded-full backdrop-blur-sm flex items-center justify-center transition-all ${
-            isInWishlist 
-              ? 'bg-orange-500/20 text-orange-400' 
-              : 'bg-gray-900/30 text-gray-400 hover:bg-orange-500/20 hover:text-orange-400'
-          } ${isWishlistAnimating ? 'animate-ping' : ''}`}
-        >
-          <Heart size={16} fill={isInWishlist ? 'currentColor' : 'none'} />
-        </button>
-        
-        {product.is_exclusive && (
-          <div className="absolute top-3 left-3 bg-gradient-to-r from-red-500 to-orange-500 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-medium shadow-lg">
-            ⭐ EXCLUSIVE
-          </div>
-        )}
-      </div>
-      
-      <div className="p-5">
-        <div className="flex justify-between items-start mb-3">
-          <h3 className="text-lg font-bold line-clamp-2">{product.name}</h3>
-          <div className="text-right">
-            <span className="text-xl font-bold bg-gradient-to-r from-red-400 to-orange-400 bg-clip-text text-transparent">
-              ₹{product.price}
-            </span>
-            {product.original_price && (
-              <span className="text-sm line-through text-gray-400 block">₹{product.original_price}</span>
-            )}
-          </div>
-        </div>
-        
-        <p className="text-gray-300 text-sm mb-4 line-clamp-2">{product.description}</p>
-        
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onSelect(product);
-          }}
-          className="w-full bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white font-bold py-3 rounded-2xl transition-all active:scale-95"
-        >
-          Add to Cart
         </button>
       </div>
     </div>
@@ -2082,7 +1709,7 @@ const ProductModal = ({
 }) => (
   <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
     <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose}></div>
-    <div className="relative bg-gray-800/80 backdrop-blur-lg rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-red-800/30">
+    <div className="relative bg-gray-800/80 backdrop-blur-lg rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-purple-800/30">
       <div className="p-6">
         <div className="flex justify-between items-start mb-6">
           <div>
@@ -2101,26 +1728,14 @@ const ProductModal = ({
           </button>
         </div>
         
-        {product.category === 'jersey' && product.jersey_thumbnail ? (
-          <img 
-            src={product.jersey_thumbnail} 
-            alt={product.name}
-            className="w-full h-64 object-cover rounded-2xl mb-6"
-          />
-        ) : (
-          <div className="h-64 bg-gradient-to-br from-red-900/20 to-orange-900/20 rounded-2xl flex items-center justify-center mb-6">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gray-700/50 rounded-2xl mx-auto mb-2 flex items-center justify-center">
-                {product.category === 'jersey' ? (
-                  <Shirt size={24} className="text-white" />
-                ) : (
-                  <span className="text-2xl">📦</span>
-                )}
-              </div>
-              <p className="text-sm text-gray-400">Product Image</p>
+        <div className="h-64 bg-gradient-to-br from-purple-900/20 to-pink-900/20 rounded-2xl flex items-center justify-center mb-6">
+          <div className="text-center">
+            <div className="w-16 h-16 bg-gray-700/50 rounded-2xl mx-auto mb-2 flex items-center justify-center">
+              <span className="text-2xl">📦</span>
             </div>
+            <p className="text-sm text-gray-400">Product Image</p>
           </div>
-        )}
+        </div>
         
         <p className="text-gray-300 my-6">{product.description}</p>
         
@@ -2148,13 +1763,13 @@ const ProductModal = ({
                   onClick={() => onModSelect(mod)}
                   className={`p-4 rounded-2xl border cursor-pointer transition-all ${
                     selectedMod?.name === mod.name 
-                      ? 'border-red-500 bg-red-900/30' 
-                      : 'border-gray-700 hover:border-red-500/50'
+                      ? 'border-purple-500 bg-purple-900/30' 
+                      : 'border-gray-700 hover:border-purple-500/50'
                   }`}
                 >
                   <div className="flex justify-between items-center">
                     <span className="font-medium">{mod.name}</span>
-                    <span className="text-red-300 font-bold">₹{mod.price}</span>
+                    <span className="text-purple-300 font-bold">₹{mod.price}</span>
                   </div>
                 </div>
               ))}
@@ -2179,7 +1794,7 @@ const ProductModal = ({
                 ? 'opacity-50 cursor-not-allowed' 
                 : product.is_pre_order
                   ? 'bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-700 hover:to-amber-700'
-                  : 'bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700'
+                  : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700'
             }`}
           >
             {product.is_pre_order ? 'Pre-Order Now' : 'Add to Cart'}
@@ -2210,7 +1825,7 @@ const CartDrawer = ({
 }: any) => (
   <div className="fixed inset-0 z-50 overflow-hidden">
     <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose}></div>
-    <div className="absolute right-0 top-0 h-full w-full max-w-md bg-gray-800/80 backdrop-blur-lg border-l border-red-800/30 shadow-xl overflow-y-auto">
+    <div className="absolute right-0 top-0 h-full w-full max-w-md bg-gray-800/80 backdrop-blur-lg border-l border-purple-800/30 shadow-xl overflow-y-auto">
       <div className="p-6">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-2xl font-bold flex items-center gap-3">
@@ -2232,7 +1847,7 @@ const CartDrawer = ({
             <p className="text-gray-400 mb-6">Your cart is empty</p>
             <button
               onClick={onClose}
-              className="bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white font-bold py-3 px-8 rounded-2xl transition-all active:scale-95"
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 px-8 rounded-2xl transition-all active:scale-95"
             >
               Continue Shopping
             </button>
@@ -2252,9 +1867,6 @@ const CartDrawer = ({
                       </h3>
                       {item.is_pre_order && (
                         <span className="text-xs text-yellow-300 bg-yellow-500/10 px-2 py-1 rounded-full">Pre-Order</span>
-                      )}
-                      {item.category === 'jersey' && (
-                        <span className="text-xs text-red-300 bg-red-500/10 px-2 py-1 rounded-full ml-2">Jersey</span>
                       )}
                     </div>
                     <button 
@@ -2316,11 +1928,11 @@ const CartDrawer = ({
                       value={discountCode}
                       onChange={(e) => onDiscountCodeChange(e.target.value)}
                       placeholder="Enter code"
-                      className="flex-1 bg-gray-700/50 border border-gray-600/50 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-500/50 backdrop-blur-sm"
+                      className="flex-1 bg-gray-700/50 border border-gray-600/50 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50 backdrop-blur-sm"
                     />
                     <button
                       onClick={onApplyDiscount}
-                      className="bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white font-bold py-3 px-4 rounded-2xl transition-all active:scale-95"
+                      className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 px-4 rounded-2xl transition-all active:scale-95"
                     >
                       Apply
                     </button>
@@ -2348,7 +1960,7 @@ const CartDrawer = ({
                   )}
                   <div className="flex justify-between pt-3 border-t border-gray-600/30">
                     <span className="font-bold text-lg">Total</span>
-                    <span className="font-bold text-lg text-transparent bg-gradient-to-r from-red-400 to-orange-400 bg-clip-text">
+                    <span className="font-bold text-lg text-transparent bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text">
                       ₹{calculateTotal().total.toFixed(2)}
                     </span>
                   </div>
@@ -2372,7 +1984,7 @@ const CartDrawer = ({
               <button
                 onClick={onCheckout}
                 disabled={!agreeToTerms || checkoutLoading}
-                className={`w-full bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white font-bold py-4 px-6 rounded-2xl transition-all active:scale-95 ${
+                className={`w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-4 px-6 rounded-2xl transition-all active:scale-95 ${
                   !agreeToTerms || checkoutLoading ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
               >
@@ -2392,4 +2004,3 @@ const CartDrawer = ({
     </div>
   </div>
 );
-  
