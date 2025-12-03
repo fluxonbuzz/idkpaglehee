@@ -711,6 +711,7 @@ export default function StorePage() {
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [productsLoading, setProductsLoading] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
   const [activeTab, setActiveTab] = useState('home');
   const [showSupport, setShowSupport] = useState(false);
@@ -798,6 +799,7 @@ export default function StorePage() {
       if (!res.ok) throw new Error('Failed to load products');
       const data = await res.json();
       setProducts(data.products || []);
+      setProductsLoading(false);
     } catch (error) {
       console.error('Error loading products:', error);
       setProducts([]);
