@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import Head from 'next/head';
 import { 
   Gamepad2, 
   Users, 
@@ -148,6 +149,15 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100 overflow-x-hidden">
+      <Head>
+        <title>Shiva XD - Reborn 2025 | The Comeback You Waited For</title>
+        <meta name="description" content="Shiva XD is back and better than ever! Experience premium mods, enhanced security, and a thriving community. Join us for the ultimate modding experience." />
+        <meta name="keywords" content="Shiva XD, mods, gaming, comeback, premium mods, modding community, 2025" />
+        <meta property="og:title" content="Shiva XD - Reborn 2025" />
+        <meta property="og:description" content="The comeback you've been waiting for is here. Better mods, stronger community, same passion." />
+        <meta property="og:type" content="website" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-900 via-gray-950 to-black"></div>
         {[...Array(12)].map((_, i) => (
