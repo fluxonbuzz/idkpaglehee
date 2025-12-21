@@ -6,7 +6,11 @@ import {
   Shirt, Activity, Film, Globe, Volume2, Joystick, List, Flag, 
   Coins, Home, ShoppingCart, AlertCircle, X, ChevronDown, ChevronUp, 
   Search, Menu, Filter, Sparkles, Gamepad2, Crown, Heart,
-  Shield, FileText, DollarSign, User
+  Shield, FileText, DollarSign, User, ChevronLeft, ChevronRight,
+  Play, Image, Smartphone, Monitor, Settings, Grid, Layout, BookOpen,
+  Share2, ExternalLink, Eye, MousePointer, DownloadCloud, Calendar,
+  Bell, TrendingUp, Medal, Target, Refresh, Cloud, ShieldCheck,
+  Battery, Cpu, HardDrive, Wifi, ArrowRight, Gift, Sparkle
 } from 'lucide-react';
 import Link from 'next/link';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
@@ -17,12 +21,17 @@ interface Game {
   version: string;
   size: string;
   description: string;
-  image: string;
+  shortDescription: string;
+  icon: string;
+  screenshots: string[];
   status: 'available' | 'coming-soon' | 'beta';
   downloadLink?: string;
   rating: number;
   downloads: string;
   category: string;
+  ageRating: string;
+  developer: string;
+  lastUpdated: string;
   features: {
     category: string;
     items: {
@@ -31,21 +40,53 @@ interface Game {
     }[];
   }[];
   tags?: string[];
+  whatsNew?: string[];
+  compatibility?: string[];
+  requirements?: {
+    os: string;
+    processor: string;
+    memory: string;
+    storage: string;
+  };
 }
 
 const gamesData: Game[] = [
   {
     id: 'cricket-fusion-x',
-    title: 'Crick Fusion X',
-    version: 'V2.0',
+    title: 'Cricket Fusion X',
+    version: '2.0.1',
     size: '514.58 MB',
-    description: 'The ultimate cricket gaming experience with groundbreaking features',
-    image: '/games/cricket-fusion-x.jpg',
+    description: 'The ultimate cricket gaming experience with groundbreaking features and stunning visuals',
+    shortDescription: 'Next-gen cricket with real commentary',
+    icon: '/assets/game-icons/cricket-fusion-x.png',
+    screenshots: [
+      '/assets/screenshots/cricket-fusion-x/1.jpg',
+      '/assets/screenshots/cricket-fusion-x/2.jpg',
+      '/assets/screenshots/cricket-fusion-x/3.jpg',
+      '/assets/screenshots/cricket-fusion-x/4.jpg',
+      '/assets/screenshots/cricket-fusion-x/5.jpg',
+    ],
     status: 'available',
     downloadLink: 'https://drive.google.com/file/d/14usS--oRdbJRBxL5JjWhZHHzuEhaZWYK/view?usp=drivesdk',
     rating: 4.8,
     downloads: '10K+',
-    category: 'Cricket',
+    category: 'Sports',
+    ageRating: '4+',
+    developer: 'Shiva X Mods',
+    lastUpdated: '2 days ago',
+    whatsNew: [
+      'New commentary system with Aakash & Siddhu',
+      'Updated IPL 2024 fixtures',
+      'Improved gameplay physics',
+      'Bug fixes and performance improvements'
+    ],
+    compatibility: ['iOS 14+', 'Android 8+', 'Windows 10+'],
+    requirements: {
+      os: 'Android 8.0 or later',
+      processor: 'Snapdragon 660 or equivalent',
+      memory: '4GB RAM',
+      storage: '2GB free space'
+    },
     features: [
       {
         category: 'Commentary & Audio',
@@ -77,16 +118,27 @@ const gamesData: Game[] = [
   },
   {
     id: 'cricket-fusion-wc19',
-    title: 'Crick Fusion WC19',
-    version: 'Beta Edition',
+    title: 'Cricket Fusion WC19',
+    version: '1.0.0',
     size: 'Coming Soon',
     description: 'World Cup 2019 Edition - Compact version with stunning new features',
-    image: '/games/cricket-fusion-wc19.jpg',
+    shortDescription: 'Relive the 2019 World Cup',
+    icon: '/assets/game-icons/cricket-fusion-wc19.png',
+    screenshots: [
+      '/assets/screenshots/cricket-fusion-wc19/1.jpg',
+      '/assets/screenshots/cricket-fusion-wc19/2.jpg',
+      '/assets/screenshots/cricket-fusion-wc19/3.jpg',
+      '/assets/screenshots/cricket-fusion-wc19/4.jpg',
+    ],
     status: 'beta',
     rating: 4.9,
     downloads: 'Pre-release',
-    category: 'Cricket',
+    category: 'Sports',
+    ageRating: '4+',
+    developer: 'Shiva X Mods',
+    lastUpdated: 'Coming Soon',
     tags: ['BETA', 'NOVEMBER RELEASE'],
+    compatibility: ['iOS 15+', 'Android 9+'],
     features: [
       {
         category: 'World Cup 2019 Experience',
@@ -118,15 +170,26 @@ const gamesData: Game[] = [
   },
   {
     id: 'cricket-fusion',
-    title: 'Crick Fusion',
-    version: 'V1.0',
+    title: 'Cricket Fusion',
+    version: '1.5.3',
     size: 'Coming Soon',
     description: 'The legendary cricket experience - completely rebuilt with next-gen features',
-    image: '/games/cricket-fusion.jpg',
+    shortDescription: 'Classic cricket, modern features',
+    icon: '/assets/game-icons/cricket-fusion.png',
+    screenshots: [
+      '/assets/screenshots/cricket-fusion/1.jpg',
+      '/assets/screenshots/cricket-fusion/2.jpg',
+      '/assets/screenshots/cricket-fusion/3.jpg',
+      '/assets/screenshots/cricket-fusion/4.jpg',
+    ],
     status: 'coming-soon',
     rating: 4.7,
     downloads: '50K+',
-    category: 'Cricket',
+    category: 'Sports',
+    ageRating: '4+',
+    developer: 'Shiva X Mods',
+    lastUpdated: 'Coming Soon',
+    compatibility: ['iOS 13+', 'Android 7+', 'Windows 8+'],
     features: [
       {
         category: 'Core Features',
@@ -144,6 +207,42 @@ const gamesData: Game[] = [
           { icon: <Globe size={16} className="text-purple-400" />, text: 'IPL 2025 with PSL draft system' },
           { icon: <Activity size={16} className="text-purple-400" />, text: 'T20 World Cup 2024' },
           { icon: <Star size={16} className="text-purple-400" />, text: 'ICC World Cup 2023' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'cricket-fusion-pro',
+    title: 'Cricket Fusion Pro',
+    version: '3.0.0',
+    size: '1.2 GB',
+    description: 'Premium cricket simulation with professional features',
+    shortDescription: 'Professional cricket simulation',
+    icon: '/assets/game-icons/cricket-fusion-pro.png',
+    screenshots: [
+      '/assets/screenshots/cricket-fusion-pro/1.jpg',
+      '/assets/screenshots/cricket-fusion-pro/2.jpg',
+      '/assets/screenshots/cricket-fusion-pro/3.jpg',
+      '/assets/screenshots/cricket-fusion-pro/4.jpg',
+    ],
+    status: 'available',
+    downloadLink: '#',
+    rating: 4.9,
+    downloads: '5K+',
+    category: 'Sports',
+    ageRating: '4+',
+    developer: 'Shiva X Mods',
+    lastUpdated: '1 week ago',
+    tags: ['PREMIUM', 'EXCLUSIVE'],
+    compatibility: ['iOS 16+', 'Android 10+', 'Windows 11+'],
+    features: [
+      {
+        category: 'Professional Features',
+        items: [
+          { icon: <Monitor size={16} className="text-blue-400" />, text: '4K Ultra HD graphics' },
+          { icon: <Cpu size={16} className="text-blue-400" />, text: 'Enhanced physics engine' },
+          { icon: <Users size={16} className="text-blue-400" />, text: 'Online multiplayer' },
+          { icon: <Cloud size={16} className="text-blue-400" />, text: 'Cloud save support' }
         ]
       }
     ]
@@ -181,25 +280,22 @@ const socialLinks = [
   }
 ];
 
-const pageLinks = [
-  { name: "Store", href: "/store", icon: ShoppingCart, color: "from-green-500 to-emerald-500", description: "Premium Mods & Products" },
-  { name: "Apply", href: "/apply", icon: Users, color: "from-blue-500 to-cyan-500", description: "Join Our Team" },
-  { name: "Community", href: "/community", icon: Users, color: "from-purple-500 to-pink-500", description: "Connect with Players" },
-  { name: "Games", href: "/games", icon: Gamepad2, color: "from-orange-500 to-red-500", description: "Supported Games" },
-  { name: "Membership", href: "/membership", icon: Crown, color: "from-yellow-500 to-amber-500", description: "Exclusive Benefits" },
-  { name: "Login", href: "/login", icon: User, color: "from-gray-600 to-gray-700", description: "Access Your Account" },
-  { name: "Register", href: "/register", icon: User, color: "from-indigo-500 to-purple-500", description: "Create Account" },
-  { name: "Support", href: "/support", icon: AlertCircle, color: "from-cyan-500 to-blue-500", description: "Get Help & Support" },
-  { name: "Testimonials", href: "/testimonials", icon: Star, color: "from-amber-500 to-orange-500", description: "User Reviews" },
-  { name: "Privacy", href: "/privacy", icon: Shield, color: "from-green-600 to-emerald-600", description: "Privacy Policy" },
-  { name: "Terms", href: "/terms", icon: FileText, color: "from-gray-500 to-gray-600", description: "Terms of Service" },
-  { name: "Refund", href: "/refund", icon: DollarSign, color: "from-red-500 to-pink-500", description: "Refund Policy" }
+const categories = [
+  { id: 'all', name: 'All Games', icon: <Grid size={20} /> },
+  { id: 'sports', name: 'Sports', icon: <Trophy size={20} /> },
+  { id: 'featured', name: 'Featured', icon: <Star size={20} /> },
+  { id: 'new', name: 'New', icon: <Sparkle size={20} /> },
+  { id: 'popular', name: 'Popular', icon: <TrendingUp size={20} /> },
+  { id: 'upcoming', name: 'Upcoming', icon: <Calendar size={20} /> }
 ];
 
 export default function GamesPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [expandedGame, setExpandedGame] = useState<string | null>(null);
+  const [expandedGame, setExpandedGame] = useState<string | null>('cricket-fusion-x');
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedGame, setSelectedGame] = useState<Game>(gamesData[0]);
+  const [currentScreenshotIndex, setCurrentScreenshotIndex] = useState(0);
 
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({
@@ -207,31 +303,40 @@ export default function GamesPage() {
     offset: ["start start", "end start"],
   });
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
+  const screenshotRef = useRef<HTMLDivElement>(null);
 
-  const toggleFeatures = (gameId: string) => {
-    setExpandedGame(expandedGame === gameId ? null : gameId);
+  const nextScreenshot = () => {
+    setCurrentScreenshotIndex(prev => 
+      prev === selectedGame.screenshots.length - 1 ? 0 : prev + 1
+    );
+  };
+
+  const prevScreenshot = () => {
+    setCurrentScreenshotIndex(prev => 
+      prev === 0 ? selectedGame.screenshots.length - 1 : prev - 1
+    );
   };
 
   const getStatusBadge = (status: Game['status']) => {
     switch (status) {
       case 'available':
         return (
-          <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-            <CheckCircle size={12} className="inline mr-1" />
+          <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
+            <CheckCircle size={12} />
             Available
           </div>
         );
       case 'beta':
         return (
-          <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-            <Sparkles size={12} className="inline mr-1" />
+          <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
+            <Sparkles size={12} />
             Beta
           </div>
         );
       case 'coming-soon':
         return (
-          <div className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-            <Clock size={12} className="inline mr-1" />
+          <div className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
+            <Clock size={12} />
             Coming Soon
           </div>
         );
@@ -244,43 +349,51 @@ export default function GamesPage() {
         return (
           <Link
             href={game.downloadLink ?? '#'}
-            className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 text-sm shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            className="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 text-sm shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
           >
-            <Download size={18} /> Install Now
+            <DownloadCloud size={18} /> Get
           </Link>
         );
       case 'beta':
         return (
           <button className="bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold py-3 px-6 rounded-xl flex items-center justify-center gap-2 text-sm shadow-lg cursor-not-allowed opacity-90">
-            <Clock size={18} /> Pre-register
+            <Clock size={18} /> Pre-order
           </button>
         );
       case 'coming-soon':
         return (
           <button className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-semibold py-3 px-6 rounded-xl flex items-center justify-center gap-2 text-sm shadow-lg cursor-not-allowed opacity-90">
-            <Clock size={18} /> Coming Soon
+            <Bell size={18} /> Notify Me
           </button>
         );
     }
   };
 
-  const getCardGradient = (gameId: string) => {
-    switch (gameId) {
-      case 'cricket-fusion-x':
-        return 'from-gray-800 via-cyan-900/20 to-gray-800 border-cyan-500/30';
-      case 'cricket-fusion-wc19':
-        return 'from-gray-800 via-orange-900/20 to-gray-800 border-orange-500/30';
-      case 'cricket-fusion':
-        return 'from-gray-800 via-purple-900/20 to-gray-800 border-purple-500/30';
-      default:
-        return 'from-gray-800 to-gray-900 border-gray-700';
-    }
-  };
+  const filteredGames = gamesData.filter(game => {
+    const matchesSearch = 
+      game.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      game.description.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    if (selectedCategory === 'all') return matchesSearch;
+    if (selectedCategory === 'sports') return matchesSearch && game.category === 'Sports';
+    if (selectedCategory === 'featured') return matchesSearch && game.rating >= 4.8;
+    if (selectedCategory === 'new') return matchesSearch && game.status === 'beta';
+    if (selectedCategory === 'popular') return matchesSearch && game.downloads.includes('K+');
+    if (selectedCategory === 'upcoming') return matchesSearch && game.status === 'coming-soon';
+    
+    return matchesSearch;
+  });
 
-  const filteredGames = gamesData.filter(game =>
-    game.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    game.description.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Auto-scroll screenshots
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (selectedGame?.screenshots) {
+        nextScreenshot();
+      }
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [selectedGame]);
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100 overflow-x-hidden">
@@ -291,295 +404,368 @@ export default function GamesPage() {
           style={{ y }}
           className="absolute inset-0 bg-[url('/assets/grid.svg')] bg-center [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_70%)] opacity-40"
         />
-        {[...Array(12)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute border border-cyan-500/20 rounded-lg"
-            style={{
-              width: Math.random() * 200 + 50,
-              height: Math.random() * 3 + 1,
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              rotate: Math.random() * 360,
-            }}
-            animate={{
-              opacity: [0.1, 0.4, 0.1],
-              x: [0, (Math.random() - 0.5) * 100],
-            }}
-            transition={{
-              duration: Math.random() * 10 + 10,
-              repeat: Infinity,
-            }}
-          />
-        ))}
       </div>
 
       {/* Header */}
-      <header className="fixed w-full z-50 bg-gray-950/90 backdrop-blur-md border-b border-cyan-500/20">
-        <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative">
-              <div className="w-10 h-10 bg-gradient-to-br from-cyan-400 to-purple-500 rounded-lg flex items-center justify-center transform group-hover:scale-110 transition-all duration-300">
-                <Zap className="h-6 w-6 text-gray-950 font-bold" />
+      <header className="fixed w-full z-50 bg-gray-950/90 backdrop-blur-lg border-b border-gray-800">
+        <div className="container mx-auto px-6 py-3">
+          <div className="flex justify-between items-center">
+            <Link href="/" className="flex items-center gap-2 group">
+              <div className="w-8 h-8 bg-gradient-to-br from-cyan-400 to-purple-500 rounded-lg flex items-center justify-center">
+                <Gamepad2 className="h-4 w-4 text-gray-950" />
               </div>
-              <div className="absolute inset-0 bg-gradient-to-br from-cyan-400 to-purple-500 rounded-lg blur-sm opacity-50 group-hover:opacity-75 transition-opacity"></div>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-                SHIVA X
+              <span className="text-lg font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
+                App Store
               </span>
-              <span className="text-xs text-cyan-400 font-medium">REBORN 2025</span>
-            </div>
-          </Link>
+            </Link>
 
-          <nav className="hidden md:flex items-center gap-8">
-            <Link href="/" className="text-sm font-medium text-gray-300 hover:text-cyan-400 transition-colors">
-              Home
-            </Link>
-            <Link href="/store" className="text-sm font-medium text-gray-300 hover:text-cyan-400 transition-colors">
-              Store
-            </Link>
-            <Link href="/games" className="text-sm font-medium text-gray-300 hover:text-cyan-400 transition-colors">
-              Games
-            </Link>
-            <Link href="/community" className="text-sm font-medium text-gray-300 hover:text-cyan-400 transition-colors">
-              Community
-            </Link>
-          </nav>
+            <nav className="hidden md:flex items-center gap-6">
+              <Link href="/" className="text-sm font-medium text-gray-300 hover:text-cyan-400 transition-colors">
+                Today
+              </Link>
+              <Link href="/games" className="text-sm font-medium text-cyan-400 transition-colors">
+                Games
+              </Link>
+              <Link href="/apps" className="text-sm font-medium text-gray-300 hover:text-cyan-400 transition-colors">
+                Apps
+              </Link>
+              <Link href="/arcade" className="text-sm font-medium text-gray-300 hover:text-cyan-400 transition-colors">
+                Arcade
+              </Link>
+              <Link href="/search" className="text-sm font-medium text-gray-300 hover:text-cyan-400 transition-colors">
+                Search
+              </Link>
+            </nav>
 
-          <div className="flex items-center gap-4">
-            <Link href="#community">
-              <button className="bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white px-6 py-2 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105">
-                Join Telegram
+            <div className="flex items-center gap-3">
+              <button className="p-2 rounded-full hover:bg-gray-800 transition-colors">
+                <Bell className="h-5 w-5" />
               </button>
-            </Link>
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="p-2 rounded-lg hover:bg-gray-800 transition-colors border border-gray-700"
-            >
-              <Menu className="h-5 w-5" />
-            </button>
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="p-2 rounded-full hover:bg-gray-800 transition-colors"
+              >
+                <User className="h-5 w-5" />
+              </button>
+            </div>
           </div>
         </div>
       </header>
 
-      {/* Mobile Sidebar */}
-      <AnimatePresence>
-        {sidebarOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-40 bg-black/80 backdrop-blur-sm"
-              onClick={() => setSidebarOpen(false)}
-            />
-            <motion.div
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 30 }}
-              className="fixed inset-y-0 right-0 z-50 w-80 bg-gray-900 border-l border-cyan-500/20 shadow-2xl overflow-y-auto"
-            >
-              <div className="flex justify-between items-center p-6 border-b border-gray-800">
-                <Link href="/" className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-cyan-400 to-purple-500 rounded-lg flex items-center justify-center">
-                    <Zap className="h-6 w-6 text-gray-950" />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-lg font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-                      SHIVA XD
-                    </span>
-                    <span className="text-xs text-cyan-400">REBORN 2025</span>
-                  </div>
-                </Link>
-                <button
-                  onClick={() => setSidebarOpen(false)}
-                  className="p-2 rounded-lg hover:bg-gray-800 transition-colors"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-              <nav className="flex flex-col p-6 space-y-2">
-                {pageLinks.map((page) => (
-                  <Link
-                    key={page.name}
-                    href={page.href}
-                    className="flex items-center px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium border border-transparent hover:border-cyan-500/20"
-                    onClick={() => setSidebarOpen(false)}
-                  >
-                    <page.icon className="h-5 w-5 mr-3" />
-                    {page.name}
-                  </Link>
-                ))}
-                <div className="pt-4 mt-4 border-t border-gray-800">
-                  <button className="w-full bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white py-3 rounded-lg font-medium transition-all duration-300">
-                    Join Our Telegram
-                  </button>
-                </div>
-              </nav>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-
-      <main className="relative pt-20">
-        {/* Hero Section */}
-        <section className="relative py-20 overflow-hidden">
-          <div className="container mx-auto px-6 z-10">
-            <div className="max-w-4xl mx-auto text-center">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8 }}
-                className="inline-flex items-center px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/20 mb-8"
-              >
-                <Gamepad2 className="h-4 w-4 mr-2 text-cyan-400" />
-                <span className="text-sm font-medium text-cyan-400">PREMIUM GAMING EXPERIENCE</span>
-              </motion.div>
-
-              <motion.h1
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.2 }}
-                className="text-5xl md:text-7xl font-black tracking-tight mb-6"
-              >
-                <span className="bg-gradient-to-r from-cyan-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent bg-size-200 animate-gradient">
-                  OUR GAMES
-                </span>
-              </motion.h1>
-
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.4 }}
-                className="text-xl text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed"
-              >
-                Discover our collection of premium cricket games with cutting-edge features and stunning visuals
-              </motion.p>
-
-              {/* Search Bar */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.6 }}
-                className="max-w-md mx-auto"
-              >
-                <div className="relative">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-cyan-400" size={20} />
-                  <input
-                    type="text"
-                    placeholder="Search games..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-gray-800/80 border border-cyan-500/30 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:bg-gray-800 transition-all shadow-lg text-white placeholder-gray-400"
-                  />
-                </div>
-              </motion.div>
+      {/* Main Content */}
+      <main className="pt-16">
+        {/* Search Bar */}
+        <div className="sticky top-16 z-40 bg-gray-950/90 backdrop-blur-lg border-b border-gray-800">
+          <div className="container mx-auto px-6 py-4">
+            <div className="relative max-w-2xl mx-auto">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+              <input
+                type="text"
+                placeholder="Search Games"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:bg-gray-800 transition-all shadow-lg text-white placeholder-gray-400"
+              />
             </div>
           </div>
-        </section>
+        </div>
+
+        {/* Categories */}
+        <div className="container mx-auto px-6 py-4 overflow-x-auto">
+          <div className="flex gap-2 min-w-max">
+            {categories.map((category) => (
+              <button
+                key={category.id}
+                onClick={() => setSelectedCategory(category.id)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${selectedCategory === category.id ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800'}`}
+              >
+                {category.icon}
+                <span className="text-sm font-medium whitespace-nowrap">{category.name}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Game Details Section - App Store Style */}
+        <div className="container mx-auto px-6 py-8">
+          <div className="grid lg:grid-cols-3 gap-8">
+            {/* Left Column - Game Info */}
+            <div className="lg:col-span-2 space-y-8">
+              {/* Hero Section */}
+              <div className="bg-gradient-to-br from-gray-900 to-gray-950 rounded-3xl p-8 border border-gray-800">
+                <div className="flex flex-col lg:flex-row gap-8 items-start">
+                  {/* Game Icon */}
+                  <div className="relative group">
+                    <div className="w-32 h-32 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-purple-500/20 p-1">
+                      <div className="w-full h-full rounded-2xl bg-gray-900 overflow-hidden">
+                        <div className="w-full h-full bg-gradient-to-br from-cyan-500/10 to-purple-500/10 flex items-center justify-center">
+                          <Gamepad2 className="h-16 w-16 text-cyan-400" />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-cyan-500 to-purple-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                      EDITOR'S CHOICE
+                    </div>
+                  </div>
+
+                  {/* Game Details */}
+                  <div className="flex-1">
+                    <div className="flex items-start justify-between mb-4">
+                      <div>
+                        <h1 className="text-4xl font-bold text-white mb-2">{selectedGame.title}</h1>
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="flex items-center gap-1">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                size={16}
+                                className={i < Math.floor(selectedGame.rating) ? "text-yellow-400 fill-yellow-400" : "text-gray-600"}
+                              />
+                            ))}
+                            <span className="text-sm text-gray-400 ml-2">{selectedGame.rating}</span>
+                          </div>
+                          <span className="text-sm text-gray-400">•</span>
+                          <span className="text-sm text-gray-400">{selectedGame.ageRating}</span>
+                          <span className="text-sm text-gray-400">•</span>
+                          <span className="text-sm text-gray-400">{selectedGame.size}</span>
+                        </div>
+                      </div>
+                      {getStatusBadge(selectedGame.status)}
+                    </div>
+
+                    <p className="text-gray-300 mb-6">{selectedGame.description}</p>
+
+                    <div className="flex items-center gap-4">
+                      {getStatusButton(selectedGame)}
+                      <button className="p-3 rounded-xl border border-gray-700 hover:bg-gray-800 transition-colors">
+                        <Share2 className="h-5 w-5" />
+                      </button>
+                      <button className="p-3 rounded-xl border border-gray-700 hover:bg-gray-800 transition-colors">
+                        <Heart className="h-5 w-5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Screenshots Carousel */}
+              <div className="bg-gradient-to-br from-gray-900 to-gray-950 rounded-3xl p-8 border border-gray-800">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold text-white">Preview</h2>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={prevScreenshot}
+                      className="p-2 rounded-full bg-gray-800 hover:bg-gray-700 transition-colors"
+                    >
+                      <ChevronLeft size={20} />
+                    </button>
+                    <button
+                      onClick={nextScreenshot}
+                      className="p-2 rounded-full bg-gray-800 hover:bg-gray-700 transition-colors"
+                    >
+                      <ChevronRight size={20} />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="relative overflow-hidden rounded-2xl">
+                  <motion.div
+                    key={currentScreenshotIndex}
+                    initial={{ opacity: 0, scale: 1.1 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.3 }}
+                    className="aspect-video bg-gradient-to-br from-cyan-900/20 to-purple-900/20 rounded-2xl overflow-hidden"
+                  >
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Smartphone className="h-32 w-32 text-gray-700" />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="text-center">
+                          <Image className="h-12 w-12 text-gray-600 mx-auto mb-2" />
+                          <span className="text-gray-500">Game Screenshot {currentScreenshotIndex + 1}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  {/* Screenshot Thumbnails */}
+                  <div className="flex gap-3 mt-4 overflow-x-auto pb-2">
+                    {selectedGame.screenshots.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentScreenshotIndex(index)}
+                        className={`flex-shrink-0 w-20 h-12 rounded-lg transition-all ${currentScreenshotIndex === index ? 'ring-2 ring-cyan-500' : 'opacity-50 hover:opacity-100'}`}
+                      >
+                        <div className="w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg flex items-center justify-center">
+                          <span className="text-xs text-gray-400">{index + 1}</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Features & Details */}
+              <div className="bg-gradient-to-br from-gray-900 to-gray-950 rounded-3xl p-8 border border-gray-800">
+                <h2 className="text-2xl font-bold text-white mb-6">Features & Details</h2>
+                <div className="space-y-6">
+                  {selectedGame.features.map((featureCategory, catIndex) => (
+                    <div key={catIndex}>
+                      <h4 className="font-bold text-white mb-4 text-lg">{featureCategory.category}</h4>
+                      <div className="grid md:grid-cols-2 gap-3">
+                        {featureCategory.items.map((feature, featIndex) => (
+                          <div
+                            key={featIndex}
+                            className="bg-gray-800/50 p-4 rounded-xl border border-gray-700/50 hover:border-cyan-500/30 transition-colors"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 rounded-lg bg-gray-700/50">
+                                {feature.icon}
+                              </div>
+                              <span className="font-medium text-gray-200">{feature.text}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column - Game List */}
+            <div className="space-y-6">
+              <div className="bg-gradient-to-br from-gray-900 to-gray-950 rounded-3xl p-6 border border-gray-800">
+                <h2 className="text-xl font-bold text-white mb-4">More Games</h2>
+                <div className="space-y-4">
+                  {gamesData.map((game) => (
+                    <motion.div
+                      key={game.id}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <button
+                        onClick={() => {
+                          setSelectedGame(game);
+                          setCurrentScreenshotIndex(0);
+                          setExpandedGame(game.id);
+                        }}
+                        className={`w-full p-4 rounded-2xl transition-all text-left ${selectedGame.id === game.id ? 'bg-gray-800/50 border border-cyan-500/30' : 'bg-gray-800/30 border border-transparent hover:border-gray-700'}`}
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-cyan-500/20 to-purple-500/20 p-1">
+                            <div className="w-full h-full rounded-xl bg-gray-900 flex items-center justify-center">
+                              <Gamepad2 className="h-8 w-8 text-cyan-400" />
+                            </div>
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between mb-1">
+                              <h3 className="font-semibold text-white">{game.title}</h3>
+                              {getStatusBadge(game.status)}
+                            </div>
+                            <p className="text-sm text-gray-400 mb-2">{game.shortDescription}</p>
+                            <div className="flex items-center gap-3 text-xs text-gray-500">
+                              <span>{game.category}</span>
+                              <span>•</span>
+                              <span>{game.size}</span>
+                              <span>•</span>
+                              <div className="flex items-center gap-1">
+                                <Star size={12} className="text-yellow-400" />
+                                <span>{game.rating}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </button>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Info Card */}
+              <div className="bg-gradient-to-br from-gray-900 to-gray-950 rounded-3xl p-6 border border-gray-800">
+                <h2 className="text-xl font-bold text-white mb-4">Information</h2>
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="text-sm text-gray-400 mb-1">Developer</h4>
+                    <p className="text-white font-medium">{selectedGame.developer}</p>
+                  </div>
+                  <div>
+                    <h4 className="text-sm text-gray-400 mb-1">Age</h4>
+                    <p className="text-white font-medium">{selectedGame.ageRating}</p>
+                  </div>
+                  <div>
+                    <h4 className="text-sm text-gray-400 mb-1">Category</h4>
+                    <p className="text-white font-medium">{selectedGame.category}</p>
+                  </div>
+                  <div>
+                    <h4 className="text-sm text-gray-400 mb-1">Updated</h4>
+                    <p className="text-white font-medium">{selectedGame.lastUpdated}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Games Grid */}
         <section className="py-10 relative">
           <div className="container mx-auto px-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-3xl font-bold text-white">All Games</h2>
+              <div className="flex items-center gap-2">
+                <button className="p-2 rounded-lg hover:bg-gray-800 transition-colors">
+                  <Filter className="h-5 w-5" />
+                </button>
+                <button className="p-2 rounded-lg hover:bg-gray-800 transition-colors">
+                  <Layout className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {filteredGames.map((game, index) => (
                 <motion.div
                   key={game.id}
-                  initial={{ opacity: 0, y: 50 }}
+                  initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  transition={{ duration: 0.3, delay: index * 0.1 }}
                   viewport={{ once: true }}
-                  className={`bg-gradient-to-br ${getCardGradient(game.id)} rounded-2xl shadow-2xl hover:shadow-2xl transition-all duration-500 border-2 overflow-hidden transform hover:-translate-y-2 backdrop-blur-sm`}
+                  whileHover={{ y: -5 }}
+                  className="bg-gradient-to-br from-gray-900 to-gray-950 rounded-2xl border border-gray-800 overflow-hidden group hover:border-cyan-500/30 transition-all duration-300"
                 >
-                  
-                  {/* Game Header */}
                   <div className="p-6">
-                    <div className="flex items-start justify-between mb-4">
+                    {/* Game Icon and Header */}
+                    <div className="flex items-start gap-4 mb-4">
+                      <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-cyan-500/20 to-purple-500/20 p-1 flex-shrink-0">
+                        <div className="w-full h-full rounded-xl bg-gray-900 flex items-center justify-center">
+                          <Gamepad2 className="h-8 w-8 text-cyan-400" />
+                        </div>
+                      </div>
                       <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-3">
-                          <h3 className="text-2xl font-bold text-white">{game.title}</h3>
+                        <div className="flex items-start justify-between">
+                          <h3 className="font-bold text-white text-lg">{game.title}</h3>
                           {getStatusBadge(game.status)}
                         </div>
-                        <p className="text-gray-300 mb-4 leading-relaxed">{game.description}</p>
-                        
-                        {/* Rating and Downloads */}
-                        <div className="flex items-center gap-6 text-sm mb-4">
-                          <div className="flex items-center gap-2 bg-gray-700/80 px-3 py-1 rounded-full shadow-lg">
-                            <Star className="text-yellow-400" size={16} fill="currentColor" />
-                            <span className="font-semibold text-white">{game.rating}</span>
-                          </div>
-                          <div className="bg-gray-700/80 px-3 py-1 rounded-full shadow-lg">
-                            <span className="font-semibold text-white">{game.downloads}</span>
-                          </div>
+                        <p className="text-gray-400 text-sm mt-1">{game.shortDescription}</p>
+                      </div>
+                    </div>
+
+                    {/* Rating and Downloads */}
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1">
+                          <Star size={16} className="text-yellow-400 fill-yellow-400" />
+                          <span className="font-semibold text-white">{game.rating}</span>
                         </div>
+                        <span className="text-gray-500">•</span>
+                        <span className="text-sm text-gray-400">{game.downloads}</span>
                       </div>
+                      <span className="text-sm text-gray-400">{game.size}</span>
                     </div>
-
-                    {/* Version and Size */}
-                    <div className="flex items-center gap-4 text-sm mb-4">
-                      <span className="bg-gray-700/80 px-3 py-1 rounded-full text-gray-200">v{game.version}</span>
-                      <span className="bg-gray-700/80 px-3 py-1 rounded-full text-gray-200">{game.size}</span>
-                    </div>
-
-                    {/* Tags */}
-                    {game.tags && (
-                      <div className="flex flex-wrap gap-2 mb-6">
-                        {game.tags.map((tag, index) => (
-                          <span key={index} className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
 
                     {/* Install Button */}
-                    <div className="mb-4">
+                    <div className="mt-4">
                       {getStatusButton(game)}
-                    </div>
-
-                    {/* Features Toggle */}
-                    <button
-                      onClick={() => toggleFeatures(game.id)}
-                      className="w-full flex items-center justify-center gap-3 text-gray-400 hover:text-cyan-400 transition py-3 border-t border-gray-700/50"
-                    >
-                      {expandedGame === game.id ? (
-                        <>
-                          <ChevronUp size={18} />
-                          <span className="font-semibold">Hide Features</span>
-                        </>
-                      ) : (
-                        <>
-                          <ChevronDown size={18} />
-                          <span className="font-semibold">Show Features</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-
-                  {/* Features Slide-down */}
-                  <div className={`overflow-hidden transition-all duration-500 ${expandedGame === game.id ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'}`}>
-                    <div className="px-6 pb-6 border-t border-gray-700/50">
-                      <div className="space-y-6 pt-4">
-                        {game.features.map((featureCategory, catIndex) => (
-                          <div key={catIndex}>
-                            <h4 className="font-bold text-white mb-3 text-sm uppercase tracking-wider bg-gray-700/50 px-3 py-2 rounded-lg">
-                              {featureCategory.category}
-                            </h4>
-                            <ul className="space-y-3">
-                              {featureCategory.items.map((feature, featIndex) => (
-                                <li key={featIndex} className="flex items-start gap-3 text-sm text-gray-200 bg-gray-700/70 p-3 rounded-xl shadow-lg">
-                                  <span className="mt-0.5 flex-shrink-0">
-                                    {feature.icon}
-                                  </span>
-                                  <span className="font-medium">{feature.text}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        ))}
-                      </div>
                     </div>
                   </div>
                 </motion.div>
@@ -597,181 +783,49 @@ export default function GamesPage() {
                   <Search size={64} className="mx-auto" />
                 </div>
                 <h3 className="text-2xl font-bold text-white mb-3">No games found</h3>
-                <p className="text-gray-400 text-lg">Try adjusting your search terms to find what you're looking for</p>
+                <p className="text-gray-400 text-lg">Try adjusting your search terms or filters</p>
               </motion.div>
             )}
-          </div>
-        </section>
-
-        {/* Community Section */}
-        <section id="community" className="py-20 relative">
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute left-1/4 top-0 w-96 h-96 bg-cyan-500/5 rounded-full filter blur-3xl"></div>
-            <div className="absolute right-1/4 bottom-0 w-96 h-96 bg-purple-500/5 rounded-full filter blur-3xl"></div>
-          </div>
-
-          <div className="container mx-auto px-6">
-            <div className="max-w-4xl mx-auto text-center mb-16">
-              <motion.h2
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                viewport={{ once: true }}
-                className="text-4xl md:text-5xl font-bold mb-6"
-              >
-                Join Our <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">Community</span>
-              </motion.h2>
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.1 }}
-                viewport={{ once: true }}
-                className="text-xl text-gray-400"
-              >
-                Connect with us on our social platforms for updates and support
-              </motion.p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-              {socialLinks.map((social, index) => (
-                <motion.div
-                  key={social.name}
-                  initial={{ opacity: 0, y: 50 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                >
-                  <Link
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`${social.color} rounded-xl p-6 flex flex-col items-center text-center transition-all hover:shadow-lg hover:shadow-cyan-500/10 border border-transparent hover:border-cyan-500/20 h-full`}
-                  >
-                    <div className="w-14 h-14 rounded-xl bg-white/10 flex items-center justify-center mb-4">
-                      <social.icon className="h-7 w-7 text-white" />
-                    </div>
-                    <h3 className="text-lg font-bold mb-2">{social.name}</h3>
-                    <p className="text-white/80 text-sm flex-grow">{social.description}</p>
-                    <div className="mt-4 text-xs text-white/60">Click to join</div>
-                  </Link>
-                </motion.div>
-              ))}
-            </div>
           </div>
         </section>
       </main>
 
       {/* Footer */}
-      <footer className="relative border-t border-cyan-500/20 bg-gray-900/60 backdrop-blur-sm">
-        <div className="container mx-auto px-6 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
-            <div>
-              <Link href="/" className="flex items-center gap-3 mb-6 group">
-                <div className="w-10 h-10 bg-gradient-to-br from-cyan-400 to-purple-500 rounded-lg flex items-center justify-center transform group-hover:scale-105 transition-all">
-                  <Zap className="h-6 w-6 text-gray-950" />
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-                    SHIVA X
-                  </span>
-                  <span className="text-xs text-cyan-400 font-medium">REBORN 2025</span>
-                </div>
-              </Link>
-              <p className="text-gray-400 text-sm">
-                Premium gaming experiences with cutting-edge features
-              </p>
-            </div>
-
-            <div>
-              <h4 className="text-lg font-semibold mb-4 text-gray-200">Quick Links</h4>
-              <ul className="space-y-3">
-                <li>
-                  <Link href="/store" className="text-gray-400 hover:text-cyan-400 transition-colors text-sm">
-                    Store
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/games" className="text-gray-400 hover:text-cyan-400 transition-colors text-sm">
-                    Games
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/community" className="text-gray-400 hover:text-cyan-400 transition-colors text-sm">
-                    Community
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/support" className="text-gray-400 hover:text-cyan-400 transition-colors text-sm">
-                    Support
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="text-lg font-semibold mb-4 text-gray-200">Support</h4>
-              <ul className="space-y-3">
-                <li>
-                  <Link href="/help" className="text-gray-400 hover:text-cyan-400 transition-colors text-sm">
-                    Get Help
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/contact" className="text-gray-400 hover:text-cyan-400 transition-colors text-sm">
-                    Contact Us
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/updates" className="text-gray-400 hover:text-cyan-400 transition-colors text-sm">
-                    Latest Updates
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="text-lg font-semibold mb-4 text-gray-200">Stay Connected</h4>
-              <div className="flex items-center gap-4 mb-4">
-                {socialLinks.map((social) => (
-                  <Link
-                    key={social.name}
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-gray-400 hover:text-cyan-400 transition-colors p-2 hover:bg-cyan-500/10 rounded-lg"
-                  >
-                    <social.icon className="h-5 w-5" />
-                  </Link>
-                ))}
+      <footer className="border-t border-gray-800 bg-gray-900/60 backdrop-blur-sm">
+        <div className="container mx-auto px-6 py-8">
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <div className="w-8 h-8 bg-gradient-to-br from-cyan-400 to-purple-500 rounded-lg flex items-center justify-center">
+                <Gamepad2 className="h-4 w-4 text-gray-950" />
               </div>
+              <span className="text-lg font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
+                Shiva X Store
+              </span>
+            </div>
+            <p className="text-gray-500 text-sm mb-6">
+              Premium gaming experiences with cutting-edge features
+            </p>
+            <div className="flex items-center justify-center gap-6 mb-6">
+              {socialLinks.map((social) => (
+                <Link
+                  key={social.name}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-400 hover:text-cyan-400 transition-colors p-2 hover:bg-cyan-500/10 rounded-lg"
+                >
+                  <social.icon className="h-5 w-5" />
+                </Link>
+              ))}
+            </div>
+            <div className="border-t border-gray-800 pt-6">
               <p className="text-gray-500 text-sm">
-                We're excited to have you back!
+                © 2025 Shiva X Mods. All rights reserved.
               </p>
             </div>
-          </div>
-
-          <div className="border-t border-cyan-500/20 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-500 text-sm mb-4 md:mb-0">
-              © 2025 Shiva X Mods. We're back and here to stay.
-            </p>
-            <p className="text-gray-500 text-sm flex items-center">
-              Made with <Heart className="h-4 w-4 text-cyan-400 mx-1" /> by fluxon.
-            </p>
           </div>
         </div>
       </footer>
-
-      <style jsx global>{`
-        @keyframes gradient {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-        .animate-gradient {
-          background-size: 200% 200%;
-          animation: gradient 6s ease infinite;
-        }
-      `}</style>
     </div>
   );
 }
