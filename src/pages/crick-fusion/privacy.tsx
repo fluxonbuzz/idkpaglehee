@@ -24,7 +24,7 @@ import {
 import { motion } from 'framer-motion';
 
 export default function PrivacyPolicy() {
-  const [lastUpdated] = useState('December 2024');
+  const [lastUpdated] = useState('December 2025');
 
   const sections = [
     {
