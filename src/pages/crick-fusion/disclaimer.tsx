@@ -14,7 +14,7 @@ import {
   Smartphone,
   Globe,
   ExternalLink,
-  FileText  // ADD THIS IMPORT
+  FileText
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
