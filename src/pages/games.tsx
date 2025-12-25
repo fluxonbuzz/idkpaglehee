@@ -10,7 +10,8 @@ import {
   Play, Image, Smartphone, Monitor, Settings, Grid, Layout, BookOpen,
   Share2, ExternalLink, Eye, MousePointer, DownloadCloud, Calendar,
   Bell, TrendingUp, Medal, Target, Refresh, Cloud, ShieldCheck,
-  Battery, Cpu, HardDrive, Wifi, ArrowRight, Gift, Sparkle
+  Battery, Cpu, HardDrive, Wifi, ArrowRight, Gift, Sparkle,
+  Flame, AlertTriangle, Rocket
 } from 'lucide-react';
 import Link from 'next/link';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
@@ -52,6 +53,59 @@ interface Game {
 
 const gamesData: Game[] = [
   {
+    id: 'cricket-fusion-wc19',
+    title: 'Cricket Fusion Beta',
+    version: '1.0.0',
+    size: '514 MB',
+    description: 'World Cup 2019 Edition - Compact version with stunning new features. Relive the epic moments with enhanced gameplay!',
+    shortDescription: 'World Cup 2019 Edition - Beta Release',
+    icon: '/assets/game-icons/cricket-fusion-wc19.png',
+    screenshots: [
+      '/assets/screenshots/cricket-fusion-wc19/1.jpg',
+      '/assets/screenshots/cricket-fusion-wc19/2.jpg',
+      '/assets/screenshots/cricket-fusion-wc19/3.jpg',
+      '/assets/screenshots/cricket-fusion-wc19/4.jpg',
+    ],
+    status: 'beta',
+    downloadLink: 'https://linksgo.in/bQAu',
+    rating: 4.9,
+    downloads: 'Pre-release',
+    category: 'Sports',
+    ageRating: '4+',
+    developer: 'Shiva X Mods',
+    lastUpdated: 'Just Now',
+    tags: ['BETA', 'HOT RELEASE', 'NEW'],
+    compatibility: ['iOS 15+', 'Android 9+'],
+    features: [
+      {
+        category: 'World Cup 2019 Experience',
+        items: [
+          { icon: <Trophy size={16} className="text-yellow-400" />, text: 'World Cup 2019 Scorecards & Main Menu' },
+          { icon: <Film size={16} className="text-yellow-400" />, text: 'Match intro with WC19 graphics' },
+          { icon: <Award size={16} className="text-yellow-400" />, text: 'New trophy celebration scenes' },
+          { icon: <Globe size={16} className="text-yellow-400" />, text: 'All England stadiums (not from RC20)' }
+        ]
+      },
+      {
+        category: 'Audio & Commentary',
+        items: [
+          { icon: <Volume2 size={16} className="text-blue-400" />, text: 'New Hindi and English commentary' },
+          { icon: <Volume2 size={16} className="text-blue-400" />, text: 'Completely new sound effects' },
+          { icon: <Volume2 size={16} className="text-blue-400" />, text: 'Removed all old sound effects' }
+        ]
+      },
+      {
+        category: 'Gameplay & Controls',
+        items: [
+          { icon: <Zap size={16} className="text-green-400" />, text: '200+ new shots with enhanced physics' },
+          { icon: <Joystick size={16} className="text-green-400" />, text: 'New joystick and control system' },
+          { icon: <Activity size={16} className="text-green-400" />, text: 'New QTE System in bowling' },
+          { icon: <Star size={16} className="text-green-400" />, text: 'New celebrations (century, wicket, etc.)' }
+        ]
+      }
+    ]
+  },
+  {
     id: 'cricket-fusion-x',
     title: 'Cricket Fusion X',
     version: '2.0.1',
@@ -67,7 +121,7 @@ const gamesData: Game[] = [
       '/assets/screenshots/cricket-fusion-x/5.jpg',
     ],
     status: 'available',
-    downloadLink: 'https://drive.google.com/file/d/14usS--oRdbJRBxL5JjWhZHHzuEhaZWYK/view?usp=drivesdk',
+    downloadLink: 'https://linksgo.in/bQAu',
     rating: 4.8,
     downloads: '10K+',
     category: 'Sports',
@@ -117,62 +171,10 @@ const gamesData: Game[] = [
     ]
   },
   {
-    id: 'cricket-fusion-wc19',
-    title: 'Cricket Fusion WC19',
-    version: '1.0.0',
-    size: 'Coming Soon',
-    description: 'World Cup 2019 Edition - Compact version with stunning new features',
-    shortDescription: 'Relive the 2019 World Cup',
-    icon: '/assets/game-icons/cricket-fusion-wc19.png',
-    screenshots: [
-      '/assets/screenshots/cricket-fusion-wc19/1.jpg',
-      '/assets/screenshots/cricket-fusion-wc19/2.jpg',
-      '/assets/screenshots/cricket-fusion-wc19/3.jpg',
-      '/assets/screenshots/cricket-fusion-wc19/4.jpg',
-    ],
-    status: 'beta',
-    rating: 4.9,
-    downloads: 'Pre-release',
-    category: 'Sports',
-    ageRating: '4+',
-    developer: 'Shiva X Mods',
-    lastUpdated: 'Coming Soon',
-    tags: ['BETA', 'NOVEMBER RELEASE'],
-    compatibility: ['iOS 15+', 'Android 9+'],
-    features: [
-      {
-        category: 'World Cup 2019 Experience',
-        items: [
-          { icon: <Trophy size={16} className="text-yellow-400" />, text: 'World Cup 2019 Scorecards & Main Menu' },
-          { icon: <Film size={16} className="text-yellow-400" />, text: 'Match intro with WC19 graphics' },
-          { icon: <Award size={16} className="text-yellow-400" />, text: 'New trophy celebration scenes' },
-          { icon: <Globe size={16} className="text-yellow-400" />, text: 'All England stadiums (not from RC20)' }
-        ]
-      },
-      {
-        category: 'Audio & Commentary',
-        items: [
-          { icon: <Volume2 size={16} className="text-blue-400" />, text: 'New Hindi and English commentary' },
-          { icon: <Volume2 size={16} className="text-blue-400" />, text: 'Completely new sound effects' },
-          { icon: <Volume2 size={16} className="text-blue-400" />, text: 'Removed all old sound effects' }
-        ]
-      },
-      {
-        category: 'Gameplay & Controls',
-        items: [
-          { icon: <Zap size={16} className="text-green-400" />, text: '200+ new shots with enhanced physics' },
-          { icon: <Joystick size={16} className="text-green-400" />, text: 'New joystick and control system' },
-          { icon: <Activity size={16} className="text-green-400" />, text: 'New QTE System in bowling' },
-          { icon: <Star size={16} className="text-green-400" />, text: 'New celebrations (century, wicket, etc.)' }
-        ]
-      }
-    ]
-  },
-  {
     id: 'cricket-fusion',
     title: 'Cricket Fusion',
     version: '1.5.3',
-    size: 'Coming Soon',
+    size: '512 MB',
     description: 'The legendary cricket experience - completely rebuilt with next-gen features',
     shortDescription: 'Classic cricket, modern features',
     icon: '/assets/game-icons/cricket-fusion.png',
@@ -182,13 +184,14 @@ const gamesData: Game[] = [
       '/assets/screenshots/cricket-fusion/3.jpg',
       '/assets/screenshots/cricket-fusion/4.jpg',
     ],
-    status: 'coming-soon',
+    status: 'available',
+    downloadLink: 'https://linksgo.in/bQAu',
     rating: 4.7,
     downloads: '50K+',
     category: 'Sports',
     ageRating: '4+',
     developer: 'Shiva X Mods',
-    lastUpdated: 'Coming Soon',
+    lastUpdated: '1 week ago',
     compatibility: ['iOS 13+', 'Android 7+', 'Windows 8+'],
     features: [
       {
@@ -226,7 +229,7 @@ const gamesData: Game[] = [
       '/assets/screenshots/cricket-fusion-pro/4.jpg',
     ],
     status: 'available',
-    downloadLink: '#',
+    downloadLink: 'https://linksgo.in/bQAu',
     rating: 4.9,
     downloads: '5K+',
     category: 'Sports',
@@ -258,13 +261,6 @@ const socialLinks = [
     description: "Instant updates and support"
   },
   {
-    name: "Discord",
-    href: "https://discord.gg/nY4hxDvfAb",
-    icon: Gamepad2,
-    color: "bg-indigo-600 hover:bg-indigo-700",
-    description: "Join our relaunched community"
-  },
-  {
     name: "YouTube",
     href: "https://youtube.com/@shivaxmods",
     icon: Film,
@@ -284,14 +280,12 @@ const categories = [
   { id: 'all', name: 'All Games', icon: <Grid size={20} /> },
   { id: 'sports', name: 'Sports', icon: <Trophy size={20} /> },
   { id: 'featured', name: 'Featured', icon: <Star size={20} /> },
-  { id: 'new', name: 'New', icon: <Sparkle size={20} /> },
-  { id: 'popular', name: 'Popular', icon: <TrendingUp size={20} /> },
-  { id: 'upcoming', name: 'Upcoming', icon: <Calendar size={20} /> }
+  { id: 'new', name: 'New Releases', icon: <Sparkle size={20} /> },
+  { id: 'popular', name: 'Popular', icon: <TrendingUp size={20} /> }
 ];
 
 export default function GamesPage() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [expandedGame, setExpandedGame] = useState<string | null>('cricket-fusion-x');
+  const [expandedGame, setExpandedGame] = useState<string | null>('cricket-fusion-wc19');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedGame, setSelectedGame] = useState<Game>(gamesData[0]);
@@ -303,7 +297,6 @@ export default function GamesPage() {
     offset: ["start start", "end start"],
   });
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
-  const screenshotRef = useRef<HTMLDivElement>(null);
 
   const nextScreenshot = () => {
     setCurrentScreenshotIndex(prev => 
@@ -328,9 +321,9 @@ export default function GamesPage() {
         );
       case 'beta':
         return (
-          <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
-            <Sparkles size={12} />
-            Beta
+          <div className="bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1 animate-pulse">
+            <Flame size={12} />
+            BETA LAUNCHED
           </div>
         );
       case 'coming-soon':
@@ -349,20 +342,27 @@ export default function GamesPage() {
         return (
           <Link
             href={game.downloadLink ?? '#'}
-            className="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 text-sm shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 text-sm shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 w-full"
           >
-            <DownloadCloud size={18} /> Get
+            <DownloadCloud size={18} /> Download Now
           </Link>
         );
       case 'beta':
         return (
-          <button className="bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold py-3 px-6 rounded-xl flex items-center justify-center gap-2 text-sm shadow-lg cursor-not-allowed opacity-90">
-            <Clock size={18} /> Pre-order
-          </button>
+          <Link
+            href={game.downloadLink ?? '#'}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-700 hover:to-orange-600 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 text-sm shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 w-full animate-pulse"
+          >
+            <Rocket size={18} /> Download Beta
+          </Link>
         );
       case 'coming-soon':
         return (
-          <button className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-semibold py-3 px-6 rounded-xl flex items-center justify-center gap-2 text-sm shadow-lg cursor-not-allowed opacity-90">
+          <button className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-semibold py-3 px-6 rounded-xl flex items-center justify-center gap-2 text-sm shadow-lg cursor-not-allowed opacity-90 w-full">
             <Bell size={18} /> Notify Me
           </button>
         );
@@ -377,9 +377,8 @@ export default function GamesPage() {
     if (selectedCategory === 'all') return matchesSearch;
     if (selectedCategory === 'sports') return matchesSearch && game.category === 'Sports';
     if (selectedCategory === 'featured') return matchesSearch && game.rating >= 4.8;
-    if (selectedCategory === 'new') return matchesSearch && game.status === 'beta';
+    if (selectedCategory === 'new') return matchesSearch && (game.status === 'beta' || game.tags?.includes('NEW'));
     if (selectedCategory === 'popular') return matchesSearch && game.downloads.includes('K+');
-    if (selectedCategory === 'upcoming') return matchesSearch && game.status === 'coming-soon';
     
     return matchesSearch;
   });
@@ -410,27 +409,24 @@ export default function GamesPage() {
       <header className="fixed w-full z-50 bg-gray-950/90 backdrop-blur-lg border-b border-gray-800">
         <div className="container mx-auto px-6 py-3">
           <div className="flex justify-between items-center">
-            <Link href="/" className="flex items-center gap-2 group">
+            <div className="flex items-center gap-2 group">
               <div className="w-8 h-8 bg-gradient-to-br from-cyan-400 to-purple-500 rounded-lg flex items-center justify-center">
                 <Gamepad2 className="h-4 w-4 text-gray-950" />
               </div>
               <span className="text-lg font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-                App Store
+                SX Games
               </span>
-            </Link>
+            </div>
 
             <nav className="hidden md:flex items-center gap-6">
-              <Link href="/" className="text-sm font-medium text-gray-300 hover:text-cyan-400 transition-colors">
-                Today
+              <Link href="/" className="text-sm font-medium text-cyan-400 transition-colors">
+                Home
               </Link>
-              <Link href="/games" className="text-sm font-medium text-cyan-400 transition-colors">
+              <Link href="/games" className="text-sm font-medium text-gray-300 hover:text-cyan-400 transition-colors">
                 Games
               </Link>
               <Link href="/apps" className="text-sm font-medium text-gray-300 hover:text-cyan-400 transition-colors">
                 Apps
-              </Link>
-              <Link href="/arcade" className="text-sm font-medium text-gray-300 hover:text-cyan-400 transition-colors">
-                Arcade
               </Link>
               <Link href="/search" className="text-sm font-medium text-gray-300 hover:text-cyan-400 transition-colors">
                 Search
@@ -438,22 +434,58 @@ export default function GamesPage() {
             </nav>
 
             <div className="flex items-center gap-3">
-              <button className="p-2 rounded-full hover:bg-gray-800 transition-colors">
-                <Bell className="h-5 w-5" />
-              </button>
-              <button
-                onClick={() => setSidebarOpen(true)}
-                className="p-2 rounded-full hover:bg-gray-800 transition-colors"
+              <Link
+                href="https://t.me/shivaxmods1"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-medium bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white px-4 py-2 rounded-lg transition-all"
               >
-                <User className="h-5 w-5" />
-              </button>
+                Join Telegram
+              </Link>
             </div>
           </div>
         </div>
       </header>
 
+      {/* Beta Launch Announcement */}
+      <section className="pt-16">
+        <div className="container mx-auto px-6 py-6">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="bg-gradient-to-r from-red-600/20 via-red-700/20 to-orange-600/20 border border-red-500/30 rounded-2xl p-6 relative overflow-hidden"
+          >
+            <div className="absolute top-0 right-0 w-64 h-64 bg-red-500/10 rounded-full blur-3xl -translate-y-32 translate-x-32"></div>
+            <div className="relative z-10">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-4">
+                  <div className="bg-red-600 p-3 rounded-xl">
+                    <Rocket className="h-8 w-8 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                      <span className="text-red-400">🔥 CRICKET FUSION BETA LAUNCHED!</span>
+                    </h2>
+                    <p className="text-gray-300 mt-1">World Cup 2019 Edition with 200+ new shots & enhanced physics</p>
+                  </div>
+                </div>
+                <Link
+                  href="https://linksgo.in/bQAu"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-700 hover:to-orange-600 text-white font-bold py-3 px-8 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 whitespace-nowrap"
+                >
+                  <DownloadCloud size={20} /> Download Beta Now
+                </Link>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Main Content */}
-      <main className="pt-16">
+      <main>
         {/* Search Bar */}
         <div className="sticky top-16 z-40 bg-gray-950/90 backdrop-blur-lg border-b border-gray-800">
           <div className="container mx-auto px-6 py-4">
@@ -471,8 +503,8 @@ export default function GamesPage() {
         </div>
 
         {/* Categories */}
-        <div className="container mx-auto px-6 py-4 overflow-x-auto">
-          <div className="flex gap-2 min-w-max">
+        <div className="container mx-auto px-6 py-4">
+          <div className="flex flex-wrap gap-2">
             {categories.map((category) => (
               <button
                 key={category.id}
@@ -486,7 +518,7 @@ export default function GamesPage() {
           </div>
         </div>
 
-        {/* Game Details Section - App Store Style */}
+        {/* Game Details Section */}
         <div className="container mx-auto px-6 py-8">
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Left Column - Game Info */}
@@ -496,15 +528,15 @@ export default function GamesPage() {
                 <div className="flex flex-col lg:flex-row gap-8 items-start">
                   {/* Game Icon */}
                   <div className="relative group">
-                    <div className="w-32 h-32 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-purple-500/20 p-1">
+                    <div className="w-32 h-32 rounded-2xl bg-gradient-to-br from-red-500/20 to-orange-500/20 p-1">
                       <div className="w-full h-full rounded-2xl bg-gray-900 overflow-hidden">
-                        <div className="w-full h-full bg-gradient-to-br from-cyan-500/10 to-purple-500/10 flex items-center justify-center">
-                          <Gamepad2 className="h-16 w-16 text-cyan-400" />
+                        <div className="w-full h-full bg-gradient-to-br from-red-500/10 to-orange-500/10 flex items-center justify-center">
+                          <Trophy className="h-16 w-16 text-red-400" />
                         </div>
                       </div>
                     </div>
-                    <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-cyan-500 to-purple-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-                      EDITOR'S CHOICE
+                    <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                      BETA RELEASE
                     </div>
                   </div>
 
@@ -535,14 +567,16 @@ export default function GamesPage() {
 
                     <p className="text-gray-300 mb-6">{selectedGame.description}</p>
 
-                    <div className="flex items-center gap-4">
+                    <div className="flex flex-col sm:flex-row items-center gap-4">
                       {getStatusButton(selectedGame)}
-                      <button className="p-3 rounded-xl border border-gray-700 hover:bg-gray-800 transition-colors">
-                        <Share2 className="h-5 w-5" />
-                      </button>
-                      <button className="p-3 rounded-xl border border-gray-700 hover:bg-gray-800 transition-colors">
-                        <Heart className="h-5 w-5" />
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button className="p-3 rounded-xl border border-gray-700 hover:bg-gray-800 transition-colors">
+                          <Share2 className="h-5 w-5" />
+                        </button>
+                        <button className="p-3 rounded-xl border border-gray-700 hover:bg-gray-800 transition-colors">
+                          <Heart className="h-5 w-5" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -654,7 +688,7 @@ export default function GamesPage() {
                         <div className="flex items-center gap-4">
                           <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-cyan-500/20 to-purple-500/20 p-1">
                             <div className="w-full h-full rounded-xl bg-gray-900 flex items-center justify-center">
-                              <Gamepad2 className="h-8 w-8 text-cyan-400" />
+                              <Trophy className="h-8 w-8 text-cyan-400" />
                             </div>
                           </div>
                           <div className="flex-1">
@@ -722,7 +756,7 @@ export default function GamesPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredGames.map((game, index) => (
                 <motion.div
                   key={game.id}
@@ -738,7 +772,7 @@ export default function GamesPage() {
                     <div className="flex items-start gap-4 mb-4">
                       <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-cyan-500/20 to-purple-500/20 p-1 flex-shrink-0">
                         <div className="w-full h-full rounded-xl bg-gray-900 flex items-center justify-center">
-                          <Gamepad2 className="h-8 w-8 text-cyan-400" />
+                          <Trophy className="h-8 w-8 text-cyan-400" />
                         </div>
                       </div>
                       <div className="flex-1">
@@ -799,7 +833,7 @@ export default function GamesPage() {
                 <Gamepad2 className="h-4 w-4 text-gray-950" />
               </div>
               <span className="text-lg font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-                Shiva X Store
+                SX Games
               </span>
             </div>
             <p className="text-gray-500 text-sm mb-6">
