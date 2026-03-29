@@ -65,6 +65,34 @@ interface UserStats {
   activeUsers: number
 }
 
+// Toast Notification Component
+const Toast = ({ message, type = 'success', onClose }: { message: string; type?: 'success' | 'error' | 'info'; onClose: () => void }) => {
+  useEffect(() => {
+    const timer = setTimeout(onClose, 3000);
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
+  return (
+    <div className={`fixed top-4 right-4 z-[100] p-4 rounded-2xl backdrop-blur-lg border transition-all duration-300 animate-slide-in ${
+      type === 'success' 
+        ? 'bg-green-500/10 border-green-500/30 text-green-300' 
+        : type === 'error'
+        ? 'bg-red-500/10 border-red-500/30 text-red-300'
+        : 'bg-blue-500/10 border-blue-500/30 text-blue-300'
+    }`}>
+      <div className="flex items-center gap-3">
+        <div className={`w-2 h-2 rounded-full ${
+          type === 'success' ? 'bg-green-400' : type === 'error' ? 'bg-red-400' : 'bg-blue-400'
+        }`}></div>
+        <span className="text-sm font-medium">{message}</span>
+        <button onClick={onClose} className="text-gray-400 hover:text-white transition">
+          <X size={16} />
+        </button>
+      </div>
+    </div>
+  );
+};
+
 export default function AdminOrders() {
   const router = useRouter()
   const [orders, setOrders] = useState<Order[]>([])
@@ -95,6 +123,11 @@ export default function AdminOrders() {
   const [showBulkActions, setShowBulkActions] = useState(false)
   const [notification, setNotification] = useState({ show: false, message: '', type: 'success' as 'success' | 'error' })
 
+  const showNotification = (message: string, type: 'success' | 'error' = 'success') => {
+    setNotification({ show: true, message, type })
+    setTimeout(() => setNotification({ show: false, message: '', type: 'success' }), 3000)
+  }
+
   useEffect(() => {
     const token = localStorage.getItem('authToken')
     if (!token) {
@@ -104,11 +137,6 @@ export default function AdminOrders() {
     loadOrders(token)
     loadUserStats(token)
   }, [router])
-
-  const showNotification = (message: string, type: 'success' | 'error' = 'success') => {
-    setNotification({ show: true, message, type })
-    setTimeout(() => setNotification({ show: false, message: '', type: 'success' }), 3000)
-  }
 
   const loadOrders = async (token?: string) => {
     try {
@@ -211,12 +239,11 @@ export default function AdminOrders() {
       }
 
       // Update local state
-      setOrders(prev => prev.map(order => 
+      const updatedOrders = orders.map(order => 
         order.id === orderId ? { ...order, status } : order
-      ))
-      calculateStats(orders.map(order => 
-        order.id === orderId ? { ...order, status } : order
-      ))
+      )
+      setOrders(updatedOrders)
+      calculateStats(updatedOrders)
       
       showNotification(`Order marked as ${status}`, 'success')
     } catch (err: any) {
@@ -249,8 +276,9 @@ export default function AdminOrders() {
       }
 
       // Remove from local state
-      setOrders(prev => prev.filter(order => order.id !== orderId))
-      calculateStats(orders.filter(order => order.id !== orderId))
+      const updatedOrders = orders.filter(order => order.id !== orderId)
+      setOrders(updatedOrders)
+      calculateStats(updatedOrders)
       
       showNotification('Order deleted successfully', 'success')
     } catch (err: any) {
@@ -258,6 +286,22 @@ export default function AdminOrders() {
     } finally {
       setLoadingId(null)
     }
+  }
+
+  const markAsPaid = async (orderId: string) => {
+    await updateOrderStatus(orderId, 'paid')
+  }
+
+  const cancelOrder = async (orderId: string) => {
+    await updateOrderStatus(orderId, 'cancelled')
+  }
+
+  const confirmOrder = async (orderId: string) => {
+    await updateOrderStatus(orderId, 'confirmed')
+  }
+
+  const markAsDelivered = async (orderId: string) => {
+    await updateOrderStatus(orderId, 'delivered')
   }
 
   const filteredOrders = useMemo(() => {
@@ -311,12 +355,12 @@ export default function AdminOrders() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200'
-      case 'confirmed': return 'bg-blue-100 text-blue-800 border-blue-200'
-      case 'paid': return 'bg-green-100 text-green-800 border-green-200'
-      case 'delivered': return 'bg-purple-100 text-purple-800 border-purple-200'
-      case 'cancelled': return 'bg-red-100 text-red-800 border-red-200'
-      default: return 'bg-gray-100 text-gray-800 border-gray-200'
+      case 'pending': return 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30'
+      case 'confirmed': return 'bg-blue-500/20 text-blue-300 border-blue-500/30'
+      case 'paid': return 'bg-green-500/20 text-green-300 border-green-500/30'
+      case 'delivered': return 'bg-purple-500/20 text-purple-300 border-purple-500/30'
+      case 'cancelled': return 'bg-red-500/20 text-red-300 border-red-500/30'
+      default: return 'bg-gray-500/20 text-gray-300 border-gray-500/30'
     }
   }
 
@@ -331,31 +375,68 @@ export default function AdminOrders() {
     }
   }
 
+  const getStatusActions = (order: Order) => {
+    const actions = []
+    
+    if (order.status === 'pending') {
+      actions.push(
+        { label: 'Confirm', action: () => confirmOrder(order.id), color: 'blue', icon: CheckCircle },
+        { label: 'Paid', action: () => markAsPaid(order.id), color: 'green', icon: CreditCard },
+        { label: 'Cancel', action: () => cancelOrder(order.id), color: 'red', icon: Ban }
+      )
+    } else if (order.status === 'confirmed') {
+      actions.push(
+        { label: 'Paid', action: () => markAsPaid(order.id), color: 'green', icon: CreditCard },
+        { label: 'Cancel', action: () => cancelOrder(order.id), color: 'red', icon: Ban }
+      )
+    } else if (order.status === 'paid') {
+      actions.push(
+        { label: 'Deliver', action: () => markAsDelivered(order.id), color: 'purple', icon: Truck },
+        { label: 'Cancel', action: () => cancelOrder(order.id), color: 'red', icon: Ban }
+      )
+    } else if (order.status === 'delivered') {
+      // No status actions for delivered orders
+    }
+    
+    return actions
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-purple-900">
+      {/* Notification */}
+      {notification.show && (
+        <Toast 
+          message={notification.message} 
+          type={notification.type} 
+          onClose={() => setNotification({ show: false, message: '', type: 'success' })} 
+        />
+      )}
+
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-gray-800/30 backdrop-blur-xl sticky top-0 z-40 border-b border-purple-800/20">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center space-x-4">
-              <div className="p-2 bg-indigo-600 rounded-lg">
+              <div className="p-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl">
                 <ShoppingCart className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Order Management</h1>
-                <p className="text-sm text-gray-600">Manage and track customer orders</p>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                  Order Management
+                </h1>
+                <p className="text-sm text-gray-400">Manage and track customer orders</p>
               </div>
             </div>
             <div className="flex space-x-3 mt-4 sm:mt-0">
               <button
                 onClick={() => loadOrders()}
                 disabled={isLoading}
-                className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors disabled:opacity-50"
+                className="inline-flex items-center px-4 py-2 border border-gray-600/50 rounded-xl text-sm font-medium text-gray-300 bg-gray-800/50 hover:bg-gray-700/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors disabled:opacity-50 backdrop-blur-sm"
               >
                 <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
                 Refresh
               </button>
-              <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+              <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-xl shadow-sm text-white bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors">
                 <Download className="h-4 w-4 mr-2" />
                 Export
               </button>
@@ -366,41 +447,15 @@ export default function AdminOrders() {
 
       {/* Main content */}
       <main className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-        {/* Notification */}
-        {notification.show && (
-          <div className={`mb-6 p-4 rounded-xl border ${
-            notification.type === 'success' 
-              ? 'bg-green-50 border-green-200' 
-              : 'bg-red-50 border-red-200'
-          }`}>
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                {notification.type === 'success' ? (
-                  <CheckCircle2 className="h-5 w-5 text-green-400" />
-                ) : (
-                  <AlertCircle className="h-5 w-5 text-red-400" />
-                )}
-              </div>
-              <div className="ml-3">
-                <p className={`text-sm font-medium ${
-                  notification.type === 'success' ? 'text-green-800' : 'text-red-800'
-                }`}>
-                  {notification.message}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Error Display */}
         {error && (
-          <div className="mb-6 bg-red-50 border-l-4 border-red-400 p-4 rounded-r-lg">
+          <div className="mb-6 bg-red-500/10 border-l-4 border-red-400 p-4 rounded-r-xl backdrop-blur-sm">
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <AlertCircle className="h-5 w-5 text-red-400" />
               </div>
               <div className="ml-3">
-                <p className="text-sm text-red-700">{error}</p>
+                <p className="text-sm text-red-300">{error}</p>
               </div>
             </div>
           </div>
@@ -408,85 +463,85 @@ export default function AdminOrders() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-6 mb-8">
-          <div className="bg-white overflow-hidden shadow rounded-xl border border-gray-200">
+          <div className="bg-gray-800/40 backdrop-blur-sm overflow-hidden shadow-lg rounded-2xl border border-gray-700/50">
             <div className="px-4 py-5 sm:p-6">
               <div className="flex items-center">
-                <div className="flex-shrink-0 bg-indigo-500 rounded-lg p-3">
+                <div className="flex-shrink-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl p-3">
                   <ShoppingCart className="h-6 w-6 text-white" />
                 </div>
                 <div className="ml-4 flex-1">
-                  <dt className="text-sm font-medium text-gray-500 truncate">Total Orders</dt>
-                  <dd className="text-2xl font-semibold text-gray-900">{stats.total}</dd>
+                  <dt className="text-sm font-medium text-gray-400 truncate">Total Orders</dt>
+                  <dd className="text-2xl font-semibold text-white">{stats.total}</dd>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="bg-white overflow-hidden shadow rounded-xl border border-gray-200">
+          <div className="bg-gray-800/40 backdrop-blur-sm overflow-hidden shadow-lg rounded-2xl border border-gray-700/50">
             <div className="px-4 py-5 sm:p-6">
               <div className="flex items-center">
-                <div className="flex-shrink-0 bg-yellow-500 rounded-lg p-3">
-                  <Clock className="h-6 w-6 text-white" />
+                <div className="flex-shrink-0 bg-yellow-500/20 rounded-xl p-3">
+                  <Clock className="h-6 w-6 text-yellow-400" />
                 </div>
                 <div className="ml-4 flex-1">
-                  <dt className="text-sm font-medium text-gray-500 truncate">Pending</dt>
-                  <dd className="text-2xl font-semibold text-gray-900">{stats.pending}</dd>
+                  <dt className="text-sm font-medium text-gray-400 truncate">Pending</dt>
+                  <dd className="text-2xl font-semibold text-white">{stats.pending}</dd>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="bg-white overflow-hidden shadow rounded-xl border border-gray-200">
+          <div className="bg-gray-800/40 backdrop-blur-sm overflow-hidden shadow-lg rounded-2xl border border-gray-700/50">
             <div className="px-4 py-5 sm:p-6">
               <div className="flex items-center">
-                <div className="flex-shrink-0 bg-blue-500 rounded-lg p-3">
-                  <CheckCircle className="h-6 w-6 text-white" />
+                <div className="flex-shrink-0 bg-blue-500/20 rounded-xl p-3">
+                  <CheckCircle className="h-6 w-6 text-blue-400" />
                 </div>
                 <div className="ml-4 flex-1">
-                  <dt className="text-sm font-medium text-gray-500 truncate">Confirmed</dt>
-                  <dd className="text-2xl font-semibold text-gray-900">{stats.confirmed}</dd>
+                  <dt className="text-sm font-medium text-gray-400 truncate">Confirmed</dt>
+                  <dd className="text-2xl font-semibold text-white">{stats.confirmed}</dd>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="bg-white overflow-hidden shadow rounded-xl border border-gray-200">
+          <div className="bg-gray-800/40 backdrop-blur-sm overflow-hidden shadow-lg rounded-2xl border border-gray-700/50">
             <div className="px-4 py-5 sm:p-6">
               <div className="flex items-center">
-                <div className="flex-shrink-0 bg-green-500 rounded-lg p-3">
-                  <CreditCard className="h-6 w-6 text-white" />
+                <div className="flex-shrink-0 bg-green-500/20 rounded-xl p-3">
+                  <CreditCard className="h-6 w-6 text-green-400" />
                 </div>
                 <div className="ml-4 flex-1">
-                  <dt className="text-sm font-medium text-gray-500 truncate">Paid</dt>
-                  <dd className="text-2xl font-semibold text-gray-900">{stats.paid}</dd>
+                  <dt className="text-sm font-medium text-gray-400 truncate">Paid</dt>
+                  <dd className="text-2xl font-semibold text-white">{stats.paid}</dd>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="bg-white overflow-hidden shadow rounded-xl border border-gray-200">
+          <div className="bg-gray-800/40 backdrop-blur-sm overflow-hidden shadow-lg rounded-2xl border border-gray-700/50">
             <div className="px-4 py-5 sm:p-6">
               <div className="flex items-center">
-                <div className="flex-shrink-0 bg-purple-500 rounded-lg p-3">
-                  <Truck className="h-6 w-6 text-white" />
+                <div className="flex-shrink-0 bg-purple-500/20 rounded-xl p-3">
+                  <Truck className="h-6 w-6 text-purple-400" />
                 </div>
                 <div className="ml-4 flex-1">
-                  <dt className="text-sm font-medium text-gray-500 truncate">Delivered</dt>
-                  <dd className="text-2xl font-semibold text-gray-900">{stats.delivered}</dd>
+                  <dt className="text-sm font-medium text-gray-400 truncate">Delivered</dt>
+                  <dd className="text-2xl font-semibold text-white">{stats.delivered}</dd>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="bg-white overflow-hidden shadow rounded-xl border border-gray-200">
+          <div className="bg-gray-800/40 backdrop-blur-sm overflow-hidden shadow-lg rounded-2xl border border-gray-700/50">
             <div className="px-4 py-5 sm:p-6">
               <div className="flex items-center">
-                <div className="flex-shrink-0 bg-red-500 rounded-lg p-3">
-                  <Ban className="h-6 w-6 text-white" />
+                <div className="flex-shrink-0 bg-red-500/20 rounded-xl p-3">
+                  <Ban className="h-6 w-6 text-red-400" />
                 </div>
                 <div className="ml-4 flex-1">
-                  <dt className="text-sm font-medium text-gray-500 truncate">Cancelled</dt>
-                  <dd className="text-2xl font-semibold text-gray-900">{stats.cancelled}</dd>
+                  <dt className="text-sm font-medium text-gray-400 truncate">Cancelled</dt>
+                  <dd className="text-2xl font-semibold text-white">{stats.cancelled}</dd>
                 </div>
               </div>
             </div>
@@ -494,11 +549,11 @@ export default function AdminOrders() {
         </div>
 
         {/* Filters and Controls */}
-        <div className="bg-white shadow rounded-xl border border-gray-200 mb-6">
-          <div className="px-6 py-4 border-b border-gray-200">
+        <div className="bg-gray-800/40 backdrop-blur-sm shadow-lg rounded-2xl border border-gray-700/50 mb-6">
+          <div className="px-6 py-4 border-b border-gray-700/50">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
               {/* Tabs */}
-              <div className="flex space-x-1 bg-gray-100 rounded-lg p-1">
+              <div className="flex space-x-1 bg-gray-900/50 rounded-xl p-1">
                 {[
                   { id: 'all', label: 'All', count: stats.total },
                   { id: 'pending', label: 'Pending', count: stats.pending },
@@ -510,10 +565,10 @@ export default function AdminOrders() {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${
                       activeTab === tab.id
-                        ? 'bg-white text-indigo-700 shadow-sm'
-                        : 'text-gray-600 hover:text-gray-900'
+                        ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg'
+                        : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
                     }`}
                   >
                     {tab.label} ({tab.count})
@@ -530,7 +585,7 @@ export default function AdminOrders() {
                     placeholder="Search orders..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 w-full sm:w-64"
+                    className="pl-10 pr-4 py-2 bg-gray-900/50 border border-gray-600/50 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 w-full sm:w-64 text-white placeholder-gray-400"
                   />
                 </div>
                 <select
@@ -540,7 +595,7 @@ export default function AdminOrders() {
                     setSortBy(sort as any)
                     setSortOrder(order as any)
                   }}
-                  className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="bg-gray-900/50 border border-gray-600/50 rounded-xl px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-white"
                 >
                   <option value="date-desc">Newest First</option>
                   <option value="date-asc">Oldest First</option>
@@ -557,13 +612,13 @@ export default function AdminOrders() {
           <div className="overflow-hidden">
             {isLoading ? (
               <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
               </div>
             ) : filteredOrders.length === 0 ? (
               <div className="text-center py-12">
-                <Package className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No orders found</h3>
-                <p className="text-gray-500 max-w-sm mx-auto">
+                <Package className="mx-auto h-12 w-12 text-gray-500 mb-4" />
+                <h3 className="text-lg font-medium text-white mb-2">No orders found</h3>
+                <p className="text-gray-400 max-w-sm mx-auto">
                   {searchTerm || activeTab !== 'all' 
                     ? 'Try adjusting your search or filter criteria'
                     : 'No orders have been placed yet'
@@ -572,56 +627,56 @@ export default function AdminOrders() {
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                <table className="min-w-full divide-y divide-gray-700/50">
+                  <thead className="bg-gray-900/30">
                     <tr>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                         Order Details
                       </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                         Customer
                       </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                         Amount
                       </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                         Date
                       </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                         Status
                       </th>
-                      <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
                         Actions
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="bg-gray-800/20 divide-y divide-gray-700/50">
                     {filteredOrders.map((order) => (
-                      <tr key={order.id} className="hover:bg-gray-50 transition-colors">
+                      <tr key={order.id} className="hover:bg-gray-700/30 transition-colors">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div>
-                            <div className="text-sm font-medium text-gray-900">
+                            <div className="text-sm font-medium text-white">
                               #{order.id.slice(-8)}
                             </div>
-                            <div className="text-sm text-gray-500">
+                            <div className="text-sm text-gray-400">
                               {order.items?.length || 0} items
                             </div>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div>
-                            <div className="text-sm font-medium text-gray-900">
+                            <div className="text-sm font-medium text-white">
                               {order.user_name || 'Guest'}
                             </div>
-                            <div className="text-sm text-gray-500">
+                            <div className="text-sm text-gray-400">
                               {order.user_email || 'No email'}
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-white">
                           ₹{order.total.toFixed(2)}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
                           {new Date(order.created_at).toLocaleDateString('en-IN', {
                             day: 'numeric',
                             month: 'short',
@@ -637,32 +692,22 @@ export default function AdminOrders() {
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <div className="flex items-center justify-end space-x-2">
                             {/* Status Update Buttons */}
-                            {order.status !== 'paid' && (
+                            {getStatusActions(order).map((action, idx) => (
                               <button
-                                onClick={() => updateOrderStatus(order.id, 'paid')}
+                                key={idx}
+                                onClick={action.action}
                                 disabled={loadingId === order.id}
-                                className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-lg text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 transition-colors"
+                                className={`inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-lg text-white bg-${action.color}-600 hover:bg-${action.color}-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-${action.color}-500 disabled:opacity-50 transition-colors`}
                               >
-                                <CreditCard className="w-3 h-3 mr-1" />
-                                Paid
+                                <action.icon className="w-3 h-3 mr-1" />
+                                {action.label}
                               </button>
-                            )}
-                            
-                            {order.status !== 'cancelled' && (
-                              <button
-                                onClick={() => updateOrderStatus(order.id, 'cancelled')}
-                                disabled={loadingId === order.id}
-                                className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-lg text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 transition-colors"
-                              >
-                                <Ban className="w-3 h-3 mr-1" />
-                                Cancel
-                              </button>
-                            )}
+                            ))}
 
                             {/* View Button */}
                             <button
                               onClick={() => router.push(`/admin/orders/${order.id}`)}
-                              className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+                              className="inline-flex items-center px-3 py-1.5 border border-gray-600/50 text-xs font-medium rounded-lg text-gray-300 bg-gray-700/50 hover:bg-gray-600/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors"
                             >
                               <Eye className="w-3 h-3 mr-1" />
                               View
